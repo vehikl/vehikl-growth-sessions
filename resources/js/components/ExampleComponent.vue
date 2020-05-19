@@ -1,23 +1,13 @@
 <template>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">Example Component</div>
-
-                    <div class="card-body">
-                        I'm an example component.
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div>
+        Example Component
     </div>
 </template>
 
-<script>
-    export default {
-        mounted() {
-            console.log('Component mounted.')
-        }
+<script lang="ts">
+    import {Vue, Component} from 'vue-property-decorator';
+
+    @Component
+    export default class ExampleComponent extends Vue {
     }
 </script>

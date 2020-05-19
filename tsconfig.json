@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "experimentalDecorators": true
+  },
+  "include": [
+    "resources/js/**/*",
+    "tests/js/**/*.ts"
+  ]
+}
