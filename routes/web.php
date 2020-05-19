@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Auth::routes();
+Route::get('login/github', 'Auth\LoginController@redirectToProvider')->name('oauth.login.redirect');
+Route::get('oauth/callback', 'Auth\LoginController@handleProviderCallback')->name('oauth.login.callback');
+
+Route::get('/home', 'HomeController@index')->name('home');
