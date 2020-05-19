@@ -1,10 +1,10 @@
 @extends('layouts.app')
 @section('content')
-    <div class="title m-b-md">
+    <div>
         Laravel
     </div>
 
-    <div class="links">
+    <div>
         <example-component/>
     </div>
 @endsection

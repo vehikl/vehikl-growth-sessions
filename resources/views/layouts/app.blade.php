@@ -21,49 +21,49 @@
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
-            <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
+        <nav class="bg-blue-100">
+            <div>
+                <a href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
                 </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                    <span class="navbar-toggler-icon"></span>
+                <button type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
+                    <span></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav mr-auto">
+                    <ul>
 
                     </ul>
 
                     <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ml-auto">
+                    <ul>
                         <!-- Authentication Links -->
                         @guest
-                            <li class="nav-item">
+                            <li>
                                 @if (Route::has('login'))
-                                    <div class="top-right links">
+                                    <div>
                                         @auth
-                                            <a class="nav-link" href="{{ url('/home') }}">Home</a>
+                                            <a href="{{ url('/home') }}">Home</a>
                                         @else
-                                            <a class="nav-link" href="{{ route('oauth.login.redirect') }}">Login with Github</a>
-                                            <a class="nav-link" href="{{ route('login') }}">Login</a>
+                                            <a href="{{ route('oauth.login.redirect') }}">Login with Github</a>
+                                            <a href="{{ route('login') }}">Login</a>
 
                                             @if (Route::has('register'))
-                                                <a class="nav-link" href="{{ route('register') }}">Register</a>
+                                                <a href="{{ route('register') }}">Register</a>
                                             @endif
                                         @endauth
                                     </div>
                                 @endif
                             </li>
                         @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }} <span class="caret"></span>
+                            <li>
+                                <a id="navbarDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    {{ Auth::user()->name }} <span></span>
                                 </a>
 
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                <div aria-labelledby="navbarDropdown">
+                                    <a href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
@@ -80,7 +80,7 @@
             </div>
         </nav>
 
-        <main class="py-4">
+        <main>
             @yield('content')
         </main>
     </div>
