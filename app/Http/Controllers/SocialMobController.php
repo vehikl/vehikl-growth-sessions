@@ -22,6 +22,12 @@ class SocialMobController extends Controller
         $request->user()->socialMobs()->save(new SocialMob($request->all()));
     }
 
+    public function join(SocialMob $socialMob, Request $request)
+    {
+        dd('hey');
+        $socialMob->users()->attach($request->user());
+    }
+
     public function show(SocialMob $socialMob)
     {
         //

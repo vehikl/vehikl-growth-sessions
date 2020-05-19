@@ -23,4 +23,5 @@ Route::get('login/github', 'Auth\LoginController@redirectToProvider')->name('oau
 Route::get('oauth/callback', 'Auth\LoginController@handleProviderCallback')->name('oauth.login.callback');
 
 Route::get('/home', 'HomeController@index')->name('home');
-Route::resource('social-mob', 'SocialMobController');
+Route::resource('social_mob', 'SocialMobController');
+Route::post('social_mob/{social_mob}/join', 'SocialMobController@join')->name('social_mob.join');

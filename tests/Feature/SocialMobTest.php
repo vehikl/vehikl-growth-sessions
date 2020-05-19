@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\SocialMob;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,11 +15,23 @@ class SocialMobTest extends TestCase
     {
         $user = factory(User::class)->create();
         $topic = 'The fundamentals of foo';
-        $this->actingAs($user)->postJson(route('social-mob.store'), [
-           'topic' => $topic,
-           'start_time' => now(),
+        $this->actingAs($user)->postJson(route('social_mob.store'), [
+            'topic' => $topic,
+            'start_time' => now(),
         ])->assertSuccessful();
 
         $this->assertEquals($topic, $user->socialMobs->first()->topic);
+    }
+
+    public function testAGivenUserCanRSVPToASocialMob()
+    {
+        $existingSocialMob = factory(SocialMob::class)->create();
+        $user = factory(User::class)->create();
+
+        $this->actingAs($user)
+            ->postJson(route('social_mob.join', ['social_mob' => $existingSocialMob->id]))
+            ->assertSuccessful();
+
+        $this->assertEquals($user, $existingSocialMob->users->first());
     }
 }

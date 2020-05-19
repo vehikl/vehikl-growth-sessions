@@ -14,6 +14,8 @@ class CreateSocialMobsTable extends Migration
             $table->string('topic');
             $table->dateTime('start_time');
             $table->timestamps();
+
+            $table->foreign('owner_id')->references('id')->on('users');
         });
     }
 
