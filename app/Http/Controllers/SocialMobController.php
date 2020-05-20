@@ -30,7 +30,7 @@ class SocialMobController extends Controller
 
     public function join(SocialMob $socialMob, Request $request)
     {
-        $socialMob->users()->attach($request->user());
+        $socialMob->attendees()->attach($request->user());
     }
 
     public function show(SocialMob $socialMob)

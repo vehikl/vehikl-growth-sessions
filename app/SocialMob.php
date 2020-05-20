@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SocialMob extends Model
 {
-    protected $with = ['owner', 'users'];
+    protected $with = ['owner', 'attendees'];
 
     protected $fillable = [
         'topic',
@@ -20,7 +20,7 @@ class SocialMob extends Model
         return $this->belongsTo(User::class, 'owner_id');
     }
 
-    public function users()
+    public function attendees()
     {
         return $this->belongsToMany(User::class);
     }
