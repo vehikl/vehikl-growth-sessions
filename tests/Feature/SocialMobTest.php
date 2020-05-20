@@ -33,7 +33,7 @@ class SocialMobTest extends TestCase
             ->postJson(route('social_mob.join', ['social_mob' => $existingSocialMob->id]))
             ->assertSuccessful();
 
-        $this->assertEquals($user->id, $existingSocialMob->users->first()->id);
+        $this->assertEquals($user->id, $existingSocialMob->attendees->first()->id);
     }
 
     public function testItCanProvideAllSocialMobsOfTheCurrentWeek()
