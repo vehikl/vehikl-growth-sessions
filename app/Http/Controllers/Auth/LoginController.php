@@ -33,7 +33,7 @@ class LoginController extends Controller
         $socialMobUser = User::query()->where('email', $githubUser->email)->first();
         if (! $socialMobUser) {
             $socialMobUser = User::query()->create([
-                'name' => $githubUser->getEmail(),
+                'name' => $githubUser->getName(),
                 'email' => $githubUser->getEmail(),
                 'avatar' => $githubUser->getAvatar(),
                 'password' => Hash::make(Str::random()),

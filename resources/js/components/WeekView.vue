@@ -5,31 +5,31 @@
                 <h3 class="text-lg font-semibold">Monday</h3>
                 <div v-for="socialMob in socialMobs.monday"
                      :key="socialMob.id"
-                     v-text="socialMob.topic"/>
+                     v-text="`${socialMob.topic} by ${socialMob.owner.name}`"/>
             </div>
             <div class="flex-1 text-center">
                 <h3 class="text-lg font-semibold">Tuesday</h3>
                 <div v-for="socialMob in socialMobs.tuesday"
                      :key="socialMob.id"
-                     v-text="socialMob.topic"/>
+                     v-text="`${socialMob.topic} by ${socialMob.owner.name}`"/>
             </div>
             <div class="flex-1 text-center">
                 <h3 class="text-lg font-semibold">Wednesday</h3>
                 <div v-for="socialMob in socialMobs.wednesday"
                      :key="socialMob.id"
-                     v-text="socialMob.topic"/>
+                     v-text="`${socialMob.topic} by ${socialMob.owner.name}`"/>
             </div>
             <div class="flex-1 text-center">
                 <h3 class="text-lg font-semibold">Thursday</h3>
                 <div v-for="socialMob in socialMobs.thursday"
                      :key="socialMob.id"
-                     v-text="socialMob.topic"/>
+                     v-text="`${socialMob.topic} by ${socialMob.owner.name}`"/>
             </div>
             <div class="flex-1 text-center">
                 <h3 class="text-lg font-semibold">Friday</h3>
                 <div v-for="socialMob in socialMobs.friday"
                      :key="socialMob.id"
-                     v-text="socialMob.topic"/>
+                     v-text="`${socialMob.topic} by ${socialMob.owner.name}`"/>
             </div>
         </div>
     </div>

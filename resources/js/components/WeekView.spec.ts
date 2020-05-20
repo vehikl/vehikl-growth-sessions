@@ -28,6 +28,5 @@ describe('WeekView', () => {
         for (let topic of topicsOfTheWeek) {
             expect(wrapper.text()).toContain(topic);
         }
-
     });
 });
