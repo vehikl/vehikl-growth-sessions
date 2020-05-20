@@ -14,9 +14,5 @@ export interface ISocialMob {
 }
 
 export interface IWeekMobs {
-    monday: ISocialMob[],
-    tuesday: ISocialMob[],
-    wednesday: ISocialMob[],
-    thursday: ISocialMob[],
-    friday: ISocialMob[],
+    [dateString: string]: ISocialMob[],
 }

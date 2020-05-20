@@ -34,7 +34,7 @@ describe('WeekView', () => {
 
     it('loads with the current week socials in display', () => {
         const week = socialsThisWeek as unknown as IWeekMobs;
-        const mobsOfTheWeek = [...week.monday, ...week.tuesday, ...week.wednesday, ...week.thursday, ...week.friday];
+        const mobsOfTheWeek = Object.values(week).flat();
         const topicsOfTheWeek = mobsOfTheWeek.map((social: ISocialMob) => social.topic);
         for (let topic of topicsOfTheWeek) {
             expect(wrapper.text()).toContain(topic);

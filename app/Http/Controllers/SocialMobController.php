@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\JoinSocialMobRequest;
 use App\SocialMob;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -24,15 +25,20 @@ class SocialMobController extends Controller
     {
         /** @var Collection $weekMobs */
         $weekMobs = SocialMob::query()->thisWeek()->orderBy('start_time')->get();
+        $MONDAY = 1;
+        $startPoint = now()->isDayOfWeek($MONDAY) ? Carbon::today() : Carbon::parse('Last Monday');
+        $startPoint = $startPoint->toImmutable();
+
         $response = [
-            'monday' => [],
-            'tuesday' => [],
-            'wednesday' => [],
-            'thursday' => [],
-            'friday' => []
+            $startPoint->toDateString() => [],
+            $startPoint->addDays(1)->toDateString() => [],
+            $startPoint->addDays(2)->toDateString() => [],
+            $startPoint->addDays(3)->toDateString() => [],
+            $startPoint->addDays(4)->toDateString() => []
         ];
         foreach ($weekMobs as $mob) {
-            array_push($response[$mob->dayOfTheWeek()], $mob->toArray());
+            $mobDate = Carbon::parse($mob->start_time)->toDateString();
+            array_push($response[$mobDate], $mob->toArray());
         }
 
         return $response;

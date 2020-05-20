@@ -66,7 +66,9 @@ class SocialMobTest extends TestCase
 
     public function testItCanProvideAllSocialMobsOfTheCurrentWeek()
     {
-        Carbon::setTestNow('First Monday of 2020');
+        $this->withoutExceptionHandling();
+        Carbon::setTestNow('First Monday');
+
         $mondaySocial = factory(SocialMob::class)
             ->create(['start_time' => now()->toDateTimeString()])
             ->toArray();
@@ -83,11 +85,11 @@ class SocialMobTest extends TestCase
             ->create(['start_time' => now()->addDays(8)->toDateTimeString()]); // Socials on another week
 
         $expectedResponse = [
-            'monday' => [$mondaySocial],
-            'tuesday' => [],
-            'wednesday' => [$earlyWednesdaySocial, $lateWednesdaySocial],
-            'thursday' => [],
-            'friday' => [$fridaySocial]
+            now()->toDateString() => [$mondaySocial],
+            Carbon::parse('First Tuesday')->toDateString() => [],
+            Carbon::parse('First Wednesday')->toDateString() => [$earlyWednesdaySocial, $lateWednesdaySocial],
+            Carbon::parse('First Thursday')->toDateString() => [],
+            Carbon::parse('First Friday')->toDateString() => [$fridaySocial],
         ];
 
         $response = $this->getJson(route('social_mob.week'));

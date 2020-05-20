@@ -1,80 +1,84 @@
 {
-    "monday": [
+    "2020-05-25": [
         {
             "id": 1,
             "owner_id": 1,
-            "topic": "Possimus animi ex occaecati voluptas mollitia deleniti.",
-            "start_time": "2020-05-04 20:20:00",
-            "created_at": "2020-05-04T20:20:00.000000Z",
-            "updated_at": "2020-05-04T20:20:00.000000Z",
+            "topic": "Excepturi aut molestias rem ratione et exercitationem et tenetur.",
+            "location": "At AnyDesk XYZ - abcdefg",
+            "start_time": "2020-05-25 00:00:00",
+            "created_at": "2020-05-25T00:00:00.000000Z",
+            "updated_at": "2020-05-25T00:00:00.000000Z",
             "owner": {
                 "id": 1,
-                "name": "Leopold Hane",
-                "avatar": "https:\/\/lorempixel.com\/640\/480\/?12362",
-                "email": "nhilpert@example.org",
-                "email_verified_at": "2020-05-04T20:20:00.000000Z",
-                "created_at": "2020-05-04T20:20:00.000000Z",
-                "updated_at": "2020-05-04T20:20:00.000000Z"
+                "name": "Lyda Boyer PhD",
+                "avatar": "https:\/\/lorempixel.com\/640\/480\/?62077",
+                "email": "jena.leffler@example.org",
+                "email_verified_at": "2020-05-25T00:00:00.000000Z",
+                "created_at": "2020-05-25T00:00:00.000000Z",
+                "updated_at": "2020-05-25T00:00:00.000000Z"
             },
             "attendees": []
         }
     ],
-    "tuesday": [],
-    "wednesday": [
+    "2020-05-26": [],
+    "2020-05-27": [
         {
             "id": 3,
             "owner_id": 3,
-            "topic": "Nulla alias ea temporibus deleniti.",
-            "start_time": "2020-05-06 20:20:00",
-            "created_at": "2020-05-04T20:20:00.000000Z",
-            "updated_at": "2020-05-04T20:20:00.000000Z",
+            "topic": "Sapiente tempora expedita ipsa hic et est doloribus.",
+            "location": "At AnyDesk XYZ - abcdefg",
+            "start_time": "2020-05-27 00:00:00",
+            "created_at": "2020-05-25T00:00:00.000000Z",
+            "updated_at": "2020-05-25T00:00:00.000000Z",
             "owner": {
                 "id": 3,
-                "name": "Miss Aliya White",
-                "avatar": "https:\/\/lorempixel.com\/640\/480\/?63660",
-                "email": "gmoen@example.com",
-                "email_verified_at": "2020-05-04T20:20:00.000000Z",
-                "created_at": "2020-05-04T20:20:00.000000Z",
-                "updated_at": "2020-05-04T20:20:00.000000Z"
+                "name": "Rosario Dicki",
+                "avatar": "https:\/\/lorempixel.com\/640\/480\/?46052",
+                "email": "eldridge75@example.org",
+                "email_verified_at": "2020-05-25T00:00:00.000000Z",
+                "created_at": "2020-05-25T00:00:00.000000Z",
+                "updated_at": "2020-05-25T00:00:00.000000Z"
             },
             "attendees": []
         },
         {
             "id": 2,
             "owner_id": 2,
-            "topic": "Nemo ipsa est aliquam error dolor et.",
-            "start_time": "2020-05-06 22:20:00",
-            "created_at": "2020-05-04T20:20:00.000000Z",
-            "updated_at": "2020-05-04T20:20:00.000000Z",
+            "topic": "Est dolores minima quasi magni quia.",
+            "location": "At AnyDesk XYZ - abcdefg",
+            "start_time": "2020-05-27 02:00:00",
+            "created_at": "2020-05-25T00:00:00.000000Z",
+            "updated_at": "2020-05-25T00:00:00.000000Z",
             "owner": {
                 "id": 2,
-                "name": "Kariane Murphy",
-                "avatar": "https:\/\/lorempixel.com\/640\/480\/?33386",
-                "email": "casandra66@example.com",
-                "email_verified_at": "2020-05-04T20:20:00.000000Z",
-                "created_at": "2020-05-04T20:20:00.000000Z",
-                "updated_at": "2020-05-04T20:20:00.000000Z"
+                "name": "Dr. Eryn O'Hara",
+                "avatar": "https:\/\/lorempixel.com\/640\/480\/?84426",
+                "email": "vilma.schultz@example.org",
+                "email_verified_at": "2020-05-25T00:00:00.000000Z",
+                "created_at": "2020-05-25T00:00:00.000000Z",
+                "updated_at": "2020-05-25T00:00:00.000000Z"
             },
             "attendees": []
         }
     ],
-    "thursday": [],
-    "friday": [
+    "2020-05-28": [],
+    "2020-05-29": [
         {
             "id": 4,
             "owner_id": 4,
-            "topic": "Enim ipsam velit fugiat corrupti ab excepturi placeat.",
-            "start_time": "2020-05-08 20:20:00",
-            "created_at": "2020-05-04T20:20:00.000000Z",
-            "updated_at": "2020-05-04T20:20:00.000000Z",
+            "topic": "Tenetur commodi laudantium architecto et quo doloribus.",
+            "location": "At AnyDesk XYZ - abcdefg",
+            "start_time": "2020-05-29 00:00:00",
+            "created_at": "2020-05-25T00:00:00.000000Z",
+            "updated_at": "2020-05-25T00:00:00.000000Z",
             "owner": {
                 "id": 4,
-                "name": "Clement Tremblay",
-                "avatar": "https:\/\/lorempixel.com\/640\/480\/?69663",
-                "email": "hill.columbus@example.net",
-                "email_verified_at": "2020-05-04T20:20:00.000000Z",
-                "created_at": "2020-05-04T20:20:00.000000Z",
-                "updated_at": "2020-05-04T20:20:00.000000Z"
+                "name": "Prof. Brent Ruecker",
+                "avatar": "https:\/\/lorempixel.com\/640\/480\/?19889",
+                "email": "jennie.homenick@example.net",
+                "email_verified_at": "2020-05-25T00:00:00.000000Z",
+                "created_at": "2020-05-25T00:00:00.000000Z",
+                "updated_at": "2020-05-25T00:00:00.000000Z"
             },
             "attendees": []
         }
