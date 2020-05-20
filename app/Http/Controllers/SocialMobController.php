@@ -4,12 +4,18 @@ namespace App\Http\Controllers;
 
 use App\SocialMob;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class SocialMobController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $filter = Str::lower($request->input('filter'));
+        if ($filter === 'week') {
+            return SocialMob::query()->thisWeek()->get();
+        }
+
+        return SocialMob::all();
     }
 
     public function create()
@@ -24,7 +30,6 @@ class SocialMobController extends Controller
 
     public function join(SocialMob $socialMob, Request $request)
     {
-        dd('hey');
         $socialMob->users()->attach($request->user());
     }
 
