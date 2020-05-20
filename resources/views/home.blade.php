@@ -1,7 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-    <div>
-        <week-view/>
-    </div>
+    @guest
+        <week-view></week-view>
+    @endguest
+
+    @auth
+        <week-view :user="{{ json_encode(auth()->user()) }}"></week-view>
+    @endauth
 @endsection
