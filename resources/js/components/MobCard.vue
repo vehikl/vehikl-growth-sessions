@@ -12,15 +12,11 @@
         <h4 class="my-4" v-text="socialMob.topic"/>
         <div class="flex justify-between">
             <div class="flex items-center attendees-count">
-                <span class="material-icons text-purple-700">
-                    supervisor_account
-                </span>
+                <i class="fa fa-user-circle text-lg text-purple-700 mr-2" aria-hidden="true"></i>
                 <span v-text="socialMob.attendees.length"/>
             </div>
             <div class="flex items-center">
-                <span class="material-icons text-purple-700">
-                    query_builder
-                </span>
+                <i class="fa fa-clock-o text-lg text-purple-700 mr-2" aria-hidden="true"></i>
                 <span v-text="timeDisplayed"/>
             </div>
             <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Join</button>

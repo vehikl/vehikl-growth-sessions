@@ -1,9 +1,7 @@
 <nav class="bg-purple-500 p-6">
     <div class="container flex items-center  mx-auto justify-between flex-wrap">
         <div class="flex items-center flex-shrink-0 mr-6 text-white hover:text-orange-200">
-            <span class="material-icons text-4xl px-4">
-                group_work
-            </span>
+            <i class="fa fa-users text-2xl mr-2" aria-hidden="true"></i>
             <a href="{{ route('home') }}"
                class="font-semibold text-3xl">{{ config('app.name', 'Social Mob') }}</a>
         </div>
@@ -25,14 +23,14 @@
                 @guest
                     <a href="{{route('oauth.login.redirect')}}"
                        class="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-orange-200 mr-6">
-                        Login with Github
+                        <i class="fa fa-github text-xl" aria-hidden="true"></i> Login
                     </a>
                     <a href="{{ route('login') }}"
-                       class="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-orange-200 mr-6">
+                       class="sr-only block mt-4 lg:inline-block lg:mt-0 text-white hover:text-orange-200 mr-6">
                         Login with SocialMob
                     </a>
                     <a href="{{ route('register') }}"
-                       class="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-orange-200">
+                       class="sr-only block mt-4 lg:inline-block lg:mt-0 text-white hover:text-orange-200">
                         Register
                     </a>
                 @endguest
