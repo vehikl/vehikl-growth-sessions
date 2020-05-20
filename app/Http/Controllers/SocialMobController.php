@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\JoinSocialMobRequest;
 use App\SocialMob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -28,7 +29,7 @@ class SocialMobController extends Controller
         $request->user()->socialMobs()->save(new SocialMob($request->all()));
     }
 
-    public function join(SocialMob $socialMob, Request $request)
+    public function join(SocialMob $socialMob, JoinSocialMobRequest $request)
     {
         $socialMob->attendees()->attach($request->user());
     }

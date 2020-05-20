@@ -36,6 +36,22 @@ class SocialMobTest extends TestCase
         $this->assertEquals($user->id, $existingSocialMob->attendees->first()->id);
     }
 
+    public function testAUserCannotJoinTheSameMobTwice()
+    {
+        $existingSocialMob = factory(SocialMob::class)->create();
+        $user = factory(User::class)->create();
+
+        $this->actingAs($user)
+            ->postJson(route('social_mob.join', ['social_mob' => $existingSocialMob->id]))
+            ->assertSuccessful();
+
+        $this->actingAs($user)
+            ->postJson(route('social_mob.join', ['social_mob' => $existingSocialMob->id]))
+            ->assertForbidden();
+
+        $this->assertCount(1, $existingSocialMob->attendees);
+    }
+
     public function testItCanProvideAllSocialMobsOfTheCurrentWeek()
     {
         Carbon::setTestNow('First Monday of 2020');
