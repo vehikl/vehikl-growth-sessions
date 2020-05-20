@@ -1,8 +1,8 @@
 import "./bootstrap";
 import Vue from 'vue';
-import ExampleComponent from "./components/ExampleComponent.vue";
+import NavigationBar from "./components/NavigationBar.vue";
 
 new Vue({
     el: '#app',
-    components: {ExampleComponent}
+    components: {NavigationBar}
 });
