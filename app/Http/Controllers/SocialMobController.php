@@ -34,6 +34,11 @@ class SocialMobController extends Controller
         $socialMob->attendees()->attach($request->user());
     }
 
+    public function leave(SocialMob $socialMob, Request $request)
+    {
+        $socialMob->attendees()->detach($request->user());
+    }
+
     public function show(SocialMob $socialMob)
     {
         //

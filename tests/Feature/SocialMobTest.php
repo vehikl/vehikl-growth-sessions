@@ -40,16 +40,27 @@ class SocialMobTest extends TestCase
     {
         $existingSocialMob = factory(SocialMob::class)->create();
         $user = factory(User::class)->create();
-
-        $this->actingAs($user)
-            ->postJson(route('social_mob.join', ['social_mob' => $existingSocialMob->id]))
-            ->assertSuccessful();
+        $existingSocialMob->attendees()->attach($user);
 
         $this->actingAs($user)
             ->postJson(route('social_mob.join', ['social_mob' => $existingSocialMob->id]))
             ->assertForbidden();
 
         $this->assertCount(1, $existingSocialMob->attendees);
+    }
+
+    public function testAUSerCanLeaveTheMob()
+    {
+        $existingSocialMob = factory(SocialMob::class)->create();
+        $user = factory(User::class)->create();
+        $existingSocialMob->attendees()->attach($user);
+
+
+        $this->actingAs($user)
+            ->postJson(route('social_mob.leave', ['social_mob' => $existingSocialMob->id]))
+            ->assertSuccessful();
+
+        $this->assertEmpty($existingSocialMob->attendees);
     }
 
     public function testItCanProvideAllSocialMobsOfTheCurrentWeek()

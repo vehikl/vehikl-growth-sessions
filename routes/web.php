@@ -25,3 +25,4 @@ Route::get('oauth/callback', 'Auth\LoginController@handleProviderCallback')->nam
 Route::get('/home', 'HomeController@index')->name('home');
 Route::resource('social_mob', 'SocialMobController');
 Route::post('social_mob/{social_mob}/join', 'SocialMobController@join')->name('social_mob.join');
+Route::post('social_mob/{social_mob}/leave', 'SocialMobController@leave')->name('social_mob.leave');
