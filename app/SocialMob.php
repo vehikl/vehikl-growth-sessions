@@ -13,6 +13,7 @@ class SocialMob extends Model
 
     protected $fillable = [
         'topic',
+        'location',
         'start_time',
         'owner_id'
     ];

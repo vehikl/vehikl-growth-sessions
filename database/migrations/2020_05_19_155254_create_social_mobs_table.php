@@ -12,6 +12,7 @@ class CreateSocialMobsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('owner_id');
             $table->string('topic');
+            $table->string('location');
             $table->dateTime('start_time');
             $table->timestamps();
 

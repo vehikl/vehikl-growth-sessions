@@ -9,7 +9,7 @@
                         Create new mob
                     </button>
                     <modal :name="`create-mob-${dayOfTheWeek}`">
-                        <create-mob class="create-mob"/>
+                        <create-mob class="create-mob" :owner="user"/>
                     </modal>
                 </div>
 

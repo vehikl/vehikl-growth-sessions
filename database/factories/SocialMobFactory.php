@@ -13,6 +13,7 @@ $factory->define(SocialMob::class, function (Faker $faker) {
             return factory(User::class)->create()->id;
         },
         'topic' => $faker->sentence,
+        'location' => 'At AnyDesk XYZ - abcdefg',
         'start_time' => now()->addMinutes($faker->numberBetween(15,360))
     ];
 });

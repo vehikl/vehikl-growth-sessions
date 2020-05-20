@@ -18,6 +18,7 @@ class SocialMobTest extends TestCase
         $topic = 'The fundamentals of foo';
         $this->actingAs($user)->postJson(route('social_mob.store'), [
             'topic' => $topic,
+            'location' => 'At the central mobbing area',
             'start_time' => now(),
         ])->assertSuccessful();
 
