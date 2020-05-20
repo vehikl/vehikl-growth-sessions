@@ -66,17 +66,31 @@ class SocialMobTest extends TestCase
     public function testItCanProvideAllSocialMobsOfTheCurrentWeek()
     {
         Carbon::setTestNow('First Monday of 2020');
+        $mondaySocial = factory(SocialMob::class)
+            ->create(['start_time' => now()->toDateTimeString()])
+            ->toArray();
+        $lateWednesdaySocial = factory(SocialMob::class)
+            ->create(['start_time' => now()->addDays(2)->addHours(2)->toDateTimeString()])
+            ->toArray();
+        $earlyWednesdaySocial = factory(SocialMob::class)
+            ->create(['start_time' => now()->addDays(2)->toDateTimeString()])
+            ->toArray();
+        $fridaySocial = factory(SocialMob::class)
+            ->create(['start_time' => now()->addDays(4)->toDateTimeString()])
+            ->toArray();
+        factory(SocialMob::class)
+            ->create(['start_time' => now()->addDays(8)->toDateTimeString()]); // Socials on another week
 
-        $mondaySocial = factory(SocialMob::class)->create(['start_time' => now()])->toArray();
-        $wednesdaySocial = factory(SocialMob::class)->create(['start_time' => now()->addDays(2)])->toArray();
-        $anotherWednesdaySocial = factory(SocialMob::class)->create(['start_time' => now()->addDays(2)])->toArray();
-        $fridaySocial = factory(SocialMob::class)->create(['start_time' => now()->addDays(4)])->toArray();
-        factory(SocialMob::class)->create(['start_time' => now()->addDays(8)]); // Socials on another week
+        $expectedResponse = [
+            'monday' => [$mondaySocial],
+            'tuesday' => [],
+            'wednesday' => [$earlyWednesdaySocial, $lateWednesdaySocial],
+            'thursday' => [],
+            'friday' => [$fridaySocial]
+        ];
 
-        $expectedSocials = [$mondaySocial, $wednesdaySocial, $anotherWednesdaySocial, $fridaySocial];
-
-        $response = $this->getJson(route('social_mob.index', ['filter' => 'week']));
+        $response = $this->getJson(route('social_mob.week'));
         $response->assertSuccessful();
-        $response->assertJson($expectedSocials);
+        $response->assertJson($expectedResponse);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\JoinSocialMobRequest;
 use App\SocialMob;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class SocialMobController extends Controller
@@ -13,10 +14,28 @@ class SocialMobController extends Controller
     {
         $filter = Str::lower($request->input('filter'));
         if ($filter === 'week') {
-            return SocialMob::query()->thisWeek()->get();
+
         }
 
         return SocialMob::all();
+    }
+
+    public function week(Request $request)
+    {
+        /** @var Collection $weekMobs */
+        $weekMobs = SocialMob::query()->thisWeek()->orderBy('start_time')->get();
+        $response = [
+            'monday' => [],
+            'tuesday' => [],
+            'wednesday' => [],
+            'thursday' => [],
+            'friday' => []
+        ];
+        foreach ($weekMobs as $mob) {
+            array_push($response[$mob->dayOfTheWeek()], $mob->toArray());
+        }
+
+        return $response;
     }
 
     public function create()

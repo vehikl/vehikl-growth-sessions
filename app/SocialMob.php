@@ -4,10 +4,12 @@ namespace App;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class SocialMob extends Model
 {
     protected $with = ['owner', 'attendees'];
+    protected $casts = ['owner_id' => 'int'];
 
     protected $fillable = [
         'topic',
@@ -25,12 +27,17 @@ class SocialMob extends Model
         return $this->belongsToMany(User::class);
     }
 
+    public function dayOfTheWeek(): string
+    {
+        return Str::lower(Carbon::parse($this->start_time)->englishDayOfWeek);
+    }
+
     public function scopeThisWeek($query)
     {
         $MONDAY = 1;
-        $SATURDAY = 5;
-        $startDay = now()->isDayOfWeek($MONDAY) ? Carbon::today() : Carbon::parse('Last Monday');
-        $endDay = now()->isDayOfWeek($SATURDAY) ? Carbon::today() : Carbon::parse('This Saturday');
-        return $query->where('start_time', '>=', $startDay)->where('start_time', '<=', $endDay);
+        $FRIDAY = 5;
+        $startPoint = now()->isDayOfWeek($MONDAY) ? Carbon::today() : Carbon::parse('Last Monday');
+        $endPoint = now()->isDayOfWeek($FRIDAY) ? Carbon::today() : Carbon::parse('Next Saturday');
+        return $query->where('start_time', '>=', $startPoint)->where('start_time', '<=', $endPoint);
     }
 }

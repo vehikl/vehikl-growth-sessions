@@ -12,3 +12,11 @@ export interface ISocialMob {
     owner: IUser;
     users: IUser[];
 }
+
+export interface IWeekMobs {
+    monday: ISocialMob[],
+    tuesday: ISocialMob[],
+    wednesday: ISocialMob[],
+    thursday: ISocialMob[],
+    friday: ISocialMob[],
+}

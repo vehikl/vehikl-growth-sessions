@@ -5,6 +5,6 @@
     </div>
 
     <div>
-        <example-component/>
+        <week-view/>
     </div>
 @endsection

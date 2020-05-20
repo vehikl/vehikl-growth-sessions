@@ -1,8 +1,8 @@
 import "./bootstrap";
 import Vue from 'vue';
-import NavigationBar from "./components/NavigationBar.vue";
+import WeekView from "./components/WeekView.vue";
 
 new Vue({
     el: '#app',
-    components: {NavigationBar}
+    components: {WeekView}
 });
