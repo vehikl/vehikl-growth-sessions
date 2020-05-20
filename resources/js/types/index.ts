@@ -10,7 +10,7 @@ export interface ISocialMob {
     topic: string;
     start_time: string;
     owner: IUser;
-    users: IUser[];
+    attendees: IUser[];
 }
 
 export interface IWeekMobs {
