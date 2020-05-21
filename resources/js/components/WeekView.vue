@@ -1,26 +1,23 @@
 <template>
-    <div>
-        <div class="flex mx-6">
-            <div class="flex-1 text-center" v-for="day in days">
-                <h3 class="text-lg font-semibold mt-6 mb-3" v-text="moment(day).format('dddd')"></h3>
-                <div v-if="user">
-                    <button class="create-mob bg-green-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-3"
-                            @click="$modal.show(`create-mob-${day}`)">
-                        Create new mob
-                    </button>
-                    <modal :name="`create-mob-${day}`">
-                        <create-mob class="create-mob" :owner="user"/>
-                    </modal>
-                </div>
-
-                <mob-card v-for="socialMob in socialMobs[day]"
-                          :key="socialMob.id"
-                          :socialMob="socialMob"
-                class="my-3"/>
+    <div class="flex justify-center flex-wrap">
+        <div class="day text-center mx-4" v-for="day in days">
+            <h3 class="text-lg font-semibold mt-6 mb-3" v-text="moment(day).format('dddd')"></h3>
+            <div v-if="user">
+                <button class="create-mob bg-green-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-3"
+                        @click="$modal.show(`create-mob-${day}`)">
+                    Create new mob
+                </button>
+                <modal :name="`create-mob-${day}`">
+                    <create-mob class="create-mob" :owner="user"/>
+                </modal>
             </div>
+
+            <mob-card v-for="socialMob in socialMobs[day]"
+                      :key="socialMob.id"
+                      :socialMob="socialMob"
+                      class="my-3"/>
         </div>
     </div>
-
 </template>
 
 <script lang="ts">
@@ -50,3 +47,10 @@
         }
     }
 </script>
+
+<style scoped>
+    .day {
+        width: 20rem;
+        min-height: 35rem;
+    }
+</style>
