@@ -47,6 +47,25 @@ class SocialMobTest extends TestCase
         ])->assertForbidden();
     }
 
+    public function testTheOwnerCanDeleteAnExistingMob()
+    {
+        $mob = factory(SocialMob::class)->create();
+
+        $this->actingAs($mob->owner)->deleteJson(route('social_mob.destroy', ['social_mob' => $mob->id]))
+            ->assertSuccessful();
+
+        $this->assertEmpty($mob->fresh());
+    }
+
+    public function testAUserThatIsNotAnOwnerOfAMobCannotDeleteIt()
+    {
+        $mob = factory(SocialMob::class)->create();
+        $notTheOwner = factory(User::class)->create();
+
+        $this->actingAs($notTheOwner)->deleteJson(route('social_mob.destroy', ['social_mob' => $mob->id]))
+            ->assertForbidden();
+    }
+
     public function testAGivenUserCanRSVPToASocialMob()
     {
         $existingSocialMob = factory(SocialMob::class)->create();

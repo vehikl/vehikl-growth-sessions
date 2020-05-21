@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DeleteSocialMobRequest;
 use App\Http\Requests\JoinSocialMobRequest;
 use App\Http\Requests\UpdateSocialMobRequest;
 use App\SocialMob;
@@ -65,8 +66,8 @@ class SocialMobController extends Controller
         return $socialMob->update($request->validated());
     }
 
-    public function destroy(SocialMob $socialMob)
+    public function destroy(DeleteSocialMobRequest $request, SocialMob $socialMob)
     {
-        //
+        $socialMob->delete();
     }
 }

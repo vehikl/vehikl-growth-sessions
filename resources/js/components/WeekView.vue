@@ -29,6 +29,7 @@
                           @mob-updated="getAllMobsOfTheWeek"
                           :user="user"
                           @edit-requested="onMobEditRequested"
+                          @delete-requested="getAllMobsOfTheWeek"
                           :key="socialMob.id"
                           :socialMob="socialMob"
                           class="my-3"/>

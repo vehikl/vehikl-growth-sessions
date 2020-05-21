@@ -36,11 +36,17 @@
                 v-show="isAttendee">
             Leave
         </button>
-        <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                @click="$emit('edit-requested', socialMob)"
-                v-show="isOwner">
-            Edit
-        </button>
+        <div  v-show="isOwner">
+            <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+                    @click="$emit('edit-requested', socialMob)">
+                Edit
+            </button>
+            <button class="delete-button w-16 bg-red-500 hover:bg-delete-700 text-white font-bold py-2 px-4 rounded"
+                    @click="onDeleteClicked">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+            </button>
+        </div>
+
     </div>
 
 </template>
@@ -64,6 +70,13 @@
         async leaveMob() {
             await axios.post(`/social_mob/${this.socialMob.id}/leave`);
             this.$emit('mob-updated');
+        }
+
+        async onDeleteClicked() {
+            if (confirm('Are you sure you want to delete?')) {
+                await axios.delete(`/social_mob/${this.socialMob.id}`);
+                this.$emit('delete-requested', this.socialMob);
+            }
         }
 
         get timeDisplayed(): string {
