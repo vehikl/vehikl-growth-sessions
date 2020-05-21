@@ -34,10 +34,8 @@ class SocialMob extends Model
 
     public function scopeThisWeek($query)
     {
-        $MONDAY = 1;
-        $FRIDAY = 5;
-        $startPoint = now()->isDayOfWeek($MONDAY) ? Carbon::today() : Carbon::parse('Last Monday');
-        $endPoint = now()->isDayOfWeek($FRIDAY) ? Carbon::today() : Carbon::parse('Next Saturday');
-        return $query->where('start_time', '>=', $startPoint)->where('start_time', '<=', $endPoint);
+        $startPoint = now()->isDayOfWeek(Carbon::MONDAY) ? Carbon::today() : Carbon::parse('Last Monday');
+        $endPoint = $startPoint->toImmutable()->addDays(5);
+        return $query->whereDate('start_time', '>=', $startPoint)->whereDate('start_time', '<=', $endPoint);
     }
 }

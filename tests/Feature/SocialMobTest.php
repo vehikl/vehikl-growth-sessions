@@ -107,7 +107,6 @@ class SocialMobTest extends TestCase
 
     public function testItCanProvideAllSocialMobsOfTheCurrentWeek()
     {
-        $this->withoutExceptionHandling();
         Carbon::setTestNow('First Monday');
 
         $mondaySocial = factory(SocialMob::class)
@@ -131,6 +130,30 @@ class SocialMobTest extends TestCase
             Carbon::parse('First Wednesday')->toDateString() => [$earlyWednesdaySocial, $lateWednesdaySocial],
             Carbon::parse('First Thursday')->toDateString() => [],
             Carbon::parse('First Friday')->toDateString() => [$fridaySocial],
+        ];
+
+        $response = $this->getJson(route('social_mob.week'));
+        $response->assertSuccessful();
+        $response->assertJson($expectedResponse);
+    }
+
+    public function testItCanProvideAllSocialMobsOfTheCurrentWeekEvenOnFridays()
+    {
+        Carbon::setTestNow('Next Friday');
+
+        $mondaySocial = factory(SocialMob::class)
+            ->create(['start_time' => Carbon::parse('Last Monday')->toDateTimeString()])
+            ->toArray();
+        $fridaySocial = factory(SocialMob::class)
+            ->create(['start_time' => now()->toDateTimeString()])
+            ->toArray();
+
+        $expectedResponse = [
+            Carbon::parse('Last Monday')->toDateString() => [$mondaySocial],
+            Carbon::parse('Last Tuesday')->toDateString() => [],
+            Carbon::parse('Last Wednesday')->toDateString() => [],
+            Carbon::parse('Last Thursday')->toDateString() => [],
+            now()->toDateString() => [$fridaySocial],
         ];
 
         $response = $this->getJson(route('social_mob.week'));

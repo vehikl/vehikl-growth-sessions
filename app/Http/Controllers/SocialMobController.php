@@ -27,8 +27,7 @@ class SocialMobController extends Controller
     {
         /** @var Collection $weekMobs */
         $weekMobs = SocialMob::query()->thisWeek()->orderBy('start_time')->get();
-        $MONDAY = 1;
-        $startPoint = now()->isDayOfWeek($MONDAY) ? Carbon::today() : Carbon::parse('Last Monday');
+        $startPoint = $startPoint = now()->isDayOfWeek(Carbon::MONDAY) ? Carbon::today() : Carbon::parse('Last Monday');
         $startPoint = $startPoint->toImmutable();
 
         $response = [
