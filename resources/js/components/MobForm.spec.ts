@@ -1,5 +1,5 @@
 import {mount, Wrapper} from '@vue/test-utils';
-import CreateMob from './CreateMob.vue';
+import MobForm from './MobForm.vue';
 import {IUser} from '../types';
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
@@ -13,14 +13,14 @@ const user: IUser = {
 };
 const startDate: string = "2020-06-25";
 
-describe('CreateMob', () => {
-    let wrapper: Wrapper<CreateMob>;
+describe('MobForm', () => {
+    let wrapper: Wrapper<MobForm>;
     let mockBackend: MockAdapter;
 
     beforeEach(() => {
         mockBackend = new MockAdapter(axios);
         mockBackend.onPost('/social_mob').reply(201);
-        wrapper = mount(CreateMob, {propsData: {owner: user, startDate}});
+        wrapper = mount(MobForm, {propsData: {owner: user, startDate}});
     });
 
     afterEach(() => {

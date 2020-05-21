@@ -16,7 +16,7 @@
                     </button>
                     <modal :dynamic="true" :width="450" :height="350" :name="`create-mob-${date}`">
                         <div class="flex w-full h-full items-center">
-                            <create-mob class="create-mob"
+                            <mob-form class="create-mob"
                                         @mob-created="onMobCreated"
                                         :owner="user"
                                         :start-date="date"/>
@@ -40,11 +40,11 @@
     import {ISocialMob, IUser, IWeekMobs} from '../types';
     import axios from 'axios';
     import MobCard from './MobCard.vue';
-    import CreateMob from './CreateMob.vue';
     import moment from 'moment';
+    import MobForm from './MobForm.vue';
 
     @Component({
-        components: {CreateMob, MobCard}
+        components: {MobForm, MobCard}
     })
     export default class WeekView extends Vue {
         @Prop({required: false, default: null}) user!: IUser;
