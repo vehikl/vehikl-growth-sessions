@@ -46,13 +46,13 @@ describe('MobForm', () => {
         })
     });
 
-    it('emits mob-created event on success', async () => {
+    it('emits submitted event on success', async () => {
         wrapper.find('#topic').setValue('Anything');
         wrapper.find('#location').setValue('Anywhere');
         wrapper.vm.$data.time = '3:30 pm';
         wrapper.find('button[type="submit"]').trigger('click');
         await flushPromises();
 
-        expect(wrapper.emitted('mob-created')).toBeTruthy();
+        expect(wrapper.emitted('submitted')).toBeTruthy();
     })
 });

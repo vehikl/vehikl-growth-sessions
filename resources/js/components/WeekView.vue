@@ -5,23 +5,23 @@
             {{ moment(weekDates[4]).format('MMMM-DD')}}
         </h2>
         <div class="flex justify-center flex-wrap">
+            <modal :dynamic="true" :width="500" :height="450" name="mob-form">
+                <div class="flex w-full h-full">
+                    <mob-form class="create-mob"
+                              @submitted="onMobCreated"
+                              :owner="user"
+                              :start-date="newMobStartDate"/>
+                </div>
+            </modal>
             <div class="day text-center mx-1 mb-2 px-2"
                  v-for="date in weekDates"
                  :class="moment(date).weekday() % 2 ? 'bg-blue-100' : 'bg-blue-200'">
                 <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="moment(date).format('dddd')"></h3>
                 <div v-if="user">
                     <button class="create-mob bg-green-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-3"
-                            @click="$modal.show(`create-mob-${date}`)">
+                            @click="onCreateNewMobClicked(date)">
                         Create new mob
                     </button>
-                    <modal :dynamic="true" :width="450" :height="350" :name="`create-mob-${date}`">
-                        <div class="flex w-full h-full items-center">
-                            <mob-form class="create-mob"
-                                        @mob-created="onMobCreated"
-                                        :owner="user"
-                                        :start-date="date"/>
-                        </div>
-                    </modal>
                 </div>
 
                 <mob-card v-for="socialMob in socialMobs[date]"
@@ -50,6 +50,7 @@
         @Prop({required: false, default: null}) user!: IUser;
 
         socialMobs: IWeekMobs = {};
+        newMobStartDate: string = "";
         moment = moment;
 
         created() {
@@ -65,6 +66,11 @@
             await this.getAllMobsOfTheWeek();
             let date = moment(mob.start_time).format('YYYY-MM-DD');
             this.$modal.hide(`create-mob-${date}`);
+        }
+
+        onCreateNewMobClicked(startDate: string) {
+            this.newMobStartDate = startDate;
+            this.$modal.show('mob-form');
         }
 
         get weekDates(): string[] {

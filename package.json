@@ -35,6 +35,7 @@
         "vue-js-modal": "^2.0.0-rc.3",
         "vue-property-decorator": "^8.4.2",
         "vue-template-compiler": "^2.6.11",
-        "vue2-timepicker": "^1.1.0"
+        "vue2-timepicker": "^1.1.0",
+        "vuejs-datepicker": "^1.6.2"
     }
 }
