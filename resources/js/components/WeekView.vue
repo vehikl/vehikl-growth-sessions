@@ -20,6 +20,7 @@
             </div>
 
             <mob-card v-for="socialMob in socialMobs[date]"
+                      :user="user"
                       :key="socialMob.id"
                       :socialMob="socialMob"
                       class="my-3"/>

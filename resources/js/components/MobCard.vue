@@ -19,7 +19,10 @@
                 <i class="fa fa-clock-o text-lg text-blue-700 mr-2" aria-hidden="true"></i>
                 <span v-text="timeDisplayed"/>
             </div>
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Join</button>
+            <button class="join-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    v-show="!isUserAlreadyInTheMob && !isGuest">
+                Join
+            </button>
         </div>
     </div>
 
@@ -27,15 +30,27 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {ISocialMob} from '../types';
+    import {ISocialMob, IUser} from '../types';
     import moment from 'moment';
 
     @Component
     export default class MobCard extends Vue {
+        @Prop({required: false, default: () => ({id: 0})}) user!: IUser;
         @Prop({required: true}) socialMob!: ISocialMob;
 
         get timeDisplayed(): string {
             return moment(this.socialMob.start_time).format('LT');
+        }
+
+        get isGuest(): boolean {
+            return this.user.id === 0;
+        }
+
+        get isUserAlreadyInTheMob(): boolean {
+            let isOwner = this.socialMob.owner.id === this.user.id;
+            let isAttendee = this.socialMob.attendees.filter(user => user.id === this.user.id).length > 0;
+
+            return isOwner || isAttendee;
         }
     }
 </script>
