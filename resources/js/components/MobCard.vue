@@ -10,26 +10,32 @@
             <h3 class="ml-6 text-lg" v-text="socialMob.owner.name"/>
         </div>
         <h4 class="my-4" v-text="socialMob.topic"/>
-        <div class="flex justify-between">
+        <div class="flex justify-between mb-2 text-blue-700">
             <div class="flex items-center attendees-count">
-                <i class="fa fa-user-circle text-lg text-blue-700 mr-2" aria-hidden="true"></i>
+                <i class="fa fa-user-circle text-lg mr-2" aria-hidden="true"></i>
                 <span v-text="socialMob.attendees.length"/>
             </div>
             <div class="flex items-center">
-                <i class="fa fa-clock-o text-lg text-blue-700 mr-2" aria-hidden="true"></i>
+                <i class="fa fa-clock-o text-lg mr-2" aria-hidden="true"></i>
                 <span v-text="timeDisplayed"/>
             </div>
-            <button class="join-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    @click="joinMob"
-                    v-show="!isOwner && !isGuest && !isAttendee">
-                Join
-            </button>
-            <button class="leave-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    @click="leaveMob"
-                    v-show="isAttendee">
-                Leave
-            </button>
         </div>
+
+        <div class="text-blue-700 text-left mb-4">
+            <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
+            <span v-text="socialMob.location"/>
+        </div>
+
+        <button class="join-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                @click="joinMob"
+                v-show="!isOwner && !isGuest && !isAttendee">
+            Join
+        </button>
+        <button class="leave-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                @click="leaveMob"
+                v-show="isAttendee">
+            Leave
+        </button>
     </div>
 
 </template>

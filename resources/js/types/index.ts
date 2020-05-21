@@ -8,6 +8,7 @@ export interface IUser {
 export interface ISocialMob {
     id: number;
     topic: string;
+    location: string;
     start_time: string;
     owner: IUser;
     attendees: IUser[];

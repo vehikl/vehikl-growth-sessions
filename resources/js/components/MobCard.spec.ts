@@ -26,6 +26,7 @@ const outsider: IUser = {
 const mobData: ISocialMob = {
     id: 0,
     owner: ownerOfTheMob,
+    location: 'Somewhere over the rainbow',
     start_time: '2020-05-08 20:20:00',
     topic: 'The fundamentals of Foobar',
     attendees: [
@@ -45,6 +46,10 @@ describe('MobCard', () => {
 
     it('displays the mob topic', () => {
         expect(wrapper.text()).toContain(mobData.topic);
+    });
+
+    it('displays the mob location', () => {
+        expect(wrapper.text()).toContain(mobData.location);
     });
 
     it('displays the number of attendees', () => {
