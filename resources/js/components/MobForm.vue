@@ -24,17 +24,6 @@
         </div>
 
         <div class="mb-4">
-            <label for="location" class="block text-gray-700 text-sm font-bold mb-2">
-                Location
-            </label>
-            <textarea id="location"
-                      rows="2"
-                      v-model="location"
-                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      placeholder="Where should people go to participate?"/>
-        </div>
-
-        <div class="mb-4">
             <label for="topic" class="block text-gray-700 text-sm font-bold mb-2">
                 Topic
             </label>
@@ -43,6 +32,17 @@
                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       rows="4"
                       placeholder="What is this mob about?"/>
+        </div>
+
+        <div class="mb-4">
+            <label for="location" class="block text-gray-700 text-sm font-bold mb-2">
+                Location
+            </label>
+            <textarea id="location"
+                      rows="2"
+                      v-model="location"
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      placeholder="Where should people go to participate?"/>
         </div>
 
         <button
