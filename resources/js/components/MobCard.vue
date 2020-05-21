@@ -26,12 +26,12 @@
             <span v-text="socialMob.location"/>
         </div>
 
-        <button class="join-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        <button class="join-button w-32 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 @click="joinMob"
                 v-show="!isOwner && !isGuest && !isAttendee">
             Join
         </button>
-        <button class="leave-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+        <button class="leave-button w-32 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                 @click="leaveMob"
                 v-show="isAttendee">
             Leave

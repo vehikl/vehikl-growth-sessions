@@ -15,6 +15,7 @@
                 Time
             </label>
             <vue-timepicker v-model="time"
+                            tabindex="-1"
                             hide-disabled-items
                             :hour-range="[['1p', '5p']]"
                             format="hh:mm a"

@@ -37,7 +37,7 @@
                 @auth
                     <a href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                       class="block mt-4 lg:flex lg:items-center lg:mt-0 text-white hover:text-orange-200">
+                       class="mt-4 flex items-center lg:mt-0 text-white hover:text-orange-200">
                         <div class="w-12 h-12 mr-4 relative">
                             <div class="group w-full h-full rounded-full overflow-hidden shadow-inner">
                                 <img src="{{ auth()->user()->avatar }}" alt="Your Avatar"
