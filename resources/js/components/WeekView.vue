@@ -14,9 +14,13 @@
                               :start-date="newMobStartDate"/>
                 </div>
             </modal>
-            <div class="day text-center mx-1 mb-2 px-2"
+            <div class="day text-center mx-1 mb-2 px-2 md:block"
                  v-for="date in weekDates"
-                 :class="moment(date).weekday() % 2 ? 'bg-blue-100' : 'bg-blue-200'">
+                 :class="{
+                 'bg-blue-100': moment(date).weekday() % 2 === 0,
+                 'bg-blue-200': moment(date).weekday() % 2 !== 0,
+                 'hidden': moment().format('MMMM-DD') !==  moment(date).format('MMMM-DD')
+                 }">
                 <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="moment(date).format('dddd')"></h3>
                 <div v-if="user">
                     <button class="create-mob bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white font-bold py-2 px-4 rounded mb-3"
