@@ -20,6 +20,7 @@
             </div>
 
             <mob-card v-for="socialMob in socialMobs[date]"
+                      @joined-mob="getAllMobsOfTheWeek"
                       :user="user"
                       :key="socialMob.id"
                       :socialMob="socialMob"

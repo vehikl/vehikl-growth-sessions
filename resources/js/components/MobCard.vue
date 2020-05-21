@@ -20,6 +20,7 @@
                 <span v-text="timeDisplayed"/>
             </div>
             <button class="join-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    @click="joinMob"
                     v-show="!isUserAlreadyInTheMob && !isGuest">
                 Join
             </button>
@@ -32,11 +33,17 @@
     import {Component, Prop, Vue} from 'vue-property-decorator';
     import {ISocialMob, IUser} from '../types';
     import moment from 'moment';
+    import axios from 'axios';
 
     @Component
     export default class MobCard extends Vue {
         @Prop({required: false, default: () => ({id: 0})}) user!: IUser;
         @Prop({required: true}) socialMob!: ISocialMob;
+
+        async joinMob() {
+            await axios.post(`/social_mob/${this.socialMob.id}/join`);
+            this.$emit('joined-mob');
+        }
 
         get timeDisplayed(): string {
             return moment(this.socialMob.start_time).format('LT');
