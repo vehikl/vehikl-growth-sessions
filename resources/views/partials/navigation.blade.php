@@ -18,26 +18,28 @@
                 </svg>
             </button>
         </div>
-        <div class="w-full hidden text-xl uppercase text-white hover:text-orange-200 lg:flex justify-end lg:items-center lg:w-auto text-center" id="nav-links">
-            <div class="text-xl">
+        <div
+            class="w-full hidden text-xl uppercase lg:flex justify-end lg:items-center lg:w-auto text-center"
+            id="nav-links">
+            <div class="text-xl justify-center items-center flex flex-col lg:flex-row">
                 @guest
                     <a href="{{route('oauth.login.redirect')}}"
-                       class="flex items-center mt-4 lg:mt-0 mr-6">
+                       class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-200 ">
                         <i class="fa fa-github text-3xl mr-4" aria-hidden="true"></i> Login
                     </a>
                     <a href="{{ route('login') }}"
-                       class="sr-only flex items-center mt-4 lg:mt-0 mr-6">
+                       class="sr-only flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-200 ">
                         Login with SocialMob
                     </a>
                     <a href="{{ route('register') }}"
-                       class="sr-only flex items-center mt-4 lg:mt-0">
+                       class="sr-only flex items-center mt-4 lg:mt-0 text-white hover:text-orange-200 ">
                         Register
                     </a>
                 @endguest
                 @auth
                     <a href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                       class="mt-4 flex items-center lg:mt-0">
+                       class="mt-4 flex items-center lg:mt-0 text-white hover:text-orange-200 ">
                         <div class="w-12 h-12 mr-4 relative">
                             <div class="group w-full h-full rounded-full overflow-hidden shadow-inner">
                                 <img src="{{ auth()->user()->avatar }}" alt="Your Avatar"
@@ -50,6 +52,9 @@
                         @csrf
                     </form>
                 @endguest
+                <a href="{{route('about')}}"
+                   class="mt-4 lg:mt-0 ml-6 text-white hover:text-orange-200 ">About
+                </a>
             </div>
         </div>
     </div>
