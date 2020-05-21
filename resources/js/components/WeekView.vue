@@ -7,9 +7,10 @@
         <div class="flex justify-center flex-wrap">
             <modal :dynamic="true" :width="500" :height="450" name="mob-form">
                 <div class="flex w-full h-full">
-                    <mob-form class="create-mob"
-                              @submitted="onMobCreated"
+                    <mob-form class="mob-form"
+                              @submitted="onFormSubmitted"
                               :owner="user"
+                              :mob="mobToUpdate"
                               :start-date="newMobStartDate"/>
                 </div>
             </modal>
@@ -27,6 +28,7 @@
                 <mob-card v-for="socialMob in socialMobs[date]"
                           @mob-updated="getAllMobsOfTheWeek"
                           :user="user"
+                          @edit-requested="onMobEditRequested"
                           :key="socialMob.id"
                           :socialMob="socialMob"
                           class="my-3"/>
@@ -51,6 +53,7 @@
 
         socialMobs: IWeekMobs = {};
         newMobStartDate: string = "";
+        mobToUpdate: ISocialMob | null = null;
         moment = moment;
 
         created() {
@@ -62,14 +65,19 @@
             this.socialMobs = response.data;
         }
 
-        async onMobCreated(mob: ISocialMob) {
+        async onFormSubmitted() {
             await this.getAllMobsOfTheWeek();
-            let date = moment(mob.start_time).format('YYYY-MM-DD');
-            this.$modal.hide(`create-mob-${date}`);
+            this.$modal.hide('mob-form');
         }
 
         onCreateNewMobClicked(startDate: string) {
             this.newMobStartDate = startDate;
+            this.$modal.show('mob-form');
+        }
+
+        onMobEditRequested(mob: ISocialMob) {
+            this.mobToUpdate = mob;
+            this.newMobStartDate = "";
             this.$modal.show('mob-form');
         }
 

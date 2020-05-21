@@ -62,7 +62,7 @@ class SocialMobController extends Controller
 
     public function update(UpdateSocialMobRequest $request, SocialMob $socialMob)
     {
-        return $socialMob->update($request->all());
+        return $socialMob->update($request->validated());
     }
 
     public function destroy(SocialMob $socialMob)

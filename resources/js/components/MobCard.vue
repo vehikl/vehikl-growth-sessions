@@ -36,6 +36,11 @@
                 v-show="isAttendee">
             Leave
         </button>
+        <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+                @click="$emit('edit-requested', socialMob)"
+                v-show="isOwner">
+            Edit
+        </button>
     </div>
 
 </template>

@@ -48,8 +48,8 @@
         <button
             class="mt-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="submit"
-            @click="onSubmit">
-            Create
+            @click="onSubmit"
+            v-text="isCreating? 'Create' : 'Update'">
         </button>
     </form>
 </template>
@@ -81,7 +81,7 @@
             }
 
             if (this.mob) {
-                this.date = moment(this.mob.start_time).format('YYYY-MM-DD');
+                this.date = moment(this.mob.start_time).toISOString();
                 this.time = moment(this.mob.start_time).format('hh:mm a');
                 this.location = this.mob.location;
                 this.topic = this.mob.topic;
@@ -114,7 +114,7 @@
                 let response = await axios.put<ISocialMob>(`social_mob/${this.mob.id}`, {
                     location: this.location,
                     topic: this.topic,
-                    start_time: `${this.date} ${this.time}`
+                    start_time: `${this.dateString} ${this.time}`
                 });
 
                 this.$emit('submitted', response.data);
@@ -125,6 +125,10 @@
 
         get isCreating(): boolean {
             return !this.mob;
+        }
+
+        get dateString(): string {
+            return moment(this.date).format('YYYY-MM-DD');
         }
     }
 </script>
