@@ -25,6 +25,28 @@ class SocialMobTest extends TestCase
         $this->assertEquals($topic, $user->socialMobs->first()->topic);
     }
 
+    public function testTheOwnerOfAMobCanEditIt()
+    {
+        $mob = factory(SocialMob::class)->create();
+        $newTopic = 'A brand new topic!';
+
+        $this->actingAs($mob->owner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
+            'topic' => $newTopic,
+        ])->assertSuccessful();
+
+        $this->assertEquals($newTopic, $mob->fresh()->topic);
+    }
+
+    public function testAUserThatIsNotAnOwnerOfAMobCannotEditIt()
+    {
+        $mob = factory(SocialMob::class)->create();
+        $notTheOwner = factory(User::class)->create();
+
+        $this->actingAs($notTheOwner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
+            'topic' => 'Anything'
+        ])->assertForbidden();
+    }
+
     public function testAGivenUserCanRSVPToASocialMob()
     {
         $existingSocialMob = factory(SocialMob::class)->create();

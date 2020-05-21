@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\JoinSocialMobRequest;
+use App\Http\Requests\UpdateSocialMobRequest;
 use App\SocialMob;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -44,11 +45,6 @@ class SocialMobController extends Controller
         return $response;
     }
 
-    public function create()
-    {
-        //
-    }
-
     public function store(Request $request)
     {
         return $request->user()->socialMobs()->save(new SocialMob($request->all()));
@@ -64,19 +60,9 @@ class SocialMobController extends Controller
         $socialMob->attendees()->detach($request->user());
     }
 
-    public function show(SocialMob $socialMob)
+    public function update(UpdateSocialMobRequest $request, SocialMob $socialMob)
     {
-        //
-    }
-
-    public function edit(SocialMob $socialMob)
-    {
-        //
-    }
-
-    public function update(Request $request, SocialMob $socialMob)
-    {
-        //
+        return $socialMob->update($request->all());
     }
 
     public function destroy(SocialMob $socialMob)
