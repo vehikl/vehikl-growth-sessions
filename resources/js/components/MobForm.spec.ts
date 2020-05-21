@@ -32,9 +32,10 @@ describe('MobForm', () => {
         const chosenLocation = 'Somewhere over the rainbow';
         const chosenTime = "4:45 pm";
 
+        wrapper.vm.$data.time = chosenTime;
         wrapper.find('#topic').setValue(chosenTopic);
         wrapper.find('#location').setValue(chosenLocation);
-        wrapper.vm.$data.time = chosenTime;
+        await wrapper.vm.$nextTick();
         wrapper.find('button[type="submit"]').trigger('click');
         await flushPromises();
 
@@ -47,12 +48,25 @@ describe('MobForm', () => {
     });
 
     it('emits submitted event on success', async () => {
+        wrapper.vm.$data.time = '3:30 pm';
         wrapper.find('#topic').setValue('Anything');
         wrapper.find('#location').setValue('Anywhere');
-        wrapper.vm.$data.time = '3:30 pm';
+        await wrapper.vm.$nextTick();
         wrapper.find('button[type="submit"]').trigger('click');
         await flushPromises();
 
         expect(wrapper.emitted('submitted')).toBeTruthy();
-    })
+    });
+
+    it('starts with the submit button disabled', () => {
+        expect(wrapper.find('button[type="submit"]').element).toBeDisabled();
+    });
+
+    it('enables the submit button when all required fields are filled', async () => {
+        wrapper.vm.$data.time = '3:30 pm';
+        wrapper.find('#topic').setValue('Anything');
+        wrapper.find('#location').setValue('Anywhere');
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find('button[type="submit"]').element).not.toBeDisabled();
+    });
 });

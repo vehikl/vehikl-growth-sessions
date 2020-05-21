@@ -47,7 +47,9 @@
 
         <button
             class="mt-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            :class="{'opacity-25 cursor-not-allowed': !isReadyToSubmit}"
             type="submit"
+            :disabled="! isReadyToSubmit"
             @click="onSubmit"
             v-text="isCreating? 'Create' : 'Update'">
         </button>
@@ -129,6 +131,10 @@
 
         get dateString(): string {
             return moment(this.date).format('YYYY-MM-DD');
+        }
+
+        get isReadyToSubmit(): boolean {
+            return !!this.time && !!this.date && !!this.location && !!this.topic;
         }
     }
 </script>
