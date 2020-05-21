@@ -26,22 +26,22 @@
             <span v-text="socialMob.location"/>
         </div>
 
-        <button class="join-button w-32 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        <button class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 @click="joinMob"
                 v-show="!isOwner && !isGuest && !isAttendee">
             Join
         </button>
-        <button class="leave-button w-32 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+        <button class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
                 @click="leaveMob"
                 v-show="isAttendee">
             Leave
         </button>
         <div  v-show="isOwner">
-            <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+            <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
                     @click="$emit('edit-requested', socialMob)">
                 Edit
             </button>
-            <button class="delete-button w-16 bg-red-500 hover:bg-delete-700 text-white font-bold py-2 px-4 rounded"
+            <button class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
                     @click="onDeleteClicked">
                 <i class="fa fa-trash" aria-hidden="true"></i>
             </button>

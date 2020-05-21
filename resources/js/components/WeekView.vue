@@ -19,7 +19,7 @@
                  :class="moment(date).weekday() % 2 ? 'bg-blue-100' : 'bg-blue-200'">
                 <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="moment(date).format('dddd')"></h3>
                 <div v-if="user">
-                    <button class="create-mob bg-green-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-3"
+                    <button class="create-mob bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white font-bold py-2 px-4 rounded mb-3"
                             @click="onCreateNewMobClicked(date)">
                         Create new mob
                     </button>
