@@ -21,8 +21,13 @@
             </div>
             <button class="join-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     @click="joinMob"
-                    v-show="!isUserAlreadyInTheMob && !isGuest">
+                    v-show="!isOwner && !isGuest && !isAttendee">
                 Join
+            </button>
+            <button class="leave-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                    @click="leaveMob"
+                    v-show="isAttendee">
+                Leave
             </button>
         </div>
     </div>
@@ -37,12 +42,17 @@
 
     @Component
     export default class MobCard extends Vue {
-        @Prop({required: false, default: () => ({id: 0})}) user!: IUser;
+        @Prop({required: false}) user!: IUser;
         @Prop({required: true}) socialMob!: ISocialMob;
 
         async joinMob() {
             await axios.post(`/social_mob/${this.socialMob.id}/join`);
-            this.$emit('joined-mob');
+            this.$emit('mob-updated');
+        }
+
+        async leaveMob() {
+            await axios.post(`/social_mob/${this.socialMob.id}/leave`);
+            this.$emit('mob-updated');
         }
 
         get timeDisplayed(): string {
@@ -50,14 +60,21 @@
         }
 
         get isGuest(): boolean {
-            return this.user.id === 0;
+            return !!this.user;
         }
 
-        get isUserAlreadyInTheMob(): boolean {
-            let isOwner = this.socialMob.owner.id === this.user.id;
-            let isAttendee = this.socialMob.attendees.filter(user => user.id === this.user.id).length > 0;
+        get isAttendee(): boolean {
+            if (! this.user) {
+                return false;
+            }
+            return this.socialMob.attendees.filter(user => user.id === this.user.id).length > 0;
+        }
 
-            return isOwner || isAttendee;
+        get isOwner(): boolean {
+            if (! this.user) {
+                return false;
+            }
+            return this.socialMob.owner.id === this.user.id;
         }
     }
 </script>
