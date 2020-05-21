@@ -1,6 +1,8 @@
 <template>
     <div class="flex justify-center flex-wrap">
-        <div class="day text-center mx-4" v-for="day in days">
+        <div class="day text-center mx-1 mb-2 px-2"
+             :class="moment(day).weekday() % 2 ? 'bg-blue-100' : 'bg-blue-200'"
+             v-for="day in days">
             <h3 class="text-lg font-semibold mt-6 mb-3" v-text="moment(day).format('dddd')"></h3>
             <div v-if="user">
                 <button class="create-mob bg-green-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-3"

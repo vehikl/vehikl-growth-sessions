@@ -1,4 +1,4 @@
-<nav class="bg-purple-500 p-6">
+<nav class="bg-blue-500 p-6">
     <div class="container flex items-center  mx-auto justify-between flex-wrap">
         <div class="flex items-center flex-shrink-0 mr-6 text-white hover:text-orange-200">
             <i class="fa fa-users text-2xl mr-2" aria-hidden="true"></i>
