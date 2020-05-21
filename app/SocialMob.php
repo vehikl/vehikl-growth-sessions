@@ -4,7 +4,6 @@ namespace App;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class SocialMob extends Model
 {
@@ -28,9 +27,9 @@ class SocialMob extends Model
         return $this->belongsToMany(User::class);
     }
 
-    public function dayOfTheWeek(): string
+    public function setStartTimeAttribute($value)
     {
-        return Str::lower(Carbon::parse($this->start_time)->englishDayOfWeek);
+        $this->attributes['start_time'] = Carbon::parse($value)->toIso8601ZuluString();
     }
 
     public function scopeThisWeek($query)

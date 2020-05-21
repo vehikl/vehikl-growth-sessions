@@ -51,7 +51,7 @@ class SocialMobController extends Controller
 
     public function store(Request $request)
     {
-        $request->user()->socialMobs()->save(new SocialMob($request->all()));
+        return $request->user()->socialMobs()->save(new SocialMob($request->all()));
     }
 
     public function join(SocialMob $socialMob, JoinSocialMobRequest $request)
