@@ -27,14 +27,6 @@
                        class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-200 ">
                         <i class="fa fa-github text-3xl mr-4" aria-hidden="true"></i> Login
                     </a>
-                    <a href="{{ route('login') }}"
-                       class="sr-only flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-200 ">
-                        Login with SocialMob
-                    </a>
-                    <a href="{{ route('register') }}"
-                       class="sr-only flex items-center mt-4 lg:mt-0 text-white hover:text-orange-200 ">
-                        Register
-                    </a>
                 @endguest
                 @auth
                     <a href="{{ route('logout') }}"
@@ -51,7 +43,7 @@
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                         @csrf
                     </form>
-                @endguest
+                @endauth
                 <a href="{{route('about')}}"
                    class="mt-4 lg:mt-0 ml-6 text-white hover:text-orange-200 ">About
                 </a>
