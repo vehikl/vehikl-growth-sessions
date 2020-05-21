@@ -18,26 +18,26 @@
                 </svg>
             </button>
         </div>
-        <div class="w-full hidden lg:flex justify-end lg:items-center lg:w-auto text-center" id="nav-links">
+        <div class="w-full hidden text-xl uppercase text-white hover:text-orange-200 lg:flex justify-end lg:items-center lg:w-auto text-center" id="nav-links">
             <div class="text-xl">
                 @guest
                     <a href="{{route('oauth.login.redirect')}}"
-                       class="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-orange-200 mr-6">
-                        <i class="fa fa-github text-xl" aria-hidden="true"></i> Login
+                       class="flex items-center mt-4 lg:mt-0 mr-6">
+                        <i class="fa fa-github text-3xl mr-4" aria-hidden="true"></i> Login
                     </a>
                     <a href="{{ route('login') }}"
-                       class="sr-only block mt-4 lg:inline-block lg:mt-0 text-white hover:text-orange-200 mr-6">
+                       class="sr-only flex items-center mt-4 lg:mt-0 mr-6">
                         Login with SocialMob
                     </a>
                     <a href="{{ route('register') }}"
-                       class="sr-only block mt-4 lg:inline-block lg:mt-0 text-white hover:text-orange-200">
+                       class="sr-only flex items-center mt-4 lg:mt-0">
                         Register
                     </a>
                 @endguest
                 @auth
                     <a href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                       class="mt-4 flex items-center lg:mt-0 text-white hover:text-orange-200">
+                       class="mt-4 flex items-center lg:mt-0">
                         <div class="w-12 h-12 mr-4 relative">
                             <div class="group w-full h-full rounded-full overflow-hidden shadow-inner">
                                 <img src="{{ auth()->user()->avatar }}" alt="Your Avatar"
