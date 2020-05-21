@@ -22,7 +22,7 @@
 </head>
 <body>
     <div id="app">
-        @include('layouts.navigation')
+        @include('partials.navigation')
         <main class="mx-2 xl:container">
             @yield('content')
         </main>
