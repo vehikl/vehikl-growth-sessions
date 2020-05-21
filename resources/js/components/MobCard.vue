@@ -60,18 +60,18 @@
         }
 
         get isGuest(): boolean {
-            return !!this.user;
+            return !this.user;
         }
 
         get isAttendee(): boolean {
-            if (! this.user) {
+            if (this.isGuest) {
                 return false;
             }
             return this.socialMob.attendees.filter(user => user.id === this.user.id).length > 0;
         }
 
         get isOwner(): boolean {
-            if (! this.user) {
+            if (this.isGuest) {
                 return false;
             }
             return this.socialMob.owner.id === this.user.id;

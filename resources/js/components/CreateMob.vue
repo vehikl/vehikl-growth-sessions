@@ -60,7 +60,10 @@
 
         mounted() {
             this.date = this.startDate;
-            (document.getElementById("topic") as HTMLInputElement).focus();
+            let input = document.getElementById("topic");
+            if (input) {
+                input.focus();
+            }
         }
 
         async createMob() {
