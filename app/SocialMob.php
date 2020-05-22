@@ -29,7 +29,7 @@ class SocialMob extends Model
 
     public function setStartTimeAttribute($value)
     {
-        $this->attributes['start_time'] = Carbon::parse($value)->toIso8601ZuluString();
+        $this->attributes['start_time'] = Carbon::parse($value)->toDateTimeString();
     }
 
     public function scopeThisWeek($query)
