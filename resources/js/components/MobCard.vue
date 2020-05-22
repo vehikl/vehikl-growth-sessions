@@ -23,7 +23,8 @@
 
         <div class="text-blue-700 text-left mb-4">
             <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
-            <span v-text="socialMob.location"/>
+            <a v-if="isUrl(socialMob.location)" class="location underline" :href="socialMob.location" target="_blank" v-text="socialMob.location"/>
+            <span v-else class="location" v-text="socialMob.location"/>
         </div>
 
         <button class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -99,6 +100,15 @@
                 return false;
             }
             return this.socialMob.owner.id === this.user.id;
+        }
+
+        isUrl(possibleUrl: string): boolean {
+            try {
+                new URL(possibleUrl);
+                return true;
+            } catch {
+                return false;
+            }
         }
     }
 </script>

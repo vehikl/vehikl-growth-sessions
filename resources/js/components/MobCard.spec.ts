@@ -75,4 +75,18 @@ describe('MobCard', () => {
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
         expect(wrapper.find('.join-button').element).toBeVisible();
     });
+
+    it('displays the mob location as an url if the location is a link', () => {
+        const mobWithUrl: ISocialMob = {
+            id: 0,
+            owner: ownerOfTheMob,
+            location: 'https://www.somewhere.com',
+            start_time: '2020-05-08 20:20:00',
+            topic: 'The fundamentals of Foobar',
+            attendees: []
+        };
+        wrapper = mount(MobCard, {propsData: {socialMob: mobWithUrl, user: attendee}});
+
+        expect(wrapper.find('a.location').exists()).toBe(true);
+    });
 });
