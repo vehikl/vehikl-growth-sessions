@@ -76,7 +76,7 @@
         }
 
         onCreateNewMobClicked(startDate: string) {
-            this.newMobStartDate = startDate;
+            this.newMobStartDate = moment(startDate).toISOString();
             this.$modal.show('mob-form');
         }
 

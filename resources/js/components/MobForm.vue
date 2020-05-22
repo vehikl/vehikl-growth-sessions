@@ -102,7 +102,7 @@
                 let response = await axios.post<ISocialMob>('social_mob', {
                     location: this.location,
                     topic: this.topic,
-                    start_time: `${this.date} ${this.time}`
+                    start_time: this.startTime
                 });
 
                 this.$emit('submitted', response.data);
@@ -116,7 +116,7 @@
                 let response = await axios.put<ISocialMob>(`social_mob/${this.mob.id}`, {
                     location: this.location,
                     topic: this.topic,
-                    start_time: `${this.dateString} ${this.time}`
+                    start_time: this.startTime
                 });
 
                 this.$emit('submitted', response.data);
@@ -131,6 +131,10 @@
 
         get dateString(): string {
             return moment(this.date).format('YYYY-MM-DD');
+        }
+
+        get startTime(): string {
+            return `${this.dateString} ${this.time}`;
         }
 
         get isReadyToSubmit(): boolean {
