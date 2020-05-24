@@ -9,30 +9,21 @@ use App\SocialMob;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 class SocialMobController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $filter = Str::lower($request->input('filter'));
-        if ($filter === 'week') {
-
-        }
-
         return SocialMob::all();
     }
 
     public function week(Request $request)
     {
         $referenceDate = CarbonImmutable::parse($request->input('date'));
-        /** @var Collection $weekMobs */
         $weekMobs = SocialMob::query()->weekOf($referenceDate)->orderBy('start_time')->get();
-        $startPoint = $startPoint = $referenceDate->isDayOfWeek(Carbon::MONDAY)
+        $startPoint = $referenceDate->isDayOfWeek(Carbon::MONDAY)
             ? $referenceDate
             : $referenceDate->modify('Last Monday');
-        $startPoint = $startPoint->toImmutable();
 
         $response = [
             $startPoint->toDateString() => [],
@@ -43,7 +34,7 @@ class SocialMobController extends Controller
         ];
         foreach ($weekMobs as $mob) {
             $mobDate = Carbon::parse($mob->start_time)->toDateString();
-            array_push($response[$mobDate], $mob->toArray());
+            array_push($response[$mobDate], $mob);
         }
 
         return $response;
