@@ -41,11 +41,19 @@ export class DateApi {
         return this.moment.toISOString();
     }
 
-    weekDay(): number {
+    weekDayNumber(): number {
         return this.moment.weekday();
     }
 
+    weekDayString(): string {
+        return this.moment.format('dddd');
+    }
+
     addDays(days: number): DateApi {
-        return new DateApi(this.moment.add(days, 'days').toString());
+        return new DateApi(this.moment.add(days, 'days').format('YYYY-MM-DD'));
+    }
+
+    isSame(date: DateApi): boolean {
+        return this.moment.isSame(date.toString(), 'days');
     }
 }

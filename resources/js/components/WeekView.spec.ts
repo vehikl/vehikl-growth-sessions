@@ -18,15 +18,15 @@ localVue.use(VModal);
 
 describe('WeekView', () => {
     let wrapper: Wrapper<WeekView>;
-    let thisMonday: string;
     let previousMonday: string;
+    let today: string;
     let nextMonday: string;
 
     beforeEach(async () => {
-        thisMonday = '2020-01-13';
+        today = '2020-01-13';
         previousMonday = '2020-01-06';
         nextMonday = '2020-01-20';
-        DateApi.setTestNow(thisMonday);
+        DateApi.setTestNow(today);
         SocialMobApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(socialsThisWeek);
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
@@ -64,5 +64,14 @@ describe('WeekView', () => {
         wrapper.find('button.load-next-week').trigger('click');
         await flushPromises();
         expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(nextMonday);
+    });
+
+    it('shows only the current day in mobile devices', () => {
+        window = Object.assign(window, { innerWidth: 300 });
+
+        let today = DateApi.today();
+        let tomorrow = DateApi.today().addDays(1);
+        expect(wrapper.find(`[weekDay=${today.weekDayString()}`).element).not.toHaveClass('hidden');
+        expect(wrapper.find(`[weekDay=${tomorrow.weekDayString()}`).element).toHaveClass('hidden');
     });
 });

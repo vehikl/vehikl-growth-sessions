@@ -22,13 +22,14 @@
                 </div>
             </modal>
             <div class="day text-center mx-1 mb-2 px-2 md:block"
+                 :weekDay="date.weekDayString()"
                  v-for="date in weekDates"
                  :class="{
-                 'bg-blue-100': DateApi.parse(date).weekDay() % 2 === 0,
-                 'bg-blue-200': DateApi.parse(date).weekDay() % 2 !== 0,
-                 'hidden': DateApi.today().toString() !==  DateApi.parse(date).toString()
+                 'bg-blue-100': date.weekDayNumber() % 2 === 0,
+                 'bg-blue-200': date.weekDayNumber() % 2 !== 0,
+                 'hidden': !date.isSame(DateApi.today())
                  }">
-                <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="DateApi.parse(date).format('dddd')"></h3>
+                <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="date.weekDayString()"></h3>
                 <div v-if="user">
                     <button
                         class="create-mob bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white font-bold py-2 px-4 rounded mb-3"
@@ -82,8 +83,8 @@
             this.$modal.hide('mob-form');
         }
 
-        onCreateNewMobClicked(startDate: string) {
-            this.newMobStartDate = DateApi.parse(startDate).toISOString();
+        onCreateNewMobClicked(startDate: DateApi) {
+            this.newMobStartDate = startDate.toISOString();
             this.$modal.show('mob-form');
         }
 
@@ -98,8 +99,8 @@
             await this.getAllMobsOfTheWeek();
         }
 
-        get weekDates(): string[] {
-            return Object.keys(this.socialMobs);
+        get weekDates(): DateApi[] {
+            return Object.keys(this.socialMobs).map((date: string) => DateApi.parse(date));
         }
     }
 </script>
