@@ -8,9 +8,11 @@
         </p>
     @endguest
     <week-view class="mt-6" :user="{{ json_encode(auth()->user()) }}"></week-view>
-    <a class="inline-block bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2 my-10"
+
+    <p class="text-lg mx-2 text-blue-700 font-bold mt-4">Have suggestions for this app? </p>
+    <a class="inline-block bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2 mb-10 mt-2"
        target="_blank"
        href="https://github.com/FRFlor/social-mob/issues">
-        Have suggestions for this app? Please, share them here!
+        Please, share them here!
     </a>
 @endsection
