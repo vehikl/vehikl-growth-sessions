@@ -1,14 +1,20 @@
 <template>
     <div>
         <div class="flex justify-center items-center text-xl text-blue-600 font-bold">
-            <button class="load-previous-week mx-4 mb-2" @click="changeReferenceDate(-7)"><i class="fa fa-chevron-left"
-                                                                                        aria-hidden="true"></i></button>
+            <button class="load-previous-week mx-4 mb-2"
+                    aria-label="Load previous week"
+                    @click="changeReferenceDate(-7)">
+                <i class="fa fa-chevron-left" aria-hidden="true"></i>
+            </button>
             <h2 class="text-center mb-2 w-72">Week of
                 {{ DateApi.parse(weekDates[0]).format('MMM-DD')}} to
                 {{ DateApi.parse(weekDates[4]).format('MMM-DD')}}
             </h2>
-            <button class="load-next-week mx-4 mb-2" @click="changeReferenceDate(+7)"><i class="fa fa-chevron-right"
-                                                                                    aria-hidden="true"></i></button>
+            <button class="load-next-week mx-4 mb-2"
+                    aria-label="Load next week"
+                    @click="changeReferenceDate(+7)">
+                <i class="fa fa-chevron-right" aria-hidden="true"></i>
+            </button>
         </div>
 
         <div class="flex justify-center flex-wrap">
