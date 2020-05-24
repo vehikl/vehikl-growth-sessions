@@ -49,6 +49,7 @@
     import MobCard from './MobCard.vue';
     import moment from 'moment';
     import MobForm from './MobForm.vue';
+    import {SocialMobApi} from '../services/SocialMobApi';
 
     @Component({
         components: {MobForm, MobCard}
@@ -66,8 +67,7 @@
         }
 
         async getAllMobsOfTheWeek() {
-            const response = await axios.get<IWeekMobs>('/social_mob/week');
-            this.socialMobs = response.data;
+            this.socialMobs = await SocialMobApi.getAllMobsOfTheWeek();
         }
 
         async onFormSubmitted() {

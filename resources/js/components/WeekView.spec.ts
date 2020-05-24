@@ -1,11 +1,10 @@
 import {createLocalVue, mount, Wrapper} from '@vue/test-utils';
 import WeekView from './WeekView.vue';
-import MockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
 import flushPromises from 'flush-promises';
 import socialsThisWeek from '../../../tests/fixtures/WeekSocials.json';
 import {ISocialMob, IUser, IWeekMobs} from '../types';
 import VModal from 'vue-js-modal';
+import {SocialMobApi} from '../services/SocialMobApi';
 
 const authUser: IUser = {
     avatar: "lastAirBender.jpg",
@@ -18,18 +17,12 @@ const localVue = createLocalVue();
 localVue.use(VModal);
 
 describe('WeekView', () => {
-    let mockBackend: MockAdapter;
     let wrapper: Wrapper<WeekView>;
 
     beforeEach(async () => {
-        mockBackend = new MockAdapter(axios);
-        mockBackend.onGet('social_mob/week').reply(200, socialsThisWeek);
+        SocialMobApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(socialsThisWeek);
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
-    });
-
-    afterEach(() => {
-        mockBackend.restore();
     });
 
     it('loads with the current week socials in display', () => {
