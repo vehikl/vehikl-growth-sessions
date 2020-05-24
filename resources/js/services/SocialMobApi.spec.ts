@@ -62,9 +62,25 @@ describe('SocialMobApi', () => {
     });
 
     it('deletes an existing mob', async () => {
-        mockBackend.onDelete(`social_mob/${dummyMob.id}`).reply(200)
+        mockBackend.onDelete(`social_mob/${dummyMob.id}`).reply(200);
 
         const result = await SocialMobApi.delete(dummyMob);
+
+        expect(result).toBe(true);
+    });
+
+    it('joins an existing mob', async () => {
+        mockBackend.onPost(`social_mob/${dummyMob.id}/join`).reply(200);
+
+        const result = await SocialMobApi.join(dummyMob);
+
+        expect(result).toBe(true);
+    });
+
+    it('leaves an existing mob', async () => {
+        mockBackend.onPost(`social_mob/${dummyMob.id}/leave`).reply(200);
+
+        const result = await SocialMobApi.leave(dummyMob);
 
         expect(result).toBe(true);
     });

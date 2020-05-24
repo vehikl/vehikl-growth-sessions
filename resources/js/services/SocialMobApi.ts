@@ -21,4 +21,14 @@ export class SocialMobApi extends BaseApi {
         await BaseApi.httpRequest.delete(`social_mob/${target.id}`);
         return true;
     }
+
+    static async join(target: ISocialMob): Promise<boolean> {
+        await BaseApi.httpRequest.post(`/social_mob/${target.id}/join`);
+        return true;
+    }
+
+    static async leave(target: ISocialMob): Promise<boolean> {
+        await BaseApi.httpRequest.post(`/social_mob/${target.id}/leave`);
+        return true;
+    }
 }

@@ -1,6 +1,7 @@
 import {mount, Wrapper} from '@vue/test-utils';
 import MobCard from './MobCard.vue';
 import {ISocialMob, IUser} from '../types';
+import {SocialMobApi} from '../services/SocialMobApi';
 
 const ownerOfTheMob: IUser = {
     name: 'Jack Bauer',
@@ -88,5 +89,34 @@ describe('MobCard', () => {
         wrapper = mount(MobCard, {propsData: {socialMob: mobWithUrl, user: attendee}});
 
         expect(wrapper.find('a.location').exists()).toBe(true);
+    });
+
+    it('allows a user to join a social mob', () => {
+        SocialMobApi.join = jest.fn();
+        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
+        wrapper.find('.join-button').trigger('click');
+        expect(SocialMobApi.join).toHaveBeenCalledWith(mobData);
+    });
+
+    it('allows a user to leave a social mob', () => {
+        SocialMobApi.leave = jest.fn();
+        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: attendee}});
+        wrapper.find('.leave-button').trigger('click');
+        expect(SocialMobApi.leave).toHaveBeenCalledWith(mobData);
+    });
+
+    it('prompts for confirmation when the owner clicks on the delete button', ()=> {
+        window.confirm = jest.fn();
+        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+        wrapper.find('.delete-button').trigger('click');
+        expect(window.confirm).toHaveBeenCalled();
+    });
+
+    it('deletes the mob if the user clicks on the delete button and confirms', ()=> {
+        SocialMobApi.delete = jest.fn();
+        window.confirm = jest.fn().mockReturnValue(true);
+        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+        wrapper.find('.delete-button').trigger('click');
+        expect(SocialMobApi.delete).toHaveBeenCalledWith(mobData);
     });
 });

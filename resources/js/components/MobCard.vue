@@ -57,6 +57,7 @@
     import {ISocialMob, IUser} from '../types';
     import moment from 'moment';
     import axios from 'axios';
+    import {SocialMobApi} from '../services/SocialMobApi';
 
     @Component
     export default class MobCard extends Vue {
@@ -64,18 +65,18 @@
         @Prop({required: true}) socialMob!: ISocialMob;
 
         async joinMob() {
-            await axios.post(`/social_mob/${this.socialMob.id}/join`);
+            await SocialMobApi.join(this.socialMob);
             this.$emit('mob-updated');
         }
 
         async leaveMob() {
-            await axios.post(`/social_mob/${this.socialMob.id}/leave`);
+            await SocialMobApi.leave(this.socialMob);
             this.$emit('mob-updated');
         }
 
         async onDeleteClicked() {
             if (confirm('Are you sure you want to delete?')) {
-                await axios.delete(`/social_mob/${this.socialMob.id}`);
+                await SocialMobApi.delete(this.socialMob);
                 this.$emit('delete-requested', this.socialMob);
             }
         }
