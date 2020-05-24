@@ -3,6 +3,7 @@
 namespace App;
 
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 
 class SocialMob extends Model
@@ -32,10 +33,12 @@ class SocialMob extends Model
         $this->attributes['start_time'] = Carbon::parse($value)->toDateTimeString();
     }
 
-    public function scopeThisWeek($query)
+    public function scopeWeekOf($query, CarbonImmutable $referenceDate)
     {
-        $startPoint = now()->isDayOfWeek(Carbon::MONDAY) ? Carbon::today() : Carbon::parse('Last Monday');
-        $endPoint = $startPoint->toImmutable()->addDays(5);
+        $startPoint = $referenceDate->isDayOfWeek(Carbon::MONDAY)
+            ? $referenceDate
+            : $referenceDate->modify('Last Monday');
+        $endPoint = $startPoint->addDays(5);
         return $query->whereDate('start_time', '>=', $startPoint)->whereDate('start_time', '<=', $endPoint);
     }
 }

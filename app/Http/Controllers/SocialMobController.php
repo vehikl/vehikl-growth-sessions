@@ -7,6 +7,7 @@ use App\Http\Requests\JoinSocialMobRequest;
 use App\Http\Requests\UpdateSocialMobRequest;
 use App\SocialMob;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -25,9 +26,12 @@ class SocialMobController extends Controller
 
     public function week(Request $request)
     {
+        $referenceDate = CarbonImmutable::parse($request->input('date'));
         /** @var Collection $weekMobs */
-        $weekMobs = SocialMob::query()->thisWeek()->orderBy('start_time')->get();
-        $startPoint = $startPoint = now()->isDayOfWeek(Carbon::MONDAY) ? Carbon::today() : Carbon::parse('Last Monday');
+        $weekMobs = SocialMob::query()->weekOf($referenceDate)->orderBy('start_time')->get();
+        $startPoint = $startPoint = $referenceDate->isDayOfWeek(Carbon::MONDAY)
+            ? $referenceDate
+            : $referenceDate->modify('Last Monday');
         $startPoint = $startPoint->toImmutable();
 
         $response = [

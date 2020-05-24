@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\SocialMob;
 use App\User;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -108,6 +109,7 @@ class SocialMobTest extends TestCase
     public function testItCanProvideAllSocialMobsOfTheCurrentWeek()
     {
         Carbon::setTestNow('First Monday');
+        CarbonImmutable::setTestNow('First Monday');
 
         $mondaySocial = factory(SocialMob::class)
             ->create(['start_time' => now()->toDateTimeString()])
@@ -140,6 +142,7 @@ class SocialMobTest extends TestCase
     public function testItCanProvideAllSocialMobsOfTheCurrentWeekEvenOnFridays()
     {
         Carbon::setTestNow('Next Friday');
+        CarbonImmutable::setTestNow('Next Friday');
 
         $mondaySocial = factory(SocialMob::class)
             ->create(['start_time' => Carbon::parse('Last Monday')->toDateTimeString()])
@@ -157,6 +160,40 @@ class SocialMobTest extends TestCase
         ];
 
         $response = $this->getJson(route('social_mob.week'));
+        $response->assertSuccessful();
+        $response->assertJson($expectedResponse);
+    }
+
+    public function testItCanProvideAllSocialMobsOfASpecifiedWeekIfADateIsGiven()
+    {
+        $weekThatHasNoMobs = '2020-05-25';
+        Carbon::setTestNow($weekThatHasNoMobs);
+        CarbonImmutable::setTestNow($weekThatHasNoMobs);
+        $weekThatHasTheMobs = '2020-05-04';
+        $mondayOfWeekWithMobs = CarbonImmutable::parse($weekThatHasTheMobs);
+
+        $mondaySocial = factory(SocialMob::class)
+            ->create(['start_time' => $mondayOfWeekWithMobs->toDateTimeString()])
+            ->toArray();
+        $lateWednesdaySocial = factory(SocialMob::class)
+            ->create(['start_time' => $mondayOfWeekWithMobs->addDays(2)->addHours(2)->toDateTimeString()])
+            ->toArray();
+        $earlyWednesdaySocial = factory(SocialMob::class)
+            ->create(['start_time' => $mondayOfWeekWithMobs->addDays(2)->toDateTimeString()])
+            ->toArray();
+        $fridaySocial = factory(SocialMob::class)
+            ->create(['start_time' => $mondayOfWeekWithMobs->addDays(4)->toDateTimeString()])
+            ->toArray();
+
+        $expectedResponse = [
+            $mondayOfWeekWithMobs->toDateString() => [$mondaySocial],
+            $mondayOfWeekWithMobs->addDays(1)->toDateString() => [],
+            $mondayOfWeekWithMobs->addDays(2)->toDateString() => [$earlyWednesdaySocial, $lateWednesdaySocial],
+            $mondayOfWeekWithMobs->addDays(3)->toDateString() => [],
+            $mondayOfWeekWithMobs->addDays(4)->toDateString() => [$fridaySocial],
+        ];
+
+        $response = $this->getJson(route('social_mob.week', ['date' => $weekThatHasTheMobs]));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
