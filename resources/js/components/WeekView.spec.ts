@@ -5,7 +5,7 @@ import socialsThisWeek from '../../../tests/fixtures/WeekSocials.json';
 import {ISocialMob, IUser, IWeekMobs} from '../types';
 import VModal from 'vue-js-modal';
 import {SocialMobApi} from '../services/SocialMobApi';
-
+import {DateApi} from '../services/DateApi';
 const authUser: IUser = {
     avatar: "lastAirBender.jpg",
     email: "jack@bauer.com",
@@ -18,8 +18,15 @@ localVue.use(VModal);
 
 describe('WeekView', () => {
     let wrapper: Wrapper<WeekView>;
+    let thisMonday: string;
+    let previousMonday: string;
+    let nextMonday: string;
 
     beforeEach(async () => {
+        thisMonday = '2020-01-13';
+        previousMonday = '2020-01-06';
+        nextMonday = '2020-01-20';
+        DateApi.setTestNow(thisMonday);
         SocialMobApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(socialsThisWeek);
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
@@ -45,5 +52,17 @@ describe('WeekView', () => {
 
     it('does not display the mob creation options for guests', async () => {
         expect(wrapper.find('button.create-mob').exists()).toBe(false);
+    });
+
+    it('allows the user to view mobs of the previous week', async () => {
+        wrapper.find('button.load-previous-week').trigger('click');
+        await flushPromises();
+        expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(previousMonday);
+    });
+
+    it('allows the user to view mobs of the next week', async () => {
+        wrapper.find('button.load-next-week').trigger('click');
+        await flushPromises();
+        expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(nextMonday);
     });
 });

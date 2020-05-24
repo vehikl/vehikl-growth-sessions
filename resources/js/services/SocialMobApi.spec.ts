@@ -3,6 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import socialsThisWeek from '../../../tests/fixtures/WeekSocials.json';
 import {SocialMobApi} from './SocialMobApi';
 import {ISocialMob, IUpdateSocialMobRequest} from '../types';
+import {DateApi} from './DateApi';
 
 const dummyMob: ISocialMob = {
     id: 1,
@@ -24,10 +25,21 @@ describe('SocialMobApi', () => {
         mockBackend.restore();
     });
 
-    it('returns the mobs of the week', async () => {
-        mockBackend.onGet('social_mob/week').reply(200, socialsThisWeek);
+    it('returns the mobs of the current week if no date is provided', async () => {
+        DateApi.setTestNow('2020-05-01');
+        mockBackend.onGet('social_mob/week?date=2020-05-01').reply(200, socialsThisWeek);
 
         const result = await SocialMobApi.getAllMobsOfTheWeek();
+
+        expect(result).toEqual(socialsThisWeek);
+    });
+
+
+    it('returns the mobs of the week of the date provided', async() => {
+        DateApi.setTestNow('2020-05-01');
+        mockBackend.onGet('social_mob/week?date=2020-01-01').reply(200, socialsThisWeek);
+
+        const result = await SocialMobApi.getAllMobsOfTheWeek('2020-01-01');
 
         expect(result).toEqual(socialsThisWeek);
     });
