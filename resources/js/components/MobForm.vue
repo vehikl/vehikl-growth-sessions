@@ -58,11 +58,11 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {ISocialMob, IStoreSocialMobRequest, IUpdateSocialMobRequest, IUser} from '../types';
+    import {ISocialMob, IStoreSocialMobRequest, IUser} from '../types';
     import VueTimepicker from 'vue2-timepicker'
     import Datepicker from 'vuejs-datepicker';
-    import axios from 'axios';
     import moment from 'moment';
+    import {SocialMobApi} from '../services/SocialMobApi';
 
     @Component({components: {VueTimepicker, Datepicker}})
     export default class CreateMob extends Vue {
@@ -99,9 +99,8 @@
 
         async createMob() {
             try {
-                let response = await axios.post<ISocialMob>('social_mob', this.storeOrUpdatePayload);
-
-                this.$emit('submitted', response.data);
+                let newMob: ISocialMob = await SocialMobApi.store(this.storeOrUpdatePayload);
+                this.$emit('submitted', newMob);
             } catch (e) {
                 alert('Something went wrong :(');
             }
@@ -109,9 +108,8 @@
 
         async updateMob() {
             try {
-                let response = await axios.put<ISocialMob>(`social_mob/${this.mob.id}`, this.storeOrUpdatePayload);
-
-                this.$emit('submitted', response.data);
+                let updatedMob: ISocialMob = await SocialMobApi.update(this.mob, this.storeOrUpdatePayload);
+                this.$emit('submitted', updatedMob);
             } catch (e) {
                 alert('Something went wrong :(');
             }
@@ -133,7 +131,7 @@
             return !!this.time && !!this.date && !!this.location && !!this.topic;
         }
 
-        get storeOrUpdatePayload(): IStoreSocialMobRequest | IUpdateSocialMobRequest {
+        get storeOrUpdatePayload(): IStoreSocialMobRequest {
             return {
                 location: this.location,
                 topic: this.topic,

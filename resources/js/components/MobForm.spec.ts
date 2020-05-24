@@ -1,9 +1,8 @@
 import {mount, Wrapper} from '@vue/test-utils';
 import MobForm from './MobForm.vue';
 import {IStoreSocialMobRequest, IUser} from '../types';
-import MockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
 import flushPromises from 'flush-promises';
+import {SocialMobApi} from '../services/SocialMobApi';
 
 const user: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -15,16 +14,11 @@ const startDate: string = "2020-06-25";
 
 describe('MobForm', () => {
     let wrapper: Wrapper<MobForm>;
-    let mockBackend: MockAdapter;
 
     beforeEach(() => {
-        mockBackend = new MockAdapter(axios);
-        mockBackend.onPost('/social_mob').reply(201);
         wrapper = mount(MobForm, {propsData: {owner: user, startDate}});
-    });
-
-    afterEach(() => {
-       mockBackend.restore();
+        SocialMobApi.store = jest.fn().mockResolvedValue({});
+        SocialMobApi.update = jest.fn().mockResolvedValue({});
     });
 
     it('allows a mob to be created', async () => {
@@ -39,13 +33,12 @@ describe('MobForm', () => {
         wrapper.find('button[type="submit"]').trigger('click');
         await flushPromises();
 
-        const dataSent = JSON.parse(mockBackend.history.post[0].data);
         const expectedPayload: IStoreSocialMobRequest = {
             location: chosenLocation,
             start_time: `${startDate} ${chosenTime}`,
             topic: chosenTopic
         };
-        expect(dataSent).toEqual(expectedPayload)
+        expect(SocialMobApi.store).toHaveBeenCalledWith(expectedPayload);
     });
 
     it('emits submitted event on success', async () => {
@@ -55,7 +48,6 @@ describe('MobForm', () => {
         await wrapper.vm.$nextTick();
         wrapper.find('button[type="submit"]').trigger('click');
         await flushPromises();
-
         expect(wrapper.emitted('submitted')).toBeTruthy();
     });
 
