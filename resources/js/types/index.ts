@@ -17,3 +17,15 @@ export interface ISocialMob {
 export interface IWeekMobs {
     [dateString: string]: ISocialMob[],
 }
+
+export interface IStoreSocialMobRequest {
+    location: string;
+    topic: string;
+    start_time: string;
+}
+
+export interface IUpdateSocialMobRequest {
+    location?: string;
+    topic?: string;
+    start_time?: string;
+}

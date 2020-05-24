@@ -1,6 +1,6 @@
 import {mount, Wrapper} from '@vue/test-utils';
 import MobForm from './MobForm.vue';
-import {IUser} from '../types';
+import {IStoreSocialMobRequest, IUser} from '../types';
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import flushPromises from 'flush-promises';
@@ -40,11 +40,12 @@ describe('MobForm', () => {
         await flushPromises();
 
         const dataSent = JSON.parse(mockBackend.history.post[0].data);
-        expect(dataSent).toEqual({
+        const expectedPayload: IStoreSocialMobRequest = {
             location: chosenLocation,
             start_time: `${startDate} ${chosenTime}`,
             topic: chosenTopic
-        })
+        };
+        expect(dataSent).toEqual(expectedPayload)
     });
 
     it('emits submitted event on success', async () => {

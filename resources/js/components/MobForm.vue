@@ -58,7 +58,7 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {ISocialMob, IUser} from '../types';
+    import {ISocialMob, IStoreSocialMobRequest, IUpdateSocialMobRequest, IUser} from '../types';
     import VueTimepicker from 'vue2-timepicker'
     import Datepicker from 'vuejs-datepicker';
     import axios from 'axios';
@@ -99,11 +99,7 @@
 
         async createMob() {
             try {
-                let response = await axios.post<ISocialMob>('social_mob', {
-                    location: this.location,
-                    topic: this.topic,
-                    start_time: this.startTime
-                });
+                let response = await axios.post<ISocialMob>('social_mob', this.storeOrUpdatePayload);
 
                 this.$emit('submitted', response.data);
             } catch (e) {
@@ -113,11 +109,7 @@
 
         async updateMob() {
             try {
-                let response = await axios.put<ISocialMob>(`social_mob/${this.mob.id}`, {
-                    location: this.location,
-                    topic: this.topic,
-                    start_time: this.startTime
-                });
+                let response = await axios.put<ISocialMob>(`social_mob/${this.mob.id}`, this.storeOrUpdatePayload);
 
                 this.$emit('submitted', response.data);
             } catch (e) {
@@ -139,6 +131,14 @@
 
         get isReadyToSubmit(): boolean {
             return !!this.time && !!this.date && !!this.location && !!this.topic;
+        }
+
+        get storeOrUpdatePayload(): IStoreSocialMobRequest | IUpdateSocialMobRequest {
+            return {
+                location: this.location,
+                topic: this.topic,
+                start_time: this.startTime
+            }
         }
     }
 </script>
