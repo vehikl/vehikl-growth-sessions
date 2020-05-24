@@ -1,10 +1,10 @@
 import BaseApi from './BaseApi';
 import {ISocialMob, IStoreSocialMobRequest, IUpdateSocialMobRequest, IWeekMobs} from '../types';
-import {DateApi} from './DateApi';
+import {DateTimeApi} from './DateTimeApi';
 
 export class SocialMobApi extends BaseApi {
-    static async getAllMobsOfTheWeek(date: string = DateApi.today().toString()): Promise<IWeekMobs> {
-        let dateString = DateApi.parse(date).toString();
+    static async getAllMobsOfTheWeek(date: string = DateTimeApi.today().toString()): Promise<IWeekMobs> {
+        let dateString = DateTimeApi.parse(date).toString();
         let response = await BaseApi.httpRequest.get<IWeekMobs>(`social_mob/week?date=${dateString}`);
         return response.data;
     }

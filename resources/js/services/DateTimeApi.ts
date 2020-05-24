@@ -1,8 +1,8 @@
 import moment, {Moment} from 'moment';
 
-export class DateApi {
+export class DateTimeApi {
     private moment: Moment;
-    private static nowString: string = moment().startOf('day').format('YYYY-MM-DD');
+    private static nowString: string = moment().format('YYYY-MM-DD');
 
     constructor(date?: string) {
         this.moment = this.momentInstance(date);
@@ -10,23 +10,23 @@ export class DateApi {
 
     private momentInstance(date?: string) {
         if (! date) {
-            return moment().startOf('day');
+            return moment();
         }
 
-        let dateString: string = date ? date : DateApi.nowString;
-        return moment(dateString, 'YYYY-MM-DD').startOf('day');
+        let dateString: string = date ? date : DateTimeApi.nowString;
+        return moment(dateString, 'YYYY-MM-DD');
     }
 
-    static parse(date: string): DateApi {
-        return new DateApi(date);
+    static parse(date: string): DateTimeApi {
+        return new DateTimeApi(date);
     }
 
     static today() {
-        return new DateApi(this.nowString);
+        return new DateTimeApi(this.nowString);
     }
 
     static setTestNow(date: string) {
-        DateApi.nowString = date;
+        DateTimeApi.nowString = date;
     }
 
     format(formatString: string): string {
@@ -49,11 +49,11 @@ export class DateApi {
         return this.moment.format('dddd');
     }
 
-    addDays(days: number): DateApi {
-        return new DateApi(this.moment.add(days, 'days').format('YYYY-MM-DD'));
+    addDays(days: number): DateTimeApi {
+        return new DateTimeApi(this.moment.add(days, 'days').format('YYYY-MM-DD'));
     }
 
-    isSame(date: DateApi): boolean {
+    isSame(date: DateTimeApi): boolean {
         return this.moment.isSame(date.toString(), 'days');
     }
 }

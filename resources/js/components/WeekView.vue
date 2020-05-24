@@ -6,9 +6,10 @@
                     @click="changeReferenceDate(-7)">
                 <i class="fa fa-chevron-left" aria-hidden="true"></i>
             </button>
-            <h2 class="text-center mb-2 w-72">Week of
-                {{ DateApi.parse(weekDates[0]).format('MMM-DD')}} to
-                {{ DateApi.parse(weekDates[4]).format('MMM-DD')}}
+            <h2 class="text-center mb-2 w-72">
+                Week of
+                {{ DateTimeApi.parse(weekDates[0]).format('MMM-DD')}} to
+                {{ DateTimeApi.parse(weekDates[4]).format('MMM-DD')}}
             </h2>
             <button class="load-next-week mx-4 mb-2"
                     aria-label="Load next week"
@@ -30,10 +31,11 @@
             <div class="day text-center mx-1 mb-2 px-2 md:block"
                  :weekDay="date.weekDayString()"
                  v-for="date in weekDates"
+                 :key="date.toString()"
                  :class="{
                  'bg-blue-100': date.weekDayNumber() % 2 === 0,
                  'bg-blue-200': date.weekDayNumber() % 2 !== 0,
-                 'hidden': !date.isSame(DateApi.today())
+                 'hidden': !date.isSame(DateTimeApi.today())
                  }">
                 <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="date.weekDayString()"></h3>
                 <div v-if="user">
@@ -43,15 +45,22 @@
                         Create new mob
                     </button>
                 </div>
+                <draggable :list="socialMobs[date]"
+                           group="social-mobs"
+                           class="h-full w-full"
+                           :date="date"
+                           @end="onDragEnd"
+                           @change="onChange">
+                    <mob-card v-for="socialMob in socialMobs[date]"
+                              :key="socialMob.id"
+                              @mob-updated="getAllMobsOfTheWeek"
+                              :user="user"
+                              @edit-requested="onMobEditRequested"
+                              @delete-requested="getAllMobsOfTheWeek"
+                              :socialMob="socialMob"
+                              class="my-3"/>
+                </draggable>
 
-                <mob-card v-for="socialMob in socialMobs[date]"
-                          @mob-updated="getAllMobsOfTheWeek"
-                          :user="user"
-                          @edit-requested="onMobEditRequested"
-                          @delete-requested="getAllMobsOfTheWeek"
-                          :key="socialMob.id"
-                          :socialMob="socialMob"
-                          class="my-3"/>
             </div>
         </div>
     </div>
@@ -63,21 +72,45 @@
     import MobCard from './MobCard.vue';
     import MobForm from './MobForm.vue';
     import {SocialMobApi} from '../services/SocialMobApi';
-    import {DateApi} from '../services/DateApi';
+    import {DateTimeApi} from '../services/DateTimeApi';
+    import Draggable from 'vuedraggable';
+
+    interface IMobCardDragChange {
+        added?: {element: ISocialMob, index: number}
+        removed?: {element: ISocialMob, index: number}
+    }
 
     @Component({
-        components: {MobForm, MobCard}
+        components: {MobForm, MobCard, Draggable}
     })
     export default class WeekView extends Vue {
         @Prop({required: false, default: null}) user!: IUser;
-        referenceDate: DateApi = DateApi.today();
+        referenceDate: DateTimeApi = DateTimeApi.today();
         socialMobs: IWeekMobs = {};
         newMobStartDate: string = '';
         mobToUpdate: ISocialMob | null = null;
-        DateApi = DateApi;
+        DateTimeApi = DateTimeApi;
+        draggedMob: ISocialMob | null = null;
 
         async created() {
             await this.getAllMobsOfTheWeek();
+        }
+
+        async onDragEnd(location: any) {
+            let targetDate = location.to.__vue__.$attrs.date;
+            if (!this.draggedMob) {
+                return;
+            }
+           if (confirm('Are you sure?')) {
+               await SocialMobApi.update(this.draggedMob, {start_date: targetDate.toString()} );
+           }
+            await this.getAllMobsOfTheWeek();
+        }
+
+        onChange(change: IMobCardDragChange, source: any) {
+            if (change.added) {
+                return this.draggedMob = change.added.element;
+            }
         }
 
         async getAllMobsOfTheWeek() {
@@ -89,7 +122,7 @@
             this.$modal.hide('mob-form');
         }
 
-        onCreateNewMobClicked(startDate: DateApi) {
+        onCreateNewMobClicked(startDate: DateTimeApi) {
             this.newMobStartDate = startDate.toISOString();
             this.$modal.show('mob-form');
         }
@@ -105,8 +138,8 @@
             await this.getAllMobsOfTheWeek();
         }
 
-        get weekDates(): DateApi[] {
-            return Object.keys(this.socialMobs).map((date: string) => DateApi.parse(date));
+        get weekDates(): DateTimeApi[] {
+            return Object.keys(this.socialMobs).map((date: string) => DateTimeApi.parse(date));
         }
     }
 </script>

@@ -28,4 +28,5 @@ export interface IUpdateSocialMobRequest {
     location?: string;
     topic?: string;
     start_time?: string;
+    start_date?: string;
 }

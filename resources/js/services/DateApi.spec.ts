@@ -1,4 +1,4 @@
-import {DateApi} from './DateApi';
+import {DateTimeApi} from './DateTimeApi';
 
 describe('DateApi', () => {
    it('can add days', () => {
@@ -6,10 +6,10 @@ describe('DateApi', () => {
        const tomorrow = '2020-01-03';
        const yesterday = '2020-01-01';
 
-       DateApi.setTestNow(today);
+       DateTimeApi.setTestNow(today);
 
-       expect(DateApi.parse(today).addDays(0).toString()).toEqual(today);
-       expect(DateApi.parse(today).addDays(1).toString()).toEqual(tomorrow);
-       expect(DateApi.parse(today).addDays(-1).toString()).toEqual(yesterday);
+       expect(DateTimeApi.parse(today).addDays(0).toString()).toEqual(today);
+       expect(DateTimeApi.parse(today).addDays(1).toString()).toEqual(tomorrow);
+       expect(DateTimeApi.parse(today).addDays(-1).toString()).toEqual(yesterday);
    });
 });

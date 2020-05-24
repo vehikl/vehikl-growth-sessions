@@ -5,3 +5,4 @@ declare module "*.vue" {
 
 declare module "vue2-timepicker";
 declare module "vuejs-datepicker";
+declare module "vuedraggable";

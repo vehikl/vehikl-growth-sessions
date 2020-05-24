@@ -5,7 +5,7 @@ import socialsThisWeek from '../../../tests/fixtures/WeekSocials.json';
 import {ISocialMob, IUser, IWeekMobs} from '../types';
 import VModal from 'vue-js-modal';
 import {SocialMobApi} from '../services/SocialMobApi';
-import {DateApi} from '../services/DateApi';
+import {DateTimeApi} from '../services/DateTimeApi';
 const authUser: IUser = {
     avatar: "lastAirBender.jpg",
     email: "jack@bauer.com",
@@ -26,7 +26,7 @@ describe('WeekView', () => {
         today = '2020-01-13';
         previousMonday = '2020-01-06';
         nextMonday = '2020-01-20';
-        DateApi.setTestNow(today);
+        DateTimeApi.setTestNow(today);
         SocialMobApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(socialsThisWeek);
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
@@ -69,8 +69,8 @@ describe('WeekView', () => {
     it('shows only the current day in mobile devices', () => {
         window = Object.assign(window, { innerWidth: 300 });
 
-        let today = DateApi.today();
-        let tomorrow = DateApi.today().addDays(1);
+        let today = DateTimeApi.today();
+        let tomorrow = DateTimeApi.today().addDays(1);
         expect(wrapper.find(`[weekDay=${today.weekDayString()}`).element).not.toHaveClass('hidden');
         expect(wrapper.find(`[weekDay=${tomorrow.weekDayString()}`).element).toHaveClass('hidden');
     });

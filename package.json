@@ -36,6 +36,7 @@
         "vue-property-decorator": "^8.4.2",
         "vue-template-compiler": "^2.6.11",
         "vue2-timepicker": "^1.1.0",
+        "vuedraggable": "^2.23.2",
         "vuejs-datepicker": "^1.6.2"
     }
 }
