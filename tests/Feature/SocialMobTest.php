@@ -38,6 +38,19 @@ class SocialMobTest extends TestCase
         $this->assertEquals($newTopic, $mob->fresh()->topic);
     }
 
+    public function testTheOwnerCanChangeTheDateOfTheMob()
+    {
+        $startTime = '16:30:00';
+        $mob = factory(SocialMob::class)->create(['start_time' => "2020-01-01 $startTime"]);
+        $newDate = '2020-01-10';
+
+        $this->actingAs($mob->owner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
+            'start_date' => $newDate,
+        ])->assertSuccessful();
+
+        $this->assertEquals("{$newDate} $startTime", $mob->fresh()->start_time);
+    }
+
     public function testAUserThatIsNotAnOwnerOfAMobCannotEditIt()
     {
         $mob = factory(SocialMob::class)->create();

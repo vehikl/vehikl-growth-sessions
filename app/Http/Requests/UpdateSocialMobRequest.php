@@ -16,7 +16,8 @@ class UpdateSocialMobRequest extends FormRequest
         return [
             'topic' => 'sometimes|required|string',
             'location' => 'sometimes|required|string',
-            'start_time' => 'sometimes|required|date'
+            'start_time' => 'sometimes|required|date',
+            'start_date' => 'sometimes|required|date',
         ];
     }
 }

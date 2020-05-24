@@ -15,6 +15,7 @@ class SocialMob extends Model
         'topic',
         'location',
         'start_time',
+        'start_date',
         'owner_id'
     ];
 
@@ -31,6 +32,13 @@ class SocialMob extends Model
     public function setStartTimeAttribute($value)
     {
         $this->attributes['start_time'] = Carbon::parse($value)->toDateTimeString();
+    }
+
+    public function setStartDateAttribute($newDate)
+    {
+        $date = Carbon::parse($newDate)->toDateString();
+        $time = Carbon::parse($this->attributes['start_time'])->toTimeString();
+        return $this->attributes['start_time'] = Carbon::parse($date.$time)->toDateTimeString();
     }
 
     public function scopeWeekOf($query, CarbonImmutable $referenceDate)
