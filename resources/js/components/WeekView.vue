@@ -48,6 +48,7 @@
                 <draggable :list="socialMobs[date]"
                            group="social-mobs"
                            class="h-full w-full"
+                           handle=".handle"
                            :date="date"
                            @end="onDragEnd"
                            @change="onChange">
@@ -58,7 +59,11 @@
                               @edit-requested="onMobEditRequested"
                               @delete-requested="getAllMobsOfTheWeek"
                               :socialMob="socialMob"
-                              class="my-3 cursor-pointer"/>
+                              :class="{
+                              'handle cursor-pointer hover:bg-blue-100 hover:scale-105': isDraggable(socialMob),
+                              'cursor-not-allowed': !isDraggable(socialMob) && user && socialMob.owner.id === user.id
+                              }"
+                              class="my-3 transform transition-transform duration-150"/>
                 </draggable>
 
             </div>
@@ -96,22 +101,19 @@
             await this.getAllMobsOfTheWeek();
         }
 
+        isDraggable(mob: ISocialMob): boolean {
+            if (! this.user) {
+                return false;
+            }
+            const userOwnsDraggedMob = mob.owner.id === this.user.id;
+            const isMobInThePast = DateTimeApi.parse(mob.start_time).isInThePast();
+            return userOwnsDraggedMob && !isMobInThePast;
+        }
+
         async onDragEnd(location: any) {
             let targetDate = location.to.__vue__.$attrs.date;
-            const userOwnsDraggedMob = this.draggedMob.owner.id === this.user.id;
-            if (!userOwnsDraggedMob) {
-                return await this.getAllMobsOfTheWeek();
-            }
-
-            if (DateTimeApi.parse(this.draggedMob.start_time).isInThePast()) {
-                alert('You cannot reschedule a mob that is in the past.');
-                return await this.getAllMobsOfTheWeek();
-            }
-
-            if (confirm(`Are you sure you want to move this mob to ${targetDate.format('MMM-DD')} (${targetDate.weekDayString()})?`)) {
-                await SocialMobApi.update(this.draggedMob, {start_date: targetDate.toString()});
-                await this.getAllMobsOfTheWeek();
-            }
+            await SocialMobApi.update(this.draggedMob, {start_date: targetDate.toString()});
+            await this.getAllMobsOfTheWeek();
         }
 
         onChange(change: IMobCardDragChange) {

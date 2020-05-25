@@ -39,6 +39,7 @@ const mobData: ISocialMob = {
 describe('MobCard', () => {
     let wrapper: Wrapper<MobCard>;
     beforeEach(() => {
+        DateTimeApi.setTestNow('2020-05-01');
         wrapper = mount(MobCard, {propsData: {socialMob: mobData}})
     });
 
@@ -135,5 +136,13 @@ describe('MobCard', () => {
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
 
         expect(wrapper.find('.update-button').element).not.toBeVisible()
+    });
+
+    it('does not display the join button if the date of the mob is in the past', () => {
+        const oneDayAfterTheMob = DateTimeApi.parse(mobData.start_time).addDays(1).toString();
+        DateTimeApi.setTestNow(oneDayAfterTheMob);
+        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
+
+        expect(wrapper.find('.join-button').element).not.toBeVisible()
     });
 });
