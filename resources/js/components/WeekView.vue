@@ -132,6 +132,7 @@
         }
 
         onCreateNewMobClicked(startDate: DateTimeApi) {
+            this.mobToUpdate = null;
             this.newMobStartDate = startDate.toISOString();
             this.$modal.show('mob-form');
         }
