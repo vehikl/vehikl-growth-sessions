@@ -58,7 +58,7 @@
                               @edit-requested="onMobEditRequested"
                               @delete-requested="getAllMobsOfTheWeek"
                               :socialMob="socialMob"
-                              class="my-3"/>
+                              class="my-3 cursor-pointer"/>
                 </draggable>
 
             </div>
@@ -99,10 +99,19 @@
         async onDragEnd(location: any) {
             let targetDate = location.to.__vue__.$attrs.date;
             const userOwnsDraggedMob = this.draggedMob.owner.id === this.user.id;
-            if (userOwnsDraggedMob && confirm(`Are you sure you want to move this mob to ${targetDate.format('MMM-DD')} (${targetDate.weekDayString()})?`)) {
-                await SocialMobApi.update(this.draggedMob, {start_date: targetDate.toString()});
+            if (!userOwnsDraggedMob) {
+                return await this.getAllMobsOfTheWeek();
             }
-            await this.getAllMobsOfTheWeek();
+
+            if (DateTimeApi.parse(this.draggedMob.start_time).isInThePast()) {
+                alert('You cannot reschedule a mob that is in the past.');
+                return await this.getAllMobsOfTheWeek();
+            }
+
+            if (confirm(`Are you sure you want to move this mob to ${targetDate.format('MMM-DD')} (${targetDate.weekDayString()})?`)) {
+                await SocialMobApi.update(this.draggedMob, {start_date: targetDate.toString()});
+                await this.getAllMobsOfTheWeek();
+            }
         }
 
         onChange(change: IMobCardDragChange) {

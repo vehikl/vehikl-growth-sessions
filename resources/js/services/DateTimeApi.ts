@@ -56,4 +56,8 @@ export class DateTimeApi {
     isSame(date: DateTimeApi): boolean {
         return this.moment.isSame(date.toString(), 'days');
     }
+
+    isInThePast(): boolean {
+        return this.moment.diff(DateTimeApi.today().toISOString(), 'days') < 0;
+    }
 }

@@ -2,6 +2,7 @@ import {mount, Wrapper} from '@vue/test-utils';
 import MobCard from './MobCard.vue';
 import {ISocialMob, IUser} from '../types';
 import {SocialMobApi} from '../services/SocialMobApi';
+import {DateTimeApi} from '../services/DateTimeApi';
 
 const ownerOfTheMob: IUser = {
     name: 'Jack Bauer',
@@ -118,5 +119,21 @@ describe('MobCard', () => {
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
         wrapper.find('.delete-button').trigger('click');
         expect(SocialMobApi.delete).toHaveBeenCalledWith(mobData);
+    });
+
+    it('does not display the edit button to the owner if the date of the mob is in the past', () => {
+        const oneDayAfterTheMob = DateTimeApi.parse(mobData.start_time).addDays(1).toString();
+        DateTimeApi.setTestNow(oneDayAfterTheMob);
+        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+
+        expect(wrapper.find('.delete-button').element).not.toBeVisible()
+    });
+
+    it('does not display the edit button to the owner if the date of the mob is in the past', () => {
+        const oneDayAfterTheMob = DateTimeApi.parse(mobData.start_time).addDays(1).toString();
+        DateTimeApi.setTestNow(oneDayAfterTheMob);
+        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+
+        expect(wrapper.find('.update-button').element).not.toBeVisible()
     });
 });

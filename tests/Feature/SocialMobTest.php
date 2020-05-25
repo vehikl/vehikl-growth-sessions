@@ -7,6 +7,7 @@ use App\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Response;
 use Tests\TestCase;
 
 class SocialMobTest extends TestCase
@@ -38,10 +39,11 @@ class SocialMobTest extends TestCase
         $this->assertEquals($newTopic, $mob->fresh()->topic);
     }
 
-    public function testTheOwnerCanChangeTheDateOfTheMob()
+    public function testTheOwnerCanChangeTheDateOfAnUpcomingMob()
     {
+        Carbon::setTestNow('2020-01-01');
         $startTime = '16:30:00';
-        $mob = factory(SocialMob::class)->create(['start_time' => "2020-01-01 $startTime"]);
+        $mob = factory(SocialMob::class)->create(['start_time' => "2020-01-02 $startTime"]);
         $newDate = '2020-01-10';
 
         $this->actingAs($mob->owner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
@@ -49,6 +51,18 @@ class SocialMobTest extends TestCase
         ])->assertSuccessful();
 
         $this->assertEquals("{$newDate} $startTime", $mob->fresh()->start_time);
+    }
+
+    public function testTheOwnerCannotUpdateAMobThatAlreadyHappened()
+    {
+        Carbon::setTestNow('2020-01-05');
+        $startTime = '16:30:00';
+        $mob = factory(SocialMob::class)->create(['start_time' => "2020-01-01 $startTime"]);
+        $newDate = '2020-01-10';
+
+        $this->actingAs($mob->owner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
+            'start_date' => $newDate,
+        ])->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
     public function testAUserThatIsNotAnOwnerOfAMobCannotEditIt()

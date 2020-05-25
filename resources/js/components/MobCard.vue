@@ -37,7 +37,7 @@
                 v-show="isAttendee">
             Leave
         </button>
-        <div  v-show="isOwner">
+        <div  v-show="isOwner && ! hasMobAlreadyHappened">
             <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
                     @click="$emit('edit-requested', socialMob)">
                 Edit
@@ -58,6 +58,7 @@
     import moment from 'moment';
     import axios from 'axios';
     import {SocialMobApi} from '../services/SocialMobApi';
+    import {DateTimeApi} from '../services/DateTimeApi';
 
     @Component
     export default class MobCard extends Vue {
@@ -101,6 +102,10 @@
                 return false;
             }
             return this.socialMob.owner.id === this.user.id;
+        }
+
+        get hasMobAlreadyHappened(): boolean {
+            return DateTimeApi.parse(this.socialMob.start_time).isInThePast();
         }
 
         isUrl(possibleUrl: string): boolean {
