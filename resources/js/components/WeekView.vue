@@ -76,8 +76,8 @@
     import Draggable from 'vuedraggable';
 
     interface IMobCardDragChange {
-        added?: {element: ISocialMob, index: number}
-        removed?: {element: ISocialMob, index: number}
+        added?: { element: ISocialMob, index: number }
+        removed?: { element: ISocialMob, index: number }
     }
 
     @Component({
@@ -90,7 +90,7 @@
         newMobStartDate: string = '';
         mobToUpdate: ISocialMob | null = null;
         DateTimeApi = DateTimeApi;
-        draggedMob: ISocialMob | null = null;
+        draggedMob!: ISocialMob;
 
         async created() {
             await this.getAllMobsOfTheWeek();
@@ -98,16 +98,14 @@
 
         async onDragEnd(location: any) {
             let targetDate = location.to.__vue__.$attrs.date;
-            if (!this.draggedMob) {
-                return;
+            const userOwnsDraggedMob = this.draggedMob.owner.id === this.user.id;
+            if (userOwnsDraggedMob && confirm('Are you sure?')) {
+                await SocialMobApi.update(this.draggedMob, {start_date: targetDate.toString()});
             }
-           if (confirm('Are you sure?')) {
-               await SocialMobApi.update(this.draggedMob, {start_date: targetDate.toString()} );
-           }
             await this.getAllMobsOfTheWeek();
         }
 
-        onChange(change: IMobCardDragChange, source: any) {
+        onChange(change: IMobCardDragChange) {
             if (change.added) {
                 return this.draggedMob = change.added.element;
             }

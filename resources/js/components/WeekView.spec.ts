@@ -6,11 +6,12 @@ import {ISocialMob, IUser, IWeekMobs} from '../types';
 import VModal from 'vue-js-modal';
 import {SocialMobApi} from '../services/SocialMobApi';
 import {DateTimeApi} from '../services/DateTimeApi';
+
 const authUser: IUser = {
-    avatar: "lastAirBender.jpg",
-    email: "jack@bauer.com",
+    avatar: 'lastAirBender.jpg',
+    email: 'jack@bauer.com',
     id: 987,
-    name: "Jack Bauer"
+    name: 'Jack Bauer'
 };
 
 const localVue = createLocalVue();
@@ -67,7 +68,7 @@ describe('WeekView', () => {
     });
 
     it('shows only the current day in mobile devices', () => {
-        window = Object.assign(window, { innerWidth: 300 });
+        window = Object.assign(window, {innerWidth: 300});
 
         let today = DateTimeApi.today();
         let tomorrow = DateTimeApi.today().addDays(1);
