@@ -61,8 +61,8 @@
     import {ISocialMob, IStoreSocialMobRequest, IUser} from '../types';
     import VueTimepicker from 'vue2-timepicker'
     import Datepicker from 'vuejs-datepicker';
-    import moment from 'moment';
     import {SocialMobApi} from '../services/SocialMobApi';
+    import {DateTimeApi} from '../services/DateTimeApi';
 
     @Component({components: {VueTimepicker, Datepicker}})
     export default class CreateMob extends Vue {
@@ -83,8 +83,8 @@
             }
 
             if (this.mob) {
-                this.date = moment(this.mob.start_time).toISOString();
-                this.time = moment(this.mob.start_time).format('hh:mm a');
+                this.date = DateTimeApi.parse(this.mob.start_time).toISOString();
+                this.time = DateTimeApi.parse(this.mob.start_time).toTimeString12Hours();
                 this.location = this.mob.location;
                 this.topic = this.mob.topic;
             }
@@ -120,7 +120,7 @@
         }
 
         get dateString(): string {
-            return moment(this.date).format('YYYY-MM-DD');
+            return DateTimeApi.parse(this.date).toDateString();
         }
 
         get startTime(): string {

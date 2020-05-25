@@ -123,7 +123,7 @@ describe('MobCard', () => {
     });
 
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTimeApi.parse(mobData.start_time).addDays(1).toString();
+        const oneDayAfterTheMob = DateTimeApi.parse(mobData.start_time).addDays(1).toDateString();
         DateTimeApi.setTestNow(oneDayAfterTheMob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
 
@@ -131,7 +131,7 @@ describe('MobCard', () => {
     });
 
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTimeApi.parse(mobData.start_time).addDays(1).toString();
+        const oneDayAfterTheMob = DateTimeApi.parse(mobData.start_time).addDays(1).toDateString();
         DateTimeApi.setTestNow(oneDayAfterTheMob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
 
@@ -139,7 +139,7 @@ describe('MobCard', () => {
     });
 
     it('does not display the join button if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTimeApi.parse(mobData.start_time).addDays(1).toString();
+        const oneDayAfterTheMob = DateTimeApi.parse(mobData.start_time).addDays(1).toDateString();
         DateTimeApi.setTestNow(oneDayAfterTheMob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
 

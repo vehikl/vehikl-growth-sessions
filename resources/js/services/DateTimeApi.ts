@@ -24,8 +24,12 @@ export class DateTimeApi {
         return this.moment.format(formatString);
     }
 
-    toString(): string {
+    toDateString(): string {
         return this.format('YYYY-MM-DD');
+    }
+
+    toTimeString12Hours(): string {
+        return this.moment.format('hh:mm a');
     }
 
     toISOString(): string {
@@ -45,7 +49,7 @@ export class DateTimeApi {
     }
 
     isSame(date: DateTimeApi): boolean {
-        return this.moment.isSame(date.toString(), 'days');
+        return this.moment.isSame(date.toDateString(), 'days');
     }
 
     isInThePast(): boolean {

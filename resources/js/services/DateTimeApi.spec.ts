@@ -8,9 +8,9 @@ describe('DateTimeApi', () => {
 
        DateTimeApi.setTestNow(today);
 
-       expect(DateTimeApi.parse(today).addDays(0).toString()).toEqual(today);
-       expect(DateTimeApi.parse(today).addDays(1).toString()).toEqual(tomorrow);
-       expect(DateTimeApi.parse(today).addDays(-1).toString()).toEqual(yesterday);
+       expect(DateTimeApi.parse(today).addDays(0).toDateString()).toEqual(today);
+       expect(DateTimeApi.parse(today).addDays(1).toDateString()).toEqual(tomorrow);
+       expect(DateTimeApi.parse(today).addDays(-1).toDateString()).toEqual(yesterday);
    });
 
    it('can identify when a day is in the past', () => {

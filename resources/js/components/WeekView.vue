@@ -6,10 +6,10 @@
                     @click="changeReferenceDate(-7)">
                 <i class="fa fa-chevron-left" aria-hidden="true"></i>
             </button>
-            <h2 class="text-center mb-2 w-72">
+            <h2 class="text-center mb-2 w-72" v-if="weekDates.length > 0">
                 Week of
-                {{ DateTimeApi.parse(weekDates[0]).format('MMM-DD')}} to
-                {{ DateTimeApi.parse(weekDates[4]).format('MMM-DD')}}
+                {{ weekDates[0].format('MMM-DD')}} to
+                {{ weekDates[4].format('MMM-DD')}}
             </h2>
             <button class="load-next-week mx-4 mb-2"
                     aria-label="Load next week"
@@ -31,7 +31,7 @@
             <div class="day text-center mx-1 mb-2 px-2 md:block"
                  :weekDay="date.weekDayString()"
                  v-for="date in weekDates"
-                 :key="date.toString()"
+                 :key="date.toDateString()"
                  :class="{
                  'bg-blue-100': date.weekDayNumber() % 2 === 0,
                  'bg-blue-200': date.weekDayNumber() % 2 !== 0,
@@ -45,14 +45,14 @@
                         Create new mob
                     </button>
                 </div>
-                <draggable :list="socialMobs[date]"
+                <draggable :list="socialMobs[date.toDateString()]"
                            group="social-mobs"
                            class="h-full w-full"
                            handle=".handle"
                            :date="date"
                            @end="onDragEnd"
                            @change="onChange">
-                    <mob-card v-for="socialMob in socialMobs[date]"
+                    <mob-card v-for="socialMob in socialMobs[date.toDateString()]"
                               :key="socialMob.id"
                               @mob-updated="getAllMobsOfTheWeek"
                               :user="user"
@@ -123,7 +123,7 @@
         }
 
         async getAllMobsOfTheWeek() {
-            this.socialMobs = await SocialMobApi.getAllMobsOfTheWeek(this.referenceDate.toString());
+            this.socialMobs = await SocialMobApi.getAllMobsOfTheWeek(this.referenceDate.toDateString());
         }
 
         async onFormSubmitted() {
