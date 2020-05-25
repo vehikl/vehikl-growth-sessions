@@ -99,7 +99,7 @@
         async onDragEnd(location: any) {
             let targetDate = location.to.__vue__.$attrs.date;
             const userOwnsDraggedMob = this.draggedMob.owner.id === this.user.id;
-            if (userOwnsDraggedMob && confirm('Are you sure?')) {
+            if (userOwnsDraggedMob && confirm(`Are you sure you want to move this mob to ${targetDate.format('MMM-DD')} (${targetDate.weekDayString()})?`)) {
                 await SocialMobApi.update(this.draggedMob, {start_date: targetDate.toString()});
             }
             await this.getAllMobsOfTheWeek();
