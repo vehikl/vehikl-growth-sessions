@@ -2,10 +2,10 @@ import moment, {Moment} from 'moment';
 
 export class DateTimeApi {
     private moment: Moment;
-    private static nowString: string = moment().format('YYYY-MM-DD');
+    private static nowString: string = moment().toISOString();
 
     constructor(date?: string) {
-        this.moment = moment(date || DateTimeApi.nowString, 'YYYY-MM-DD');
+        this.moment = moment(date || DateTimeApi.nowString);
     }
 
     static parse(date: string): DateTimeApi {
@@ -45,7 +45,7 @@ export class DateTimeApi {
     }
 
     addDays(days: number): DateTimeApi {
-        return new DateTimeApi(this.moment.add(days, 'days').format('YYYY-MM-DD'));
+        return new DateTimeApi(this.moment.add(days, 'days').toISOString());
     }
 
     isSame(date: DateTimeApi): boolean {
