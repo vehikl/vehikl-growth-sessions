@@ -5,16 +5,7 @@ export class DateTimeApi {
     private static nowString: string = moment().format('YYYY-MM-DD');
 
     constructor(date?: string) {
-        this.moment = this.momentInstance(date);
-    }
-
-    private momentInstance(date?: string) {
-        if (! date) {
-            return moment();
-        }
-
-        let dateString: string = date ? date : DateTimeApi.nowString;
-        return moment(dateString, 'YYYY-MM-DD');
+        this.moment = moment(date || DateTimeApi.nowString, 'YYYY-MM-DD');
     }
 
     static parse(date: string): DateTimeApi {
