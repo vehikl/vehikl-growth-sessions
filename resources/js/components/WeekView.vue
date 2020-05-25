@@ -112,7 +112,7 @@
 
         async onDragEnd(location: any) {
             let targetDate = location.to.__vue__.$attrs.date;
-            await SocialMobApi.update(this.draggedMob, {start_date: targetDate.toString()});
+            await SocialMobApi.update(this.draggedMob, {start_date: targetDate.toDateString()});
             await this.getAllMobsOfTheWeek();
         }
 
