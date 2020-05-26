@@ -3,5 +3,5 @@
         "^.+\\.vue$": "vue-jest",
         "^.+\\.ts$": "ts-jest"
     },
-    "setupFilesAfterEnv": ["./setup.jest.ts"]
+    "setupFilesAfterEnv": ["./setup.jest.ts", "jest-expect-message"]
 }

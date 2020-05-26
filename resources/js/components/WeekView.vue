@@ -106,7 +106,7 @@
                 return false;
             }
             const userOwnsDraggedMob = mob.owner.id === this.user.id;
-            const isMobInThePast = DateTimeApi.parse(mob.start_time).isInThePast();
+            const isMobInThePast = DateTimeApi.parse(mob.start_time).isInAPastDate();
             return userOwnsDraggedMob && !isMobInThePast;
         }
 
