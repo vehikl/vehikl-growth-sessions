@@ -1,11 +1,11 @@
 import moment, {Moment} from 'moment';
 
 export class DateTimeApi {
-    private moment: Moment;
-    private static nowString: string = moment().toISOString();
+    private dateTime: string;
+    private static nowString: string = (new Date()).toISOString();
 
-    constructor(date?: string) {
-        this.moment = moment(date || DateTimeApi.nowString);
+    constructor(dateTime?: string) {
+        this.dateTime = dateTime || DateTimeApi.nowString;
     }
 
     static parse(date: string): DateTimeApi {
@@ -13,7 +13,7 @@ export class DateTimeApi {
     }
 
     static today() {
-        return new DateTimeApi(this.nowString);
+        return new DateTimeApi();
     }
 
     static setTestNow(date: string) {
@@ -21,7 +21,7 @@ export class DateTimeApi {
     }
 
     format(formatString: string): string {
-        return this.moment.format(formatString);
+        return moment(this.dateTime).format(formatString);
     }
 
     toDateString(): string {
@@ -29,30 +29,32 @@ export class DateTimeApi {
     }
 
     toTimeString12Hours(): string {
-        return this.moment.format('hh:mm a');
+        return moment(this.dateTime).format('hh:mm a');
     }
 
     toISOString(): string {
-        return this.moment.toISOString();
+        return moment(this.dateTime).toISOString();
     }
 
     weekDayNumber(): number {
-        return this.moment.weekday();
+        return moment(this.dateTime).weekday();
     }
 
     weekDayString(): string {
-        return this.moment.format('dddd');
+        return this.format('dddd');
     }
 
     addDays(days: number): DateTimeApi {
-        return new DateTimeApi(this.moment.add(days, 'days').toISOString());
+        return new DateTimeApi(moment(this.dateTime).add(days, 'days').toISOString());
     }
 
     isSame(date: DateTimeApi): boolean {
-        return this.moment.isSame(date.toDateString(), 'days');
+        return moment(this.dateTime).isSame(date.toDateString(), 'days');
     }
 
     isInAPastDate(): boolean {
-        return this.moment.diff(DateTimeApi.today().toISOString(), 'days') < 0;
+        const current : Moment = moment(this.toDateString());
+        const today : Moment = moment(DateTimeApi.today().toDateString());
+        return current.isBefore(today);
     }
 }
