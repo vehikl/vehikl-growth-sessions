@@ -45,7 +45,8 @@ export class DateTimeApi {
     }
 
     addDays(days: number): DateTimeApi {
-        return new DateTimeApi(moment(this.dateTime).add(days, 'days').toISOString());
+        this.dateTime = moment(this.dateTime).add(days, 'days').toISOString();
+        return this;
     }
 
     isSame(date: DateTimeApi): boolean {

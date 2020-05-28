@@ -13,7 +13,7 @@ describe('DateTimeApi', () => {
        expect(DateTimeApi.parse(today).addDays(-1).toDateString()).toEqual(yesterday);
    });
 
-   xdescribe('isInAPastDate determines if a given date is in a past day (ignores hours/time)', () => {
+   describe('isInAPastDate determines if a given date is in a past day (ignores hours/time)', () => {
       it.each`
       timeStandard      | yesterday                     | earlierToday                  | today                     | tomorrow
       ${'24hrs'}        | ${'2020-01-01 23:59:59'}      | ${'2020-01-02 13:00:00'}      | ${'2020-01-02 16:00:00'}  | ${'2020-01-03 00:00:00'}
