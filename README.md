@@ -78,6 +78,7 @@ For more information, see:
 ### Run the app
 
 ```sh
+yarn dev
 php artisan serve
 ```
 
