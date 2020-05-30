@@ -41,7 +41,8 @@
                 <div v-if="user">
                     <button
                         class="create-mob bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white font-bold py-2 px-4 rounded mb-3"
-                        @click="onCreateNewMobClicked(date)">
+                        @click="onCreateNewMobClicked(date)"
+                        v-if="! date.isInAPastDate()">
                         Create new mob
                     </button>
                 </div>
