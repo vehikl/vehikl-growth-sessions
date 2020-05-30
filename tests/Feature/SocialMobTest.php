@@ -21,7 +21,8 @@ class SocialMobTest extends TestCase
         $this->actingAs($user)->postJson(route('social_mob.store'), [
             'topic' => $topic,
             'location' => 'At the central mobbing area',
-            'start_time' => now(),
+            'start_time' => now()->format('h:i a'),
+            'date' => now(),
         ])->assertSuccessful();
 
         $this->assertEquals($topic, $user->socialMobs->first()->topic);
@@ -42,26 +43,24 @@ class SocialMobTest extends TestCase
     public function testTheOwnerCanChangeTheDateOfAnUpcomingMob()
     {
         Carbon::setTestNow('2020-01-01');
-        $startTime = '16:30:00';
-        $mob = factory(SocialMob::class)->create(['start_time' => "2020-01-02 $startTime"]);
+        $mob = factory(SocialMob::class)->create(['date' => "2020-01-02"]);
         $newDate = '2020-01-10';
 
         $this->actingAs($mob->owner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
             'date' => $newDate,
         ])->assertSuccessful();
 
-        $this->assertEquals("{$newDate} $startTime", $mob->fresh()->start_time);
+        $this->assertEquals($newDate, $mob->fresh()->toArray()['date']);
     }
 
     public function testTheOwnerCannotUpdateAMobThatAlreadyHappened()
     {
         Carbon::setTestNow('2020-01-05');
-        $startTime = '16:30:00';
-        $mob = factory(SocialMob::class)->create(['start_time' => "2020-01-01 $startTime"]);
+        $mob = factory(SocialMob::class)->create(['date' => "2020-01-01"]);
         $newDate = '2020-01-10';
 
         $this->actingAs($mob->owner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
-            'start_date' => $newDate,
+            'date' => $newDate,
         ])->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
@@ -135,30 +134,31 @@ class SocialMobTest extends TestCase
 
     public function testItCanProvideAllSocialMobsOfTheCurrentWeek()
     {
-        Carbon::setTestNow('First Monday');
-        CarbonImmutable::setTestNow('First Monday');
+        Carbon::setTestNow('2020-01-15');
+        CarbonImmutable::setTestNow('2020-01-15');
+        $monday = CarbonImmutable::parse('Last Monday');
 
         $mondaySocial = factory(SocialMob::class)
-            ->create(['start_time' => now()->toDateTimeString()])
+            ->create(['date' => $monday, 'start_time' => '03:30 pm'])
             ->toArray();
         $lateWednesdaySocial = factory(SocialMob::class)
-            ->create(['start_time' => now()->addDays(2)->addHours(2)->toDateTimeString()])
+            ->create(['date' => $monday->addDays(2), 'start_time' => '04:30 pm'])
             ->toArray();
         $earlyWednesdaySocial = factory(SocialMob::class)
-            ->create(['start_time' => now()->addDays(2)->toDateTimeString()])
+            ->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm'])
             ->toArray();
         $fridaySocial = factory(SocialMob::class)
-            ->create(['start_time' => now()->addDays(4)->toDateTimeString()])
+            ->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm'])
             ->toArray();
         factory(SocialMob::class)
-            ->create(['start_time' => now()->addDays(8)->toDateTimeString()]); // Socials on another week
+            ->create(['date' => $monday->addDays(8), 'start_time' => '03:30 pm']); // Socials on another week
 
         $expectedResponse = [
-            now()->toDateString() => [$mondaySocial],
-            Carbon::parse('First Tuesday')->toDateString() => [],
-            Carbon::parse('First Wednesday')->toDateString() => [$earlyWednesdaySocial, $lateWednesdaySocial],
-            Carbon::parse('First Thursday')->toDateString() => [],
-            Carbon::parse('First Friday')->toDateString() => [$fridaySocial],
+            $monday->toDateString() => [$mondaySocial],
+            $monday->addDays(1)->toDateString() => [],
+            $monday->addDays(2)->toDateString() => [$earlyWednesdaySocial, $lateWednesdaySocial],
+            $monday->addDays(3)->toDateString() => [],
+            $monday->addDays(4)->toDateString() => [$fridaySocial],
         ];
 
         $response = $this->getJson(route('social_mob.week'));
@@ -172,10 +172,10 @@ class SocialMobTest extends TestCase
         CarbonImmutable::setTestNow('Next Friday');
 
         $mondaySocial = factory(SocialMob::class)
-            ->create(['start_time' => Carbon::parse('Last Monday')->toDateTimeString()])
+            ->create(['date' => Carbon::parse('Last Monday')])
             ->toArray();
         $fridaySocial = factory(SocialMob::class)
-            ->create(['start_time' => now()->toDateTimeString()])
+            ->create(['date' => now()])
             ->toArray();
 
         $expectedResponse = [
@@ -200,16 +200,16 @@ class SocialMobTest extends TestCase
         $mondayOfWeekWithMobs = CarbonImmutable::parse($weekThatHasTheMobs);
 
         $mondaySocial = factory(SocialMob::class)
-            ->create(['start_time' => $mondayOfWeekWithMobs->toDateTimeString()])
+            ->create(['date' => $mondayOfWeekWithMobs, 'start_time' => '03:30 pm'])
             ->toArray();
         $lateWednesdaySocial = factory(SocialMob::class)
-            ->create(['start_time' => $mondayOfWeekWithMobs->addDays(2)->addHours(2)->toDateTimeString()])
+            ->create(['date' => $mondayOfWeekWithMobs->addDays(2), 'start_time' => '04:30 pm'])
             ->toArray();
         $earlyWednesdaySocial = factory(SocialMob::class)
-            ->create(['start_time' => $mondayOfWeekWithMobs->addDays(2)->toDateTimeString()])
+            ->create(['date' => $mondayOfWeekWithMobs->addDays(2), 'start_time' => '03:30 pm'])
             ->toArray();
         $fridaySocial = factory(SocialMob::class)
-            ->create(['start_time' => $mondayOfWeekWithMobs->addDays(4)->toDateTimeString()])
+            ->create(['date' => $mondayOfWeekWithMobs->addDays(4), 'start_time' => '03:30 pm'])
             ->toArray();
 
         $expectedResponse = [

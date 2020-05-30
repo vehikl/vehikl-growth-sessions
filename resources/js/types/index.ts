@@ -9,6 +9,7 @@ export interface ISocialMob {
     id: number;
     topic: string;
     location: string;
+    date: string;
     start_time: string;
     end_time: string;
     owner: IUser;
@@ -22,6 +23,7 @@ export interface IWeekMobs {
 export interface IStoreSocialMobRequest {
     location: string;
     topic: string;
+    date: string;
     start_time: string;
     end_time?: string;
 }
@@ -32,4 +34,11 @@ export interface IUpdateSocialMobRequest {
     start_time?: string;
     end_time?: string;
     date?: string;
+}
+
+export interface IValidationError {
+    errors: {
+        [field: string] : string[]
+    },
+    message: string;
 }

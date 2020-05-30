@@ -5,7 +5,8 @@
                 <label for="date" class="block text-gray-700 text-sm font-bold mb-2">
                     Date
                 </label>
-                <div class="border border-gray-400 p-1 w-48 flex justify-center">
+                <div class="border p-1 w-48 border-gray-400 flex justify-center"
+                     :class="{'error-outline': getError('date')}">
                     <datepicker v-model="date" id="date"/>
                 </div>
             </div>
@@ -26,7 +27,9 @@
                     Start
                 </label>
                 <vue-timepicker v-model="startTime"
-                                tabindex="-1"
+                                :class="{'error-outline': getError('start_time')}"
+                                advanced-keyboard
+                                auto-scroll
                                 hide-disabled-items
                                 :hour-range="[['1p', '4p']]"
                                 format="hh:mm a"
@@ -38,7 +41,9 @@
                     End
                 </label>
                 <vue-timepicker v-model="endTime"
-                                tabindex="-1"
+                                :class="{'error-outline': getError('end_time')}"
+                                advanced-keyboard
+                                auto-scroll
                                 hide-disabled-items
                                 :hour-range="[['2p', '5p']]"
                                 format="hh:mm a"
@@ -73,7 +78,7 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {ISocialMob, IStoreSocialMobRequest, IUser} from '../types';
+    import {ISocialMob, IStoreSocialMobRequest, IUser, IValidationError} from '../types';
     import VueTimepicker from 'vue2-timepicker'
     import Datepicker from 'vuejs-datepicker';
     import {SocialMobApi} from '../services/SocialMobApi';
@@ -90,6 +95,7 @@
         location: string = '';
         topic: string = '';
         date: string = '';
+        validationErrors: IValidationError | null = null;
 
         mounted() {
             this.date = this.startDate;
@@ -99,9 +105,9 @@
             }
 
             if (this.mob) {
-                this.date = DateTimeApi.parse(this.mob.start_time).toISOString();
-                this.startTime = DateTimeApi.parse(this.mob.start_time).toTimeString12Hours();
-                this.endTime = DateTimeApi.parse(this.mob.end_time).toTimeString12Hours();
+                this.date = this.mob.date;
+                this.startTime = DateTimeApi.parseByTime(this.mob.start_time).toTimeString12Hours();
+                this.endTime = DateTimeApi.parseByTime(this.mob.end_time).toTimeString12Hours();
                 this.location = this.mob.location;
                 this.topic = this.mob.topic;
             }
@@ -114,12 +120,25 @@
             this.updateMob();
         }
 
+        onRequestFailed(exception: any) {
+            if (exception.response?.status === 422) {
+                this.validationErrors = exception.response.data;
+            } else {
+                alert('Something went wrong :(');
+            }
+        }
+
+        getError(field: string): string {
+            let errors = this.validationErrors?.errors[field];
+            return errors ? errors[0] : '';
+        }
+
         async createMob() {
             try {
                 let newMob: ISocialMob = await SocialMobApi.store(this.storeOrUpdatePayload);
                 this.$emit('submitted', newMob);
             } catch (e) {
-                alert('Something went wrong :(');
+                this.onRequestFailed(e);
             }
         }
 
@@ -128,7 +147,7 @@
                 let updatedMob: ISocialMob = await SocialMobApi.update(this.mob, this.storeOrUpdatePayload);
                 this.$emit('submitted', updatedMob);
             } catch (e) {
-                alert('Something went wrong :(');
+                this.onRequestFailed(e);
             }
         }
 
@@ -148,12 +167,16 @@
             return {
                 location: this.location,
                 topic: this.topic,
-                start_time: `${this.dateString} ${this.startTime}`,
-                end_time: `${this.dateString} ${this.endTime}`
+                date: this.date,
+                start_time: this.startTime,
+                end_time: this.endTime
             }
         }
     }
 </script>
 
 <style lang="scss" scoped>
+    .error-outline {
+        outline: red solid 2px;
+    }
 </style>

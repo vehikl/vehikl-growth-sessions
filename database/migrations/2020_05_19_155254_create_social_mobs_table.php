@@ -13,7 +13,9 @@ class CreateSocialMobsTable extends Migration
             $table->unsignedBigInteger('owner_id');
             $table->string('topic');
             $table->string('location');
-            $table->dateTime('start_time');
+            $table->date('date');
+            $table->time('start_time');
+            $table->time('end_time')->default(config('socialMob.default_end_time'));
             $table->timestamps();
 
             $table->foreign('owner_id')->references('id')->on('users');

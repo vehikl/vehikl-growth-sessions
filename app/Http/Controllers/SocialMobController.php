@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DeleteSocialMobRequest;
 use App\Http\Requests\JoinSocialMobRequest;
+use App\Http\Requests\StoreSocialMobRequest;
 use App\Http\Requests\UpdateSocialMobRequest;
 use App\SocialMob;
 use Carbon\Carbon;
@@ -20,7 +21,7 @@ class SocialMobController extends Controller
     public function week(Request $request)
     {
         $referenceDate = CarbonImmutable::parse($request->input('date'));
-        $weekMobs = SocialMob::query()->weekOf($referenceDate)->orderBy('start_time')->get();
+        $weekMobs = SocialMob::query()->weekOf($referenceDate)->orderBy('date')->orderBy('start_time')->get();
         $startPoint = $referenceDate->isDayOfWeek(Carbon::MONDAY)
             ? $referenceDate
             : $referenceDate->modify('Last Monday');
@@ -32,17 +33,17 @@ class SocialMobController extends Controller
             $startPoint->addDays(3)->toDateString() => [],
             $startPoint->addDays(4)->toDateString() => []
         ];
-        foreach ($weekMobs as $mob) {
-            $mobDate = Carbon::parse($mob->start_time)->toDateString();
-            array_push($response[$mobDate], $mob);
+        foreach ($weekMobs as $mobModel) {
+            $mob = $mobModel->toArray();
+            array_push($response[$mob['date']], $mob);
         }
 
         return $response;
     }
 
-    public function store(Request $request)
+    public function store(StoreSocialMobRequest $request)
     {
-        return $request->user()->socialMobs()->save(new SocialMob($request->all()));
+        return $request->user()->socialMobs()->save(new SocialMob($request->validated()));
     }
 
     public function join(SocialMob $socialMob, JoinSocialMobRequest $request)

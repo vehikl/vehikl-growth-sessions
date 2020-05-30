@@ -35,8 +35,9 @@ describe('MobForm', () => {
 
         const expectedPayload: IStoreSocialMobRequest = {
             location: chosenLocation,
-            start_time: `${startDate} ${chosenTime}`,
-            end_time: `${startDate} 05:00 pm`,
+            date: startDate,
+            start_time: chosenTime,
+            end_time: '05:00 pm',
             topic: chosenTopic
         };
         expect(SocialMobApi.store).toHaveBeenCalledWith(expectedPayload);

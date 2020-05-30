@@ -12,6 +12,11 @@ export class DateTimeApi {
         return new DateTimeApi(date);
     }
 
+    static parseByTime(time: string): DateTimeApi {
+        const dateTimeString = new Date(DateTimeApi.today().toDateString() + ' ' + time).toISOString();
+        return new DateTimeApi(dateTimeString);
+    }
+
     static today() {
         return new DateTimeApi();
     }

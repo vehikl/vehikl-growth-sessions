@@ -1,6 +1,7 @@
 <?php
 
 use App\SocialMob;
+use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
@@ -13,7 +14,8 @@ class SocialMobSeeder extends Seeder
         $numberOfFakeMobs = 5;
         for ($i = 0; $i < $numberOfFakeMobs; $i++) {
             factory(SocialMob::class)->create([
-                'start_time' => $monday->addDays(random_int(0, 4))->setHour(random_int(15, 16))
+                'date' => $monday->addDays(random_int(0, 4)),
+                'start_time' => Carbon::createFromTime(random_int(15, 16))
             ]);
         }
     }

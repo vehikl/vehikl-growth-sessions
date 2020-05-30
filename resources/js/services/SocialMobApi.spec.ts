@@ -11,8 +11,9 @@ const dummyMob: ISocialMob = {
     topic: 'Start Topic',
     owner: {avatar: '', name: 'foobar', email: 'any@thing.com', id: 1},
     location: 'Slack #social-mobbing',
-    start_time: '2020-05-31 15:30:00',
-    end_time: '2020-05-31 17:00:00'
+    date: '2020-05-31',
+    start_time: '03:30 pm',
+    end_time: '05:00 pm',
 };
 
 describe('SocialMobApi', () => {
@@ -49,7 +50,8 @@ describe('SocialMobApi', () => {
         const storeRequest = {
             topic: 'Any topic',
             location: 'Slack #social-mobbing',
-            start_time: '2020-05-31 20:30:20'
+            date: '2020-05-31',
+            start_time: '20:30:20'
         };
         mockBackend.onPost('social_mob').reply(201, {
             id: 1,

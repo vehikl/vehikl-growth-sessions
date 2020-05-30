@@ -36,8 +36,10 @@ describe('WeekView', () => {
     });
 
     it('loads with the current week socials in display', () => {
+        const flat = (input: any[]): any[] => input.reduce((acc, val) => acc.concat(val), []);
+
         const week = socialsThisWeek as unknown as IWeekMobs;
-        const mobsOfTheWeek = Object.values(week).flat();
+        const mobsOfTheWeek = flat(Object.values(week));
         const topicsOfTheWeek = mobsOfTheWeek.map((social: ISocialMob) => social.topic);
         for (let topic of topicsOfTheWeek) {
             expect(wrapper.text()).toContain(topic);

@@ -83,11 +83,11 @@
         }
 
         get startTime(): string {
-            return DateTimeApi.parse(this.socialMob.start_time).toTimeString12Hours(false);
+            return DateTimeApi.parseByTime(this.socialMob.start_time).toTimeString12Hours(false);
         }
 
         get endTime(): string {
-            return DateTimeApi.parse(this.socialMob.end_time).toTimeString12Hours();
+            return DateTimeApi.parseByTime(this.socialMob.end_time).toTimeString12Hours();
         }
 
         get isGuest(): boolean {
@@ -109,7 +109,7 @@
         }
 
         get hasMobAlreadyHappened(): boolean {
-            return DateTimeApi.parse(this.socialMob.start_time).isInAPastDate();
+            return DateTimeApi.parse(this.socialMob.date).isInAPastDate();
         }
 
         isUrl(possibleUrl: string): boolean {
