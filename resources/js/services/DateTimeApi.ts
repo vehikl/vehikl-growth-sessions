@@ -29,7 +29,7 @@ export class DateTimeApi {
     }
 
     toTimeString12Hours(withAmPm: boolean = true): string {
-        return moment(this.dateTime).format(`h:mm ${withAmPm ? 'A' : ''}`);
+        return moment(this.dateTime).format(`hh:mm ${withAmPm ? 'a' : ''}`);
     }
 
     toISOString(): string {

@@ -26,7 +26,7 @@ describe('MobForm', () => {
         const chosenLocation = 'Somewhere over the rainbow';
         const chosenTime = "4:45 pm";
 
-        wrapper.vm.$data.time = chosenTime;
+        wrapper.vm.$data.startTime = chosenTime;
         wrapper.find('#topic').setValue(chosenTopic);
         wrapper.find('#location').setValue(chosenLocation);
         await wrapper.vm.$nextTick();
@@ -36,13 +36,14 @@ describe('MobForm', () => {
         const expectedPayload: IStoreSocialMobRequest = {
             location: chosenLocation,
             start_time: `${startDate} ${chosenTime}`,
+            end_time: `${startDate} 05:00 pm`,
             topic: chosenTopic
         };
         expect(SocialMobApi.store).toHaveBeenCalledWith(expectedPayload);
     });
 
     it('emits submitted event on success', async () => {
-        wrapper.vm.$data.time = '3:30 pm';
+        wrapper.vm.$data.startTime = '3:30 pm';
         wrapper.find('#topic').setValue('Anything');
         wrapper.find('#location').setValue('Anywhere');
         await wrapper.vm.$nextTick();
@@ -56,7 +57,7 @@ describe('MobForm', () => {
     });
 
     it('enables the submit button when all required fields are filled', async () => {
-        wrapper.vm.$data.time = '3:30 pm';
+        wrapper.vm.$data.startTime = '3:30 pm';
         wrapper.find('#topic').setValue('Anything');
         wrapper.find('#location').setValue('Anywhere');
         await wrapper.vm.$nextTick();

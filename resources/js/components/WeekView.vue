@@ -25,7 +25,7 @@
                               @submitted="onFormSubmitted"
                               :owner="user"
                               :mob="mobToUpdate"
-                              :start-date="newMobStartDate"/>
+                              :start-date="newMobDate"/>
                 </div>
             </modal>
             <div class="day text-center mx-1 mb-2 px-2 md:block"
@@ -93,7 +93,7 @@
         @Prop({required: false, default: null}) user!: IUser;
         referenceDate: DateTimeApi = DateTimeApi.today();
         socialMobs: IWeekMobs = {};
-        newMobStartDate: string = '';
+        newMobDate: string = '';
         mobToUpdate: ISocialMob | null = null;
         DateTimeApi = DateTimeApi;
         draggedMob!: ISocialMob;
@@ -134,13 +134,13 @@
 
         onCreateNewMobClicked(startDate: DateTimeApi) {
             this.mobToUpdate = null;
-            this.newMobStartDate = startDate.toISOString();
+            this.newMobDate = startDate.toISOString();
             this.$modal.show('mob-form');
         }
 
         onMobEditRequested(mob: ISocialMob) {
             this.mobToUpdate = mob;
-            this.newMobStartDate = '';
+            this.newMobDate = '';
             this.$modal.show('mob-form');
         }
 

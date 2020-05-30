@@ -5,21 +5,45 @@
                 <label for="date" class="block text-gray-700 text-sm font-bold mb-2">
                     Date
                 </label>
-                <div class="border border-gray-400 p-1">
+                <div class="border border-gray-400 p-1 w-48 flex justify-center">
                     <datepicker v-model="date" id="date"/>
                 </div>
             </div>
+
+            <button
+                class="mt-6 w-48 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                :class="{'opacity-25 cursor-not-allowed': !isReadyToSubmit}"
+                type="submit"
+                :disabled="! isReadyToSubmit"
+                @click="onSubmit"
+                v-text="isCreating? 'Create' : 'Update'">
+            </button>
+        </div>
+
+        <div class="mb-4 flex">
             <div>
-                <label for="time" class="block text-gray-700 text-sm font-bold mb-2">
-                    Time
+                <label for="start_time" class="block text-gray-700 text-sm font-bold mb-2">
+                    Start
                 </label>
-                <vue-timepicker v-model="time"
+                <vue-timepicker v-model="startTime"
                                 tabindex="-1"
                                 hide-disabled-items
-                                :hour-range="[['1p', '5p']]"
+                                :hour-range="[['1p', '4p']]"
                                 format="hh:mm a"
                                 :minute-interval="15"
-                                id="time"/>
+                                id="start_time"/>
+            </div>
+            <div class="ml-12">
+                <label for="end_time" class="block text-gray-700 text-sm font-bold mb-2">
+                    End
+                </label>
+                <vue-timepicker v-model="endTime"
+                                tabindex="-1"
+                                hide-disabled-items
+                                :hour-range="[['2p', '5p']]"
+                                format="hh:mm a"
+                                :minute-interval="15"
+                                id="end_time"/>
             </div>
         </div>
 
@@ -44,15 +68,6 @@
                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       placeholder="Where should people go to participate?"/>
         </div>
-
-        <button
-            class="mt-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            :class="{'opacity-25 cursor-not-allowed': !isReadyToSubmit}"
-            type="submit"
-            :disabled="! isReadyToSubmit"
-            @click="onSubmit"
-            v-text="isCreating? 'Create' : 'Update'">
-        </button>
     </form>
 </template>
 
@@ -70,7 +85,8 @@
         @Prop({required: false, default: null}) mob!: ISocialMob;
         @Prop({required: false, default: ''}) startDate!: string;
 
-        time: string = '03:30 pm';
+        startTime: string = '03:30 pm';
+        endTime: string = '05:00 pm';
         location: string = '';
         topic: string = '';
         date: string = '';
@@ -84,7 +100,8 @@
 
             if (this.mob) {
                 this.date = DateTimeApi.parse(this.mob.start_time).toISOString();
-                this.time = DateTimeApi.parse(this.mob.start_time).toTimeString12Hours();
+                this.startTime = DateTimeApi.parse(this.mob.start_time).toTimeString12Hours();
+                this.endTime = DateTimeApi.parse(this.mob.end_time).toTimeString12Hours();
                 this.location = this.mob.location;
                 this.topic = this.mob.topic;
             }
@@ -123,19 +140,16 @@
             return DateTimeApi.parse(this.date).toDateString();
         }
 
-        get startTime(): string {
-            return `${this.dateString} ${this.time}`;
-        }
-
         get isReadyToSubmit(): boolean {
-            return !!this.time && !!this.date && !!this.location && !!this.topic;
+            return !!this.startTime && !!this.endTime && !!this.date && !!this.location && !!this.topic;
         }
 
         get storeOrUpdatePayload(): IStoreSocialMobRequest {
             return {
                 location: this.location,
                 topic: this.topic,
-                start_time: this.startTime
+                start_time: `${this.dateString} ${this.startTime}`,
+                end_time: `${this.dateString} ${this.endTime}`
             }
         }
     }
