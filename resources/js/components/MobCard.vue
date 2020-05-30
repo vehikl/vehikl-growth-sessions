@@ -17,7 +17,7 @@
             </div>
             <div class="flex items-center">
                 <i class="fa fa-clock-o text-lg mr-2" aria-hidden="true"></i>
-                <span v-text="timeDisplayed"/>
+                {{startTime}} to {{endTime}}
             </div>
         </div>
 
@@ -82,8 +82,12 @@
             }
         }
 
-        get timeDisplayed(): string {
-            return moment(this.socialMob.start_time).format('LT');
+        get startTime(): string {
+            return DateTimeApi.parse(this.socialMob.start_time).toTimeString12Hours(false);
+        }
+
+        get endTime(): string {
+            return DateTimeApi.parse(this.socialMob.end_time).toTimeString12Hours();
         }
 
         get isGuest(): boolean {

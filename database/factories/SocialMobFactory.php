@@ -14,6 +14,7 @@ $factory->define(SocialMob::class, function (Faker $faker) {
         },
         'topic' => $faker->sentence,
         'location' => 'At AnyDesk XYZ - abcdefg',
-        'start_time' => now()->addMinutes($faker->numberBetween(15,360))
+        'start_time' => now()->setTime(15, 30),
+        'end_time' => now()->setTime(17, 00),
     ];
 });

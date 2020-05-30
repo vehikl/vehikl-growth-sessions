@@ -28,8 +28,8 @@ export class DateTimeApi {
         return this.format('YYYY-MM-DD');
     }
 
-    toTimeString12Hours(): string {
-        return moment(this.dateTime).format('hh:mm a');
+    toTimeString12Hours(withAmPm: boolean = true): string {
+        return moment(this.dateTime).format(`h:mm ${withAmPm ? 'A' : ''}`);
     }
 
     toISOString(): string {
@@ -54,8 +54,8 @@ export class DateTimeApi {
     }
 
     isInAPastDate(): boolean {
-        const current : Moment = moment(this.toDateString());
-        const today : Moment = moment(DateTimeApi.today().toDateString());
+        const current: Moment = moment(this.toDateString());
+        const today: Moment = moment(DateTimeApi.today().toDateString());
         return current.isBefore(today);
     }
 }
