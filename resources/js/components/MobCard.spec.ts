@@ -145,4 +145,12 @@ describe('MobCard', () => {
 
         expect(wrapper.find('.join-button').element).not.toBeVisible()
     });
+
+    it('does not display the leave button if the date of the mob is in the past', () => {
+        const oneDayAfterTheMob = DateTimeApi.parse(mobData.start_time).addDays(1).toISOString();
+        DateTimeApi.setTestNow(oneDayAfterTheMob);
+        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: attendee}});
+
+        expect(wrapper.find('.leave-button').element).not.toBeVisible()
+    });
 });
