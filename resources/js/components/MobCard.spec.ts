@@ -29,7 +29,8 @@ const mobData: ISocialMob = {
     id: 0,
     owner: ownerOfTheMob,
     location: 'Somewhere over the rainbow',
-    start_time: '2020-05-08 20:20:00',
+    start_time: '2020-05-08 15:30:00',
+    end_time: '2020-05-08 17:00:00',
     topic: 'The fundamentals of Foobar',
     attendees: [
         attendee
@@ -84,7 +85,8 @@ describe('MobCard', () => {
             id: 0,
             owner: ownerOfTheMob,
             location: 'https://www.somewhere.com',
-            start_time: '2020-05-08 20:20:00',
+            start_time: '2020-05-08 15:30:00',
+            end_time: '2020-05-08 17:00:00',
             topic: 'The fundamentals of Foobar',
             attendees: []
         };

@@ -10,6 +10,7 @@ export interface ISocialMob {
     topic: string;
     location: string;
     start_time: string;
+    end_time: string;
     owner: IUser;
     attendees: IUser[];
 }

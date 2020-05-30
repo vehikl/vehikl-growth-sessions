@@ -11,7 +11,8 @@ const dummyMob: ISocialMob = {
     topic: 'Start Topic',
     owner: {avatar: '', name: 'foobar', email: 'any@thing.com', id: 1},
     location: 'Slack #social-mobbing',
-    start_time: '2020-05-31 20:30:20'
+    start_time: '2020-05-31 15:30:00',
+    end_time: '2020-05-31 17:00:00'
 };
 
 describe('SocialMobApi', () => {
