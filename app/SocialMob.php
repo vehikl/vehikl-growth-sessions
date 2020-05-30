@@ -15,9 +15,24 @@ class SocialMob extends Model
         'topic',
         'location',
         'start_time',
-        'start_date',
+        'end_time',
+        'date',
         'owner_id'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($socialMob) {
+            if (empty($socialMob->end_time)) {
+                $defaultEndTime = Carbon::parse($socialMob->start_time)->setTime(
+                    config('socialmob.default_end_hour'), 0
+                );
+                $socialMob->end_time = $defaultEndTime;
+            }
+        });
+    }
 
     public function owner()
     {
@@ -34,11 +49,18 @@ class SocialMob extends Model
         $this->attributes['start_time'] = Carbon::parse($value)->toDateTimeString();
     }
 
-    public function setStartDateAttribute($newDate)
+    public function setEndTimeAttribute($value)
+    {
+        $this->attributes['end_time'] = Carbon::parse($value)->toDateTimeString();
+    }
+
+    public function setDateAttribute($newDate)
     {
         $date = Carbon::parse($newDate)->toDateString();
-        $time = Carbon::parse($this->attributes['start_time'])->toTimeString();
-        return $this->attributes['start_time'] = Carbon::parse($date.$time)->toDateTimeString();
+        $startHour = Carbon::parse($this->attributes['start_time'])->toTimeString();
+        $endHour = Carbon::parse($this->attributes['end_time'])->toTimeString();
+        $this->attributes['start_time'] = Carbon::parse($date . $startHour)->toDateTimeString();
+        $this->attributes['end_time'] = Carbon::parse($date . $endHour)->toDateTimeString();
     }
 
     public function scopeWeekOf($query, CarbonImmutable $referenceDate)

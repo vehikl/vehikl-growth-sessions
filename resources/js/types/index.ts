@@ -22,11 +22,13 @@ export interface IStoreSocialMobRequest {
     location: string;
     topic: string;
     start_time: string;
+    end_time?: string;
 }
 
 export interface IUpdateSocialMobRequest {
     location?: string;
     topic?: string;
     start_time?: string;
-    start_date?: string;
+    end_time?: string;
+    date?: string;
 }

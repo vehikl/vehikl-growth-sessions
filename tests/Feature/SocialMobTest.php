@@ -47,7 +47,7 @@ class SocialMobTest extends TestCase
         $newDate = '2020-01-10';
 
         $this->actingAs($mob->owner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
-            'start_date' => $newDate,
+            'date' => $newDate,
         ])->assertSuccessful();
 
         $this->assertEquals("{$newDate} $startTime", $mob->fresh()->start_time);
