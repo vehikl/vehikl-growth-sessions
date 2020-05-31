@@ -11,6 +11,11 @@ module.exports = {
                 '96': '24rem',
             },
         },
+        maxHeight: {
+            '32': '8rem',
+            '48': '12rem',
+            '64': '16rem',
+        },
     },
     variants: {},
     plugins: [],

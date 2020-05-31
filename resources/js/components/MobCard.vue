@@ -9,7 +9,8 @@
             </div>
             <h3 class="ml-6 text-lg" v-text="socialMob.owner.name"/>
         </div>
-        <h4 class="my-4" v-text="socialMob.topic"/>
+        <pre class="my-4 inline-block text-left whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
+             v-text="socialMob.topic"/>
         <div class="flex justify-between mb-2 text-blue-700">
             <div class="flex items-center attendees-count">
                 <i class="fa fa-user-circle text-lg mr-2" aria-hidden="true"></i>
