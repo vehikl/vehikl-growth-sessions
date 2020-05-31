@@ -62,7 +62,6 @@
                               :socialMob="socialMob"
                               :class="{
                               'handle cursor-pointer hover:bg-blue-100 hover:scale-105': isDraggable(socialMob),
-                              'cursor-not-allowed': !isDraggable(socialMob) && user && socialMob.owner.id === user.id
                               }"
                               class="my-3 transform transition-transform duration-150"/>
                 </draggable>
