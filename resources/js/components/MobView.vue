@@ -63,7 +63,8 @@
         }
 
         get time(): string {
-            return `${this.mob.start_time} - ${this.mob.end_time}`;
+            return `${DateTimeApi.parseByTime(this.mob.start_time).toTimeString12Hours(false)} -
+            ${DateTimeApi.parseByTime(this.mob.end_time).toTimeString12Hours(true)}`;
         }
 
         isUrl(possibleUrl: string): boolean {
