@@ -107,13 +107,17 @@
                 return false;
             }
             const userOwnsDraggedMob = mob.owner.id === this.user.id;
-            const isMobInThePast = DateTimeApi.parseByDate(mob.start_time).isInAPastDate();
+            const isMobInThePast = DateTimeApi.parseByDate(mob.date).isInAPastDate();
             return userOwnsDraggedMob && !isMobInThePast;
         }
 
         async onDragEnd(location: any) {
             let targetDate = location.to.__vue__.$attrs.date;
-            await SocialMobApi.update(this.draggedMob, {date: targetDate.toDateString()});
+            try {
+                await SocialMobApi.update(this.draggedMob, {date: targetDate.toDateString()});
+            } catch (e) {
+            }
+
             await this.getAllMobsOfTheWeek();
         }
 
