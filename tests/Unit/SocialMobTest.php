@@ -22,6 +22,6 @@ class SocialMobTest extends TestCase
         ]);
         $mob->save();
 
-        $this->assertEquals('5:00 pm', $mob->fresh()->end_time);
+        $this->assertEquals('17:00', $mob->fresh()->end_time);
     }
 }

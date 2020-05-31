@@ -43,12 +43,12 @@ class SocialMob extends Model
 
     public function setStartTimeAttribute($value)
     {
-        $this->attributes['start_time'] = Carbon::parse($value)->format('h:i a');
+        $this->attributes['start_time'] = Carbon::parse($value)->format('H:i');
     }
 
     public function setEndTimeAttribute($value)
     {
-        $this->attributes['end_time'] = Carbon::parse($value)->format('h:i a');
+        $this->attributes['end_time'] = Carbon::parse($value)->format('H:i');
     }
 
     public function scopeWeekOf($query, CarbonImmutable $referenceDate)
