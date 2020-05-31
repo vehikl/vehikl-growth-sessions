@@ -53,6 +53,17 @@ class SocialMobTest extends TestCase
         $this->assertEquals($newDate, $mob->fresh()->toArray()['date']);
     }
 
+    public function testTheDateOfTheMobCannotBeSetToThePast()
+    {
+        Carbon::setTestNow('2020-01-05');
+        $mob = factory(SocialMob::class)->create(['date' => "2020-01-06"]);
+        $newDate = '2020-01-03';
+
+        $this->actingAs($mob->owner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
+            'date' => $newDate,
+        ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
     public function testTheOwnerCannotUpdateAMobThatAlreadyHappened()
     {
         Carbon::setTestNow('2020-01-05');

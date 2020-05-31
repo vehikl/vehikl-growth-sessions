@@ -18,7 +18,7 @@ class StoreSocialMobRequest extends FormRequest
             'location' => 'required|string',
             'start_time' => 'required|date_format:h:i a',
             'end_time' => 'sometimes|required|after:start_time|date_format:h:i a',
-            'date' => 'required|date',
+            'date' => 'required|date|after_or_equal:today',
         ];
     }
 }
