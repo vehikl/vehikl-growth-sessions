@@ -35,7 +35,7 @@
                  :class="{
                  'bg-blue-100': date.weekDayNumber() % 2 === 0,
                  'bg-blue-200': date.weekDayNumber() % 2 !== 0,
-                 'hidden': !date.isSame(DateTimeApi.today())
+                 'hidden': !date.isSameDay(DateTimeApi.today())
                  }">
                 <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="date.weekDayString()"></h3>
                 <div v-if="user">
@@ -107,7 +107,7 @@
                 return false;
             }
             const userOwnsDraggedMob = mob.owner.id === this.user.id;
-            const isMobInThePast = DateTimeApi.parse(mob.start_time).isInAPastDate();
+            const isMobInThePast = DateTimeApi.parseByDate(mob.start_time).isInAPastDate();
             return userOwnsDraggedMob && !isMobInThePast;
         }
 
@@ -150,7 +150,7 @@
         }
 
         get weekDates(): DateTimeApi[] {
-            return Object.keys(this.socialMobs).map((date: string) => DateTimeApi.parse(date));
+            return Object.keys(this.socialMobs).map((date: string) => DateTimeApi.parseByDate(date));
         }
     }
 </script>

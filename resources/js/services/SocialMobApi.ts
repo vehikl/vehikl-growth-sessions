@@ -4,7 +4,7 @@ import {DateTimeApi} from './DateTimeApi';
 
 export class SocialMobApi extends BaseApi {
     static async getAllMobsOfTheWeek(date: string = DateTimeApi.today().toDateString()): Promise<IWeekMobs> {
-        let dateString = DateTimeApi.parse(date).toDateString();
+        let dateString = DateTimeApi.parseByDate(date).toDateString();
         let response = await BaseApi.httpRequest.get<IWeekMobs>(`social_mob/week?date=${dateString}`);
         return response.data;
     }

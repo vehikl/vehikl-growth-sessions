@@ -156,7 +156,7 @@
         }
 
         get dateString(): string {
-            return DateTimeApi.parse(this.date).toDateString();
+            return DateTimeApi.parseByDate(this.date).toDateString();
         }
 
         get isReadyToSubmit(): boolean {

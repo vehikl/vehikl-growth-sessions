@@ -50,14 +50,14 @@ describe('WeekView', () => {
     it('allows the user to view mobs of the previous week', async () => {
         wrapper.find('button.load-previous-week').trigger('click');
         await flushPromises();
-        let sevenDaysInThePast = DateTimeApi.parse(todayIsWednesday).addDays(-7).toDateString();
+        let sevenDaysInThePast = DateTimeApi.parseByDate(todayIsWednesday).addDays(-7).toDateString();
         expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInThePast);
     });
 
     it('allows the user to view mobs of the next week', async () => {
         wrapper.find('button.load-next-week').trigger('click');
         await flushPromises();
-        let sevenDaysInTheFuture = DateTimeApi.parse(todayIsWednesday).addDays(7).toDateString();
+        let sevenDaysInTheFuture = DateTimeApi.parseByDate(todayIsWednesday).addDays(7).toDateString();
         expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInTheFuture);
     });
 

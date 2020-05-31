@@ -109,7 +109,7 @@
         }
 
         get hasMobAlreadyHappened(): boolean {
-            return DateTimeApi.parse(this.socialMob.date).isInAPastDate();
+            return DateTimeApi.parseByDate(this.socialMob.date).isInAPastDate();
         }
 
         isUrl(possibleUrl: string): boolean {

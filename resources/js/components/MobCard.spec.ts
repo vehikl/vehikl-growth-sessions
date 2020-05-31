@@ -127,7 +127,7 @@ describe('MobCard', () => {
     });
 
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTimeApi.parse(mobData.date).addDays(1).toISOString();
+        const oneDayAfterTheMob = DateTimeApi.parseByDate(mobData.date).addDays(1).toISOString();
         DateTimeApi.setTestNow(oneDayAfterTheMob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
 
@@ -135,7 +135,7 @@ describe('MobCard', () => {
     });
 
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTimeApi.parse(mobData.date).addDays(1).toISOString();
+        const oneDayAfterTheMob = DateTimeApi.parseByDate(mobData.date).addDays(1).toISOString();
         DateTimeApi.setTestNow(oneDayAfterTheMob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
 
@@ -143,7 +143,7 @@ describe('MobCard', () => {
     });
 
     it('does not display the join button if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTimeApi.parse(mobData.date).addDays(1).toISOString();
+        const oneDayAfterTheMob = DateTimeApi.parseByDate(mobData.date).addDays(1).toISOString();
         DateTimeApi.setTestNow(oneDayAfterTheMob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
 
@@ -151,7 +151,7 @@ describe('MobCard', () => {
     });
 
     it('does not display the leave button if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTimeApi.parse(mobData.date).addDays(1).toISOString();
+        const oneDayAfterTheMob = DateTimeApi.parseByDate(mobData.date).addDays(1).toISOString();
         DateTimeApi.setTestNow(oneDayAfterTheMob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: attendee}});
 

@@ -8,9 +8,9 @@ describe('DateTimeApi', () => {
 
        DateTimeApi.setTestNow(today);
 
-       expect(DateTimeApi.parse(today).addDays(0).toDateString()).toEqual(today);
-       expect(DateTimeApi.parse(today).addDays(1).toDateString()).toEqual(tomorrow);
-       expect(DateTimeApi.parse(today).addDays(-1).toDateString()).toEqual(yesterday);
+       expect(DateTimeApi.parseByDate(today).addDays(0).toDateString()).toEqual(today);
+       expect(DateTimeApi.parseByDate(today).addDays(1).toDateString()).toEqual(tomorrow);
+       expect(DateTimeApi.parseByDate(today).addDays(-1).toDateString()).toEqual(yesterday);
    });
 
    describe('isInAPastDate determines if a given date is in a past day (ignores hours/time)', () => {
@@ -22,11 +22,11 @@ describe('DateTimeApi', () => {
       `('while using the $timeStandard time standard', ({yesterday, earlierToday, today, tomorrow}) => {
           DateTimeApi.setTestNow(today);
 
-          expect(DateTimeApi.parse(yesterday).isInAPastDate(), `Failed to determine ${yesterday} is in a day before ${today}`).toBe(true);
+          expect(DateTimeApi.parseByDate(yesterday).isInAPastDate(), `Failed to determine ${yesterday} is in a day before ${today}`).toBe(true);
 
-          expect(DateTimeApi.parse(earlierToday).isInAPastDate(), `Failed to determine ${earlierToday} is in the same day as ${today}`).toBe(false);
-          expect(DateTimeApi.parse(today).isInAPastDate(), `Failed to determine ${today} is in the same day as ${today}`).toBe(false);
-          expect(DateTimeApi.parse(tomorrow).isInAPastDate(), `Failed to determine ${tomorrow} is not in a day before ${today}`).toBe(false);
+          expect(DateTimeApi.parseByDate(earlierToday).isInAPastDate(), `Failed to determine ${earlierToday} is in the same day as ${today}`).toBe(false);
+          expect(DateTimeApi.parseByDate(today).isInAPastDate(), `Failed to determine ${today} is in the same day as ${today}`).toBe(false);
+          expect(DateTimeApi.parseByDate(tomorrow).isInAPastDate(), `Failed to determine ${tomorrow} is not in a day before ${today}`).toBe(false);
       });
    });
 });

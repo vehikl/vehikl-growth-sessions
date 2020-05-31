@@ -8,13 +8,13 @@ export class DateTimeApi {
         this.dateTime = dateTime || DateTimeApi.nowString;
     }
 
-    static parse(date: string): DateTimeApi {
-        return new DateTimeApi(date);
+    static parseByDate(date: string): DateTimeApi {
+        return new DateTimeApi(moment(date, 'YYYY-MM-DD').toISOString());
     }
 
     static parseByTime(time: string): DateTimeApi {
-        const dateTimeString = new Date(DateTimeApi.today().toDateString() + ' ' + time).toISOString();
-        return new DateTimeApi(dateTimeString);
+        const is12hrsFormat = /(am|pm)/gi.test(time);
+        return new DateTimeApi(moment(time, `hh:mm${is12hrsFormat ? ' a' : ''}`).toISOString(true));
     }
 
     static today() {
@@ -22,11 +22,11 @@ export class DateTimeApi {
     }
 
     static setTestNow(date: string) {
-        DateTimeApi.nowString = date;
+        DateTimeApi.nowString = moment(date).toISOString();
     }
 
     format(formatString: string): string {
-        return moment(this.dateTime).format(formatString);
+        return moment(this.dateTime, 'YYYY-MM-DD').format(formatString);
     }
 
     toDateString(): string {
@@ -54,7 +54,7 @@ export class DateTimeApi {
         return this;
     }
 
-    isSame(date: DateTimeApi): boolean {
+    isSameDay(date: DateTimeApi): boolean {
         return moment(this.dateTime).isSame(date.toDateString(), 'days');
     }
 
