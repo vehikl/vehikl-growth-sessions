@@ -1,5 +1,6 @@
 <template>
-    <div class="bg-gray-100 border border-blue-300 shadow p-6 rounded-lg">
+    <div class="bg-gray-100 border border-blue-300 shadow p-6 rounded-lg hover:bg-blue-100 cursor-pointer"
+         @click="goToMob">
         <div class="flex items-center">
             <div class="w-12 h-12 relative">
                 <div class="group w-full h-full rounded-full overflow-hidden shadow-inner">
@@ -24,27 +25,27 @@
 
         <div class="text-blue-700 text-left mb-4">
             <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
-            <a v-if="isUrl(socialMob.location)" class="location underline" :href="socialMob.location" target="_blank" v-text="socialMob.location"/>
+            <a @click.stop v-if="isUrl(socialMob.location)" class="location underline" :href="socialMob.location" target="_blank" v-text="socialMob.location"/>
             <span v-else class="location" v-text="socialMob.location"/>
         </div>
 
         <button class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                @click="joinMob"
+                @click.stop="joinMob"
                 v-show="!isOwner && !isGuest && !isAttendee && ! hasMobAlreadyHappened">
             Join
         </button>
         <button class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
-                @click="leaveMob"
+                @click.stop="leaveMob"
                 v-show="isAttendee && ! hasMobAlreadyHappened">
             Leave
         </button>
         <div  v-show="isOwner && ! hasMobAlreadyHappened">
             <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                    @click="$emit('edit-requested', socialMob)">
+                    @click.stop="$emit('edit-requested', socialMob)">
                 Edit
             </button>
             <button class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    @click="onDeleteClicked">
+                    @click.stop="onDeleteClicked">
                 <i class="fa fa-trash" aria-hidden="true"></i>
             </button>
         </div>
@@ -56,10 +57,9 @@
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
     import {ISocialMob, IUser} from '../types';
-    import moment from 'moment';
-    import axios from 'axios';
     import {SocialMobApi} from '../services/SocialMobApi';
     import {DateTimeApi} from '../services/DateTimeApi';
+    import {StringApi} from '../services/StringApi';
 
     @Component
     export default class MobCard extends Vue {
@@ -69,6 +69,10 @@
         async joinMob() {
             await SocialMobApi.join(this.socialMob);
             this.$emit('mob-updated');
+        }
+
+        goToMob() {
+            window.location.assign(`/social_mob/${this.socialMob.id}`);
         }
 
         async leaveMob() {
@@ -114,12 +118,7 @@
         }
 
         isUrl(possibleUrl: string): boolean {
-            try {
-                new URL(possibleUrl);
-                return true;
-            } catch {
-                return false;
-            }
+            return StringApi.isUrl(possibleUrl);
         }
     }
 </script>

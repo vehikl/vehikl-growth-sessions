@@ -18,6 +18,10 @@ class SocialMobController extends Controller
         return SocialMob::all();
     }
 
+    public function show(SocialMob $socialMob) {
+        return view('social-mob', compact('socialMob'));
+    }
+
     public function week(Request $request)
     {
         $referenceDate = CarbonImmutable::parse($request->input('date'));
