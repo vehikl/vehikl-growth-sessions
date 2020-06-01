@@ -5,7 +5,7 @@
                 <label for="date" class="block text-gray-700 text-sm font-bold mb-2">
                     Date
                 </label>
-                <div class="border p-1 w-48 border-gray-400 flex justify-center"
+                <div class="border p-1 border-gray-400 flex justify-center"
                      :class="{'error-outline': getError('date')}">
                     <datepicker v-model="date" id="date"/>
                 </div>
