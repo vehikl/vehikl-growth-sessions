@@ -12,9 +12,9 @@ class SocialMob extends Model
 
     protected $casts = [
         'owner_id' => 'int',
-        'start_time' => 'time:h:i a',
-        'end_time' => 'time:h:i a',
-        'date' => 'date:Y-m-d',
+        'start_time' => 'datetime:h:i a',
+        'end_time' => 'datetime:h:i a',
+        'date' => 'datetime:Y-m-d',
     ];
 
     protected $fillable = [
