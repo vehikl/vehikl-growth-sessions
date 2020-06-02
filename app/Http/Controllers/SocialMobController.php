@@ -53,11 +53,13 @@ class SocialMobController extends Controller
     public function join(SocialMob $socialMob, JoinSocialMobRequest $request)
     {
         $socialMob->attendees()->attach($request->user());
+        return $socialMob->fresh();
     }
 
     public function leave(SocialMob $socialMob, Request $request)
     {
         $socialMob->attendees()->detach($request->user());
+        return $socialMob->fresh();
     }
 
     public function update(UpdateSocialMobRequest $request, SocialMob $socialMob)

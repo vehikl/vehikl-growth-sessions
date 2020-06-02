@@ -1,15 +1,15 @@
 <template>
-    <div>
+    <div v-if="socialMobs.isReady">
         <div class="flex justify-center items-center text-xl text-blue-600 font-bold">
             <button class="load-previous-week mx-4 mb-2"
                     aria-label="Load previous week"
                     @click="changeReferenceDate(-7)">
                 <i class="fa fa-chevron-left" aria-hidden="true"></i>
             </button>
-            <h2 class="text-center mb-2 w-72" v-if="weekDates.length > 0">
+            <h2 class="text-center mb-2 w-72" v-if="socialMobs.weekDates.length > 0">
                 Week of
-                {{ weekDates[0].format('MMM-DD')}} to
-                {{ weekDates[4].format('MMM-DD')}}
+                {{ socialMobs.firstDay.format('MMM-DD')}} to
+                {{ socialMobs.lastDay.format('MMM-DD')}}
             </h2>
             <button class="load-next-week mx-4 mb-2"
                     aria-label="Load next week"
@@ -29,8 +29,8 @@
                 </div>
             </modal>
             <div class="day text-center mx-1 mb-2 px-2 md:block"
+                 v-for="date in socialMobs.weekDates"
                  :weekDay="date.weekDayString()"
-                 v-for="date in weekDates"
                  :key="date.toDateString()"
                  :class="{
                  'bg-blue-100': date.weekDayNumber() % 2 === 0,
@@ -46,20 +46,20 @@
                         Create new mob
                     </button>
                 </div>
-                <draggable :list="socialMobs[date.toDateString()]"
+                <draggable :list="socialMobs.getMobByDate(date)"
                            group="social-mobs"
                            class="h-full w-full"
                            handle=".handle"
                            :date="date"
                            @end="onDragEnd"
                            @change="onChange">
-                    <mob-card v-for="socialMob in socialMobs[date.toDateString()]"
+                    <mob-card v-for="socialMob in socialMobs.getMobByDate(date)"
                               :key="socialMob.id"
                               @mob-updated="getAllMobsOfTheWeek"
-                              :user="user"
                               @edit-requested="onMobEditRequested"
                               @delete-requested="getAllMobsOfTheWeek"
                               :socialMob="socialMob"
+                              :user="user"
                               :class="{
                               'handle cursor-pointer hover:bg-blue-100 hover:scale-105': isDraggable(socialMob),
                               }"
@@ -79,10 +79,12 @@
     import {SocialMobApi} from '../services/SocialMobApi';
     import {DateTimeApi} from '../services/DateTimeApi';
     import Draggable from 'vuedraggable';
+    import {SocialMob} from '../classes/SocialMob';
+    import {WeekMobs} from '../classes/WeekMobs';
 
     interface IMobCardDragChange {
-        added?: { element: ISocialMob, index: number }
-        removed?: { element: ISocialMob, index: number }
+        added?: { element: SocialMob, index: number }
+        removed?: { element: SocialMob, index: number }
     }
 
     @Component({
@@ -91,17 +93,17 @@
     export default class WeekView extends Vue {
         @Prop({required: false, default: null}) user!: IUser;
         referenceDate: DateTimeApi = DateTimeApi.today();
-        socialMobs: IWeekMobs = {};
+        socialMobs: WeekMobs = WeekMobs.empty();
         newMobDate: string = '';
-        mobToUpdate: ISocialMob | null = null;
+        mobToUpdate: SocialMob | null = null;
         DateTimeApi = DateTimeApi;
-        draggedMob!: ISocialMob;
+        draggedMob!: SocialMob;
 
         async created() {
             await this.getAllMobsOfTheWeek();
         }
 
-        isDraggable(mob: ISocialMob): boolean {
+        isDraggable(mob: SocialMob): boolean {
             if (! this.user) {
                 return false;
             }
@@ -141,7 +143,7 @@
             this.$modal.show('mob-form');
         }
 
-        onMobEditRequested(mob: ISocialMob) {
+        onMobEditRequested(mob: SocialMob) {
             this.mobToUpdate = mob;
             this.newMobDate = '';
             this.$modal.show('mob-form');
@@ -150,10 +152,6 @@
         async changeReferenceDate(deltaDays: number) {
             this.referenceDate.addDays(deltaDays);
             await this.getAllMobsOfTheWeek();
-        }
-
-        get weekDates(): DateTimeApi[] {
-            return Object.keys(this.socialMobs).map((date: string) => DateTimeApi.parseByDate(date));
         }
     }
 </script>

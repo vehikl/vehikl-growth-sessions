@@ -1,11 +1,13 @@
 import {createLocalVue, mount, Wrapper} from '@vue/test-utils';
 import WeekView from './WeekView.vue';
 import flushPromises from 'flush-promises';
-import socialsThisWeek from '../../../tests/fixtures/WeekSocials.json';
-import {ISocialMob, IUser, IWeekMobs} from '../types';
+import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
+import {IUser} from '../types';
 import VModal from 'vue-js-modal';
 import {SocialMobApi} from '../services/SocialMobApi';
 import {DateTimeApi} from '../services/DateTimeApi';
+import {WeekMobs} from '../classes/WeekMobs';
+import {SocialMob} from '../classes/SocialMob';
 
 const authUser: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -16,6 +18,7 @@ const authUser: IUser = {
 
 const localVue = createLocalVue();
 localVue.use(VModal);
+let socialsThisWeek: WeekMobs = new WeekMobs(socialsThisWeekJson);
 
 describe('WeekView', () => {
     let wrapper: Wrapper<WeekView>;
@@ -36,11 +39,7 @@ describe('WeekView', () => {
     });
 
     it('loads with the current week socials in display', () => {
-        const flat = (input: any[]): any[] => input.reduce((acc, val) => acc.concat(val), []);
-
-        const week = socialsThisWeek as unknown as IWeekMobs;
-        const mobsOfTheWeek = flat(Object.values(week));
-        const topicsOfTheWeek = mobsOfTheWeek.map((social: ISocialMob) => social.topic);
+        const topicsOfTheWeek = socialsThisWeek.allMobs.map((mob: SocialMob) => mob.topic);
         for (let topic of topicsOfTheWeek) {
             expect(wrapper.text()).toContain(topic);
         }

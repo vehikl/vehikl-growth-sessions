@@ -1,10 +1,12 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import socialsThisWeek from '../../../tests/fixtures/WeekSocials.json';
+import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
 import {SocialMobApi} from './SocialMobApi';
 import {ISocialMob, IUpdateSocialMobRequest} from '../types';
 import {DateTimeApi} from './DateTimeApi';
+import {WeekMobs} from '../classes/WeekMobs';
 
+const socialsThisWeek: WeekMobs = new WeekMobs(socialsThisWeekJson);
 const dummyMob: ISocialMob = {
     id: 1,
     attendees: [],
@@ -29,7 +31,7 @@ describe('SocialMobApi', () => {
 
     it('returns the mobs of the current week if no date is provided', async () => {
         DateTimeApi.setTestNow('2020-05-01');
-        mockBackend.onGet('social_mob/week?date=2020-05-01').reply(200, socialsThisWeek);
+        mockBackend.onGet('social_mob/week?date=2020-05-01').reply(200, socialsThisWeekJson);
 
         const result = await SocialMobApi.getAllMobsOfTheWeek();
 
@@ -39,7 +41,7 @@ describe('SocialMobApi', () => {
 
     it('returns the mobs of the week of the date provided', async() => {
         DateTimeApi.setTestNow('2020-05-01');
-        mockBackend.onGet('social_mob/week?date=2020-01-01').reply(200, socialsThisWeek);
+        mockBackend.onGet('social_mob/week?date=2020-01-01').reply(200, socialsThisWeekJson);
 
         const result = await SocialMobApi.getAllMobsOfTheWeek('2020-01-01');
 
@@ -85,18 +87,18 @@ describe('SocialMobApi', () => {
     });
 
     it('joins an existing mob', async () => {
-        mockBackend.onPost(`social_mob/${dummyMob.id}/join`).reply(200);
+        mockBackend.onPost(`social_mob/${dummyMob.id}/join`).reply(200, dummyMob);
 
-        const result = await SocialMobApi.join(dummyMob);
+        await SocialMobApi.join(dummyMob);
 
-        expect(result).toBe(true);
+        expect(mockBackend.history.post[0].url).toBe(`/social_mob/${dummyMob.id}/join`);
     });
 
     it('leaves an existing mob', async () => {
-        mockBackend.onPost(`social_mob/${dummyMob.id}/leave`).reply(200);
+        mockBackend.onPost(`social_mob/${dummyMob.id}/leave`).reply(200, dummyMob);
 
-        const result = await SocialMobApi.leave(dummyMob);
+        await SocialMobApi.leave(dummyMob);
 
-        expect(result).toBe(true);
+        expect(mockBackend.history.post[0].url).toBe(`/social_mob/${dummyMob.id}/leave`);
     });
 });

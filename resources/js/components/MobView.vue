@@ -1,15 +1,30 @@
 <template>
     <div class="max-w-5xl text-blue-600">
-        <h2 class="text-2xl lg:text-3xl font-sans font-light mb-8 flex items-center text-blue-700">
-            <div class="w-20 h-20 relative mr-4">
-                <div class="group w-full h-full rounded-full overflow-hidden shadow-inner">
-                    <img :src="mob.owner.avatar" :alt="`${mob.owner.name}'s Avatar`"
-                         class="object-cover object-center w-full h-full visible group-hover:hidden"/>
+        <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
+            <h2 class="text-2xl lg:text-3xl font-sans font-light flex items-center text-blue-700">
+                <div class="w-20 h-20 relative mr-4">
+                    <div class="group w-full h-full rounded-full overflow-hidden shadow-inner">
+                        <img :src="mob.owner.avatar" :alt="`${mob.owner.name}'s Avatar`"
+                             class="object-cover object-center w-full h-full visible group-hover:hidden"/>
+                    </div>
                 </div>
+                {{mobName}}
+            </h2>
+            <div>
+                <button
+                    class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    @click.stop="mob.join().then(() => $forceUpdate())"
+                    v-show="mob.canJoin(user)">
+                    Join
+                </button>
+                <button
+                    class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
+                    @click.stop="mob.leave().then(() => $forceUpdate())"
+                    v-show="mob.canLeave(user)">
+                    Leave
+                </button>
             </div>
-            {{mobName}}
-        </h2>
-
+        </div>
         <div class="flex flex-col lg:flex-row flex-wrap">
             <div class="flex-1 max-w-5xl">
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Topic</h3>
@@ -18,7 +33,8 @@
             <div class="flex-none">
                 <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Location:</h3>
-                    <a v-if="isUrl(mob.location)" class="underline" :href="mob.location" target="_blank" v-text="mob.location"/>
+                    <a v-if="mob.isLocationAnUrl" class="underline" :href="mob.location" target="_blank"
+                       v-text="mob.location"/>
                     <span v-else v-text="mob.location"></span>
                 </div>
 
@@ -47,28 +63,26 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {ISocialMob} from '../types';
+    import {IUser, ISocialMob} from '../types';
     import {DateTimeApi} from '../services/DateTimeApi';
-    import {StringApi} from '../services/StringApi';
+    import {SocialMob} from '../classes/SocialMob';
 
     @Component
     export default class MobView extends Vue {
-        @Prop({required: true}) mob!: ISocialMob;
+        @Prop({required: false}) user!: IUser;
+        @Prop({required: true}) mobJson!: ISocialMob;
+        mob: SocialMob = new SocialMob(this.mobJson);
 
         get mobName(): string {
             return `${this.mob.owner.name}'s ${DateTimeApi.parseByDate(this.mob.date).weekDayString()} Mob`;
         }
+
         get date(): string {
             return `${DateTimeApi.parseByDate(this.mob.date).format('MMM-DD')}`
         }
 
         get time(): string {
-            return `${DateTimeApi.parseByTime(this.mob.start_time).toTimeString12Hours(false)} -
-            ${DateTimeApi.parseByTime(this.mob.end_time).toTimeString12Hours(true)}`;
-        }
-
-        isUrl(possibleUrl: string): boolean {
-            return StringApi.isUrl(possibleUrl);
+            return `${this.mob.startTime} - ${this.mob.endTime}`;
         }
     }
 </script>

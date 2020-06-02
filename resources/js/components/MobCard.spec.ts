@@ -3,6 +3,7 @@ import MobCard from './MobCard.vue';
 import {ISocialMob, IUser} from '../types';
 import {SocialMobApi} from '../services/SocialMobApi';
 import {DateTimeApi} from '../services/DateTimeApi';
+import {SocialMob} from '../classes/SocialMob';
 
 const ownerOfTheMob: IUser = {
     name: 'Jack Bauer',
@@ -25,7 +26,7 @@ const outsider: IUser = {
     avatar: 'avatar.jpg'
 };
 
-const mobData: ISocialMob = {
+const mobData: SocialMob = new SocialMob({
     id: 0,
     owner: ownerOfTheMob,
     location: 'Somewhere over the rainbow',
@@ -36,7 +37,7 @@ const mobData: ISocialMob = {
     attendees: [
         attendee
     ]
-};
+});
 
 describe('MobCard', () => {
     let wrapper: Wrapper<MobCard>;
@@ -82,7 +83,7 @@ describe('MobCard', () => {
     });
 
     it('displays the mob location as an url if the location is a link', () => {
-        const mobWithUrl: ISocialMob = {
+        const mobWithUrl: SocialMob = new SocialMob({
             id: 0,
             owner: ownerOfTheMob,
             location: 'https://www.somewhere.com',
@@ -91,7 +92,7 @@ describe('MobCard', () => {
             end_time: '05:00 pm',
             topic: 'The fundamentals of Foobar',
             attendees: []
-        };
+        });
         wrapper = mount(MobCard, {propsData: {socialMob: mobWithUrl, user: attendee}});
 
         expect(wrapper.find('a.location').exists()).toBe(true);

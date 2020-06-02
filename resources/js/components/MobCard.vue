@@ -19,7 +19,7 @@
             </div>
             <div class="flex items-center">
                 <i class="fa fa-clock-o text-lg mr-2" aria-hidden="true"></i>
-                {{startTime}} to {{endTime}}
+                {{socialMob.startTime}} to {{socialMob.endTime}}
             </div>
         </div>
 
@@ -31,17 +31,17 @@
 
         <button class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 @click.stop="joinMob"
-                v-show="!isOwner && !isGuest && !isAttendee && ! hasMobAlreadyHappened">
+                v-show="socialMob.canJoin(user)">
             Join
         </button>
         <button class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
                 @click.stop="leaveMob"
-                v-show="isAttendee && ! hasMobAlreadyHappened">
+                v-show="socialMob.canLeave(user)">
             Leave
         </button>
-        <div  v-show="isOwner && ! hasMobAlreadyHappened">
+        <div  v-show="socialMob.canEditOrDelete(user)">
             <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="$emit('edit-requested', socialMob)">
+                    @click.stop="$emit('edit-requested', mob)">
                 Edit
             </button>
             <button class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
@@ -56,23 +56,23 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {ISocialMob, IUser} from '../types';
     import {SocialMobApi} from '../services/SocialMobApi';
-    import {DateTimeApi} from '../services/DateTimeApi';
     import {StringApi} from '../services/StringApi';
+    import {SocialMob} from '../classes/SocialMob';
+    import {IUser} from '../types';
 
     @Component
     export default class MobCard extends Vue {
-        @Prop({required: false}) user!: IUser;
-        @Prop({required: true}) socialMob!: ISocialMob;
+        @Prop({required: true}) socialMob!: SocialMob;
+        @Prop({required: false, default: null}) user!: IUser;
+
+        goToMob() {
+            window.location.assign(`/social_mob/${this.socialMob.id}`);
+        }
 
         async joinMob() {
             await SocialMobApi.join(this.socialMob);
             this.$emit('mob-updated');
-        }
-
-        goToMob() {
-            window.location.assign(`/social_mob/${this.socialMob.id}`);
         }
 
         async leaveMob() {
@@ -85,36 +85,6 @@
                 await SocialMobApi.delete(this.socialMob);
                 this.$emit('delete-requested', this.socialMob);
             }
-        }
-
-        get startTime(): string {
-            return DateTimeApi.parseByTime(this.socialMob.start_time).toTimeString12Hours(false);
-        }
-
-        get endTime(): string {
-            return DateTimeApi.parseByTime(this.socialMob.end_time).toTimeString12Hours();
-        }
-
-        get isGuest(): boolean {
-            return !this.user;
-        }
-
-        get isAttendee(): boolean {
-            if (this.isGuest) {
-                return false;
-            }
-            return this.socialMob.attendees.filter(user => user.id === this.user.id).length > 0;
-        }
-
-        get isOwner(): boolean {
-            if (this.isGuest) {
-                return false;
-            }
-            return this.socialMob.owner.id === this.user.id;
-        }
-
-        get hasMobAlreadyHappened(): boolean {
-            return DateTimeApi.parseByDate(this.socialMob.date).isInAPastDate();
         }
 
         isUrl(possibleUrl: string): boolean {
