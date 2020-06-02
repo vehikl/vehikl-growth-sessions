@@ -25,7 +25,7 @@
 
         <div class="text-blue-700 text-left mb-4">
             <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
-            <a @click.stop v-if="isUrl(socialMob.location)" class="location underline" :href="socialMob.location" target="_blank" v-text="socialMob.location"/>
+            <a @click.stop v-if="socialMob.isLocationAnUrl" class="location underline" :href="socialMob.location" target="_blank" v-text="socialMob.location"/>
             <span v-else class="location" v-text="socialMob.location"/>
         </div>
 
@@ -57,7 +57,6 @@
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
     import {SocialMobApi} from '../services/SocialMobApi';
-    import {StringApi} from '../services/StringApi';
     import {SocialMob} from '../classes/SocialMob';
     import {IUser} from '../types';
 
@@ -85,10 +84,6 @@
                 await SocialMobApi.delete(this.socialMob);
                 this.$emit('delete-requested', this.socialMob);
             }
-        }
-
-        isUrl(possibleUrl: string): boolean {
-            return StringApi.isUrl(possibleUrl);
         }
     }
 </script>

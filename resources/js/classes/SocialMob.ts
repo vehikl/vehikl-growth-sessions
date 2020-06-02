@@ -1,6 +1,5 @@
 import {ISocialMob, IUser} from '../types';
 import {DateTimeApi} from '../services/DateTimeApi';
-import {StringApi} from '../services/StringApi';
 import {SocialMobApi} from '../services/SocialMobApi';
 
 export class SocialMob implements ISocialMob {
@@ -41,7 +40,12 @@ export class SocialMob implements ISocialMob {
     }
 
     get isLocationAnUrl(): boolean {
-        return StringApi.isUrl(this.location);
+        try {
+            new URL(this.location);
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     canJoin(user: IUser): boolean {
