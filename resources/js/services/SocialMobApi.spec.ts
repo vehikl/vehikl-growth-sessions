@@ -3,7 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
 import {SocialMobApi} from './SocialMobApi';
 import {ISocialMob, IUpdateSocialMobRequest} from '../types';
-import {DateTimeApi} from './DateTimeApi';
+import {DateTime} from '../classes/DateTime';
 import {WeekMobs} from '../classes/WeekMobs';
 
 const socialsThisWeek: WeekMobs = new WeekMobs(socialsThisWeekJson);
@@ -30,7 +30,7 @@ describe('SocialMobApi', () => {
     });
 
     it('returns the mobs of the current week if no date is provided', async () => {
-        DateTimeApi.setTestNow('2020-05-01');
+        DateTime.setTestNow('2020-05-01');
         mockBackend.onGet('social_mob/week?date=2020-05-01').reply(200, socialsThisWeekJson);
 
         const result = await SocialMobApi.getAllMobsOfTheWeek();
@@ -40,7 +40,7 @@ describe('SocialMobApi', () => {
 
 
     it('returns the mobs of the week of the date provided', async() => {
-        DateTimeApi.setTestNow('2020-05-01');
+        DateTime.setTestNow('2020-05-01');
         mockBackend.onGet('social_mob/week?date=2020-01-01').reply(200, socialsThisWeekJson);
 
         const result = await SocialMobApi.getAllMobsOfTheWeek('2020-01-01');

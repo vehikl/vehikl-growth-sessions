@@ -1,17 +1,17 @@
 import {ISocialMob, IWeekMobs} from '../types';
 import {SocialMob} from './SocialMob';
-import {DateTimeApi} from '../services/DateTimeApi';
+import {DateTime} from '../classes/DateTime';
 
 export class WeekMobs {
     weekMobs: IWeekMobs;
-    weekDates: DateTimeApi[] = [];
+    weekDates: DateTime[] = [];
 
     constructor(weekMobs: IWeekMobs) {
         this.weekMobs = weekMobs;
         let weekDateStrings = Object.keys(weekMobs);
         for (let weekDate of weekDateStrings) {
             this.weekMobs[weekDate] = weekMobs[weekDate].map((jsonMob: ISocialMob) => new SocialMob(jsonMob));
-            this.weekDates.push(DateTimeApi.parseByDate(weekDate))
+            this.weekDates.push(DateTime.parseByDate(weekDate))
         }
     }
 
@@ -23,7 +23,7 @@ export class WeekMobs {
         return mobs as SocialMob[];
     }
 
-    getMobByDate(date: DateTimeApi): SocialMob[] {
+    getMobByDate(date: DateTime): SocialMob[] {
         return this.weekMobs[date.toDateString()] as SocialMob[];
     }
 
@@ -32,15 +32,15 @@ export class WeekMobs {
         return this.weekDates.length >= numberOfWeekdays;
     }
 
-    get firstDay(): DateTimeApi {
+    get firstDay(): DateTime {
         return this.weekDates[0];
     }
 
-    get lastDay(): DateTimeApi {
+    get lastDay(): DateTime {
         return this.weekDates[this.weekDates.length - 1];
     }
 
     static empty(): WeekMobs {
-        return new WeekMobs({[DateTimeApi.today().toDateString()] : []});
+        return new WeekMobs({[DateTime.today().toDateString()] : []});
     }
 }

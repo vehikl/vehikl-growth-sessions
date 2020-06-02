@@ -35,7 +35,7 @@
                  :class="{
                  'bg-blue-100': date.weekDayNumber() % 2 === 0,
                  'bg-blue-200': date.weekDayNumber() % 2 !== 0,
-                 'hidden': !date.isSameDay(DateTimeApi.today())
+                 'hidden': !date.isSameDay(DateTime.today())
                  }">
                 <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="date.weekDayString()"></h3>
                 <div v-if="user">
@@ -77,7 +77,7 @@
     import MobCard from './MobCard.vue';
     import MobForm from './MobForm.vue';
     import {SocialMobApi} from '../services/SocialMobApi';
-    import {DateTimeApi} from '../services/DateTimeApi';
+    import {DateTime} from '../classes/DateTime';
     import Draggable from 'vuedraggable';
     import {SocialMob} from '../classes/SocialMob';
     import {WeekMobs} from '../classes/WeekMobs';
@@ -92,11 +92,11 @@
     })
     export default class WeekView extends Vue {
         @Prop({required: false, default: null}) user!: IUser;
-        referenceDate: DateTimeApi = DateTimeApi.today();
+        referenceDate: DateTime = DateTime.today();
         socialMobs: WeekMobs = WeekMobs.empty();
         newMobDate: string = '';
         mobToUpdate: SocialMob | null = null;
-        DateTimeApi = DateTimeApi;
+        DateTime = DateTime;
         draggedMob!: SocialMob;
 
         async created() {
@@ -108,7 +108,7 @@
                 return false;
             }
             const userOwnsDraggedMob = mob.owner.id === this.user.id;
-            const isMobInThePast = DateTimeApi.parseByDate(mob.date).isInAPastDate();
+            const isMobInThePast = DateTime.parseByDate(mob.date).isInAPastDate();
             return userOwnsDraggedMob && !isMobInThePast;
         }
 
@@ -137,7 +137,7 @@
             this.$modal.hide('mob-form');
         }
 
-        onCreateNewMobClicked(startDate: DateTimeApi) {
+        onCreateNewMobClicked(startDate: DateTime) {
             this.mobToUpdate = null;
             this.newMobDate = startDate.toISOString();
             this.$modal.show('mob-form');

@@ -49,9 +49,7 @@
                 <i class="fa fa-trash" aria-hidden="true"></i>
             </button>
         </div>
-
     </div>
-
 </template>
 
 <script lang="ts">

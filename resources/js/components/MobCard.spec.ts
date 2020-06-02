@@ -1,8 +1,8 @@
 import {mount, Wrapper} from '@vue/test-utils';
 import MobCard from './MobCard.vue';
-import {ISocialMob, IUser} from '../types';
+import {IUser} from '../types';
 import {SocialMobApi} from '../services/SocialMobApi';
-import {DateTimeApi} from '../services/DateTimeApi';
+import {DateTime} from '../classes/DateTime';
 import {SocialMob} from '../classes/SocialMob';
 
 const ownerOfTheMob: IUser = {
@@ -42,7 +42,7 @@ const mobData: SocialMob = new SocialMob({
 describe('MobCard', () => {
     let wrapper: Wrapper<MobCard>;
     beforeEach(() => {
-        DateTimeApi.setTestNow('2020-05-01 00:00:00.0000');
+        DateTime.setTestNow('2020-05-01 00:00:00.0000');
         wrapper = mount(MobCard, {propsData: {socialMob: mobData}})
     });
 
@@ -128,32 +128,32 @@ describe('MobCard', () => {
     });
 
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTimeApi.parseByDate(mobData.date).addDays(1).toISOString();
-        DateTimeApi.setTestNow(oneDayAfterTheMob);
+        const oneDayAfterTheMob = DateTime.parseByDate(mobData.date).addDays(1).toISOString();
+        DateTime.setTestNow(oneDayAfterTheMob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
 
         expect(wrapper.find('.delete-button').element).not.toBeVisible()
     });
 
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTimeApi.parseByDate(mobData.date).addDays(1).toISOString();
-        DateTimeApi.setTestNow(oneDayAfterTheMob);
+        const oneDayAfterTheMob = DateTime.parseByDate(mobData.date).addDays(1).toISOString();
+        DateTime.setTestNow(oneDayAfterTheMob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
 
         expect(wrapper.find('.update-button').element).not.toBeVisible()
     });
 
     it('does not display the join button if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTimeApi.parseByDate(mobData.date).addDays(1).toISOString();
-        DateTimeApi.setTestNow(oneDayAfterTheMob);
+        const oneDayAfterTheMob = DateTime.parseByDate(mobData.date).addDays(1).toISOString();
+        DateTime.setTestNow(oneDayAfterTheMob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
 
         expect(wrapper.find('.join-button').element).not.toBeVisible()
     });
 
     it('does not display the leave button if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTimeApi.parseByDate(mobData.date).addDays(1).toISOString();
-        DateTimeApi.setTestNow(oneDayAfterTheMob);
+        const oneDayAfterTheMob = DateTime.parseByDate(mobData.date).addDays(1).toISOString();
+        DateTime.setTestNow(oneDayAfterTheMob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: attendee}});
 
         expect(wrapper.find('.leave-button').element).not.toBeVisible()

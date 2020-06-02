@@ -69,7 +69,7 @@
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
     import {IUser, ISocialMob} from '../types';
-    import {DateTimeApi} from '../services/DateTimeApi';
+    import {DateTime} from '../classes/DateTime';
     import {SocialMob} from '../classes/SocialMob';
 
     @Component
@@ -79,11 +79,11 @@
         mob: SocialMob = new SocialMob(this.mobJson);
 
         get mobName(): string {
-            return `${this.mob.owner.name}'s ${DateTimeApi.parseByDate(this.mob.date).weekDayString()} Mob`;
+            return `${this.mob.owner.name}'s ${DateTime.parseByDate(this.mob.date).weekDayString()} Mob`;
         }
 
         get date(): string {
-            return `${DateTimeApi.parseByDate(this.mob.date).format('MMM-DD')}`
+            return `${DateTime.parseByDate(this.mob.date).format('MMM-DD')}`
         }
 
         get time(): string {

@@ -82,7 +82,7 @@
     import VueTimepicker from 'vue2-timepicker'
     import Datepicker from 'vuejs-datepicker';
     import {SocialMobApi} from '../services/SocialMobApi';
-    import {DateTimeApi} from '../services/DateTimeApi';
+    import {DateTime} from '../classes/DateTime';
 
     @Component({components: {VueTimepicker, Datepicker}})
     export default class CreateMob extends Vue {
@@ -106,8 +106,8 @@
 
             if (this.mob) {
                 this.date = this.mob.date;
-                this.startTime = DateTimeApi.parseByTime(this.mob.start_time).toTimeString12Hours();
-                this.endTime = DateTimeApi.parseByTime(this.mob.end_time).toTimeString12Hours();
+                this.startTime = DateTime.parseByTime(this.mob.start_time).toTimeString12Hours();
+                this.endTime = DateTime.parseByTime(this.mob.end_time).toTimeString12Hours();
                 this.location = this.mob.location;
                 this.topic = this.mob.topic;
             }
@@ -156,7 +156,7 @@
         }
 
         get dateString(): string {
-            return DateTimeApi.parseByDate(this.date).toDateString();
+            return DateTime.parseByDate(this.date).toDateString();
         }
 
         get isReadyToSubmit(): boolean {

@@ -5,7 +5,7 @@ import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
 import {IUser} from '../types';
 import VModal from 'vue-js-modal';
 import {SocialMobApi} from '../services/SocialMobApi';
-import {DateTimeApi} from '../services/DateTimeApi';
+import {DateTime} from '../classes/DateTime';
 import {WeekMobs} from '../classes/WeekMobs';
 import {SocialMob} from '../classes/SocialMob';
 
@@ -32,7 +32,7 @@ describe('WeekView', () => {
         thisWeeksMonday = '2020-01-13';
         previousWeeksMonday = '2020-01-06';
         nextMonday = '2020-01-20';
-        DateTimeApi.setTestNow(todayIsWednesday);
+        DateTime.setTestNow(todayIsWednesday);
         SocialMobApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(socialsThisWeek);
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
@@ -49,22 +49,22 @@ describe('WeekView', () => {
     it('allows the user to view mobs of the previous week', async () => {
         wrapper.find('button.load-previous-week').trigger('click');
         await flushPromises();
-        let sevenDaysInThePast = DateTimeApi.parseByDate(todayIsWednesday).addDays(-7).toDateString();
+        let sevenDaysInThePast = DateTime.parseByDate(todayIsWednesday).addDays(-7).toDateString();
         expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInThePast);
     });
 
     it('allows the user to view mobs of the next week', async () => {
         wrapper.find('button.load-next-week').trigger('click');
         await flushPromises();
-        let sevenDaysInTheFuture = DateTimeApi.parseByDate(todayIsWednesday).addDays(7).toDateString();
+        let sevenDaysInTheFuture = DateTime.parseByDate(todayIsWednesday).addDays(7).toDateString();
         expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInTheFuture);
     });
 
     it('shows only the current day in mobile devices', () => {
         window = Object.assign(window, {innerWidth: 300});
 
-        let today = DateTimeApi.today();
-        let tomorrow = DateTimeApi.today().addDays(1);
+        let today = DateTime.today();
+        let tomorrow = DateTime.today().addDays(1);
         expect(wrapper.find(`[weekDay=${today.weekDayString()}`).element).not.toHaveClass('hidden');
         expect(wrapper.find(`[weekDay=${tomorrow.weekDayString()}`).element).toHaveClass('hidden');
     });

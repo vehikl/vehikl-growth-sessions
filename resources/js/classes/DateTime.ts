@@ -1,28 +1,28 @@
 import moment, {Moment} from 'moment';
 
-export class DateTimeApi {
+export class DateTime {
     private dateTime: string;
     private static nowString: string = (new Date()).toISOString();
 
     constructor(dateTime?: string) {
-        this.dateTime = dateTime || DateTimeApi.nowString;
+        this.dateTime = dateTime || DateTime.nowString;
     }
 
-    static parseByDate(date: string): DateTimeApi {
-        return new DateTimeApi(moment(date, 'YYYY-MM-DD').toISOString());
+    static parseByDate(date: string): DateTime {
+        return new DateTime(moment(date, 'YYYY-MM-DD').toISOString());
     }
 
-    static parseByTime(time: string): DateTimeApi {
+    static parseByTime(time: string): DateTime {
         const is12hrsFormat = /(am|pm)/gi.test(time);
-        return new DateTimeApi(moment(time, `hh:mm${is12hrsFormat ? ' a' : ''}`).toISOString(true));
+        return new DateTime(moment(time, `hh:mm${is12hrsFormat ? ' a' : ''}`).toISOString(true));
     }
 
     static today() {
-        return new DateTimeApi();
+        return new DateTime();
     }
 
     static setTestNow(date: string) {
-        DateTimeApi.nowString = moment(date).toISOString();
+        DateTime.nowString = moment(date).toISOString();
     }
 
     format(formatString: string): string {
@@ -49,18 +49,18 @@ export class DateTimeApi {
         return this.format('dddd');
     }
 
-    addDays(days: number): DateTimeApi {
+    addDays(days: number): DateTime {
         this.dateTime = moment(this.dateTime).add(days, 'days').toISOString();
         return this;
     }
 
-    isSameDay(date: DateTimeApi): boolean {
+    isSameDay(date: DateTime): boolean {
         return moment(this.dateTime).isSame(date.toDateString(), 'days');
     }
 
     isInAPastDate(): boolean {
         const current: Moment = moment(this.toDateString());
-        const today: Moment = moment(DateTimeApi.today().toDateString());
+        const today: Moment = moment(DateTime.today().toDateString());
         return current.isBefore(today);
     }
 }

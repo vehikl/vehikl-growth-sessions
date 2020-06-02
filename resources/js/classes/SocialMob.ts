@@ -1,5 +1,5 @@
 import {ISocialMob, IUser} from '../types';
-import {DateTimeApi} from '../services/DateTimeApi';
+import {DateTime} from '../classes/DateTime';
 import {SocialMobApi} from '../services/SocialMobApi';
 
 export class SocialMob implements ISocialMob {
@@ -28,15 +28,15 @@ export class SocialMob implements ISocialMob {
     }
 
     get startTime(): string {
-        return DateTimeApi.parseByTime(this.start_time).toTimeString12Hours(false);
+        return DateTime.parseByTime(this.start_time).toTimeString12Hours(false);
     }
 
     get endTime(): string {
-        return DateTimeApi.parseByTime(this.end_time).toTimeString12Hours();
+        return DateTime.parseByTime(this.end_time).toTimeString12Hours();
     }
 
     get hasAlreadyHappened(): boolean {
-        return DateTimeApi.parseByDate(this.date).isInAPastDate();
+        return DateTime.parseByDate(this.date).isInAPastDate();
     }
 
     get isLocationAnUrl(): boolean {
