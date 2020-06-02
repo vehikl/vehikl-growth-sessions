@@ -55,15 +55,15 @@ export class SocialMob implements ISocialMob {
         this.refresh(await SocialMobApi.join(this));
     }
 
-    async leave() {
-        this.refresh(await SocialMobApi.leave(this));
-    }
-
     canLeave(user: IUser): boolean {
         if (!user) {
             return false;
         }
         return !this.isOwner(user) && this.isAttendee(user) && !this.hasAlreadyHappened
+    }
+
+    async leave() {
+        this.refresh(await SocialMobApi.leave(this));
     }
 
     canEditOrDelete(user: IUser): boolean {
@@ -72,6 +72,10 @@ export class SocialMob implements ISocialMob {
         }
 
         return this.isOwner(user) && !this.hasAlreadyHappened;
+    }
+
+    async delete() {
+        return await SocialMobApi.delete(this);
     }
 
     isAttendee(user: IUser): boolean {

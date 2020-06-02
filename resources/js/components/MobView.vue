@@ -23,6 +23,11 @@
                     v-show="mob.canLeave(user)">
                     Leave
                 </button>
+                <button class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                        @click.stop="deleteMob"
+                        v-if="mob.canEditOrDelete(user)">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
             </div>
         </div>
         <div class="flex flex-col lg:flex-row flex-wrap">
@@ -83,6 +88,11 @@
 
         get time(): string {
             return `${this.mob.startTime} - ${this.mob.endTime}`;
+        }
+
+        async deleteMob() {
+            await this.mob.delete();
+            window.location.assign('/');
         }
     }
 </script>
