@@ -9,11 +9,8 @@ class CreateSocialMobUserTable extends Migration
     public function up()
     {
         Schema::create('social_mob_user', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('social_mob_id');
-
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('social_mob_id')->references('id')->on('social_mobs');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('social_mob_id')->constrained()->cascadeOnDelete();
         });
     }
 

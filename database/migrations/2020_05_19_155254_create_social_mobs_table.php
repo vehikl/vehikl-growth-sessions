@@ -10,15 +10,13 @@ class CreateSocialMobsTable extends Migration
     {
         Schema::create('social_mobs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('owner_id');
+            $table->foreignId('owner_id')->constrained('users')->cascadeOnDelete();
             $table->string('topic');
             $table->string('location');
             $table->date('date');
             $table->time('start_time');
             $table->time('end_time')->default(config('socialMob.default_end_time'));
             $table->timestamps();
-
-            $table->foreign('owner_id')->references('id')->on('users');
         });
     }
 
