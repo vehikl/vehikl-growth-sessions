@@ -41,7 +41,7 @@
         </button>
         <div  v-show="socialMob.canEditOrDelete(user)">
             <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="$emit('edit-requested', mob)">
+                    @click.stop="$emit('edit-requested', socialMob)">
                 Edit
             </button>
             <button class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
