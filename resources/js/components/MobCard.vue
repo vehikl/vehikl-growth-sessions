@@ -23,7 +23,7 @@
             </div>
         </div>
 
-        <div class="text-blue-700 text-left mb-4">
+        <div class="text-blue-700 text-left mb-4 break-all">
             <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
             <a @click.stop v-if="socialMob.isLocationAnUrl" class="location underline" :href="socialMob.location" target="_blank" v-text="socialMob.location"/>
             <span v-else class="location" v-text="socialMob.location"/>
@@ -41,7 +41,7 @@
         </button>
         <div  v-show="socialMob.canEditOrDelete(user)">
             <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="$emit('edit-requested', mob)">
+                    @click.stop="$emit('edit-requested', socialMob)">
                 Edit
             </button>
             <button class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
