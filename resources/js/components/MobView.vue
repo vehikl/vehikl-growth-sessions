@@ -23,6 +23,11 @@
                     v-show="mob.canLeave(user)">
                     Leave
                 </button>
+                <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+                        @click.stop="editOrSave"
+                        v-if="mob.canEditOrDelete(user)">
+                    {{editModeOn ? 'Save' : 'Edit'}}
+                </button>
                 <button class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
                         @click.stop="deleteMob"
                         v-if="mob.canEditOrDelete(user)">
@@ -77,6 +82,7 @@
         @Prop({required: false}) user!: IUser;
         @Prop({required: true}) mobJson!: ISocialMob;
         mob: SocialMob = new SocialMob(this.mobJson);
+        editModeOn: boolean = false;
 
         get mobName(): string {
             return `${this.mob.owner.name}'s ${DateTime.parseByDate(this.mob.date).weekDayString()} Mob`;
@@ -93,6 +99,10 @@
         async deleteMob() {
             await this.mob.delete();
             window.location.assign('/');
+        }
+
+        editOrSave() {
+            this.editModeOn = !this.editModeOn;
         }
     }
 </script>
