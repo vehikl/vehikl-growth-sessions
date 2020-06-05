@@ -42,6 +42,7 @@
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Topic</h3>
                 <textarea id="topic"
                           v-model="mob.topic"
+                          :class="{'error-outline': getError('topic')}"
                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                           rows="4"
                           placeholder="What is this mob about?"/>
@@ -51,6 +52,7 @@
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Location:</h3>
                     <textarea id="location"
                               rows="2"
+                              :class="{'error-outline': getError('location')}"
                               v-model="mob.location"
                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                               placeholder="Where should people go to participate?"/>
@@ -158,7 +160,7 @@
 
         onRequestFailed(exception: any) {
             if (exception.response?.status === 422) {
-                console.log(exception.response.data)
+                console.log(exception.response.data.errors)
                 this.validationErrors = exception.response.data;
             } else {
                 alert('Something went wrong :(');
@@ -173,4 +175,7 @@
 </script>
 
 <style lang="scss" scoped>
+    .error-outline {
+        outline: red solid 2px;
+    }
 </style>
