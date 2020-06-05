@@ -24,7 +24,7 @@
                     Leave
                 </button>
                 <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                        @click.stop="editOrSave"
+                        @click.stop="editOrSaveMob"
                         v-if="mob.canEditOrDelete(user)">
                     {{editModeOn ? 'Save' : 'Edit'}}
                 </button>
@@ -124,11 +124,12 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {IUser, ISocialMob} from '../types';
+    import {IUser, ISocialMob, IStoreSocialMobRequest} from '../types';
     import {DateTime} from '../classes/DateTime';
     import {SocialMob} from '../classes/SocialMob';
     import VueTimepicker from "vue2-timepicker";
     import Datepicker from "vuejs-datepicker";
+    import {SocialMobApi} from "../services/SocialMobApi";
 
     @Component({components: {VueTimepicker, Datepicker}})
     export default class MobView extends Vue {
@@ -154,8 +155,38 @@
             window.location.assign('/');
         }
 
-        editOrSave() {
+        editOrSaveMob() {
+            if (this.editModeOn) {
+                this.updateMob();
+            }
             this.editModeOn = !this.editModeOn;
+        }
+
+        async updateMob() {
+            try {
+                let updatedMob: ISocialMob = await SocialMobApi.update(this.mob, this.storeOrUpdatePayload);
+                this.$emit('submitted', updatedMob);
+            } catch (e) {
+                this.onRequestFailed(e);
+            }
+        }
+
+        onRequestFailed(exception: any) {
+            if (exception.response?.status === 422) {
+                // this.validationErrors = exception.response.data;
+            } else {
+                alert('Something went wrong :(');
+            }
+        }
+
+        get storeOrUpdatePayload(): IStoreSocialMobRequest {
+            return {
+                location: this.mob.location,
+                topic: this.mob.topic,
+                date: this.mob.date,
+                start_time: this.mob.start_time,
+                end_time: this.mob.end_time
+            }
         }
     }
 </script>
