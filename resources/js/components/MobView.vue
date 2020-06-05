@@ -36,22 +36,73 @@
             </div>
         </div>
         <div class="flex flex-col lg:flex-row flex-wrap">
-            <div class="flex-1 max-w-5xl">
+            <div class="flex-1 mr-2 max-w-5xl">
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Topic</h3>
-                <pre class="font-sans m-5 whitespace-pre-wrap" v-text="mob.topic"/>
+                <textarea id="topic"
+                          v-model="mob.topic"
+                          v-if="editModeOn"
+                          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          rows="4"
+                          placeholder="What is this mob about?"/>
+                <pre class="font-sans m-5 whitespace-pre-wrap" v-text="mob.topic" v-else/>
             </div>
             <div class="flex-none">
                 <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Location:</h3>
-                    <a v-if="mob.isLocationAnUrl" class="underline" :href="mob.location" target="_blank"
-                       v-text="mob.location"/>
-                    <span v-else v-text="mob.location"></span>
+                    <textarea id="location"
+                              rows="2"
+                              v-if="editModeOn"
+                              v-model="mob.location"
+                              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                              placeholder="Where should people go to participate?"/>
+                    <div v-else>
+                        <a v-if="mob.isLocationAnUrl" class="underline" :href="mob.location" target="_blank"
+                           v-text="mob.location"/>
+                        <span v-else v-text="mob.location"></span>
+                    </div>
                 </div>
 
                 <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Time:</h3>
-                    <span class="mr-2">{{date}}</span>
-                    <span class="whitespace-no-wrap">( {{time}} )</span>
+                    <div v-if="editModeOn">
+                        <div>
+                            <label for="date" class="block text-gray-700 text-sm font-bold mb-2">
+                                Date
+                            </label>
+                            <div class="border p-1 border-gray-400 justify-center">
+                                <datepicker v-model="date" id="date"/>
+                            </div>
+
+                            <label for="start_time" class="block text-gray-700 text-sm font-bold mb-2">
+                                Start
+                            </label>
+                            <vue-timepicker v-model="mob.start_time"
+                                            advanced-keyboard
+                                            auto-scroll
+                                            hide-disabled-items
+                                            :hour-range="[['1p', '4p']]"
+                                            format="hh:mm a"
+                                            :minute-interval="15"
+                                            id="start_time"/>
+                        </div>
+                        <div>
+                            <label for="end_time" class="block text-gray-700 text-sm font-bold mb-2">
+                                End
+                            </label>
+                            <vue-timepicker v-model="mob.end_time"
+                                            advanced-keyboard
+                                            auto-scroll
+                                            hide-disabled-items
+                                            :hour-range="[['2p', '5p']]"
+                                            format="hh:mm a"
+                                            :minute-interval="15"
+                                            id="end_time"/>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <span class="mr-2">{{date}}</span>
+                        <span class="whitespace-no-wrap">( {{time}} )</span>
+                    </div>
                 </div>
 
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Attendees</h3>
@@ -76,8 +127,10 @@
     import {IUser, ISocialMob} from '../types';
     import {DateTime} from '../classes/DateTime';
     import {SocialMob} from '../classes/SocialMob';
+    import VueTimepicker from "vue2-timepicker";
+    import Datepicker from "vuejs-datepicker";
 
-    @Component
+    @Component({components: {VueTimepicker, Datepicker}})
     export default class MobView extends Vue {
         @Prop({required: false}) user!: IUser;
         @Prop({required: true}) mobJson!: ISocialMob;
@@ -108,4 +161,7 @@
 </script>
 
 <style lang="scss" scoped>
+    .editable {
+
+    }
 </style>
