@@ -23,14 +23,16 @@
                     v-show="mob.canLeave(user)">
                     Leave
                 </button>
-                <button class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                        @click.stop="editOrSaveMob"
-                        v-if="mob.canEditOrDelete(user)">
+                <button
+                    class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+                    @click.stop="editOrSaveMob"
+                    v-if="mob.canEditOrDelete(user)">
                     {{editModeOn ? 'Save' : 'Edit'}}
                 </button>
-                <button class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                        @click.stop="deleteMob"
-                        v-if="mob.canEditOrDelete(user)">
+                <button
+                    class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                    @click.stop="deleteMob"
+                    v-if="mob.canEditOrDelete(user)">
                     <i class="fa fa-trash" aria-hidden="true"></i>
                 </button>
             </div>
@@ -69,7 +71,8 @@
                             <label for="date" class="block text-gray-700 text-sm font-bold mb-2">
                                 Date
                             </label>
-                            <div class="border p-1 border-gray-400 justify-center">
+                            <div class="border p-1 border-gray-400 justify-center"
+                                 :class="{'error-outline': getError('date')}">
                                 <datepicker v-model="date" id="date"/>
                             </div>
 
@@ -77,6 +80,7 @@
                                 Start
                             </label>
                             <vue-timepicker v-model="mob.start_time"
+                                            :class="{'error-outline': getError('start_time')}"
                                             advanced-keyboard
                                             auto-scroll
                                             hide-disabled-items
@@ -90,6 +94,7 @@
                                 End
                             </label>
                             <vue-timepicker v-model="mob.end_time"
+                                            :class="{'error-outline': getError('end_time')}"
                                             advanced-keyboard
                                             auto-scroll
                                             hide-disabled-items
@@ -124,7 +129,7 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {IUser, ISocialMob, IStoreSocialMobRequest} from '../types';
+    import {IUser, ISocialMob, IStoreSocialMobRequest, IValidationError} from '../types';
     import {DateTime} from '../classes/DateTime';
     import {SocialMob} from '../classes/SocialMob';
     import VueTimepicker from "vue2-timepicker";
@@ -137,6 +142,7 @@
         @Prop({required: true}) mobJson!: ISocialMob;
         mob: SocialMob = new SocialMob(this.mobJson);
         editModeOn: boolean = false;
+        validationErrors: IValidationError | null = null;
 
         get mobName(): string {
             return `${this.mob.owner.name}'s ${DateTime.parseByDate(this.mob.date).weekDayString()} Mob`;
@@ -155,17 +161,21 @@
             window.location.assign('/');
         }
 
+        ////////////////////// EDITING ////////////////////////
+
         editOrSaveMob() {
             if (this.editModeOn) {
                 this.updateMob();
+            } else {
+                this.editModeOn = true;
             }
-            this.editModeOn = !this.editModeOn;
         }
 
         async updateMob() {
             try {
                 let updatedMob: ISocialMob = await SocialMobApi.update(this.mob, this.storeOrUpdatePayload);
                 this.$emit('submitted', updatedMob);
+                this.editModeOn = false;
             } catch (e) {
                 this.onRequestFailed(e);
             }
@@ -173,26 +183,23 @@
 
         onRequestFailed(exception: any) {
             if (exception.response?.status === 422) {
-                // this.validationErrors = exception.response.data;
+                console.log(exception.response.data)
+                this.validationErrors = exception.response.data;
             } else {
                 alert('Something went wrong :(');
             }
         }
 
+        getError(field: string): string {
+            let errors = this.validationErrors?.errors[field];
+            return errors ? errors[0] : '';
+        }
+
         get storeOrUpdatePayload(): IStoreSocialMobRequest {
-            return {
-                location: this.mob.location,
-                topic: this.mob.topic,
-                date: this.mob.date,
-                start_time: this.mob.start_time,
-                end_time: this.mob.end_time
-            }
+            return this.mob
         }
     }
 </script>
 
 <style lang="scss" scoped>
-    .editable {
-
-    }
 </style>
