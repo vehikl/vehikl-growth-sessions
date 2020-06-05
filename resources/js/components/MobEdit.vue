@@ -25,7 +25,7 @@
                 </button>
                 <button
                     class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="editOrSaveMob"
+                    @click.stop="updateMob"
                     v-if="mob.canEditOrDelete(user)">
                     Save
                 </button>
@@ -150,6 +150,7 @@
             try {
                 let updatedMob: ISocialMob = await SocialMobApi.update(this.mob, this.mob);
                 this.$emit('submitted', updatedMob);
+                window.history.back()
             } catch (e) {
                 this.onRequestFailed(e);
             }
