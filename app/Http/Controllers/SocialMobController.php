@@ -62,6 +62,11 @@ class SocialMobController extends Controller
         return $socialMob->fresh();
     }
 
+    public function edit(SocialMob $socialMob)
+    {
+        return view('social-mob-edit', compact('socialMob'));
+    }
+
     public function update(UpdateSocialMobRequest $request, SocialMob $socialMob)
     {
         return $socialMob->update($request->validated());
