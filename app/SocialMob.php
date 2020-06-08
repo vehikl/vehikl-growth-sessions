@@ -51,12 +51,35 @@ class SocialMob extends Model
         $this->attributes['end_time'] = Carbon::parse($value)->format('H:i');
     }
 
-    public function scopeWeekOf($query, CarbonImmutable $referenceDate)
+    public static function allInTheWeekOf(?string $referenceDate)
     {
+        $referenceDate = CarbonImmutable::parse($referenceDate);
+
         $startPoint = $referenceDate->isDayOfWeek(Carbon::MONDAY)
             ? $referenceDate
             : $referenceDate->modify('Last Monday');
         $endPoint = $startPoint->addDays(4);
-        return $query->whereDate('date', '>=', $startPoint)->whereDate('date', '<=', $endPoint);
+
+        $allWeekMobs = SocialMob::query()
+            ->whereDate('date', '>=', $startPoint)
+            ->whereDate('date', '<=', $endPoint)
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get();
+
+        $mobsByDate = [
+            $startPoint->toDateString() => [],
+            $startPoint->addDays(1)->toDateString() => [],
+            $startPoint->addDays(2)->toDateString() => [],
+            $startPoint->addDays(3)->toDateString() => [],
+            $startPoint->addDays(4)->toDateString() => []
+        ];
+
+        foreach ($allWeekMobs as $mobModel) {
+            $mob = $mobModel->toArray();
+            array_push($mobsByDate[$mob['date']], $mob);
+        }
+
+        return $mobsByDate;
     }
 }

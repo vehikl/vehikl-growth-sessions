@@ -24,25 +24,7 @@ class SocialMobController extends Controller
 
     public function week(Request $request)
     {
-        $referenceDate = CarbonImmutable::parse($request->input('date'));
-        $weekMobs = SocialMob::query()->weekOf($referenceDate)->orderBy('date')->orderBy('start_time')->get();
-        $startPoint = $referenceDate->isDayOfWeek(Carbon::MONDAY)
-            ? $referenceDate
-            : $referenceDate->modify('Last Monday');
-
-        $response = [
-            $startPoint->toDateString() => [],
-            $startPoint->addDays(1)->toDateString() => [],
-            $startPoint->addDays(2)->toDateString() => [],
-            $startPoint->addDays(3)->toDateString() => [],
-            $startPoint->addDays(4)->toDateString() => []
-        ];
-        foreach ($weekMobs as $mobModel) {
-            $mob = $mobModel->toArray();
-            array_push($response[$mob['date']], $mob);
-        }
-
-        return $response;
+        return SocialMob::allInTheWeekOf($request->input('date'));
     }
 
     public function store(StoreSocialMobRequest $request)
