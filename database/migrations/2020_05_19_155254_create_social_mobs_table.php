@@ -11,7 +11,7 @@ class CreateSocialMobsTable extends Migration
         Schema::create('social_mobs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('owner_id')->constrained('users')->cascadeOnDelete();
-            $table->string('topic');
+            $table->text('topic');
             $table->string('location');
             $table->date('date');
             $table->time('start_time');
