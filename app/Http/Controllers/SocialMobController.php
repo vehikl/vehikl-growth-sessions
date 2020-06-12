@@ -7,7 +7,9 @@ use App\Http\Requests\JoinSocialMobRequest;
 use App\Http\Requests\StoreSocialMobRequest;
 use App\Http\Requests\UpdateSocialMobRequest;
 use App\SocialMob;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class SocialMobController extends Controller
 {
@@ -16,7 +18,8 @@ class SocialMobController extends Controller
         return SocialMob::all();
     }
 
-    public function show(SocialMob $socialMob) {
+    public function show(SocialMob $socialMob)
+    {
         return view('social-mob', compact('socialMob'));
     }
 
@@ -54,11 +57,21 @@ class SocialMobController extends Controller
 
     public function update(UpdateSocialMobRequest $request, SocialMob $socialMob)
     {
-        return $socialMob->update($request->validated());
+        $isOriginalMobToday = Carbon::today()->isSameDay($socialMob->date);
+        $socialMob->update($request->validated());
+        $updatedMob = $socialMob->fresh();
+        $isUpdatedMobToday =  Carbon::today()->isSameDay($updatedMob->date);
+        if (config('webhooks.social_mob.updated.today') && ($isOriginalMobToday || $isUpdatedMobToday)) {
+            Http::post(config('webhooks.social_mob.updated.today'), $updatedMob->toArray());
+        }
+        return $updatedMob;
     }
 
     public function destroy(DeleteSocialMobRequest $request, SocialMob $socialMob)
     {
         $socialMob->delete();
+        if (config('webhooks.social_mob.deleted.today') && Carbon::today()->isSameDay($socialMob->date)) {
+            Http::post(config('webhooks.social_mob.deleted.today'), $socialMob->toArray());
+        }
     }
 }
