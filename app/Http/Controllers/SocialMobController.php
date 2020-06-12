@@ -36,6 +36,7 @@ class SocialMobController extends Controller
     public function store(StoreSocialMobRequest $request)
     {
         $newMob = $request->user()->socialMobs()->save(new SocialMob($request->validated()));
+        $newMob->load(['owner', 'attendees']);
         $this->notifyCreationIfNeeded($newMob);
         return $newMob;
     }
@@ -76,7 +77,7 @@ class SocialMobController extends Controller
         if ($this->isWithinWebHookNotificationWindow()
             && config('webhooks.created_today')
             && today()->isSameDay($socialMob->date)) {
-            Http::post(config('webhooks.created_today'),SocialMob::find($socialMob->id)->toArray());
+            Http::post(config('webhooks.created_today'), $socialMob->toArray());
         }
     }
 
@@ -92,7 +93,7 @@ class SocialMobController extends Controller
     private function notifyUpdateIfNeeded(array $originalValues, array $newValues)
     {
         $wasMobOriginallyToday = today()->isSameDay($originalValues['date']);
-        $wasMobMovedToToday =  today()->isSameDay($newValues['date']);
+        $wasMobMovedToToday = today()->isSameDay($newValues['date']);
         if ($this->isWithinWebHookNotificationWindow()
             && config('webhooks.updated_today')
             && ($wasMobOriginallyToday || $wasMobMovedToToday)) {
@@ -100,7 +101,8 @@ class SocialMobController extends Controller
         }
     }
 
-    private function isWithinWebHookNotificationWindow(): bool {
+    private function isWithinWebHookNotificationWindow(): bool
+    {
         return now()
             ->isBetween(Carbon::parse(config('webhooks.start_time')), Carbon::parse(config('webhooks.end_time')));
     }
