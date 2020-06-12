@@ -7,8 +7,6 @@ use App\Http\Requests\JoinSocialMobRequest;
 use App\Http\Requests\StoreSocialMobRequest;
 use App\Http\Requests\UpdateSocialMobRequest;
 use App\SocialMob;
-use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 
 class SocialMobController extends Controller
@@ -25,6 +23,11 @@ class SocialMobController extends Controller
     public function week(Request $request)
     {
         return SocialMob::allInTheWeekOf($request->input('date'));
+    }
+
+    public function day()
+    {
+        return SocialMob::today()->get();
     }
 
     public function store(StoreSocialMobRequest $request)

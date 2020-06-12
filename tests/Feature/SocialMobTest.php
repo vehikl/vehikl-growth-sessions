@@ -235,4 +235,19 @@ class SocialMobTest extends TestCase
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
+
+    public function testItProvidesASummaryOfTheMobsOfTheDay()
+    {
+        $today = '2020-01-02';
+        $tomorrow = '2020-01-03';
+        Carbon::setTestNow($today);
+        CarbonImmutable::setTestNow($today);
+
+        $todayMobs = factory(SocialMob::class, 2)->create(['date' => $today]);
+        factory(SocialMob::class, 2)->create(['date' => $tomorrow]);
+
+        $response = $this->getJson(route('social_mob.day'));
+
+        $response->assertJson($todayMobs->toArray());
+    }
 }

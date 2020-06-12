@@ -21,6 +21,7 @@ Route::get('oauth/callback', 'Auth\LoginController@handleProviderCallback')->nam
 
 Route::view('/', 'home')->name('home');
 Route::get('social_mob/week', 'SocialMobController@week')->name('social_mob.week');
+Route::get('social_mob/day', 'SocialMobController@day')->name('social_mob.day');
 Route::post('social_mob/{social_mob}/join', 'SocialMobController@join')->name('social_mob.join');
 Route::post('social_mob/{social_mob}/leave', 'SocialMobController@leave')->name('social_mob.leave');
 Route::resource('social_mob', 'SocialMobController');
