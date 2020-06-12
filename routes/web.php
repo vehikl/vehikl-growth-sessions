@@ -10,13 +10,16 @@ Route::get('oauth/callback', 'Auth\LoginController@handleProviderCallback')->nam
 
 Route::view('/', 'home')->name('home');
 
-Route::prefix('social_mob')->name('social_mob.')->group(function() {
+Route::prefix('social_mobs')->name('social_mobs.')->group(function() {
     Route::get('week', 'SocialMobController@week')->name('week');
     Route::get('day', 'SocialMobController@day')->name('day');
-    Route::post('{social_mob}/join', 'SocialMobController@join')->name('join');
-    Route::post('{social_mob}/leave', 'SocialMobController@leave')->name('leave');
+    Route::get('{social_mob}', 'SocialMobController@show')->name('show');
+    Route::post('{social_mob}/join', 'SocialMobController@join')->middleware('auth')->name('join');
+    Route::post('{social_mob}/leave', 'SocialMobController@leave')->middleware('auth')->name('leave');
 });
-Route::resource('social_mob', 'SocialMobController')->except(['create']);
+Route::resource('social_mobs', 'SocialMobController')->middleware('auth')->except(['create', 'show', 'index']);
 
-Route::prefix('social_mob.comment')->get('/', 'CommentController@index');
-Route::resource('social_mob.comment', 'CommentController')->middleware('auth')->only(['store','update','destroy']);
+Route::prefix('social_mobs/{social_mob}/comments')->name('social_mob.comments.')->group(function() {
+    Route::get('/', 'CommentController@index')->name('index');
+});
+Route::resource('social_mobs.comments', 'CommentController')->middleware('auth')->only(['store','update','destroy']);

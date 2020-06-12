@@ -23,7 +23,7 @@ class WebHooksTest extends TestCase
         $this->enableHooks();
         $socialMob = factory(SocialMob::class)->create(['date' => today()]);
         $user = $socialMob->owner;
-        $this->actingAs($user)->deleteJson(route('social_mob.destroy', $socialMob));
+        $this->actingAs($user)->deleteJson(route('social_mobs.destroy', $socialMob));
 
         Http::assertSent(function (Request $request) {
             return $request->url() === config('webhooks.deleted_today');
@@ -35,7 +35,7 @@ class WebHooksTest extends TestCase
         $this->enableHooks();
         $socialMob = factory(SocialMob::class)->create(['date' => today()->addDay()]);
         $user = $socialMob->owner;
-        $this->actingAs($user)->deleteJson(route('social_mob.destroy', $socialMob));
+        $this->actingAs($user)->deleteJson(route('social_mobs.destroy', $socialMob));
 
         Http::assertNothingSent();
     }
@@ -45,7 +45,7 @@ class WebHooksTest extends TestCase
         $this->disableHooks();
         $socialMob = factory(SocialMob::class)->create();
         $user = $socialMob->owner;
-        $this->actingAs($user)->deleteJson(route('social_mob.destroy', $socialMob));
+        $this->actingAs($user)->deleteJson(route('social_mobs.destroy', $socialMob));
 
         Http::assertNothingSent();
     }
@@ -60,7 +60,7 @@ class WebHooksTest extends TestCase
         $user = $socialMob->owner;
 
         $this->actingAs($user)
-            ->deleteJson(route('social_mob.destroy', $socialMob))
+            ->deleteJson(route('social_mobs.destroy', $socialMob))
             ->assertSuccessful();
     }
 
@@ -69,7 +69,7 @@ class WebHooksTest extends TestCase
         $this->enableHooks();
         $socialMob = factory(SocialMob::class)->create(['date' => today()]);
         $user = $socialMob->owner;
-        $this->actingAs($user)->putJson(route('social_mob.update', $socialMob), ['topic' => 'new topic']);
+        $this->actingAs($user)->putJson(route('social_mobs.update', $socialMob), ['topic' => 'new topic']);
 
         Http::assertSent(function (Request $request) {
             return $request->url() === config('webhooks.updated_today');
@@ -81,7 +81,7 @@ class WebHooksTest extends TestCase
         $this->enableHooks();
         $socialMob = factory(SocialMob::class)->create(['date' => today()->addDay()]);
         $user = $socialMob->owner;
-        $this->actingAs($user)->putJson(route('social_mob.update', $socialMob), ['date' => today()]);
+        $this->actingAs($user)->putJson(route('social_mobs.update', $socialMob), ['date' => today()]);
 
         Http::assertSent(function (Request $request) {
             return $request->url() === config('webhooks.updated_today');
@@ -94,7 +94,7 @@ class WebHooksTest extends TestCase
         $this->enableHooks();
         $user = factory(User::class)->create();
         $socialMobData = factory(SocialMob::class)->make(['date' => today()])->toArray();
-        $this->actingAs($user)->postJson(route('social_mob.store'), $socialMobData);
+        $this->actingAs($user)->postJson(route('social_mobs.store'), $socialMobData);
 
         Http::assertSent(function (Request $request) {
             return $request->url() === config('webhooks.created_today');
@@ -117,11 +117,11 @@ class WebHooksTest extends TestCase
         $socialMobData = factory(SocialMob::class)->make(['date' => today()])->toArray();
 
         $socialMob = $this->actingAs($user)
-            ->postJson(route('social_mob.store'), $socialMobData);
+            ->postJson(route('social_mobs.store'), $socialMobData);
         $this->actingAs($user)
-            ->putJson(route('social_mob.update', ['social_mob' => $socialMob['id']]), ['topic' => 'new topic']);
+            ->putJson(route('social_mobs.update', ['social_mob' => $socialMob['id']]), ['topic' => 'new topic']);
         $this->actingAs($user)
-            ->deleteJson(route('social_mob.destroy', ['social_mob' => $socialMob['id']]));
+            ->deleteJson(route('social_mobs.destroy', ['social_mob' => $socialMob['id']]));
 
         Http::assertNothingSent();
     }
@@ -140,7 +140,7 @@ class WebHooksTest extends TestCase
     {
         $user = factory(User::class)->create();
         $socialMobData = factory(SocialMob::class)->make(['date' => today()])->toArray();
-        $this->actingAs($user)->postJson(route('social_mob.store'), $socialMobData);
+        $this->actingAs($user)->postJson(route('social_mobs.store'), $socialMobData);
 
         Http::assertSent(function (Request $request) {
             return ! empty($request->data()['owner']);

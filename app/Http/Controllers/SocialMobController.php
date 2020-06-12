@@ -13,11 +13,6 @@ use Illuminate\Support\Facades\Http;
 
 class SocialMobController extends Controller
 {
-    public function index()
-    {
-        return SocialMob::all();
-    }
-
     public function show(SocialMob $socialMob)
     {
         return view('social-mob', compact('socialMob'));

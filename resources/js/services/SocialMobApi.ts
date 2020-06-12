@@ -7,32 +7,32 @@ import {WeekMobs} from '../classes/WeekMobs';
 export class SocialMobApi extends BaseApi {
     static async getAllMobsOfTheWeek(date: string = DateTime.today().toDateString()): Promise<WeekMobs> {
         let dateString = DateTime.parseByDate(date).toDateString();
-        let response = await BaseApi.httpRequest.get<IWeekMobs>(`/social_mob/week?date=${dateString}`);
+        let response = await BaseApi.httpRequest.get<IWeekMobs>(`/social_mobs/week?date=${dateString}`);
         return new WeekMobs(response.data);
     }
 
     static async store(payload: IStoreSocialMobRequest): Promise<SocialMob> {
-        let response = await BaseApi.httpRequest.post<ISocialMob>('/social_mob', payload);
+        let response = await BaseApi.httpRequest.post<ISocialMob>('/social_mobs', payload);
         return new SocialMob(response.data);
     }
 
     static async update(target: ISocialMob, payload: IUpdateSocialMobRequest): Promise<SocialMob> {
-        let response = await BaseApi.httpRequest.put<ISocialMob>(`/social_mob/${target.id}`, payload);
+        let response = await BaseApi.httpRequest.put<ISocialMob>(`/social_mobs/${target.id}`, payload);
         return new SocialMob(response.data);
     }
 
     static async delete(target: ISocialMob): Promise<boolean> {
-        await BaseApi.httpRequest.delete(`/social_mob/${target.id}`);
+        await BaseApi.httpRequest.delete(`/social_mobs/${target.id}`);
         return true;
     }
 
     static async join(target: ISocialMob): Promise<SocialMob> {
-        let response = await BaseApi.httpRequest.post(`/social_mob/${target.id}/join`);
+        let response = await BaseApi.httpRequest.post(`/social_mobs/${target.id}/join`);
         return new SocialMob(response.data);
     }
 
     static async leave(target: ISocialMob): Promise<SocialMob> {
-        let response = await BaseApi.httpRequest.post(`/social_mob/${target.id}/leave`);
+        let response = await BaseApi.httpRequest.post(`/social_mobs/${target.id}/leave`);
         return new SocialMob(response.data);
     }
 }

@@ -15,7 +15,7 @@ class CommentsTest extends TestCase
         $socialMob = factory(SocialMob::class)->create();
 
         $this->actingAs($user)
-            ->postJson(route('social_mob.comment.store', $socialMob), ['content' => 'Hello world'])
+            ->postJson(route('social_mobs.comments.store', $socialMob), ['content' => 'Hello world'])
             ->assertSuccessful();
 
         $this->assertNotEmpty($socialMob->fresh()->comments);
@@ -25,7 +25,7 @@ class CommentsTest extends TestCase
     {
         $socialMob = factory(SocialMob::class)->create();
 
-        $this->postJson(route('social_mob.comment.store', $socialMob), ['content' => 'Hello world'])
+        $this->postJson(route('social_mobs.comments.store', $socialMob), ['content' => 'Hello world'])
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 }

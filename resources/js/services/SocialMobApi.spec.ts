@@ -31,7 +31,7 @@ describe('SocialMobApi', () => {
 
     it('returns the mobs of the current week if no date is provided', async () => {
         DateTime.setTestNow('2020-05-01');
-        mockBackend.onGet('social_mob/week?date=2020-05-01').reply(200, socialsThisWeekJson);
+        mockBackend.onGet('social_mobs/week?date=2020-05-01').reply(200, socialsThisWeekJson);
 
         const result = await SocialMobApi.getAllMobsOfTheWeek();
 
@@ -41,7 +41,7 @@ describe('SocialMobApi', () => {
 
     it('returns the mobs of the week of the date provided', async() => {
         DateTime.setTestNow('2020-05-01');
-        mockBackend.onGet('social_mob/week?date=2020-01-01').reply(200, socialsThisWeekJson);
+        mockBackend.onGet('social_mobs/week?date=2020-01-01').reply(200, socialsThisWeekJson);
 
         const result = await SocialMobApi.getAllMobsOfTheWeek('2020-01-01');
 
@@ -55,7 +55,7 @@ describe('SocialMobApi', () => {
             date: '2020-05-31',
             start_time: '20:30:20'
         };
-        mockBackend.onPost('social_mob').reply(201, {
+        mockBackend.onPost('social_mobs').reply(201, {
             id: 1,
             ...storeRequest
         });
@@ -67,7 +67,7 @@ describe('SocialMobApi', () => {
 
     it('updates an existing mob', async () => {
         let newTopic: string = 'A totally new topic';
-        mockBackend.onPut(`social_mob/${dummyMob.id}`).reply(200, {
+        mockBackend.onPut(`social_mobs/${dummyMob.id}`).reply(200, {
             ...dummyMob,
             topic: newTopic
         });
@@ -79,7 +79,7 @@ describe('SocialMobApi', () => {
     });
 
     it('deletes an existing mob', async () => {
-        mockBackend.onDelete(`social_mob/${dummyMob.id}`).reply(200);
+        mockBackend.onDelete(`social_mobs/${dummyMob.id}`).reply(200);
 
         const result = await SocialMobApi.delete(dummyMob);
 
@@ -87,18 +87,18 @@ describe('SocialMobApi', () => {
     });
 
     it('joins an existing mob', async () => {
-        mockBackend.onPost(`social_mob/${dummyMob.id}/join`).reply(200, dummyMob);
+        mockBackend.onPost(`social_mobs/${dummyMob.id}/join`).reply(200, dummyMob);
 
         await SocialMobApi.join(dummyMob);
 
-        expect(mockBackend.history.post[0].url).toBe(`/social_mob/${dummyMob.id}/join`);
+        expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyMob.id}/join`);
     });
 
     it('leaves an existing mob', async () => {
-        mockBackend.onPost(`social_mob/${dummyMob.id}/leave`).reply(200, dummyMob);
+        mockBackend.onPost(`social_mobs/${dummyMob.id}/leave`).reply(200, dummyMob);
 
         await SocialMobApi.leave(dummyMob);
 
-        expect(mockBackend.history.post[0].url).toBe(`/social_mob/${dummyMob.id}/leave`);
+        expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyMob.id}/leave`);
     });
 });

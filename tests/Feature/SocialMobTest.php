@@ -15,7 +15,7 @@ class SocialMobTest extends TestCase
     {
         $user = factory(User::class)->create();
         $topic = 'The fundamentals of foo';
-        $this->actingAs($user)->postJson(route('social_mob.store'), [
+        $this->actingAs($user)->postJson(route('social_mobs.store'), [
             'topic' => $topic,
             'location' => 'At the central mobbing area',
             'start_time' => now()->format('h:i a'),
@@ -30,7 +30,7 @@ class SocialMobTest extends TestCase
         $mob = factory(SocialMob::class)->create();
         $newTopic = 'A brand new topic!';
 
-        $this->actingAs($mob->owner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
+        $this->actingAs($mob->owner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
             'topic' => $newTopic,
         ])->assertSuccessful();
 
@@ -43,7 +43,7 @@ class SocialMobTest extends TestCase
         $mob = factory(SocialMob::class)->create(['date' => "2020-01-02"]);
         $newDate = '2020-01-10';
 
-        $this->actingAs($mob->owner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
+        $this->actingAs($mob->owner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
             'date' => $newDate,
         ])->assertSuccessful();
 
@@ -56,7 +56,7 @@ class SocialMobTest extends TestCase
         $mob = factory(SocialMob::class)->create(['date' => "2020-01-06"]);
         $newDate = '2020-01-03';
 
-        $this->actingAs($mob->owner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
+        $this->actingAs($mob->owner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
             'date' => $newDate,
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -67,7 +67,7 @@ class SocialMobTest extends TestCase
         $mob = factory(SocialMob::class)->create(['date' => "2020-01-01"]);
         $newDate = '2020-01-10';
 
-        $this->actingAs($mob->owner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
+        $this->actingAs($mob->owner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
             'date' => $newDate,
         ])->assertStatus(Response::HTTP_FORBIDDEN);
     }
@@ -77,7 +77,7 @@ class SocialMobTest extends TestCase
         $mob = factory(SocialMob::class)->create();
         $notTheOwner = factory(User::class)->create();
 
-        $this->actingAs($notTheOwner)->putJson(route('social_mob.update', ['social_mob' => $mob->id]), [
+        $this->actingAs($notTheOwner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
             'topic' => 'Anything'
         ])->assertForbidden();
     }
@@ -86,7 +86,7 @@ class SocialMobTest extends TestCase
     {
         $mob = factory(SocialMob::class)->create();
 
-        $this->actingAs($mob->owner)->deleteJson(route('social_mob.destroy', ['social_mob' => $mob->id]))
+        $this->actingAs($mob->owner)->deleteJson(route('social_mobs.destroy', ['social_mob' => $mob->id]))
             ->assertSuccessful();
 
         $this->assertEmpty($mob->fresh());
@@ -97,7 +97,7 @@ class SocialMobTest extends TestCase
         $mob = factory(SocialMob::class)->create();
         $notTheOwner = factory(User::class)->create();
 
-        $this->actingAs($notTheOwner)->deleteJson(route('social_mob.destroy', ['social_mob' => $mob->id]))
+        $this->actingAs($notTheOwner)->deleteJson(route('social_mobs.destroy', ['social_mob' => $mob->id]))
             ->assertForbidden();
     }
 
@@ -107,7 +107,7 @@ class SocialMobTest extends TestCase
         $user = factory(User::class)->create();
 
         $this->actingAs($user)
-            ->postJson(route('social_mob.join', ['social_mob' => $existingSocialMob->id]))
+            ->postJson(route('social_mobs.join', ['social_mob' => $existingSocialMob->id]))
             ->assertSuccessful();
 
         $this->assertEquals($user->id, $existingSocialMob->attendees->first()->id);
@@ -120,7 +120,7 @@ class SocialMobTest extends TestCase
         $existingSocialMob->attendees()->attach($user);
 
         $this->actingAs($user)
-            ->postJson(route('social_mob.join', ['social_mob' => $existingSocialMob->id]))
+            ->postJson(route('social_mobs.join', ['social_mob' => $existingSocialMob->id]))
             ->assertForbidden();
 
         $this->assertCount(1, $existingSocialMob->attendees);
@@ -134,7 +134,7 @@ class SocialMobTest extends TestCase
 
 
         $this->actingAs($user)
-            ->postJson(route('social_mob.leave', ['social_mob' => $existingSocialMob->id]))
+            ->postJson(route('social_mobs.leave', ['social_mob' => $existingSocialMob->id]))
             ->assertSuccessful();
 
         $this->assertEmpty($existingSocialMob->attendees);
@@ -168,7 +168,7 @@ class SocialMobTest extends TestCase
             $monday->addDays(4)->toDateString() => [$fridaySocial],
         ];
 
-        $response = $this->getJson(route('social_mob.week'));
+        $response = $this->getJson(route('social_mobs.week'));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
@@ -192,7 +192,7 @@ class SocialMobTest extends TestCase
             today()->toDateString() => [$fridaySocial],
         ];
 
-        $response = $this->getJson(route('social_mob.week'));
+        $response = $this->getJson(route('social_mobs.week'));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
@@ -225,7 +225,7 @@ class SocialMobTest extends TestCase
             $mondayOfWeekWithMobs->addDays(4)->toDateString() => [$fridaySocial],
         ];
 
-        $response = $this->getJson(route('social_mob.week', ['date' => $weekThatHasTheMobs]));
+        $response = $this->getJson(route('social_mobs.week', ['date' => $weekThatHasTheMobs]));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
@@ -239,7 +239,7 @@ class SocialMobTest extends TestCase
         $todayMobs = factory(SocialMob::class, 2)->create(['date' => $today]);
         factory(SocialMob::class, 2)->create(['date' => $tomorrow]);
 
-        $response = $this->getJson(route('social_mob.day'));
+        $response = $this->getJson(route('social_mobs.day'));
 
         $response->assertJson($todayMobs->toArray());
     }
