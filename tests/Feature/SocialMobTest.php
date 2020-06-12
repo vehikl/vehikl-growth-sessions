@@ -6,14 +6,11 @@ use App\SocialMob;
 use App\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
 class SocialMobTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function testAnAuthenticatedUserCanCreateASocialMob()
     {
         $user = factory(User::class)->create();

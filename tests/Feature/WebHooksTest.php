@@ -4,9 +4,6 @@ namespace Tests\Feature;
 
 use App\SocialMob;
 use App\User;
-use Carbon\Carbon;
-use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Config;
@@ -15,8 +12,6 @@ use Tests\TestCase;
 
 class WebHooksTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();

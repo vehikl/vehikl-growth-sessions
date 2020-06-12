@@ -36,6 +36,11 @@ class SocialMob extends Model
         return $this->belongsToMany(User::class);
     }
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
     public function setDateAttribute($value)
     {
         $this->attributes['date'] = Carbon::parse($value)->format('Y-m-d');

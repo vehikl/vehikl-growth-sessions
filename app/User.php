@@ -29,4 +29,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(SocialMob::class, 'owner_id');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
