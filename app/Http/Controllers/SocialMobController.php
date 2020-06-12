@@ -57,21 +57,31 @@ class SocialMobController extends Controller
 
     public function update(UpdateSocialMobRequest $request, SocialMob $socialMob)
     {
-        $isOriginalMobToday = Carbon::today()->isSameDay($socialMob->date);
+        $originalValues = $socialMob->toArray();
         $socialMob->update($request->validated());
-        $updatedMob = $socialMob->fresh();
-        $isUpdatedMobToday =  Carbon::today()->isSameDay($updatedMob->date);
-        if (config('webhooks.social_mob.updated.today') && ($isOriginalMobToday || $isUpdatedMobToday)) {
-            Http::post(config('webhooks.social_mob.updated.today'), $updatedMob->toArray());
-        }
-        return $updatedMob;
+        $this->notifyUpdateIfNeeded($originalValues, $socialMob->toArray());
+        return $socialMob;
     }
 
     public function destroy(DeleteSocialMobRequest $request, SocialMob $socialMob)
     {
         $socialMob->delete();
+        $this->notifyDeleteIfNeeded($socialMob);
+    }
+
+    private function notifyDeleteIfNeeded(SocialMob $socialMob)
+    {
         if (config('webhooks.social_mob.deleted.today') && Carbon::today()->isSameDay($socialMob->date)) {
             Http::post(config('webhooks.social_mob.deleted.today'), $socialMob->toArray());
+        }
+    }
+
+    private function notifyUpdateIfNeeded(array $originalValues, array $newValues)
+    {
+        $wasMobOriginallyToday = today()->isSameDay($originalValues['date']);
+        $wasMobMovedToToday =  today()->isSameDay($newValues['date']);
+        if (config('webhooks.social_mob.updated.today') && ($wasMobOriginallyToday || $wasMobMovedToToday)) {
+            Http::post(config('webhooks.social_mob.updated.today'), $newValues);
         }
     }
 }
