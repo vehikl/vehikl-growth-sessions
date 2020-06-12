@@ -76,7 +76,7 @@ class SocialMobController extends Controller
         if ($this->isWithinWebHookNotificationWindow()
             && config('webhooks.created_today')
             && today()->isSameDay($socialMob->date)) {
-            Http::post(config('webhooks.created_today'), $socialMob->toArray());
+            Http::post(config('webhooks.created_today'),SocialMob::find($socialMob->id)->toArray());
         }
     }
 

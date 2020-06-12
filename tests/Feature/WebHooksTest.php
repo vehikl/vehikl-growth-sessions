@@ -143,6 +143,17 @@ class WebHooksTest extends TestCase
         ];
     }
 
+    public function testItIncludesTheOwnerInformationOnThePayload()
+    {
+        $user = factory(User::class)->create();
+        $socialMobData = factory(SocialMob::class)->make(['date' => today()])->toArray();
+        $this->actingAs($user)->postJson(route('social_mob.store'), $socialMobData);
+
+        Http::assertSent(function (Request $request) {
+            return ! empty($request->data()['owner']);
+        });
+    }
+
     private function enableHooks(): void
     {
         Config::set('webhooks.deleted_today', 'http://foobar.test/deleted');
