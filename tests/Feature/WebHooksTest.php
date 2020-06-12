@@ -28,7 +28,7 @@ class WebHooksTest extends TestCase
         $this->actingAs($user)->deleteJson(route('social_mob.destroy', $socialMob));
 
         Http::assertSent(function (Request $request) {
-            return $request->url() === config('webhooks.social_mob.deleted.today');
+            return $request->url() === config('webhooks.deleted_today');
         });
     }
 
@@ -74,7 +74,7 @@ class WebHooksTest extends TestCase
         $this->actingAs($user)->putJson(route('social_mob.update', $socialMob), ['topic' => 'new topic']);
 
         Http::assertSent(function (Request $request) {
-            return $request->url() === config('webhooks.social_mob.updated.today');
+            return $request->url() === config('webhooks.updated_today');
         });
     }
 
@@ -86,19 +86,19 @@ class WebHooksTest extends TestCase
         $this->actingAs($user)->putJson(route('social_mob.update', $socialMob), ['date' => today()]);
 
         Http::assertSent(function (Request $request) {
-            return $request->url() === config('webhooks.social_mob.updated.today');
+            return $request->url() === config('webhooks.updated_today');
         });
     }
 
     private function enableHooks(): void
     {
-        Config::set('webhooks.social_mob.deleted.today', 'http://foobar.test/deleted');
-        Config::set('webhooks.social_mob.updated.today', 'http://foobar.test/updated');
+        Config::set('webhooks.deleted_today', 'http://foobar.test/deleted');
+        Config::set('webhooks.updated_today', 'http://foobar.test/updated');
     }
 
     private function disableHooks(): void
     {
-        Config::set('webhooks.social_mob.deleted.today', null);
-        Config::set('webhooks.social_mob.updated.today', null);
+        Config::set('webhooks.deleted_today', null);
+        Config::set('webhooks.updated_today', null);
     }
 }
