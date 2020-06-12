@@ -40,6 +40,6 @@ class LoginController extends Controller
             ]);
         }
         auth()->login($socialMobUser);
-        return redirect($this->redirectPath());
+        return redirect()->back();
     }
 }
