@@ -42,7 +42,7 @@ class SocialMobTest extends TestCase
 
     public function testTheOwnerCanChangeTheDateOfAnUpcomingMob()
     {
-        Carbon::setTestNow('2020-01-01');
+        $this->setTestNow('2020-01-01');
         $mob = factory(SocialMob::class)->create(['date' => "2020-01-02"]);
         $newDate = '2020-01-10';
 
@@ -55,7 +55,7 @@ class SocialMobTest extends TestCase
 
     public function testTheDateOfTheMobCannotBeSetToThePast()
     {
-        Carbon::setTestNow('2020-01-05');
+        $this->setTestNow('2020-01-05');
         $mob = factory(SocialMob::class)->create(['date' => "2020-01-06"]);
         $newDate = '2020-01-03';
 
@@ -66,7 +66,7 @@ class SocialMobTest extends TestCase
 
     public function testTheOwnerCannotUpdateAMobThatAlreadyHappened()
     {
-        Carbon::setTestNow('2020-01-05');
+        $this->setTestNow('2020-01-05');
         $mob = factory(SocialMob::class)->create(['date' => "2020-01-01"]);
         $newDate = '2020-01-10';
 
@@ -145,8 +145,7 @@ class SocialMobTest extends TestCase
 
     public function testItCanProvideAllSocialMobsOfTheCurrentWeek()
     {
-        Carbon::setTestNow('2020-01-15');
-        CarbonImmutable::setTestNow('2020-01-15');
+        $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
 
         $mondaySocial = factory(SocialMob::class)
@@ -179,8 +178,7 @@ class SocialMobTest extends TestCase
 
     public function testItCanProvideAllSocialMobsOfTheCurrentWeekEvenOnFridays()
     {
-        Carbon::setTestNow('Next Friday');
-        CarbonImmutable::setTestNow('Next Friday');
+        $this->setTestNow('Next Friday');
 
         $mondaySocial = factory(SocialMob::class)
             ->create(['date' => Carbon::parse('Last Monday')])
@@ -205,8 +203,7 @@ class SocialMobTest extends TestCase
     public function testItCanProvideAllSocialMobsOfASpecifiedWeekIfADateIsGiven()
     {
         $weekThatHasNoMobs = '2020-05-25';
-        Carbon::setTestNow($weekThatHasNoMobs);
-        CarbonImmutable::setTestNow($weekThatHasNoMobs);
+        $this->setTestNow($weekThatHasNoMobs);
         $weekThatHasTheMobs = '2020-05-04';
         $mondayOfWeekWithMobs = CarbonImmutable::parse($weekThatHasTheMobs);
 
@@ -240,8 +237,7 @@ class SocialMobTest extends TestCase
     {
         $today = '2020-01-02';
         $tomorrow = '2020-01-03';
-        Carbon::setTestNow($today);
-        CarbonImmutable::setTestNow($today);
+        $this->setTestNow($today);
 
         $todayMobs = factory(SocialMob::class, 2)->create(['date' => $today]);
         factory(SocialMob::class, 2)->create(['date' => $tomorrow]);

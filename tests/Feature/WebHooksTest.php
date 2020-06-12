@@ -95,8 +95,7 @@ class WebHooksTest extends TestCase
 
     public function testItHitsTheCreatedTodayWebHookIfAMobWasCreatedForToday()
     {
-        Carbon::setTestNow('2020-01-01T10:30:00.000');
-        CarbonImmutable::setTestNow('2020-01-01T10:30:00.000');
+        $this->setTestNow('2020-01-01T10:30:00.000');
         $this->enableHooks();
         $user = factory(User::class)->create();
         $socialMobData = factory(SocialMob::class)->make(['date' => today()])->toArray();
@@ -116,8 +115,7 @@ class WebHooksTest extends TestCase
         $requestTime
     ) {
         $this->enableHooks();
-        Carbon::setTestNow("2020-01-01 {$requestTime}");
-        CarbonImmutable::setTestNow("2020-01-01 {$requestTime}");
+        $this->setTestNow("2020-01-01 {$requestTime}");
         Config::set('webhooks.start_time', $startTime);
         Config::set('webhooks.end_time', $endTime);
         $user = factory(User::class)->create();
