@@ -35,7 +35,9 @@ class SocialMobController extends Controller
 
     public function store(StoreSocialMobRequest $request)
     {
-        return $request->user()->socialMobs()->save(new SocialMob($request->validated()));
+        $newMob = $request->user()->socialMobs()->save(new SocialMob($request->validated()));
+        $this->notifyCreationIfNeeded($newMob);
+        return $newMob;
     }
 
     public function join(SocialMob $socialMob, JoinSocialMobRequest $request)
@@ -69,9 +71,20 @@ class SocialMobController extends Controller
         $this->notifyDeleteIfNeeded($socialMob);
     }
 
+    private function notifyCreationIfNeeded(SocialMob $socialMob)
+    {
+        if ($this->isWithinWebHookNotificationWindow()
+            && config('webhooks.created_today')
+            && today()->isSameDay($socialMob->date)) {
+            Http::post(config('webhooks.created_today'), $socialMob->toArray());
+        }
+    }
+
     private function notifyDeleteIfNeeded(SocialMob $socialMob)
     {
-        if (config('webhooks.deleted_today') && today()->isSameDay($socialMob->date)) {
+        if ($this->isWithinWebHookNotificationWindow()
+            && config('webhooks.deleted_today')
+            && today()->isSameDay($socialMob->date)) {
             Http::post(config('webhooks.deleted_today'), $socialMob->toArray());
         }
     }
@@ -80,8 +93,15 @@ class SocialMobController extends Controller
     {
         $wasMobOriginallyToday = today()->isSameDay($originalValues['date']);
         $wasMobMovedToToday =  today()->isSameDay($newValues['date']);
-        if (config('webhooks.updated_today') && ($wasMobOriginallyToday || $wasMobMovedToToday)) {
+        if ($this->isWithinWebHookNotificationWindow()
+            && config('webhooks.updated_today')
+            && ($wasMobOriginallyToday || $wasMobMovedToToday)) {
             Http::post(config('webhooks.updated_today'), $newValues);
         }
+    }
+
+    private function isWithinWebHookNotificationWindow(): bool {
+        return now()
+            ->isBetween(Carbon::parse(config('webhooks.start_time')), Carbon::parse(config('webhooks.end_time')));
     }
 }
