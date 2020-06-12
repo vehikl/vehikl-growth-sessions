@@ -22,7 +22,7 @@ class SocialMobTest extends TestCase
             'topic' => $topic,
             'location' => 'At the central mobbing area',
             'start_time' => now()->format('h:i a'),
-            'date' => now(),
+            'date' => today(),
         ])->assertSuccessful();
 
         $this->assertEquals($topic, $user->socialMobs->first()->topic);
@@ -186,7 +186,7 @@ class SocialMobTest extends TestCase
             ->create(['date' => Carbon::parse('Last Monday')])
             ->toArray();
         $fridaySocial = factory(SocialMob::class)
-            ->create(['date' => now()])
+            ->create(['date' => today()])
             ->toArray();
 
         $expectedResponse = [
@@ -194,7 +194,7 @@ class SocialMobTest extends TestCase
             Carbon::parse('Last Tuesday')->toDateString() => [],
             Carbon::parse('Last Wednesday')->toDateString() => [],
             Carbon::parse('Last Thursday')->toDateString() => [],
-            now()->toDateString() => [$fridaySocial],
+            today()->toDateString() => [$fridaySocial],
         ];
 
         $response = $this->getJson(route('social_mob.week'));

@@ -85,6 +85,6 @@ class SocialMob extends Model
 
     public function scopeToday($query)
     {
-        return $query->whereDate('date', now()->toDateString());
+        return $query->whereDate('date', today()->toDateString());
     }
 }

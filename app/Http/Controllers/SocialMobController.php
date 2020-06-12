@@ -71,7 +71,7 @@ class SocialMobController extends Controller
 
     private function notifyDeleteIfNeeded(SocialMob $socialMob)
     {
-        if (config('webhooks.deleted_today') && Carbon::today()->isSameDay($socialMob->date)) {
+        if (config('webhooks.deleted_today') && today()->isSameDay($socialMob->date)) {
             Http::post(config('webhooks.deleted_today'), $socialMob->toArray());
         }
     }

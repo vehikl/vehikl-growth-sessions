@@ -10,7 +10,7 @@ class SocialMobSeeder extends Seeder
     public function run()
     {
         $MONDAY = 1;
-        $monday = now()->isDayOfWeek($MONDAY) ? CarbonImmutable::today() : CarbonImmutable::parse('Last Monday');
+        $monday = today()->isDayOfWeek($MONDAY) ? CarbonImmutable::today() : CarbonImmutable::parse('Last Monday');
         $numberOfFakeMobs = 5;
         for ($i = 0; $i < $numberOfFakeMobs; $i++) {
             factory(SocialMob::class)->create([

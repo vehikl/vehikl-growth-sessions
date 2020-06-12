@@ -8,7 +8,7 @@ class UpdateSocialMobRequest extends FormRequest
 {
     public function authorize()
     {
-        return $this->social_mob->owner->is($this->user()) && now()->diffInDays($this->social_mob->date, false) >= 0;
+        return $this->social_mob->owner->is($this->user()) && today()->diffInDays($this->social_mob->date, false) >= 0;
     }
 
     public function rules()
