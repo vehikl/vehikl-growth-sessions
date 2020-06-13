@@ -19,7 +19,7 @@ Route::prefix('social_mobs')->name('social_mobs.')->group(function() {
 });
 Route::resource('social_mobs', 'SocialMobController')->middleware('auth')->except(['create', 'show', 'index']);
 
-Route::prefix('social_mobs/{social_mob}/comments')->name('social_mob.comments.')->group(function() {
+Route::prefix('social_mobs/{social_mob}/comments')->name('social_mobs.comments.')->group(function() {
     Route::get('/', 'CommentController@index')->name('index');
 });
 Route::resource('social_mobs.comments', 'CommentController')->middleware('auth')->only(['store','update','destroy']);
