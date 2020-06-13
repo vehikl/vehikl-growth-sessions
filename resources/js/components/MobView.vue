@@ -70,6 +70,7 @@
                 </ul>
             </div>
         </div>
+        <comment-list :social-mob="mob"/>
     </div>
 </template>
 
@@ -81,8 +82,9 @@
     import VueTimepicker from "vue2-timepicker";
     import Datepicker from "vuejs-datepicker";
     import {SocialMobApi} from "../services/SocialMobApi";
+    import CommentList from './CommentList.vue';
 
-    @Component({components: {VueTimepicker, Datepicker}})
+    @Component({components: {CommentList, VueTimepicker, Datepicker}})
     export default class MobView extends Vue {
         @Prop({required: false}) user!: IUser;
         @Prop({required: true}) mobJson!: ISocialMob;

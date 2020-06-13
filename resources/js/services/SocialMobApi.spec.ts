@@ -102,4 +102,14 @@ describe('SocialMobApi', () => {
 
         expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyMob.id}/leave`);
     });
+
+    it('allows a new comment to be created', async () => {
+        mockBackend.onPost(`social_mobs/${dummyMob.id}/comments`).reply(201, dummyMob);
+        const content = 'Hello world';
+
+        await SocialMobApi.comment(dummyMob, content);
+
+        expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyMob.id}/comments`);
+        expect(JSON.parse(mockBackend.history.post[0].data)).toEqual({content: content})
+    });
 });

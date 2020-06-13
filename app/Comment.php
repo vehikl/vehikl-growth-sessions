@@ -8,6 +8,7 @@ class Comment extends Model
 {
     protected $fillable = ['content'];
     protected $with = ['user'];
+    protected $appends = ['time_stamp'];
 
     public function user()
     {
@@ -17,5 +18,10 @@ class Comment extends Model
     public function socialMob()
     {
         return $this->belongsTo(SocialMob::class);
+    }
+
+    public function getTimeStampAttribute()
+    {
+        return $this->created_at->diffForHumans();
     }
 }

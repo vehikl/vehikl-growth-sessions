@@ -10,7 +10,7 @@ class CommentController extends Controller
 {
     public function index(Request $request, SocialMob $socialMob)
     {
-        return $socialMob->comments;
+        return $socialMob->comments()->orderByDesc('created_at')->get();
     }
 
     public function store(Request $request, SocialMob $socialMob)
@@ -19,6 +19,6 @@ class CommentController extends Controller
         $comment->user()->associate($request->user());
         $comment->socialMob()->associate($socialMob);
         $comment->save();
-        return $comment;
+        return $socialMob->fresh();
     }
 }

@@ -8,6 +8,7 @@ export interface IUser {
 export interface IComment {
     id: number;
     content: string;
+    time_stamp: string;
     user: IUser;
 }
 

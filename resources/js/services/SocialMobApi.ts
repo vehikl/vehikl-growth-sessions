@@ -36,6 +36,11 @@ export class SocialMobApi extends BaseApi {
         return new SocialMob(response.data);
     }
 
+    static async comment(target: ISocialMob, content: string): Promise<SocialMob> {
+        let response = await BaseApi.httpRequest.post(`/social_mobs/${target.id}/comments`, {content});
+        return new SocialMob(response.data);
+    }
+
     static editUrl(target: ISocialMob): string {
         return `/social_mobs/${target.id}/edit`
     }
