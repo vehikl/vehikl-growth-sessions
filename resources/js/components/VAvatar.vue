@@ -1,5 +1,5 @@
 <template>
-    <div :class="`w-${size} h-${size} relative mr-4`">
+    <div :class="`w-${size} h-${size} relative`">
         <div class="group w-full h-full rounded-full overflow-hidden shadow-inner">
             <img :src="imageSrc" :alt="imageAlt"
                  class="object-cover object-center w-full h-full visible group-hover:hidden"/>

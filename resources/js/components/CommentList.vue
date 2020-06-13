@@ -20,7 +20,7 @@
         <ul class="mt-6">
             <li v-for="comment in socialMob.comments" :key="comment.id" class="flex py-4 border-b border-blue-200">
                 <v-avatar :image-src="comment.user.avatar"
-                          class="mt-4 ml-4"
+                          class="mr-4"
                           :image-alt="`${comment.user.name}'s avatar`"/>
                 <div class="flex-1 mx-6">
                     <div class="flex items-center">
