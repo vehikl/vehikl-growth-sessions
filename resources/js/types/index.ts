@@ -5,6 +5,12 @@ export interface IUser {
     avatar: string;
 }
 
+export interface IComment {
+    id: number;
+    content: string;
+    user: IUser;
+}
+
 export interface ISocialMob {
     id: number;
     topic: string;
@@ -14,6 +20,7 @@ export interface ISocialMob {
     end_time: string;
     owner: IUser;
     attendees: IUser[];
+    comments: IComment[];
 }
 
 export interface IWeekMobs {

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SocialMob extends Model
 {
-    protected $with = ['owner', 'attendees'];
+    protected $with = ['owner', 'attendees', 'comments'];
 
     protected $casts = [
         'owner_id' => 'int',

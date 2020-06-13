@@ -64,7 +64,7 @@
         @Prop({required: false, default: null}) user!: IUser;
 
         goToMob() {
-            window.location.assign(`/social_mob/${this.socialMob.id}`);
+            window.location.assign(SocialMobApi.showUrl(this.socialMob));
         }
 
         async joinMob() {

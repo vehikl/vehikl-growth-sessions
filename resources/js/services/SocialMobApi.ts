@@ -35,4 +35,12 @@ export class SocialMobApi extends BaseApi {
         let response = await BaseApi.httpRequest.post(`/social_mobs/${target.id}/leave`);
         return new SocialMob(response.data);
     }
+
+    static editUrl(target: ISocialMob): string {
+        return `/social_mobs/${target.id}/edit`
+    }
+
+    static showUrl(target: ISocialMob): string {
+        return `/social_mobs/${target.id}`;
+    }
 }

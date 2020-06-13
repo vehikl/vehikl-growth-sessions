@@ -10,6 +10,7 @@ const socialsThisWeek: WeekMobs = new WeekMobs(socialsThisWeekJson);
 const dummyMob: ISocialMob = {
     id: 1,
     attendees: [],
+    comments: [],
     topic: 'Start Topic',
     owner: {avatar: '', name: 'foobar', email: 'any@thing.com', id: 1},
     location: 'Slack #social-mobbing',

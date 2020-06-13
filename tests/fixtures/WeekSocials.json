@@ -3,7 +3,7 @@
         {
             "id": 1,
             "owner_id": 1,
-            "topic": "Assumenda iure omnis voluptatum earum sint.",
+            "topic": "Aspernatur et corporis nulla nostrum.",
             "location": "At AnyDesk XYZ - abcdefg",
             "date": "2020-01-13",
             "start_time": "03:30 pm",
@@ -12,14 +12,15 @@
             "updated_at": "2020-01-15T05:00:00.000000Z",
             "owner": {
                 "id": 1,
-                "name": "Belle Ernser",
-                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/870495135",
-                "email": "predovic.arvilla@example.net",
+                "name": "Vida Schuppe IV",
+                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/412561040",
+                "email": "ifadel@example.org",
                 "email_verified_at": "2020-01-15T05:00:00.000000Z",
                 "created_at": "2020-01-15T05:00:00.000000Z",
                 "updated_at": "2020-01-15T05:00:00.000000Z"
             },
-            "attendees": []
+            "attendees": [],
+            "comments": []
         }
     ],
     "2020-01-14": [],
@@ -27,7 +28,7 @@
         {
             "id": 3,
             "owner_id": 3,
-            "topic": "Quod saepe aspernatur tenetur non.",
+            "topic": "Repellendus aliquam ut sed maxime voluptatem voluptate similique.",
             "location": "At AnyDesk XYZ - abcdefg",
             "date": "2020-01-15",
             "start_time": "03:30 pm",
@@ -36,19 +37,20 @@
             "updated_at": "2020-01-15T05:00:00.000000Z",
             "owner": {
                 "id": 3,
-                "name": "Ethel Wehner",
-                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/818922124",
-                "email": "raul59@example.net",
+                "name": "Carroll Gulgowski",
+                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/968144253",
+                "email": "jude76@example.net",
                 "email_verified_at": "2020-01-15T05:00:00.000000Z",
                 "created_at": "2020-01-15T05:00:00.000000Z",
                 "updated_at": "2020-01-15T05:00:00.000000Z"
             },
-            "attendees": []
+            "attendees": [],
+            "comments": []
         },
         {
             "id": 2,
             "owner_id": 2,
-            "topic": "Placeat unde ut ut.",
+            "topic": "Esse optio dolorem quisquam qui quia quam.",
             "location": "At AnyDesk XYZ - abcdefg",
             "date": "2020-01-15",
             "start_time": "04:30 pm",
@@ -57,14 +59,15 @@
             "updated_at": "2020-01-15T05:00:00.000000Z",
             "owner": {
                 "id": 2,
-                "name": "Spencer Feil",
-                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/1187111842",
-                "email": "makayla.senger@example.org",
+                "name": "Therese Pfeffer Jr.",
+                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/1272640397",
+                "email": "ransom.beatty@example.org",
                 "email_verified_at": "2020-01-15T05:00:00.000000Z",
                 "created_at": "2020-01-15T05:00:00.000000Z",
                 "updated_at": "2020-01-15T05:00:00.000000Z"
             },
-            "attendees": []
+            "attendees": [],
+            "comments": []
         }
     ],
     "2020-01-16": [],
@@ -72,7 +75,7 @@
         {
             "id": 4,
             "owner_id": 4,
-            "topic": "Quis ea nostrum optio ea nihil ut ex.",
+            "topic": "Quia consequuntur iure et est quo non nihil.",
             "location": "At AnyDesk XYZ - abcdefg",
             "date": "2020-01-17",
             "start_time": "03:30 pm",
@@ -81,14 +84,15 @@
             "updated_at": "2020-01-15T05:00:00.000000Z",
             "owner": {
                 "id": 4,
-                "name": "Brigitte Bauch V",
-                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/1168289155",
-                "email": "dulce.grant@example.org",
+                "name": "Dr. Blair Yundt",
+                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/2129951725",
+                "email": "elliott.daniel@example.com",
                 "email_verified_at": "2020-01-15T05:00:00.000000Z",
                 "created_at": "2020-01-15T05:00:00.000000Z",
                 "updated_at": "2020-01-15T05:00:00.000000Z"
             },
-            "attendees": []
+            "attendees": [],
+            "comments": []
         }
     ]
 }

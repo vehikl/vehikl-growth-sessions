@@ -1,4 +1,4 @@
-import {ISocialMob, IUser} from '../types';
+import {IComment, ISocialMob, IUser} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {SocialMobApi} from '../services/SocialMobApi';
 
@@ -11,6 +11,7 @@ export class SocialMob implements ISocialMob {
     end_time!: string;
     owner!: IUser;
     attendees!: IUser[];
+    comments!: IComment[];
 
     constructor(mob: ISocialMob) {
         this.refresh(mob);
@@ -25,6 +26,7 @@ export class SocialMob implements ISocialMob {
         this.end_time = mob.end_time;
         this.owner = mob.owner;
         this.attendees = mob.attendees;
+        this.comments = mob.comments;
     }
 
     get startTime(): string {

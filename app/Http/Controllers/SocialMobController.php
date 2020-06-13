@@ -31,7 +31,7 @@ class SocialMobController extends Controller
     public function store(StoreSocialMobRequest $request)
     {
         $newMob = $request->user()->socialMobs()->save(new SocialMob($request->validated()));
-        $newMob->load(['owner', 'attendees']);
+        $newMob->load(['owner', 'attendees', 'comments']);
         $this->notifyCreationIfNeeded($newMob);
         return $newMob;
     }

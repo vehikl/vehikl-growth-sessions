@@ -36,7 +36,8 @@ const mobData: SocialMob = new SocialMob({
     topic: 'The fundamentals of Foobar',
     attendees: [
         attendee
-    ]
+    ],
+    comments: []
 });
 
 describe('MobCard', () => {
@@ -91,7 +92,8 @@ describe('MobCard', () => {
             start_time: '03:30 pm',
             end_time: '05:00 pm',
             topic: 'The fundamentals of Foobar',
-            attendees: []
+            attendees: [],
+            comments: []
         });
         wrapper = mount(MobCard, {propsData: {socialMob: mobWithUrl, user: attendee}});
 

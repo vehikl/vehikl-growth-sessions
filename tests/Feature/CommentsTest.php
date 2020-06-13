@@ -35,6 +35,6 @@ class CommentsTest extends TestCase
         $socialMob = factory(SocialMob::class)->create();
         $comments = factory(Comment::class, 4)->create(['social_mob_id' => $socialMob->id]);
 
-        $this->getJson(route('social_mobs.comments.index', $socialMob))->assertJson($comments->toArray())->dump();
+        $this->getJson(route('social_mobs.comments.index', $socialMob))->assertJson($comments->toArray());
     }
 }

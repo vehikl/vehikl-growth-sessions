@@ -106,7 +106,7 @@
         }
 
         async editMob() {
-            window.location.assign(`/social_mob/${this.mob.id}/edit`);
+            window.location.assign(SocialMobApi.editUrl(this.mob));
         }
     }
 </script>
