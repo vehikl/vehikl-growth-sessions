@@ -30,11 +30,12 @@
                            aria-hidden="true"/>
                         <h3 class="font-bold flex-1" v-text="comment.user.name"/>
                         <button v-show="socialMob.canDeleteComment(user, comment)"
+                                class="text-red-600 hover:text-red-800"
                                 @click="socialMob.deleteComment(comment)">
-                            X
+                            <i class="fa fa-minus-circle" aria-hidden="true"></i>
                         </button>
                     </div>
-                    <div class="text-blue-400" v-text="comment.time_stamp"></div>
+                    <div class="text-blue-400 text-sm" v-text="comment.time_stamp"></div>
                     <pre class="mx-4 mt-3 font-sans m-5 whitespace-pre-wrap">{{comment.content}}</pre>
                 </div>
             </li>
