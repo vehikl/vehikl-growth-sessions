@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Comment;
+use App\Http\Requests\DeleteCommentRequest;
 use App\SocialMob;
 use Illuminate\Http\Request;
 
@@ -19,6 +20,13 @@ class CommentController extends Controller
         $comment->user()->associate($request->user());
         $comment->socialMob()->associate($socialMob);
         $comment->save();
+        return $socialMob->fresh();
+    }
+
+    public function destroy(DeleteCommentRequest $request, SocialMob $socialMob,Comment $comment)
+    {
+        $comment->delete();
+
         return $socialMob->fresh();
     }
 }

@@ -1,23 +1,14 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
+import socialMobWithComments from '../../../tests/fixtures/SocialMobWithComments.json';
 import {SocialMobApi} from './SocialMobApi';
 import {ISocialMob, IUpdateSocialMobRequest} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {WeekMobs} from '../classes/WeekMobs';
 
 const socialsThisWeek: WeekMobs = new WeekMobs(socialsThisWeekJson);
-const dummyMob: ISocialMob = {
-    id: 1,
-    attendees: [],
-    comments: [],
-    topic: 'Start Topic',
-    owner: {avatar: '', name: 'foobar', email: 'any@thing.com', id: 1},
-    location: 'Slack #social-mobbing',
-    date: '2020-05-31',
-    start_time: '03:30 pm',
-    end_time: '05:00 pm',
-};
+const dummyMob: ISocialMob = socialMobWithComments;
 
 describe('SocialMobApi', () => {
     let mockBackend: MockAdapter;
@@ -107,9 +98,17 @@ describe('SocialMobApi', () => {
         mockBackend.onPost(`social_mobs/${dummyMob.id}/comments`).reply(201, dummyMob);
         const content = 'Hello world';
 
-        await SocialMobApi.comment(dummyMob, content);
+        await SocialMobApi.postComment(dummyMob, content);
 
         expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyMob.id}/comments`);
         expect(JSON.parse(mockBackend.history.post[0].data)).toEqual({content: content})
+    });
+
+    it('allows a comment to be deleted', async () => {
+        mockBackend.onDelete(`social_mobs/${dummyMob.id}/comments/${dummyMob.comments[0].id}`).reply(200, dummyMob);
+
+        await SocialMobApi.deleteComment(dummyMob.comments[0]);
+
+        expect(mockBackend.history.delete[0].url).toBe(`social_mobs/${dummyMob.id}/comments/${dummyMob.comments[0].id}`);
     });
 });

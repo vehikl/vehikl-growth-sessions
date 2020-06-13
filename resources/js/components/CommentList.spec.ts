@@ -19,12 +19,12 @@ describe('CommentList', () => {
     });
 
     it('allows a new comment to be created', async () => {
-        SocialMobApi.comment = jest.fn().mockResolvedValue(socialMob);
+        SocialMobApi.postComment = jest.fn().mockResolvedValue(socialMob);
         const comment = 'My comment';
 
         wrapper.find('#new-comment').setValue(comment);
         wrapper.find('form').trigger('submit');
 
-        expect(SocialMobApi.comment).toHaveBeenCalled();
+        expect(SocialMobApi.postComment).toHaveBeenCalled();
     });
 });

@@ -72,8 +72,16 @@ export class SocialMob implements ISocialMob {
         this.refresh(await SocialMobApi.leave(this));
     }
 
-    async comment(content: string) {
-        this.refresh(await SocialMobApi.comment(this, content));
+    async postComment(content: string) {
+        this.refresh(await SocialMobApi.postComment(this, content));
+    }
+
+    canDeleteComment(user: IUser, comment: IComment) {
+        return user?.id === comment.user.id;
+    }
+
+    async deleteComment(comment: IComment) {
+        this.refresh(await SocialMobApi.deleteComment(comment));
     }
 
     canEditOrDelete(user: IUser): boolean {

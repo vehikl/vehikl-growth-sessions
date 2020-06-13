@@ -70,7 +70,7 @@
                 </ul>
             </div>
         </div>
-        <comment-list :social-mob="mob"/>
+        <comment-list class="mt-48 max-w-xl" :social-mob="mob" :user="user"/>
     </div>
 </template>
 

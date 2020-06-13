@@ -9,6 +9,7 @@ class Comment extends Model
     protected $fillable = ['content'];
     protected $with = ['user'];
     protected $appends = ['time_stamp'];
+    protected $casts = ['social_mob_id' => 'int'];
 
     public function user()
     {

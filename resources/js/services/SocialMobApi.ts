@@ -1,5 +1,5 @@
 import BaseApi from './BaseApi';
-import {ISocialMob, IStoreSocialMobRequest, IUpdateSocialMobRequest, IWeekMobs} from '../types';
+import {IComment, ISocialMob, IStoreSocialMobRequest, IUpdateSocialMobRequest, IWeekMobs} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {SocialMob} from '../classes/SocialMob';
 import {WeekMobs} from '../classes/WeekMobs';
@@ -36,8 +36,13 @@ export class SocialMobApi extends BaseApi {
         return new SocialMob(response.data);
     }
 
-    static async comment(target: ISocialMob, content: string): Promise<SocialMob> {
+    static async postComment(target: ISocialMob, content: string): Promise<SocialMob> {
         let response = await BaseApi.httpRequest.post(`/social_mobs/${target.id}/comments`, {content});
+        return new SocialMob(response.data);
+    }
+
+    static async deleteComment(comment: IComment): Promise<SocialMob> {
+        let response = await BaseApi.httpRequest.delete(`/social_mobs/${comment.social_mob_id}/comments/${comment.id}`);
         return new SocialMob(response.data);
     }
 
