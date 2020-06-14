@@ -8,13 +8,13 @@
             <div>
                 <button
                     class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="mob.join().then(() => $forceUpdate())"
+                    @click.stop="mob.join()"
                     v-show="mob.canJoin(user)">
                     Join
                 </button>
                 <button
                     class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
-                    @click.stop="mob.leave().then(() => $forceUpdate())"
+                    @click.stop="mob.leave()"
                     v-show="mob.canLeave(user)">
                     Leave
                 </button>
