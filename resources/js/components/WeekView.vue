@@ -61,7 +61,6 @@
                             @delete-requested="getAllMobsOfTheWeek"
                             :socialMob="socialMob"
                             :user="user"
-                            :is-draggable="isDraggable(socialMob)"
                             class="mb-3 transform transition-transform duration-150"/>
                     </div>
                 </draggable>
@@ -101,15 +100,6 @@
 
         async created() {
             await this.getAllMobsOfTheWeek();
-        }
-
-        isDraggable(mob: SocialMob): boolean {
-            if (!this.user) {
-                return false;
-            }
-            const userOwnsDraggedMob = mob.owner.id === this.user.id;
-            const isMobInThePast = DateTime.parseByDate(mob.date).isInAPastDate();
-            return userOwnsDraggedMob && !isMobInThePast;
         }
 
         async onDragEnd(location: any) {

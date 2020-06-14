@@ -74,7 +74,6 @@
     export default class MobCard extends Vue {
         @Prop({required: true}) socialMob!: SocialMob;
         @Prop({required: false, default: null}) user!: IUser;
-        @Prop({required: false, default: false}) isDraggable!: boolean;
 
         goToMob() {
             window.location.assign(SocialMobApi.showUrl(this.socialMob));
@@ -88,6 +87,10 @@
         async leaveMob() {
             await SocialMobApi.leave(this.socialMob);
             this.$emit('mob-updated');
+        }
+
+        get isDraggable(): boolean {
+            return this.socialMob.canEditOrDelete(this.user);
         }
 
         async onDeleteClicked() {
