@@ -40,7 +40,7 @@
                 <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="date.weekDayString()"></h3>
                 <div v-show="socialMobs.getMobByDate(date).length === 0" class="text-blue-600 text-lg my-4">
                     <p v-text="`${Nothingator.random()}...`"/>
-                    <p v-show="user && date.isToday()">Why don't you make the first one?</p>
+                    <p v-show="user && date.isToday()">Why don't you create the first one?</p>
                 </div>
 
                 <draggable :list="socialMobs.getMobByDate(date)"
