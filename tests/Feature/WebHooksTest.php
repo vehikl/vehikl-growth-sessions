@@ -16,6 +16,7 @@ class WebHooksTest extends TestCase
     {
         parent::setUp();
         Http::fake();
+        $this->setTestNow('2020-01-08T15:00:00');
     }
 
     public function testItHitsTheMobDeletedTodayWebHookWheneverAMobIsDeletedToday()
