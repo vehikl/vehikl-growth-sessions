@@ -6,4 +6,5 @@ return [
     'deleted_today' => env('WEBHOOK_MOB_DELETED_TODAY'),
     'updated_today' => env('WEBHOOK_MOB_UPDATED_TODAY'),
     'created_today' => env('WEBHOOK_MOB_CREATED_TODAY'),
+    'attendees_today' => env('WEBHOOK_MOB_ATTENDEES_CHANGED_TODAY'),
 ];

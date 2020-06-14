@@ -17,11 +17,11 @@ class WebHooksTest extends TestCase
         parent::setUp();
         Http::fake();
         $this->setTestNow('2020-01-08T15:00:00');
+        $this->enableHooks();
     }
 
     public function testItHitsTheMobDeletedTodayWebHookWheneverAMobIsDeletedToday()
     {
-        $this->enableHooks();
         $socialMob = factory(SocialMob::class)->create(['date' => today()]);
         $user = $socialMob->owner;
         $this->actingAs($user)->deleteJson(route('social_mobs.destroy', $socialMob));
@@ -33,7 +33,6 @@ class WebHooksTest extends TestCase
 
     public function testItDoesNotHittheMobDeletedTodayWebHookIfTheMobWasDeletedAtAnyOtherDay()
     {
-        $this->enableHooks();
         $socialMob = factory(SocialMob::class)->create(['date' => today()->addDay()]);
         $user = $socialMob->owner;
         $this->actingAs($user)->deleteJson(route('social_mobs.destroy', $socialMob));
@@ -53,7 +52,6 @@ class WebHooksTest extends TestCase
 
     public function testItDoesNotBreakIfTheHookFails()
     {
-        $this->enableHooks();
         Http::fake(function () {
             return Http::response('Oh no, the webhook failed! :(', Response::HTTP_INTERNAL_SERVER_ERROR);
         });
@@ -67,7 +65,6 @@ class WebHooksTest extends TestCase
 
     public function testItHitsTheMobUpdatedTodayWebHookWheneverAMobIsUpdatedToday()
     {
-        $this->enableHooks();
         $socialMob = factory(SocialMob::class)->create(['date' => today()]);
         $user = $socialMob->owner;
         $this->actingAs($user)->putJson(route('social_mobs.update', $socialMob), ['topic' => 'new topic']);
@@ -79,7 +76,6 @@ class WebHooksTest extends TestCase
 
     public function testItHitsTheUpdatedTodayWebHookIfAMobChangedItsDateToToday()
     {
-        $this->enableHooks();
         $socialMob = factory(SocialMob::class)->create(['date' => today()->addDay()]);
         $user = $socialMob->owner;
         $this->actingAs($user)->putJson(route('social_mobs.update', $socialMob), ['date' => today()]);
@@ -92,7 +88,6 @@ class WebHooksTest extends TestCase
     public function testItHitsTheCreatedTodayWebHookIfAMobWasCreatedForToday()
     {
         $this->setTestNow('2020-01-01T10:30:00.000');
-        $this->enableHooks();
         $user = factory(User::class)->create();
         $socialMobData = factory(SocialMob::class)->make(['date' => today()])->toArray();
         $this->actingAs($user)->postJson(route('social_mobs.store'), $socialMobData);
@@ -102,6 +97,33 @@ class WebHooksTest extends TestCase
         });
     }
 
+    public function testItHitsTheAttendeesWebHookIfSomeoneJoinsAMobThatWillHappenToday()
+    {
+        $socialMob = factory(SocialMob::class)->create();
+        $newMember = factory(User::class)->create();
+
+        $this->actingAs($newMember)->postJson(route('social_mobs.join', $socialMob));
+
+        Http::assertSent(function (Request $request) {
+            return $request->url() === config('webhooks.attendees_today');
+        });
+    }
+
+
+    public function testItHitsTheAttendeesWebHookIfSomeoneLeavesAMobThatWillHappenToday()
+    {
+        $socialMob = factory(SocialMob::class)->create(); /** @var SocialMob $socialMob*/
+        $attendee = factory(User::class)->create();
+        $socialMob->attendees()->attach($attendee);
+
+        $this->actingAs($attendee)->postJson(route('social_mobs.leave', $socialMob));
+
+        Http::assertSent(function (Request $request) {
+            return $request->url() === config('webhooks.attendees_today');
+        });
+    }
+
+
     /**
      * @dataProvider providesActionsOutsideOfWebHookTimes
      */
@@ -110,7 +132,6 @@ class WebHooksTest extends TestCase
         $endTime,
         $requestTime
     ) {
-        $this->enableHooks();
         $this->setTestNow("2020-01-01 {$requestTime}");
         Config::set('webhooks.start_time', $startTime);
         Config::set('webhooks.end_time', $endTime);
@@ -153,6 +174,7 @@ class WebHooksTest extends TestCase
         Config::set('webhooks.deleted_today', 'http://foobar.test/deleted');
         Config::set('webhooks.updated_today', 'http://foobar.test/updated');
         Config::set('webhooks.created_today', 'http://foobar.test/created');
+        Config::set('webhooks.attendees_today', 'http://foobar.test/join_leave');
     }
 
     private function disableHooks(): void
@@ -160,5 +182,6 @@ class WebHooksTest extends TestCase
         Config::set('webhooks.deleted_today', null);
         Config::set('webhooks.updated_today', null);
         Config::set('webhooks.created_today', null);
+        Config::set('webhooks.attendees_today', null);
     }
 }

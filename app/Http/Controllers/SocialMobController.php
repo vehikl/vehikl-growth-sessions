@@ -39,13 +39,15 @@ class SocialMobController extends Controller
     public function join(SocialMob $socialMob, JoinSocialMobRequest $request)
     {
         $socialMob->attendees()->attach($request->user());
-        return $socialMob->fresh();
+        $this->notifyAttendeeChangeIfNeeded($socialMob->refresh());
+        return $socialMob;
     }
 
     public function leave(SocialMob $socialMob, Request $request)
     {
         $socialMob->attendees()->detach($request->user());
-        return $socialMob->fresh();
+        $this->notifyAttendeeChangeIfNeeded($socialMob->refresh());
+        return $socialMob;
     }
 
     public function edit(SocialMob $socialMob)
@@ -93,6 +95,13 @@ class SocialMobController extends Controller
             && config('webhooks.updated_today')
             && ($wasMobOriginallyToday || $wasMobMovedToToday)) {
             Http::post(config('webhooks.updated_today'), $newValues);
+        }
+    }
+
+    private function notifyAttendeeChangeIfNeeded(SocialMob $socialMob)
+    {
+        if ($this->isWithinWebHookNotificationWindow() && config('webhooks.attendees_today')) {
+            Http::post(config('webhooks.attendees_today'), $socialMob->toArray());
         }
     }
 
