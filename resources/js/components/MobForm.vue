@@ -7,7 +7,7 @@
                 </label>
                 <div class="border p-1 border-gray-400 flex justify-center"
                      :class="{'error-outline': getError('date')}">
-                    <datepicker v-model="date" id="date"/>
+                    <datepicker v-model="date" id="date" tabindex="1"/>
                 </div>
             </div>
 
@@ -15,6 +15,7 @@
                 class="mt-6 w-48 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 :class="{'opacity-25 cursor-not-allowed': !isReadyToSubmit}"
                 type="submit"
+                tabindex="6"
                 :disabled="! isReadyToSubmit"
                 @click="onSubmit"
                 v-text="isCreating? 'Create' : 'Update'">
@@ -28,6 +29,7 @@
                 </label>
                 <vue-timepicker v-model="startTime"
                                 :class="{'error-outline': getError('start_time')}"
+                                tabindex="2"
                                 advanced-keyboard
                                 auto-scroll
                                 hide-disabled-items
@@ -42,6 +44,7 @@
                 </label>
                 <vue-timepicker v-model="endTime"
                                 :class="{'error-outline': getError('end_time')}"
+                                tabindex="3"
                                 advanced-keyboard
                                 auto-scroll
                                 hide-disabled-items
@@ -58,6 +61,7 @@
             </label>
             <textarea id="topic"
                       v-model="topic"
+                      tabindex="4"
                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       rows="4"
                       placeholder="What is this mob about?"/>
@@ -69,6 +73,7 @@
             </label>
             <textarea id="location"
                       rows="2"
+                      tabindex="5"
                       v-model="location"
                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       placeholder="Where should people go to participate?"/>
