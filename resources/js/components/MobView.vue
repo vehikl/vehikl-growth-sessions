@@ -2,12 +2,7 @@
     <div class="max-w-5xl text-blue-600">
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
             <h2 class="text-2xl lg:text-3xl font-sans font-light flex items-center text-blue-700">
-                <div class="w-20 h-20 relative mr-4">
-                    <div class="group w-full h-full rounded-full overflow-hidden shadow-inner">
-                        <img :src="mob.owner.avatar" :alt="`${mob.owner.name}'s Avatar`"
-                             class="object-cover object-center w-full h-full visible group-hover:hidden"/>
-                    </div>
-                </div>
+                <v-avatar class="mr-4" :src="mob.owner.avatar" :alt="`${mob.owner.name}'s Avatar`"/>
                 {{mobName}}
             </h2>
             <div>
@@ -59,12 +54,7 @@
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Attendees</h3>
                 <ul>
                     <li v-for="attendee in mob.attendees" class="flex items-center ml-6 my-4">
-                        <div class="w-12 h-12 relative mr-3">
-                            <div class="group w-full h-full rounded-full overflow-hidden shadow-inner">
-                                <img :src="attendee.avatar" :alt="`${attendee.name}'s Avatar`"
-                                     class="object-cover object-center w-full h-full visible group-hover:hidden"/>
-                            </div>
-                        </div>
+                        <v-avatar size="12" class="mr-3" :src="attendee.avatar" :alt="`${attendee.name}'s Avatar`"/>
                         {{attendee.name}}
                     </li>
                 </ul>
@@ -76,15 +66,16 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {IUser, ISocialMob, IStoreSocialMobRequest, IValidationError} from '../types';
+    import {ISocialMob, IUser} from '../types';
     import {DateTime} from '../classes/DateTime';
     import {SocialMob} from '../classes/SocialMob';
-    import VueTimepicker from "vue2-timepicker";
-    import Datepicker from "vuejs-datepicker";
-    import {SocialMobApi} from "../services/SocialMobApi";
+    import VueTimepicker from 'vue2-timepicker';
+    import Datepicker from 'vuejs-datepicker';
+    import {SocialMobApi} from '../services/SocialMobApi';
     import CommentList from './CommentList.vue';
+    import VAvatar from './VAvatar.vue';
 
-    @Component({components: {CommentList, VueTimepicker, Datepicker}})
+    @Component({components: {VAvatar, CommentList, VueTimepicker, Datepicker}})
     export default class MobView extends Vue {
         @Prop({required: false}) user!: IUser;
         @Prop({required: true}) mobJson!: ISocialMob;

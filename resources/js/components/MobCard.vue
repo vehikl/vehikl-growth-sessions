@@ -2,12 +2,7 @@
     <div class="bg-gray-100 border border-blue-300 shadow p-6 rounded-lg hover:bg-blue-100 cursor-pointer"
          @click="goToMob">
         <div class="flex items-center">
-            <div class="w-12 h-12 relative">
-                <div class="group w-full h-full rounded-full overflow-hidden shadow-inner">
-                    <img :src="socialMob.owner.avatar" :alt="`${socialMob.owner.name}'s Avatar`"
-                         class="object-cover object-center w-full h-full visible group-hover:hidden"/>
-                </div>
-            </div>
+            <v-avatar :src="socialMob.owner.avatar" :alt="`${socialMob.owner.name}'s Avatar`" size="12"/>
             <h3 class="ml-6 text-lg" v-text="socialMob.owner.name"/>
         </div>
         <pre class="my-4 inline-block text-left whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
@@ -57,8 +52,10 @@
     import {SocialMobApi} from '../services/SocialMobApi';
     import {SocialMob} from '../classes/SocialMob';
     import {IUser} from '../types';
-
-    @Component
+    import VAvatar from './VAvatar.vue';
+    @Component({
+        components: {VAvatar}
+    })
     export default class MobCard extends Vue {
         @Prop({required: true}) socialMob!: SocialMob;
         @Prop({required: false, default: null}) user!: IUser;

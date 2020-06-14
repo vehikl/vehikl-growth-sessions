@@ -32,12 +32,10 @@
                     <a href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                        class="mt-4 flex items-center lg:mt-0 text-white hover:text-orange-200 ">
-                        <div class="w-12 h-12 mr-4 relative">
-                            <div class="group w-full h-full rounded-full overflow-hidden shadow-inner">
-                                <img src="{{ auth()->user()->avatar }}" alt="Your Avatar"
-                                     class="object-cover object-center w-full h-full visible group-hover:hidden"/>
-                            </div>
-                        </div>
+                        <v-avatar class="mr-4"
+                                  src="{{ auth()->user()->avatar }}"
+                                  alt="Your Avatar"
+                                  size="12"></v-avatar>
                         Logout
                     </a>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
