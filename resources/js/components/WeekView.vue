@@ -53,17 +53,17 @@
                            :date="date"
                            @end="onDragEnd"
                            @change="onChange">
-                    <mob-card v-for="socialMob in socialMobs.getMobByDate(date)"
-                              :key="socialMob.id"
-                              @mob-updated="getAllMobsOfTheWeek"
-                              @edit-requested="onMobEditRequested"
-                              @delete-requested="getAllMobsOfTheWeek"
-                              :socialMob="socialMob"
-                              :user="user"
-                              :class="{
-                              'handle cursor-pointer hover:bg-blue-100 hover:scale-105': isDraggable(socialMob),
-                              }"
-                              class="my-3 transform transition-transform duration-150"/>
+                    <div v-for="socialMob in socialMobs.getMobByDate(date)"
+                         :key="socialMob.id">
+                        <mob-card
+                            @mob-updated="getAllMobsOfTheWeek"
+                            @edit-requested="onMobEditRequested"
+                            @delete-requested="getAllMobsOfTheWeek"
+                            :socialMob="socialMob"
+                            :user="user"
+                            :is-draggable="isDraggable(socialMob)"
+                            class="mb-3 transform transition-transform duration-150"/>
+                    </div>
                 </draggable>
 
             </div>
@@ -73,7 +73,7 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {ISocialMob, IUser, IWeekMobs} from '../types';
+    import {IUser} from '../types';
     import MobCard from './MobCard.vue';
     import MobForm from './MobForm.vue';
     import {SocialMobApi} from '../services/SocialMobApi';
@@ -104,7 +104,7 @@
         }
 
         isDraggable(mob: SocialMob): boolean {
-            if (! this.user) {
+            if (!this.user) {
                 return false;
             }
             const userOwnsDraggedMob = mob.owner.id === this.user.id;
@@ -156,7 +156,7 @@
     }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     .day {
         width: 20rem;
         min-height: 35rem;
