@@ -8,6 +8,7 @@ import {SocialMobApi} from '../services/SocialMobApi';
 import {DateTime} from '../classes/DateTime';
 import {WeekMobs} from '../classes/WeekMobs';
 import {SocialMob} from '../classes/SocialMob';
+import {Nothingator} from '../classes/Nothingator';
 
 const authUser: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -20,19 +21,18 @@ const localVue = createLocalVue();
 localVue.use(VModal);
 let socialsThisWeek: WeekMobs = new WeekMobs(socialsThisWeekJson);
 
+const metadataForSocialsFixture = {
+    today: {date: '2020-01-15', weekday: 'Wednesday'},
+    dayWithNoMobs: {date: '2020-01-16', weekday: 'Tuesday'}
+};
+
+const todayDate: string = metadataForSocialsFixture.today.date;
+
 describe('WeekView', () => {
     let wrapper: Wrapper<WeekView>;
-    let thisWeeksMonday: string;
-    let todayIsWednesday: string;
-    let nextMonday: string;
-    let previousWeeksMonday: string;
 
     beforeEach(async () => {
-        todayIsWednesday = '2020-01-15';
-        thisWeeksMonday = '2020-01-13';
-        previousWeeksMonday = '2020-01-06';
-        nextMonday = '2020-01-20';
-        DateTime.setTestNow(todayIsWednesday);
+        DateTime.setTestNow(todayDate);
         SocialMobApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(socialsThisWeek);
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
@@ -49,14 +49,14 @@ describe('WeekView', () => {
     it('allows the user to view mobs of the previous week', async () => {
         wrapper.find('button.load-previous-week').trigger('click');
         await flushPromises();
-        let sevenDaysInThePast = DateTime.parseByDate(todayIsWednesday).addDays(-7).toDateString();
+        let sevenDaysInThePast = DateTime.parseByDate(todayDate).addDays(-7).toDateString();
         expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInThePast);
     });
 
     it('allows the user to view mobs of the next week', async () => {
         wrapper.find('button.load-next-week').trigger('click');
         await flushPromises();
-        let sevenDaysInTheFuture = DateTime.parseByDate(todayIsWednesday).addDays(7).toDateString();
+        let sevenDaysInTheFuture = DateTime.parseByDate(todayDate).addDays(7).toDateString();
         expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInTheFuture);
     });
 
@@ -72,6 +72,16 @@ describe('WeekView', () => {
 
     it('does not display the mob creation buttons for guests', async () => {
         expect(wrapper.find('button.create-mob').exists()).toBe(false);
+    });
+
+    it('if no mobs are available on that day, display a variation of nothing in different languages', async () => {
+        const wordForNothing = 'A random nothing';
+        Nothingator.random = jest.fn().mockReturnValue(wordForNothing);
+        wrapper = mount(WeekView, {localVue});
+        await flushPromises();
+
+        expect(wrapper.find(`[weekDay=${metadataForSocialsFixture.dayWithNoMobs.weekday}`).text())
+            .toContain(wordForNothing);
     });
 
     describe('for an authenticated user', () => {

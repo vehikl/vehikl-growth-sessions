@@ -58,6 +58,10 @@ export class DateTime {
         return moment(this.dateTime).isSame(date.toDateString(), 'days');
     }
 
+    isToday(): boolean {
+        return this.isSameDay(DateTime.today());
+    }
+
     isInAPastDate(): boolean {
         const current: Moment = moment(this.toDateString());
         const today: Moment = moment(DateTime.today().toDateString());

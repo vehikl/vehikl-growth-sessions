@@ -35,9 +35,14 @@
                  :class="{
                  'bg-blue-100': date.weekDayNumber() % 2 === 0,
                  'bg-blue-200': date.weekDayNumber() % 2 !== 0,
-                 'hidden': !date.isSameDay(DateTime.today())
+                 'hidden': !date.isToday()
                  }">
                 <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="date.weekDayString()"></h3>
+                <div v-show="socialMobs.getMobByDate(date).length === 0" class="text-blue-600 text-lg my-4">
+                    <p v-text="`${Nothingator.random()}...`"/>
+                    <p v-show="user && date.isToday()">Why don't you make the first one?</p>
+                </div>
+
                 <draggable :list="socialMobs.getMobByDate(date)"
                            group="social-mobs"
                            class="h-full w-full"
@@ -78,6 +83,7 @@
     import Draggable from 'vuedraggable';
     import {SocialMob} from '../classes/SocialMob';
     import {WeekMobs} from '../classes/WeekMobs';
+    import {Nothingator} from '../classes/Nothingator';
 
     interface IMobCardDragChange {
         added?: { element: SocialMob, index: number }
@@ -94,6 +100,7 @@
         newMobDate: string = '';
         mobToUpdate: SocialMob | null = null;
         DateTime = DateTime;
+        Nothingator = Nothingator;
         draggedMob!: SocialMob;
 
         async created() {
