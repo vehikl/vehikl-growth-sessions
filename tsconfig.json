@@ -11,7 +11,9 @@
         "esModuleInterop": true
     },
     "include": [
-        "resources/js/**/*",
-        "tests/js/**/*.ts"
+        "resources/js/**/*.ts"
+    ],
+    "exclude": [
+        "resources/js/**/*.spec.ts"
     ]
 }
