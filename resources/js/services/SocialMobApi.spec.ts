@@ -109,6 +109,6 @@ describe('SocialMobApi', () => {
 
         await SocialMobApi.deleteComment(dummyMob.comments[0]);
 
-        expect(mockBackend.history.delete[0].url).toBe(`social_mobs/${dummyMob.id}/comments/${dummyMob.comments[0].id}`);
+        expect(mockBackend.history.delete[0].url).toBe(`/social_mobs/${dummyMob.id}/comments/${dummyMob.comments[0].id}`);
     });
 });

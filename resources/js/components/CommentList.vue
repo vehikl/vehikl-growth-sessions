@@ -8,10 +8,14 @@
                 class="shadow resize-none appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="new-comment"
                 v-model="newComment"
-                placeholder="Leave a comment..."
+                :disabled="!user"
+                :placeholder="commentFormPlaceholder"
                 rows="3"></textarea>
             <button
-                class="bg-blue-500 hover:bg-blue-700 text-white text-xl font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                class="bg-blue-500 hover:bg-blue-700 text-white text-xl font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                id="submit-new-comment"
+                :class="{'opacity-25 cursor-not-allowed' : !allowsNewCommentSubmission}"
+                :disabled="! allowsNewCommentSubmission">
                 <i class="fa fa-commenting-o" aria-hidden="true"></i>
             </button>
         </form>
@@ -59,6 +63,14 @@
         async createNewComment() {
             await this.socialMob.postComment(this.newComment);
             this.newComment = '';
+        }
+
+        get allowsNewCommentSubmission(): boolean {
+            return !!this.user && !!this.newComment;
+        }
+
+        get commentFormPlaceholder(): string {
+            return this.user ? 'Leave a comment...' : 'You must be logged in to comment...';
         }
     }
 </script>
