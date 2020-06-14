@@ -38,14 +38,6 @@
                  'hidden': !date.isSameDay(DateTime.today())
                  }">
                 <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="date.weekDayString()"></h3>
-                <div v-if="user">
-                    <button
-                        class="create-mob bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white font-bold py-2 px-4 rounded mb-3"
-                        @click="onCreateNewMobClicked(date)"
-                        v-if="! date.isInAPastDate()">
-                        Create new mob
-                    </button>
-                </div>
                 <draggable :list="socialMobs.getMobByDate(date)"
                            group="social-mobs"
                            class="h-full w-full"
@@ -63,8 +55,14 @@
                             :user="user"
                             class="mb-3 transform transition-transform duration-150"/>
                     </div>
-                </draggable>
 
+                    <button
+                        class="create-mob text-5xl h-20 w-20 text-blue-600 hover:text-blue-700 focus:text-blue-700 font-bold my-3"
+                        @click="onCreateNewMobClicked(date)"
+                        v-if="user && ! date.isInAPastDate()">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    </button>
+                </draggable>
             </div>
         </div>
     </div>
