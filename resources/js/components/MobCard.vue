@@ -2,8 +2,9 @@
     <div class="bg-gray-100 border border-blue-300 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
          @click="goToMob">
         <div v-if="isDraggable"
-             class="handle py-3 px-6 w-full cursor-grab flex justify-end">
-            X
+             @click.stop
+             class="p-3 z-10 handle cursor-grab w-full flex justify-end">
+            <icon-draggable class="h-6 text-blue-600 hover:text-blue-800"/>
         </div>
         <div class="p-6" :class="{'pt-0' : isDraggable}">
             <div class="flex items-center">
@@ -65,9 +66,10 @@
     import {SocialMob} from '../classes/SocialMob';
     import {IUser} from '../types';
     import VAvatar from './VAvatar.vue';
+    import IconDraggable from '../svgs/IconDraggable.vue';
 
     @Component({
-        components: {VAvatar}
+        components: {VAvatar, IconDraggable}
     })
     export default class MobCard extends Vue {
         @Prop({required: true}) socialMob!: SocialMob;
