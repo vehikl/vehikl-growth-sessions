@@ -32,7 +32,7 @@
                     <a href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                        class="mt-4 flex items-center lg:mt-0 text-white hover:text-orange-200 ">
-                        <v-avatar class="mr-4 w-12 h-12"
+                        <v-avatar class="mr-4"
                                   src="{{ auth()->user()->avatar }}"
                                   alt="Your Avatar"
                                   size="12"></v-avatar>

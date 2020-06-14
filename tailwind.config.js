@@ -1,9 +1,14 @@
 module.exports = {
-    purge: [
-        './resources/js/**/*.vue',
-        './resources/views/**/*.blade.php',
-        './resources/svgs/**/*.vue',
-    ],
+    purge: {
+        content: [
+            './resources/js/**/*.vue',
+            './resources/views/**/*.blade.php',
+            './resources/svgs/**/*.vue',
+        ],
+        options: {
+            whitelist: ['w-12', 'h-12'],
+        }
+    },
     theme: {
         extend: {
             spacing: {
