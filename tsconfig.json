@@ -12,8 +12,5 @@
     },
     "include": [
         "resources/js/**/*.ts"
-    ],
-    "exclude": [
-        "resources/js/**/*.spec.ts"
     ]
 }
