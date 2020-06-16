@@ -20,7 +20,16 @@ class SocialMobController extends Controller
 
     public function week(Request $request)
     {
-        return SocialMob::allInTheWeekOf($request->input('date'));
+        $weekMobs = SocialMob::allInTheWeekOf($request->input('date'));
+        if ($request->user() == null) {
+            $weekMobs =  array_map(function($week) {
+                return array_map(function($mob) {
+                    $mob['location'] = '???';
+                    return $mob;
+                }, $week);
+            }, $weekMobs);
+        }
+        return $weekMobs;
     }
 
     public function day()
