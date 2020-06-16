@@ -22,11 +22,8 @@ class SocialMobController extends Controller
     {
         $weekMobs = SocialMob::allInTheWeekOf($request->input('date'));
         if ($request->user() == null) {
-            $weekMobs =  array_map(function($week) {
-                return array_map(function($mob) {
-                    $mob['location'] = '???';
-                    return $mob;
-                }, $week);
+            $weekMobs = array_map(function($week) {
+                return array_map('App\SocialMob::protectInformation', $week);
             }, $weekMobs);
         }
         return $weekMobs;
