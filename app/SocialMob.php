@@ -93,9 +93,9 @@ class SocialMob extends Model
         return $query->whereDate('date', today()->toDateString());
     }
 
-    public static function protectInformation($socialMobObject)
+    public static function protectInformation($socialMob)
     {
-        $socialMobObject['location'] = '???';
-        return $socialMobObject;
+        $socialMob['location'] = '???';
+        return $socialMob;
     }
 }

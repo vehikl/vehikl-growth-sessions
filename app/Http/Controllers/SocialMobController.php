@@ -9,13 +9,18 @@ use App\Http\Requests\UpdateSocialMobRequest;
 use App\SocialMob;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 class SocialMobController extends Controller
 {
     public function show(SocialMob $socialMob)
     {
-        return view('social-mob', compact('socialMob'));
+        $socialMobObject = $socialMob->toArray();
+        if (Auth::user() == null) {
+            $socialMobObject = SocialMob::protectInformation($socialMobObject);
+        }
+        return view('social-mob', compact('socialMobObject'));
     }
 
     public function week(Request $request)
