@@ -40,7 +40,7 @@ class LoginController extends Controller
                 'password' => Hash::make(Str::random()),
             ]);
         }
-        auth()->login($socialMobUser);
+        auth()->login($socialMobUser, true);
         return redirect()->back();
     }
 }
