@@ -72,7 +72,6 @@
                                         advanced-keyboard
                                         auto-scroll
                                         hide-disabled-items
-                                        :hour-range="[['1p', '4p']]"
                                         format="hh:mm a"
                                         :minute-interval="15"
                                         id="start_time"/>
@@ -86,7 +85,6 @@
                                         advanced-keyboard
                                         auto-scroll
                                         hide-disabled-items
-                                        :hour-range="[['2p', '5p']]"
                                         format="hh:mm a"
                                         :minute-interval="15"
                                         id="end_time"/>
