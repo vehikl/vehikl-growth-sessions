@@ -126,7 +126,7 @@ class SocialMobTest extends TestCase
         $this->assertCount(1, $existingSocialMob->attendees);
     }
 
-    public function testAUSerCanLeaveTheMob()
+    public function testAUserCanLeaveTheMob()
     {
         $existingSocialMob = factory(SocialMob::class)->create();
         $user = factory(User::class)->create();
@@ -140,7 +140,7 @@ class SocialMobTest extends TestCase
         $this->assertEmpty($existingSocialMob->attendees);
     }
 
-    public function testItCanProvideAllSocialMobsOfTheCurrentWeek()
+    public function testItCanProvideAllSocialMobsOfTheCurrentWeekForAuthenticatedUser()
     {
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
@@ -168,12 +168,14 @@ class SocialMobTest extends TestCase
             $monday->addDays(4)->toDateString() => [$fridaySocial],
         ];
 
-        $response = $this->getJson(route('social_mobs.week'));
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user)->getJson(route('social_mobs.week'));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
 
-    public function testItCanProvideAllSocialMobsOfTheCurrentWeekEvenOnFridays()
+    public function testItCanProvideAllSocialMobsOfTheCurrentWeekForAuthenticatedUserEvenOnFridays()
     {
         $this->setTestNow('Next Friday');
 
@@ -192,12 +194,14 @@ class SocialMobTest extends TestCase
             today()->toDateString() => [$fridaySocial],
         ];
 
-        $response = $this->getJson(route('social_mobs.week'));
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user)->getJson(route('social_mobs.week'));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
 
-    public function testItCanProvideAllSocialMobsOfASpecifiedWeekIfADateIsGiven()
+    public function testItCanProvideAllSocialMobsOfASpecifiedWeekForAuthenticatedUserIfADateIsGiven()
     {
         $weekThatHasNoMobs = '2020-05-25';
         $this->setTestNow($weekThatHasNoMobs);
@@ -225,9 +229,52 @@ class SocialMobTest extends TestCase
             $mondayOfWeekWithMobs->addDays(4)->toDateString() => [$fridaySocial],
         ];
 
-        $response = $this->getJson(route('social_mobs.week', ['date' => $weekThatHasTheMobs]));
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user)->getJson(route('social_mobs.week', ['date' => $weekThatHasTheMobs]));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
+    }
+
+    public function testItDoesNotProvideLocationOfAllSocialMobsOfASpecifiedWeekForAnonymousUser()
+    {
+        $this->setTestNow('2020-01-15');
+        $monday = CarbonImmutable::parse('Last Monday');
+        factory(SocialMob::class)->create(['date' => $monday, 'start_time' => '03:30 pm']);
+        factory(SocialMob::class)->create(['date' => $monday->addDays(2), 'start_time' => '04:30 pm']);
+        factory(SocialMob::class)->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm']);
+        factory(SocialMob::class)->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm']);
+        factory(SocialMob::class)->create(['date' => $monday->addDays(8), 'start_time' => '03:30 pm']);
+
+        $response = $this->getJson(route('social_mobs.week'));
+
+        $response->assertSuccessful();
+        $response->assertDontSee('At AnyDesk XYZ - abcdefg');
+    }
+
+    public function testItDoesNotProvideLocationOfASocialMobForAnonymousUser()
+    {
+        $this->setTestNow('2020-01-15');
+        $monday = CarbonImmutable::parse('Last Monday');
+        $mob = factory(SocialMob::class)->create(['date' => $monday, 'start_time' => '03:30 pm']);
+
+        $response = $this->getJson(route('social_mobs.show', ['social_mob' => $mob]));
+
+        $response->assertSuccessful();
+        $response->assertDontSee('At AnyDesk XYZ - abcdefg');
+    }
+
+    public function testItCanProvideSocialMobLocationForAuthenticatedUser()
+    {
+        $this->setTestNow('2020-01-15');
+        $monday = CarbonImmutable::parse('Last Monday');
+        $mob = factory(SocialMob::class)->create(['date' => $monday, 'start_time' => '03:30 pm']);
+
+        $user = factory(User::class)->create();
+        $response = $this->actingAs($user)->getJson(route('social_mobs.show', ['social_mob' => $mob]));
+
+        $response->assertSuccessful();
+        $response->assertSee('At AnyDesk XYZ - abcdefg');
     }
 
     public function testItProvidesASummaryOfTheMobsOfTheDay()

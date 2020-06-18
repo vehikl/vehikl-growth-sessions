@@ -9,18 +9,29 @@ use App\Http\Requests\UpdateSocialMobRequest;
 use App\SocialMob;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 class SocialMobController extends Controller
 {
     public function show(SocialMob $socialMob)
     {
-        return view('social-mob', compact('socialMob'));
+        $socialMobObject = $socialMob->toArray();
+        if (Auth::user() == null) {
+            $socialMobObject = SocialMob::protectInformation($socialMobObject);
+        }
+        return view('social-mob', compact('socialMobObject'));
     }
 
     public function week(Request $request)
     {
-        return SocialMob::allInTheWeekOf($request->input('date'));
+        $weekMobs = SocialMob::allInTheWeekOf($request->input('date'));
+        if ($request->user() == null) {
+            $weekMobs = array_map(function($week) {
+                return array_map('App\SocialMob::protectInformation', $week);
+            }, $weekMobs);
+        }
+        return $weekMobs;
     }
 
     public function day()
