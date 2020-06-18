@@ -258,7 +258,7 @@ class SocialMobTest extends TestCase
         $monday = CarbonImmutable::parse('Last Monday');
         $mob = factory(SocialMob::class)->create(['date' => $monday, 'start_time' => '03:30 pm']);
 
-        $response = $this->getJson(route('social_mobs.show', ['social_mob' => $mob]));
+        $response = $this->get(route('social_mobs.show', ['social_mob' => $mob]));
 
         $response->assertSuccessful();
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
@@ -268,10 +268,10 @@ class SocialMobTest extends TestCase
     {
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
-        $mob = factory(SocialMob::class)->create(['date' => $monday, 'start_time' => '03:30 pm']);
+        $socialMob = factory(SocialMob::class)->create(['date' => $monday, 'start_time' => '03:30 pm']);
 
         $user = factory(User::class)->create();
-        $response = $this->actingAs($user)->getJson(route('social_mobs.show', ['social_mob' => $mob]));
+        $response = $this->actingAs($user)->get(route('social_mobs.show', $socialMob));
 
         $response->assertSuccessful();
         $response->assertSee('At AnyDesk XYZ - abcdefg');
@@ -282,11 +282,12 @@ class SocialMobTest extends TestCase
         $today = '2020-01-02';
         $tomorrow = '2020-01-03';
         $this->setTestNow($today);
+        $user = factory(User::class)->create();
 
         $todayMobs = factory(SocialMob::class, 2)->create(['date' => $today]);
         factory(SocialMob::class, 2)->create(['date' => $tomorrow]);
 
-        $response = $this->getJson(route('social_mobs.day'));
+        $response = $this->actingAs($user)->getJson(route('social_mobs.day'));
 
         $response->assertJson($todayMobs->toArray());
     }
