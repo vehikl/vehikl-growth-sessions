@@ -6,6 +6,7 @@ use App\Http\Requests\DeleteSocialMobRequest;
 use App\Http\Requests\JoinSocialMobRequest;
 use App\Http\Requests\StoreSocialMobRequest;
 use App\Http\Requests\UpdateSocialMobRequest;
+use App\Http\Resources\SocialMob as SocialMobResource;
 use App\SocialMob;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -15,17 +16,17 @@ class SocialMobController extends Controller
 {
     public function show(SocialMob $socialMob)
     {
-        return view('social-mob', compact('socialMob'));
+        return view('social-mob', ['socialMob' => new SocialMobResource($socialMob)]);
     }
 
     public function week(Request $request)
     {
-        return SocialMob::allInTheWeekOf($request->input('date'));
+        return new SocialMobResource(SocialMob::allInTheWeekOf($request->input('date')));
     }
 
     public function day()
     {
-        return SocialMob::today()->get();
+        return new SocialMobResource(SocialMob::today()->get());
     }
 
     public function store(StoreSocialMobRequest $request)
