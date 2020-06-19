@@ -19,7 +19,7 @@ class SocialMob extends JsonResource
     {
         array_walk_recursive ($payload, function(&$entry, $key) {
             if($key === 'location') {
-                $entry = '???';
+                $entry = '< Login to see the location >';
             }
         });
 
