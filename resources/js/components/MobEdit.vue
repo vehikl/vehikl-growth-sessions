@@ -42,7 +42,7 @@
                           rows="4"
                           placeholder="What is this mob about?"/>
             </div>
-            <div class="flex-none">
+            <div class="flex-none max-w-md">
                 <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Location:</h3>
                     <textarea id="location"
