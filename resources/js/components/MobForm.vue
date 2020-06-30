@@ -7,7 +7,7 @@
                 </label>
                 <div class="border p-1 border-gray-400 flex justify-center"
                      :class="{'error-outline': getError('date')}">
-                    <datepicker v-model="date" id="date" tabindex="1"/>
+                    <date-picker v-model="date" id="date" tabIndex="1"/>
                 </div>
             </div>
 
@@ -83,11 +83,11 @@
     import {Component, Prop, Vue} from 'vue-property-decorator';
     import {ISocialMob, IStoreSocialMobRequest, IUser, IValidationError} from '../types';
     import VueTimepicker from 'vue2-timepicker'
-    import Datepicker from 'vuejs-datepicker';
     import {SocialMobApi} from '../services/SocialMobApi';
     import {DateTime} from '../classes/DateTime';
+    import DatePicker from './DatePicker.vue';
 
-    @Component({components: {VueTimepicker, Datepicker}})
+    @Component({components: {DatePicker, VueTimepicker}})
     export default class CreateMob extends Vue {
         @Prop({required: true}) owner!: IUser;
         @Prop({required: false, default: null}) mob!: ISocialMob;

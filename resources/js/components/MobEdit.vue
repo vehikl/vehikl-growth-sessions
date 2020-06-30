@@ -61,7 +61,7 @@
                         </label>
                         <div class="border p-1 border-gray-400 justify-center"
                              :class="{'error-outline': getError('date')}">
-                            <datepicker v-model="date" id="date"/>
+                            <date-picker v-model="mob.date" id="date"/>
                         </div>
 
                         <label for="start_time" class="block text-gray-700 text-sm font-bold mb-2">
@@ -109,11 +109,11 @@
     import {DateTime} from '../classes/DateTime';
     import {SocialMob} from '../classes/SocialMob';
     import VueTimepicker from 'vue2-timepicker';
-    import Datepicker from 'vuejs-datepicker';
     import {SocialMobApi} from '../services/SocialMobApi';
     import VAvatar from './VAvatar.vue';
+    import DatePicker from './DatePicker.vue';
 
-    @Component({components: {VAvatar, VueTimepicker, Datepicker}})
+    @Component({components: {DatePicker, VAvatar, VueTimepicker}})
     export default class MobView extends Vue {
         @Prop({required: false}) user!: IUser;
         @Prop({required: true}) mobJson!: ISocialMob;
