@@ -1,7 +1,10 @@
 <template>
-    <a v-if="this.isLocationAnURL()" class="underline" :href="locationString" target="_blank"
-       v-text="locationString"/>
-    <span v-else v-text="locationString"></span>
+    <span>
+        <template v-for="part in parts">
+            <template v-if="part.isURL">{{part.gap}}<a :href="part.content" class="underline">{{part.content}}</a></template>
+            <template v-else>{{part.gap + part.content}}</template>
+        </template>
+    </span>
 </template>
 
 <script lang='ts'>
@@ -9,11 +12,22 @@
 
     @Component
     export default class LocationRenderer extends Vue {
-        @Prop({required: true}) locationString: string;
+        @Prop({required: true}) locationString!: string;
 
-        isLocationAnURL() {
+        get parts() {
+            const partRegex = /\b[^\s]+\b/g;
+            const parts = this.locationString.match(partRegex) ?? [];
+            const gaps = this.locationString.split(partRegex);
+            return parts.map((part, i) => ({
+                content: part,
+                isURL: this.isURL(part),
+                gap: gaps[i]
+            }));
+        }
+
+        isURL(candidate: string): boolean {
             try {
-                new URL(this.locationString);
+                new URL(candidate);
                 return true;
             } catch {
                 return false;

@@ -41,15 +41,6 @@ export class SocialMob implements ISocialMob {
         return DateTime.parseByDate(this.date).isInAPastDate();
     }
 
-    get isLocationAnUrl(): boolean {
-        try {
-            new URL(this.location);
-            return true;
-        } catch {
-            return false;
-        }
-    }
-
     canJoin(user: IUser): boolean {
         if (!user) {
             return false;
