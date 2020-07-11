@@ -13,8 +13,6 @@ class AutoMobCommand extends Command
 
     protected $description = 'Creates the automatic mobs of the week';
 
-    protected User $adam;
-
     public function handle()
     {
         $this->generateQuesMobs();
