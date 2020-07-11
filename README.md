@@ -10,7 +10,7 @@ To avoid the registration step, this application uses oauth.
 
 ### Prerequisites
 
- - PHP 7.3
+ - PHP 7.4
  - Composer
  - Node >= 12 LTS
  - Yarn
