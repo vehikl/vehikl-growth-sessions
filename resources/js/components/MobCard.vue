@@ -13,7 +13,7 @@
             </div>
         </div>
         <pre
-            class="my-4 inline-block text-left break-words whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
+            class="my-4 inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
             v-text="socialMob.topic"/>
         <div class="flex justify-between mb-2 text-blue-700">
             <div class="flex items-center attendees-count">

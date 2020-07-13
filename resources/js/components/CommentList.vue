@@ -39,7 +39,7 @@
                         </button>
                     </div>
                     <div class="text-blue-400 text-sm" v-text="comment.time_stamp"></div>
-                    <pre class="mx-4 mt-3 font-sans m-5 break-words whitespace-pre-wrap max-h-48 overflow-y-auto">{{comment.content}}</pre>
+                    <pre class="mx-4 mt-3 font-sans m-5 break-words-fixed whitespace-pre-wrap max-h-48 overflow-y-auto">{{comment.content}}</pre>
                 </div>
             </li>
         </ul>
