@@ -35,7 +35,7 @@
         <div class="flex flex-col lg:flex-row flex-wrap">
             <div class="flex-1 mr-2 max-w-5xl">
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Topic</h3>
-                <pre class="font-sans m-5 whitespace-pre-wrap" v-text="mob.topic"/>
+                <pre class="font-sans m-5 break-words whitespace-pre-wrap" v-text="mob.topic"/>
             </div>
             <div class="flex-none max-w-md">
                 <div class="mb-3">
