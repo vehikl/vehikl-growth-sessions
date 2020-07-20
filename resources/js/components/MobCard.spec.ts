@@ -83,23 +83,6 @@ describe('MobCard', () => {
         expect(wrapper.find('.join-button').element).toBeVisible();
     });
 
-    it('displays the mob location as an url if the location is a link', () => {
-        const mobWithUrl: SocialMob = new SocialMob({
-            id: 0,
-            owner: ownerOfTheMob,
-            location: 'https://www.somewhere.com',
-            date: '2020-05-08',
-            start_time: '03:30 pm',
-            end_time: '05:00 pm',
-            topic: 'The fundamentals of Foobar',
-            attendees: [],
-            comments: []
-        });
-        wrapper = mount(MobCard, {propsData: {socialMob: mobWithUrl, user: attendee}});
-
-        expect(wrapper.find('a.location').exists()).toBe(true);
-    });
-
     it('allows a user to join a social mob', () => {
         SocialMobApi.join = jest.fn();
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});

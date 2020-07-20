@@ -40,9 +40,7 @@
             <div class="flex-none max-w-md">
                 <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Location:</h3>
-                    <a v-if="mob.isLocationAnUrl" class="underline" :href="mob.location" target="_blank"
-                       v-text="mob.location"/>
-                    <span v-else v-text="mob.location"></span>
+                    <location-renderer :location-string="mob.location"/>
                 </div>
 
                 <div class="mb-3">
@@ -74,8 +72,9 @@
     import {SocialMobApi} from '../services/SocialMobApi';
     import CommentList from './CommentList.vue';
     import VAvatar from './VAvatar.vue';
+    import LocationRenderer from "./LocationRenderer.vue";
 
-    @Component({components: {VAvatar, CommentList, VueTimepicker, Datepicker}})
+    @Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker}})
     export default class MobView extends Vue {
         @Prop({required: false}) user!: IUser;
         @Prop({required: true}) mobJson!: ISocialMob;

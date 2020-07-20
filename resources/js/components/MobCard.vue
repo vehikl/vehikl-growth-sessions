@@ -28,9 +28,7 @@
 
         <div class="text-blue-700 text-left mb-4 break-all">
             <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
-            <a @click.stop v-if="socialMob.isLocationAnUrl" class="location underline" :href="socialMob.location"
-               target="_blank" v-text="socialMob.location"/>
-            <span v-else class="location" v-text="socialMob.location"/>
+            <location-renderer :locationString="socialMob.location"/>
         </div>
 
         <button
@@ -67,9 +65,10 @@
     import {IUser} from '../types';
     import VAvatar from './VAvatar.vue';
     import IconDraggable from '../svgs/IconDraggable.vue';
+    import LocationRenderer from "./LocationRenderer.vue";
 
     @Component({
-        components: {VAvatar, IconDraggable}
+        components: {VAvatar, IconDraggable, LocationRenderer}
     })
     export default class MobCard extends Vue {
         @Prop({required: true}) socialMob!: SocialMob;
