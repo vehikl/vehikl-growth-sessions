@@ -37,7 +37,7 @@ class LoginController extends Controller
         if (! $this->canAuthenticate($githubUser)) {
             abort(
                 Response::HTTP_UNAUTHORIZED,
-                "Sorry :(, but at the moment only members of the Vehikl organization can Login."
+                "Sorry :( but at the moment only members of the Vehikl organization can Login."
             );
         }
 
@@ -65,6 +65,10 @@ class LoginController extends Controller
 
     private function isPartOfVehikl(SocialiteUser $user): bool
     {
+        if (in_array($user->getNickname(), config('github.members_hidden_from_api'))) {
+            return true;
+        }
+
         $response = Http::withBasicAuth(config('github.email'), config('github.password'))
             ->get("https://api.github.com/users/{$user->getNickname()}/orgs")
             ->json();
