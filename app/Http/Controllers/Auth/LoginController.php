@@ -69,6 +69,15 @@ class LoginController extends Controller
             return true;
         }
 
+        $vehiklResponse = Http::withBasicAuth(config('github.email'), config('github.password'))
+            ->get('https://api.github.com/orgs/vehikl/members')
+            ->json();
+
+        $isVehiklSayingTheUserIsAMember = collect($vehiklResponse)->where('login', $user->getNickname())->isNotEmpty();
+        if ($isVehiklSayingTheUserIsAMember) {
+            return true;
+        }
+
         $response = Http::withBasicAuth(config('github.email'), config('github.password'))
             ->get("https://api.github.com/users/{$user->getNickname()}/orgs")
             ->json();
