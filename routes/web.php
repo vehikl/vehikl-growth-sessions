@@ -1,13 +1,11 @@
 <?php
 
-use App\Http\Middleware\HideSensitiveInformationFromGuests;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Auth::routes();
 Route::view('about','about')->name('about');
 Route::get('login/github', 'Auth\LoginController@redirectToProvider')->name('oauth.login.redirect');
 Route::get('oauth/callback', 'Auth\LoginController@handleProviderCallback')->name('oauth.login.callback');
+Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
 Route::view('/', 'home')->name('home');
 
