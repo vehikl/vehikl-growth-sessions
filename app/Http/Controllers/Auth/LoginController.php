@@ -65,10 +65,12 @@ class LoginController extends Controller
 
     private function isPartOfVehikl(SocialiteUser $user): bool
     {
+        // TODO: Figure out why 40% of the members don't show up at all when using Github api
         if (in_array($user->getNickname(), config('github.members_hidden_from_api'))) {
             return true;
         }
 
+        // TODO: Figure out why for some users /users/{user}/orgs won't mention Vehikl, but /orgs/vehikl/members will mention the user (and vice-versa)
         $vehiklResponse = Http::withBasicAuth(config('github.email'), config('github.password'))
             ->get('https://api.github.com/orgs/vehikl/members')
             ->json();
