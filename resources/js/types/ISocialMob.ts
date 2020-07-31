@@ -2,6 +2,7 @@ import {IComment, IUser} from '.';
 
 export interface ISocialMob {
     id: number;
+    title: string;
     topic: string;
     location: string;
     date: string;

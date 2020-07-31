@@ -4,6 +4,7 @@ import {SocialMobApi} from '../services/SocialMobApi';
 
 export class SocialMob implements ISocialMob {
     id!: number;
+    title!: string;
     topic!: string;
     location!: string;
     date!: string;
@@ -19,6 +20,7 @@ export class SocialMob implements ISocialMob {
 
     refresh(mob: ISocialMob) {
         this.id = mob.id;
+        this.title = mob.title;
         this.topic = mob.topic;
         this.location = mob.location;
         this.date = mob.date;

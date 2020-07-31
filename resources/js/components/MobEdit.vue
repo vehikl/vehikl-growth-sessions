@@ -3,7 +3,7 @@
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
             <h2 class="text-2xl lg:text-3xl font-sans font-light flex items-center text-blue-700">
                 <v-avatar class="mr-4" :src="mob.owner.avatar" :alt="`${mob.owner.name}'s Avatar`"/>
-                {{mobName}}
+                {{mob.title}}
             </h2>
             <div>
                 <button
@@ -119,10 +119,6 @@
         @Prop({required: true}) mobJson!: ISocialMob;
         mob: SocialMob = new SocialMob(this.mobJson);
         validationErrors: IValidationError | null = null;
-
-        get mobName(): string {
-            return `${this.mob.owner.name}'s ${DateTime.parseByDate(this.mob.date).weekDayString()} Mob`;
-        }
 
         get date(): string {
             return `${DateTime.parseByDate(this.mob.date).format('MMM-DD')}`

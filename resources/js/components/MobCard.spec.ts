@@ -33,6 +33,7 @@ const mobData: SocialMob = new SocialMob({
     date: '2020-05-08',
     start_time: '03:30 pm',
     end_time: '05:00 pm',
+    title: 'Foobar',
     topic: 'The fundamentals of Foobar',
     attendees: [
         attendee
