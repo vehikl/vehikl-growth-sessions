@@ -1,9 +1,9 @@
 <template>
     <div class="max-w-5xl text-blue-600">
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
-            <h2 class="text-2xl lg:text-3xl font-sans font-light flex items-center text-blue-700">
+            <h2 class="text-2xl lg:text-3xl font-sans font-light flex flex-1 items-center text-blue-700 pr-6">
                 <v-avatar class="mr-4" :src="mob.owner.avatar" :alt="`${mob.owner.name}'s Avatar`"/>
-                {{mob.title}}
+                <input type="text" class="flex-1 shadow appearance-none border rounded w-full px-3" v-model="mob.title">
             </h2>
             <div>
                 <button
