@@ -18,6 +18,7 @@ class SocialMob extends Model
     ];
 
     protected $fillable = [
+        'title',
         'topic',
         'location',
         'start_time',
@@ -54,6 +55,12 @@ class SocialMob extends Model
     public function setEndTimeAttribute($value)
     {
         $this->attributes['end_time'] = Carbon::parse($value)->format('H:i');
+    }
+
+    public function getTitleAttribute()
+    {
+        $weekDay = Carbon::parse($this->date)->format('l');
+        return $this->attributes['title'] ?? "{$this->owner->name}'s {$weekDay} Mob";
     }
 
     public static function allInTheWeekOf(?string $referenceDate)
