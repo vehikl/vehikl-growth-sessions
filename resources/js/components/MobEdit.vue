@@ -7,27 +7,13 @@
             </h2>
             <div>
                 <button
-                    class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="mob.join()"
-                    v-show="mob.canJoin(user)">
-                    Join
-                </button>
-                <button
-                    class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
-                    @click.stop="mob.leave()"
-                    v-show="mob.canLeave(user)">
-                    Leave
-                </button>
-                <button
                     class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="updateMob"
-                    v-if="mob.canEditOrDelete(user)">
+                    @click.stop="updateMob">
                     Save
                 </button>
                 <button
                     class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="deleteMob"
-                    v-if="mob.canEditOrDelete(user)">
+                    @click.stop="deleteMob">
                     <i class="fa fa-trash" aria-hidden="true"></i>
                 </button>
             </div>
@@ -145,7 +131,7 @@
 
         onRequestFailed(exception: any) {
             if (exception.response?.status === 422) {
-                console.log(exception.response.data.errors)
+                console.log(exception.response.data.errors);
                 this.validationErrors = exception.response.data;
             } else {
                 alert('Something went wrong :(');
