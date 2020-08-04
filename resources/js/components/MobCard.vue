@@ -2,10 +2,7 @@
     <div class="bg-gray-100 border border-blue-300 p-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
          @click="goToMob">
         <div class="flex">
-            <div class="flex items-center flex-1">
-                <v-avatar :src="socialMob.owner.avatar" :alt="`${socialMob.owner.name}'s Avatar`" size="12"/>
-                <h3 class="ml-6 text-lg" v-text="socialMob.owner.name"/>
-            </div>
+            <h3 class="flex-1 font-light text-lg mb-3" v-text="socialMob.title"/>
             <div v-if="isDraggable"
                  @click.stop
                  class="z-10 handle cursor-grab">
@@ -15,6 +12,11 @@
         <pre
             class="my-4 inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
             v-text="socialMob.topic"/>
+        <div class="flex items-center flex-1 mb-4 text-blue-700">
+            <p class="mr-3">Host:</p>
+            <p class="mr-6 text-md" v-text="socialMob.owner.name"/>
+            <v-avatar :src="socialMob.owner.avatar" :alt="`${socialMob.owner.name}'s Avatar`" size="6"/>
+        </div>
         <div class="flex justify-between mb-2 text-blue-700">
             <div class="flex items-center attendees-count">
                 <i class="fa fa-user-circle text-lg mr-2" aria-hidden="true"></i>
@@ -65,7 +67,7 @@
     import {IUser} from '../types';
     import VAvatar from './VAvatar.vue';
     import IconDraggable from '../svgs/IconDraggable.vue';
-    import LocationRenderer from "./LocationRenderer.vue";
+    import LocationRenderer from './LocationRenderer.vue';
 
     @Component({
         components: {VAvatar, IconDraggable, LocationRenderer}
