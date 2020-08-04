@@ -1,8 +1,10 @@
 <template>
     <div class="bg-gray-100 border border-blue-300 p-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
          @click="goToMob">
-        <div class="flex">
-            <h3 class="flex-1 font-light text-lg mb-3" v-text="socialMob.title"/>
+        <div class="flex" :class="{'mb-4': socialMob.title}" v-if="socialMob.title || isDraggable">
+            <h3 class="flex-1 font-light text-lg text-blue-700 text-left mb-3"
+                :class="{'pr-4': isDraggable}"
+                v-text="socialMob.title"/>
             <div v-if="isDraggable"
                  @click.stop
                  class="z-10 handle cursor-grab">
@@ -10,7 +12,7 @@
             </div>
         </div>
         <pre
-            class="my-4 inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
+            class="mb-4 inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
             v-text="socialMob.topic"/>
         <div class="flex items-center flex-1 mb-4 text-blue-700">
             <p class="mr-3">Host:</p>

@@ -57,12 +57,6 @@ class SocialMob extends Model
         $this->attributes['end_time'] = Carbon::parse($value)->format('H:i');
     }
 
-    public function getTitleAttribute()
-    {
-        $weekDay = Carbon::parse($this->date)->format('l');
-        return $this->attributes['title'] ?? "{$this->owner->name}'s {$weekDay} Mob";
-    }
-
     public static function allInTheWeekOf(?string $referenceDate)
     {
         $referenceDate = CarbonImmutable::parse($referenceDate);

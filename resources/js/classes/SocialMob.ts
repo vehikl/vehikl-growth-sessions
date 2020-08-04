@@ -43,6 +43,14 @@ export class SocialMob implements ISocialMob {
         return DateTime.parseByDate(this.date).isInAPastDate();
     }
 
+    get renderedTitle(): string {
+        if (this.title) {
+            return this.title;
+        }
+
+        return `${this.owner.name}'s ${DateTime.parseByDate(this.date).weekDayString()} Mob`;
+    }
+
     canJoin(user: IUser): boolean {
         if (!user) {
             return false;

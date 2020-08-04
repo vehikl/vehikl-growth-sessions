@@ -4,7 +4,6 @@ namespace Tests\Unit;
 
 use App\SocialMob;
 use App\User;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -32,14 +31,5 @@ class SocialMobTest extends TestCase
         $mob = factory(SocialMob::class)->create(['title' => $titleGiven]);
 
         $this->assertEquals($titleGiven, $mob->title);
-    }
-
-    public function testItWillHaveADefaultTitleIfNoneIsGiven()
-    {
-        $mob = factory(SocialMob::class)->create(['title' => null, 'date' => Carbon::parse('Friday')]);
-
-        $expectedTitle = "{$mob->owner->name}'s Friday Mob";
-
-        $this->assertEquals($expectedTitle, $mob->title);
     }
 }
