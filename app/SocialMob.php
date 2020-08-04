@@ -100,4 +100,8 @@ class SocialMob extends Model
         return $query->whereDate('date', today()->toDateString());
     }
 
+    public function hasUser(User $user): bool
+    {
+        return !! $this->attendees->find($user);
+    }
 }

@@ -30,7 +30,6 @@ class SocialMobTest extends TestCase
 
     public function testTheOwnerOfAMobCanEditIt()
     {
-        $this->withoutExceptionHandling();
         $mob = factory(SocialMob::class)->create();
         $newTopic = 'A brand new topic!';
         $newTitle = 'A whole new title!';

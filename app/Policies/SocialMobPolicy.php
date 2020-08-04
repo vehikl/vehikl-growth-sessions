@@ -49,4 +49,14 @@ class SocialMobPolicy
     {
         return $user->is($socialMob->owner) && $this->isInTheFuture($socialMob);
     }
+
+    public function join(User $user, SocialMob $socialMob)
+    {
+        return ! $socialMob->hasUser($user) && $this->isInTheFuture($socialMob);
+    }
+
+    public function leave(User $user, SocialMob $socialMob)
+    {
+        return $socialMob->hasUser($user) && $this->isInTheFuture($socialMob);
+    }
 }
