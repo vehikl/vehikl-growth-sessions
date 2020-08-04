@@ -5,6 +5,7 @@
                 <v-avatar :alt="`${mob.owner.name}'s Avatar`" :src="mob.owner.avatar" class="mr-4"/>
                 <input class="flex-1 shadow appearance-none border rounded w-full px-3" placeholder="Please enter a mob title"
                        type="text"
+                       maxlength="45"
                        v-model="mob.title">
             </h2>
             <div>

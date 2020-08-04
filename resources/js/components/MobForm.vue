@@ -60,6 +60,7 @@
             <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                    :class="{'error-outline': getError('title')}"
                    id="title"
+                   maxlength="45"
                    placeholder="In a short sentence, what is this mob about?"
                    tabindex="4"
                    type="text"

@@ -15,7 +15,7 @@ class StoreSocialMobRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required|string',
+            'title' => 'required|string|max:45',
             'topic' => 'required|string',
             'location' => 'required|string',
             'start_time' => 'required|date_format:h:i a',
