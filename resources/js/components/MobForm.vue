@@ -1,80 +1,95 @@
 <template>
-    <form class="create-mob bg-white w-full p-4 text-left" @submit.prevent>
+    <form @submit.prevent class="create-mob bg-white w-full p-4 text-left">
         <div class="mb-4 flex justify-between">
             <div>
-                <label for="date" class="block text-gray-700 text-sm font-bold mb-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="date">
                     Date
                 </label>
-                <div class="border p-1 border-gray-400 flex justify-center"
-                     :class="{'error-outline': getError('date')}">
-                    <date-picker v-model="date" id="date" tabIndex="1"/>
+                <div :class="{'error-outline': getError('date')}"
+                     class="border p-1 border-gray-400 flex justify-center">
+                    <date-picker id="date" tabIndex="1" v-model="date"/>
                 </div>
             </div>
 
             <button
-                class="mt-6 w-48 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 :class="{'opacity-25 cursor-not-allowed': !isReadyToSubmit}"
-                type="submit"
-                tabindex="6"
                 :disabled="! isReadyToSubmit"
                 @click="onSubmit"
+                class="mt-6 w-48 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                tabindex="6"
+                type="submit"
                 v-text="isCreating? 'Create' : 'Update'">
             </button>
         </div>
 
         <div class="mb-4 flex">
             <div>
-                <label for="start_time" class="block text-gray-700 text-sm font-bold mb-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="start_time">
                     Start
                 </label>
-                <vue-timepicker v-model="startTime"
-                                :class="{'error-outline': getError('start_time')}"
-                                tabindex="2"
+                <vue-timepicker :class="{'error-outline': getError('start_time')}"
+                                :minute-interval="15"
                                 advanced-keyboard
                                 auto-scroll
-                                hide-disabled-items
                                 format="hh:mm a"
-                                :minute-interval="15"
-                                id="start_time"/>
+                                hide-disabled-items
+                                id="start_time"
+                                tabindex="2"
+                                v-model="startTime"/>
             </div>
             <div class="ml-12">
-                <label for="end_time" class="block text-gray-700 text-sm font-bold mb-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="end_time">
                     End
                 </label>
-                <vue-timepicker v-model="endTime"
-                                :class="{'error-outline': getError('end_time')}"
-                                tabindex="3"
+                <vue-timepicker :class="{'error-outline': getError('end_time')}"
+                                :minute-interval="15"
                                 advanced-keyboard
                                 auto-scroll
-                                hide-disabled-items
                                 format="hh:mm a"
-                                :minute-interval="15"
-                                id="end_time"/>
+                                hide-disabled-items
+                                id="end_time"
+                                tabindex="3"
+                                v-model="endTime"/>
             </div>
         </div>
 
         <div class="mb-4">
-            <label for="topic" class="block text-gray-700 text-sm font-bold mb-2">
-                Topic
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                Title
             </label>
-            <textarea id="topic"
-                      v-model="topic"
-                      tabindex="4"
-                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      rows="4"
-                      placeholder="What is this mob about?"/>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                   :class="{'error-outline': getError('title')}"
+                   id="title"
+                   placeholder="In a short sentence, what is this mob about?"
+                   tabindex="4"
+                   type="text"
+                   v-model="title"/>
         </div>
 
         <div class="mb-4">
-            <label for="location" class="block text-gray-700 text-sm font-bold mb-2">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="topic">
+                Topic
+            </label>
+            <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      :class="{'error-outline': getError('topic')}"
+                      id="topic"
+                      placeholder="Do you want to provide more details about this mob?"
+                      rows="4"
+                      tabindex="5"
+                      v-model="topic"/>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="location">
                 Location
             </label>
-            <textarea id="location"
+            <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      :class="{'error-outline': getError('location')}"
+                      id="location"
+                      placeholder="Where should people go to participate?"
                       rows="2"
-                      tabindex="5"
-                      v-model="location"
-                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      placeholder="Where should people go to participate?"/>
+                      tabindex="6"
+                      v-model="location"/>
         </div>
     </form>
 </template>
@@ -96,13 +111,14 @@
         startTime: string = '03:30 pm';
         endTime: string = '05:00 pm';
         location: string = '';
+        title: string = '';
         topic: string = '';
         date: string = '';
         validationErrors: IValidationError | null = null;
 
         mounted() {
             this.date = this.startDate;
-            let input = document.getElementById('topic');
+            let input = document.getElementById('title');
             if (input) {
                 input.focus();
             }
@@ -112,6 +128,7 @@
                 this.startTime = DateTime.parseByTime(this.mob.start_time).toTimeString12Hours();
                 this.endTime = DateTime.parseByTime(this.mob.end_time).toTimeString12Hours();
                 this.location = this.mob.location;
+                this.title = this.mob.title;
                 this.topic = this.mob.topic;
             }
         }
@@ -158,18 +175,15 @@
             return !this.mob;
         }
 
-        get dateString(): string {
-            return DateTime.parseByDate(this.date).toDateString();
-        }
-
         get isReadyToSubmit(): boolean {
-            return !!this.startTime && !!this.endTime && !!this.date && !!this.location && !!this.topic;
+            return !!this.startTime && !!this.endTime && !!this.date && !!this.location && !!this.topic && !!this.title;
         }
 
         get storeOrUpdatePayload(): IStoreSocialMobRequest {
             return {
                 location: this.location,
                 topic: this.topic,
+                title: this.title,
                 date: this.date,
                 start_time: this.startTime,
                 end_time: this.endTime

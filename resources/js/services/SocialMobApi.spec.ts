@@ -43,6 +43,7 @@ describe('SocialMobApi', () => {
     it('stores a new mob', async () => {
         const storeRequest = {
             topic: 'Any topic',
+            title: 'Any title',
             location: 'Slack #social-mobbing',
             date: '2020-05-31',
             start_time: '20:30:20'

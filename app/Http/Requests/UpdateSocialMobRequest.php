@@ -14,8 +14,8 @@ class UpdateSocialMobRequest extends FormRequest
     public function rules()
     {
         return [
-            'topic' => 'sometimes|required|string',
             'title' => 'sometimes|required|string',
+            'topic' => 'sometimes|required|string',
             'location' => 'sometimes|required|string',
             'start_time' => 'sometimes|required|date_format:h:i a',
             'end_time' => 'sometimes|required|after:start_time|date_format:h:i a',
