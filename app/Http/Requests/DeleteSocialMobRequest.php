@@ -8,7 +8,7 @@ class DeleteSocialMobRequest extends FormRequest
 {
     public function authorize()
     {
-        return $this->social_mob->owner->is($this->user());
+        return $this->user()->can('delete', $this->social_mob);
     }
 
     public function rules()
