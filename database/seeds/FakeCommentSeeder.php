@@ -4,7 +4,7 @@ use App\Comment;
 use App\SocialMob;
 use Illuminate\Database\Seeder;
 
-class CommentSeeder extends Seeder
+class FakeCommentSeeder extends Seeder
 {
     public function run()
     {

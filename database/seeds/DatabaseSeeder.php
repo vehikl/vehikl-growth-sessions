@@ -6,7 +6,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run()
     {
-         $this->call(SocialMobSeeder::class);
-         $this->call(CommentSeeder::class);
+         $this->call(UserSeeder::class);
     }
 }

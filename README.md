@@ -59,6 +59,11 @@ Once that is set up:
 
 ```sh
 touch database/database.sqlite
+php artisan migrate && php artisan db:seed --class FakeDatabaseSeeder (To have some pre-made fake mobs in your calendar)
+```
+
+OBS: For production, the initial migration and seeding can be done with the following command
+```sh
 php artisan migrate --seed
 ```
 

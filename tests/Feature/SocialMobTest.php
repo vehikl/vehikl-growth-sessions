@@ -297,4 +297,12 @@ class SocialMobTest extends TestCase
 
         $response->assertJson($todayMobs->toArray());
     }
+
+    public function testTheSlackBotCanSeeTheMobLocation()
+    {
+        $this->seed();
+        $mob = factory(SocialMob::class)->create(['date' => today()]);
+        $this->getJson(route('social_mobs.day'), ['Authorization' => 'Bearer '.config('auth.slack_token')])
+            ->assertJsonFragment(['location' => $mob->location]);
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AllowOnlyOwner;
+use App\Http\Middleware\AuthenticateSlackApp;
 use Illuminate\Support\Facades\Route;
 
 Route::view('about','about')->name('about');
@@ -10,7 +11,7 @@ Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
 Route::view('/', 'home')->name('home');
 
-Route::prefix('social_mobs')->name('social_mobs.')->group(function() {
+Route::prefix('social_mobs')->middleware(AuthenticateSlackApp::class)->name('social_mobs.')->group(function() {
     Route::get('week', 'SocialMobController@week')->name('week');
     Route::get('day', 'SocialMobController@day')->name('day');
     Route::get('{social_mob}', 'SocialMobController@show')->name('show');
