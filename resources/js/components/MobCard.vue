@@ -83,12 +83,12 @@
         }
 
         async joinMob() {
-            await SocialMobApi.join(this.socialMob);
+            await this.socialMob.join();
             this.$emit('mob-updated');
         }
 
         async leaveMob() {
-            await SocialMobApi.leave(this.socialMob);
+            await this.socialMob.leave();
             this.$emit('mob-updated');
         }
 
@@ -98,7 +98,7 @@
 
         async onDeleteClicked() {
             if (confirm('Are you sure you want to delete?')) {
-                await SocialMobApi.delete(this.socialMob);
+                await this.socialMob.delete();
                 this.$emit('delete-requested', this.socialMob);
             }
         }

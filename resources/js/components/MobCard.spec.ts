@@ -85,14 +85,14 @@ describe('MobCard', () => {
     });
 
     it('allows a user to join a growth session', () => {
-        SocialMobApi.join = jest.fn();
+        SocialMobApi.join = jest.fn().mockImplementation(mob => mob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
         wrapper.find('.join-button').trigger('click');
         expect(SocialMobApi.join).toHaveBeenCalledWith(mobData);
     });
 
     it('allows a user to leave a growth session', () => {
-        SocialMobApi.leave = jest.fn();
+        SocialMobApi.leave = jest.fn().mockImplementation(mob => mob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: attendee}});
         wrapper.find('.leave-button').trigger('click');
         expect(SocialMobApi.leave).toHaveBeenCalledWith(mobData);

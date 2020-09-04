@@ -34,6 +34,9 @@ describe('WeekView', () => {
     beforeEach(async () => {
         DateTime.setTestNow(todayDate);
         SocialMobApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(socialsThisWeek);
+        SocialMobApi.join = jest.fn().mockImplementation(mob => mob);
+        SocialMobApi.leave = jest.fn().mockImplementation(mob => mob);
+        SocialMobApi.delete = jest.fn().mockImplementation(mob => mob);
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
     });

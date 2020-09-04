@@ -17,8 +17,8 @@ describe('MobForm', () => {
 
     beforeEach(() => {
         wrapper = mount(MobForm, {propsData: {owner: user, startDate}});
-        SocialMobApi.store = jest.fn().mockResolvedValue({});
-        SocialMobApi.update = jest.fn().mockResolvedValue({});
+        SocialMobApi.store = jest.fn().mockImplementation(mob => mob);
+        SocialMobApi.update = jest.fn().mockImplementation(mob => mob);
     });
 
     it('allows a mob to be created', async () => {
