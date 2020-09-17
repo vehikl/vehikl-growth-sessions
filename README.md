@@ -1,4 +1,4 @@
-# Social Mob
+# Vehikl Growth Sessions
 
 This application allows users to share and schedule their social mobs.
 
