@@ -84,14 +84,14 @@ describe('MobCard', () => {
         expect(wrapper.find('.join-button').element).toBeVisible();
     });
 
-    it('allows a user to join a social mob', () => {
+    it('allows a user to join a growth session', () => {
         SocialMobApi.join = jest.fn();
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
         wrapper.find('.join-button').trigger('click');
         expect(SocialMobApi.join).toHaveBeenCalledWith(mobData);
     });
 
-    it('allows a user to leave a social mob', () => {
+    it('allows a user to leave a growth session', () => {
         SocialMobApi.leave = jest.fn();
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: attendee}});
         wrapper.find('.leave-button').trigger('click');
