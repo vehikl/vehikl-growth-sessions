@@ -21,7 +21,7 @@
 
     <p>The hiker shook his head and kept on walking, leaving the lumberjack to his pointless frustration.</p>
 
-    <p>Social Mob is an opportunity for each of us to sharpen our saw (and discover brand new innovations like the
+    <p>Vehikl Growth Sessions are an opportunity for each of us to sharpen our saw (and discover brand new innovations like the
         chainsaw!). It is a space for experimenting, getting help when we are stuck, learning from others and
         sharing the benefits of what we have discovered in our travels.</p>
 
