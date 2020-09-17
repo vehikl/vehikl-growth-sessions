@@ -85,6 +85,7 @@ describe('MobCard', () => {
     });
 
     it('allows a user to join a growth session', () => {
+        window.open = jest.fn();
         SocialMobApi.join = jest.fn().mockImplementation(mob => mob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
         wrapper.find('.join-button').trigger('click');

@@ -39,6 +39,11 @@ export class SocialMob implements ISocialMob {
         return DateTime.parseByTime(this.end_time).toTimeString12Hours();
     }
 
+    get googleCalendarDate(): string {
+        return DateTime.parseByDateTime(this.date, this.start_time).toGoogleCalendarStyle() +
+            '/' +DateTime.parseByDateTime(this.date, this.end_time).toGoogleCalendarStyle();
+    }
+
     get hasAlreadyHappened(): boolean {
         return DateTime.parseByDate(this.date).isInAPastDate();
     }
@@ -51,6 +56,17 @@ export class SocialMob implements ISocialMob {
         return `${this.owner.name}'s ${DateTime.parseByDate(this.date).weekDayString()} Mob`;
     }
 
+    get calendarUrl(): string {
+        let url = new URL('http://www.google.com/calendar/event');
+        url.searchParams.append('action', 'TEMPLATE');
+        url.searchParams.append('text', this.title);
+        url.searchParams.append('dates', this.googleCalendarDate);
+        url.searchParams.append('location', this.location);
+        url.searchParams.append('details', this.topic);
+
+        return url.toString();
+    }
+
     canJoin(user: IUser): boolean {
         if (!user) {
             return false;
@@ -59,7 +75,17 @@ export class SocialMob implements ISocialMob {
     }
 
     async join() {
-        this.refresh(await SocialMobApi.join(this));
+        try {
+            const updated = await SocialMobApi.join(this);
+            this.refresh(updated);
+            if (window.confirm("Would you like to add it to your calendar?")) {
+                window.open(this.calendarUrl, '_blank');
+            }
+        } catch (e) {
+
+        }
+
+
     }
 
     canLeave(user: IUser): boolean {

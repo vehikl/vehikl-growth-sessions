@@ -64,7 +64,7 @@ describe('WeekView', () => {
     });
 
     it('shows only the current day in mobile devices', () => {
-        window = Object.assign(window, {innerWidth: 300});
+        window = Object.assign(window, {innerWidth: 300, open: () => null});
 
         let today = DateTime.today();
         let tomorrow = DateTime.today().addDays(1);

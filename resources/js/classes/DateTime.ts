@@ -17,6 +17,10 @@ export class DateTime {
         return new DateTime(moment(time, `hh:mm${is12hrsFormat ? ' a' : ''}`).toISOString(true));
     }
 
+    static parseByDateTime(date: string, time: string): DateTime {
+        return new DateTime(moment(`${date} ${time}`, 'YYYY-MM-DD hh:mm a').toISOString(true));
+    }
+
     static today() {
         return new DateTime();
     }
@@ -35,6 +39,10 @@ export class DateTime {
 
     toTimeString12Hours(withAmPm: boolean = true): string {
         return moment(this.dateTime).format(`hh:mm ${withAmPm ? 'a' : ''}`);
+    }
+
+    toGoogleCalendarStyle(): string {
+        return this.toISOString().replace(/[\-:]/g, '').replace('.000', '');
     }
 
     toISOString(): string {
