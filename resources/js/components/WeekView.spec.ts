@@ -90,7 +90,7 @@ describe('WeekView', () => {
             await flushPromises();
         });
 
-        it('allows the user to create a social mob', async () => {
+        it('allows the user to create a growth session', async () => {
             wrapper.find('button.create-mob').trigger('click');
             await wrapper.vm.$nextTick();
 
