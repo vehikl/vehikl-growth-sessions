@@ -91,7 +91,7 @@ describe('MobCard', () => {
         expect(SocialMobApi.join).toHaveBeenCalledWith(mobData);
     });
 
-    it('allows a user to leave a social mob', () => {
+    it('allows a user to leave a growth session', () => {
         SocialMobApi.leave = jest.fn();
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: attendee}});
         wrapper.find('.leave-button').trigger('click');
