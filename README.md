@@ -2,7 +2,7 @@
 
 This application allows users to share and schedule their Growth Sessions.
 
-To create / join a social mob, the user must login. 
+To create / join a Growth Session, the user must login.
 
 To avoid the registration step, this application uses oauth. 
 
