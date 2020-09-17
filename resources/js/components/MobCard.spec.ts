@@ -84,7 +84,7 @@ describe('MobCard', () => {
         expect(wrapper.find('.join-button').element).toBeVisible();
     });
 
-    it('allows a user to join a social mob', () => {
+    it('allows a user to join a growth session', () => {
         SocialMobApi.join = jest.fn();
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
         wrapper.find('.join-button').trigger('click');
