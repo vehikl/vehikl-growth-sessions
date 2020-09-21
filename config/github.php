@@ -25,5 +25,6 @@ return [
         "vehikl-jacare",
         "vehikl-lawaki",
         "vehikl-morning-mob",
+        "JStruk"
     ]
 ];
