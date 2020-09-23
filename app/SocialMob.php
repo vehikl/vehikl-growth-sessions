@@ -24,7 +24,8 @@ class SocialMob extends Model
         'start_time',
         'end_time',
         'date',
-        'owner_id'
+        'owner_id',
+        'attendee_limit',
     ];
 
     protected $attributes = [
@@ -83,7 +84,7 @@ class SocialMob extends Model
             $startPoint->addDays(1)->toDateString() => [],
             $startPoint->addDays(2)->toDateString() => [],
             $startPoint->addDays(3)->toDateString() => [],
-            $startPoint->addDays(4)->toDateString() => []
+            $startPoint->addDays(4)->toDateString() => [],
         ];
 
         foreach ($allWeekMobs as $mobModel) {
@@ -101,6 +102,6 @@ class SocialMob extends Model
 
     public function hasUser(User $user): bool
     {
-        return !! $this->attendees->find($user);
+        return ! ! $this->attendees->find($user);
     }
 }

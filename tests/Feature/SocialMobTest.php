@@ -6,6 +6,7 @@ use App\SocialMob;
 use App\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
@@ -36,7 +37,7 @@ class SocialMobTest extends TestCase
 
         $this->actingAs($mob->owner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
             'topic' => $newTopic,
-            'title' => $newTitle
+            'title' => $newTitle,
         ])->assertSuccessful();
 
         $this->assertEquals($newTopic, $mob->fresh()->topic);
@@ -84,7 +85,7 @@ class SocialMobTest extends TestCase
         $notTheOwner = factory(User::class)->create();
 
         $this->actingAs($notTheOwner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
-            'topic' => 'Anything'
+            'topic' => 'Anything',
         ])->assertForbidden();
     }
 
@@ -137,7 +138,6 @@ class SocialMobTest extends TestCase
         $existingSocialMob = factory(SocialMob::class)->create();
         $user = factory(User::class)->create();
         $existingSocialMob->attendees()->attach($user);
-
 
         $this->actingAs($user)
             ->postJson(route('social_mobs.leave', ['social_mob' => $existingSocialMob->id]))
@@ -304,5 +304,45 @@ class SocialMobTest extends TestCase
         $mob = factory(SocialMob::class)->create(['date' => today()]);
         $this->getJson(route('social_mobs.day'), ['Authorization' => 'Bearer '.config('auth.slack_token')])
             ->assertJsonFragment(['location' => $mob->location]);
+    }
+
+    public function testAnAttendeeLimitCanBeSetWhenCreatingAtMob()
+    {
+        $user = factory(User::class)->create();
+
+        $expectedAttendeeLimit = 420;
+        $this->actingAs($user)->postJson(
+            route('social_mobs.store'),
+            $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
+        )->assertSuccessful();
+
+        $this->assertEquals($expectedAttendeeLimit, $user->socialMobs->first()->attendee_limit);
+    }
+
+    public function testAnAttendeeLimitCannotBeLessThanFour()
+    {
+        $user = factory(User::class)->create();
+
+        $expectedAttendeeLimit = 3;
+        $this->actingAs($user)->postJson(
+            route('social_mobs.store'),
+            $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
+        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 4']);
+    }
+
+    /**
+     * @param int $expectedAttendeeLimit
+     * @return array
+     */
+    private function defaultParameters(array $params = []): array
+    {
+        return array_merge([
+            'topic' => 'The fundamentals of foo',
+            'title' => 'Foo',
+            'location' => 'At the central mobbing area',
+            'start_time' => now()->format('h:i a'),
+            'date' => today(),
+        ], $params);
     }
 }
