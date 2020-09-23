@@ -32,4 +32,18 @@ class SocialMobTest extends TestCase
 
         $this->assertEquals($titleGiven, $mob->title);
     }
+
+    public function testItHasTheAttendeeLimitToMaxIntByDefault()
+    {
+        $mob = new SocialMob([
+            'owner_id' => factory(User::class)->create()->id,
+            'start_time' => '15:30:00',
+            'date' => '2020-01-01',
+            'topic' => 'does not matter',
+            'location' => 'not important either'
+        ]);
+        $mob->save();
+
+        $this->assertEquals(PHP_INT_MAX, $mob->fresh()->attendee_limit);
+    }
 }

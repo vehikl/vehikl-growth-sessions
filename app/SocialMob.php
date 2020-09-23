@@ -27,6 +27,11 @@ class SocialMob extends Model
         'owner_id'
     ];
 
+    protected $attributes = [
+        'end_time' => '17:00',
+        'attendee_limit' => PHP_INT_MAX,
+    ];
+
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
