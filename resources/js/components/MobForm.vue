@@ -68,6 +68,21 @@
         </div>
 
         <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                Limit
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                   :class="{'error-outline': getError('limit')}"
+                   id="limit"
+                   placeholder="Limit of participants"
+                   tabindex="4"
+                   min="4"
+                   type="number"
+                   ref="attendee-limit"
+                   v-model.number="attendeeLimit"/>
+        </div>
+
+        <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="topic">
                 Topic
             </label>
@@ -113,6 +128,7 @@
         endTime: string = '05:00 pm';
         location: string = '';
         title: string = '';
+        attendeeLimit?: number;
         topic: string = '';
         date: string = '';
         validationErrors: IValidationError | null = null;
@@ -187,7 +203,8 @@
                 title: this.title,
                 date: this.date,
                 start_time: this.startTime,
-                end_time: this.endTime
+                end_time: this.endTime,
+                attendee_limit:  this.attendeeLimit
             }
         }
     }

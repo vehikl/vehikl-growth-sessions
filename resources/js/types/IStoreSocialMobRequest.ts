@@ -5,4 +5,5 @@ export interface IStoreSocialMobRequest {
     date: string;
     start_time: string;
     end_time?: string;
+    attendee_limit?: number;
 }
