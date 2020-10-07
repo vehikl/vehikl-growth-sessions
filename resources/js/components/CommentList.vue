@@ -23,9 +23,11 @@
 
         <ul class="mt-6">
             <li v-for="comment in socialMob.comments" :key="comment.id" class="flex py-4 border-b border-blue-200">
-                <v-avatar :src="comment.user.avatar"
-                          class="mr-4"
-                          :alt="`${comment.user.name}'s avatar`"/>
+                <a ref="commenter-avatar-link" :href="getGithubURL(comment)">
+                    <v-avatar :src="comment.user.avatar"
+                              class="mr-4"
+                              :alt="`${comment.user.name}'s avatar`"/>
+                </a>
                 <div class="flex-1 mx-6">
                     <div class="flex items-center">
                         <i class="fa fa-star text-orange-500 mr-2"
@@ -49,8 +51,9 @@
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
     import {SocialMob} from '../classes/SocialMob';
+    import {User} from '../classes/User';
     import VAvatar from './VAvatar.vue';
-    import {IUser} from '../types';
+    import {IComment, IUser} from '../types';
 
     @Component({
         components: {VAvatar}
@@ -71,6 +74,10 @@
 
         get commentFormPlaceholder(): string {
             return this.user ? 'Leave a comment...' : 'You must be logged in to comment...';
+        }
+
+        getGithubURL(comment: IComment): string {
+            return new User(comment.user).githubURL;
         }
     }
 </script>
