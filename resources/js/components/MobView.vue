@@ -54,8 +54,10 @@
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Attendees</h3>
                 <ul>
                     <li v-for="attendee in mob.attendees" class="flex items-center ml-6 my-4">
-                        <v-avatar size="12" class="mr-3" :src="attendee.avatar" :alt="`${attendee.name}'s Avatar`"/>
-                        {{attendee.name}}
+                        <a ref="attendee" :href="`https://github.com/${attendee.username}`">
+                            <v-avatar size="12" class="mr-3" :src="attendee.avatar" :alt="`${attendee.name}'s Avatar`"/>
+                            {{attendee.name}}
+                        </a>
                     </li>
                 </ul>
             </div>
