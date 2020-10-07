@@ -1,6 +1,7 @@
 import {mount, Wrapper} from "@vue/test-utils";
 import MobView from "./MobView.vue";
 import userJson from '../../../tests/fixtures/User.json';
+import {User} from "../classes/User";
 
 const testMob = {
     id: 123,
@@ -39,7 +40,7 @@ describe('MobView', () => {
     it('redirects to the owners GitHub page when clicked on the profile', async () => {
         const ownerComponent = wrapper.findComponent({ref: 'owner-avatar-link'})
 
-        expect(ownerComponent.element).toHaveAttribute('href', `https://github.com/${testMob.owner.username}`)
+        expect(ownerComponent.element).toHaveAttribute('href', new User(testMob.owner).githubURL)
     })
 
     describe('attendees section', () => {
@@ -47,7 +48,7 @@ describe('MobView', () => {
             const attendeeComponents = wrapper.findAllComponents({ref: 'attendee'})
 
             attendeeComponents.wrappers.forEach((attendeeComponent, i) =>
-                expect(attendeeComponent.element).toHaveAttribute('href', `https://github.com/${testMob.attendees[i].username}`)
+                expect(attendeeComponent.element).toHaveAttribute('href', new User(testMob.attendees[i]).githubURL)
             )
         })
     })

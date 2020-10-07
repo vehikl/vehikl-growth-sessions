@@ -1,6 +1,7 @@
 import {IComment, ISocialMob, IUser} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {SocialMobApi} from '../services/SocialMobApi';
+import {User} from "./User";
 
 export class SocialMob implements ISocialMob {
     id!: number;
@@ -9,8 +10,8 @@ export class SocialMob implements ISocialMob {
     date!: string;
     start_time!: string;
     end_time!: string;
-    owner!: IUser;
-    attendees!: IUser[];
+    owner!: User;
+    attendees!: User[];
     comments!: IComment[];
 
     constructor(mob: ISocialMob) {
@@ -24,8 +25,8 @@ export class SocialMob implements ISocialMob {
         this.date = mob.date;
         this.start_time = mob.start_time;
         this.end_time = mob.end_time;
-        this.owner = mob.owner;
-        this.attendees = mob.attendees;
+        this.owner = new User(mob.owner);
+        this.attendees = mob.attendees.map(attendee => new User(attendee));
         this.comments = mob.comments;
     }
 
