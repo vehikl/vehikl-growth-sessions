@@ -36,8 +36,14 @@ describe('MobView', () => {
         wrapper = mount(MobView, {propsData: {user: userJson, mobJson: testMob}});
     });
 
+    it('redirects to the owners GitHub page when clicked on the profile', async () => {
+        const ownerComponent = wrapper.findComponent({ref: 'owner-avatar-link'})
+
+        expect(ownerComponent.element).toHaveAttribute('href', `https://github.com/${testMob.owner.username}`)
+    })
+
     describe('attendees section', () => {
-        it('redirects to the attendees GitHub page', async () => {
+        it('redirects to the attendees GitHub page when clicked on the profile', async () => {
             const attendeeComponents = wrapper.findAllComponents({ref: 'attendee'})
 
             attendeeComponents.wrappers.forEach((attendeeComponent, i) =>

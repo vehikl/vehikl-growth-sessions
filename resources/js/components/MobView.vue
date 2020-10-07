@@ -2,7 +2,9 @@
     <div class="max-w-5xl text-blue-600">
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
             <h2 class="text-2xl lg:text-3xl font-sans font-light flex items-center text-blue-700">
-                <v-avatar class="mr-4" :src="mob.owner.avatar" :alt="`${mob.owner.name}'s Avatar`"/>
+                <a :href="`https://github.com/${mob.owner.username}`" ref="owner-avatar-link">
+                    <v-avatar class="mr-4" :src="mob.owner.avatar" :alt="`${mob.owner.name}'s Avatar`"/>
+                </a>
                 {{mobName}}
             </h2>
             <div>
