@@ -13,6 +13,7 @@ import {Nothingator} from '../classes/Nothingator';
 const authUser: IUser = {
     avatar: 'lastAirBender.jpg',
     email: 'jack@bauer.com',
+    username: 'jackjack',
     id: 987,
     name: 'Jack Bauer'
 };
