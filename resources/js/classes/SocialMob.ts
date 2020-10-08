@@ -5,6 +5,7 @@ import {User} from "./User";
 
 export class SocialMob implements ISocialMob {
     id!: number;
+    title!: string;
     topic!: string;
     location!: string;
     date!: string;
@@ -20,6 +21,7 @@ export class SocialMob implements ISocialMob {
 
     refresh(mob: ISocialMob) {
         this.id = mob.id;
+        this.title = mob.title;
         this.topic = mob.topic;
         this.location = mob.location;
         this.date = mob.date;
@@ -38,17 +40,32 @@ export class SocialMob implements ISocialMob {
         return DateTime.parseByTime(this.end_time).toTimeString12Hours();
     }
 
+    get googleCalendarDate(): string {
+        return DateTime.parseByDateTime(this.date, this.start_time).toGoogleCalendarStyle() +
+            '/' +DateTime.parseByDateTime(this.date, this.end_time).toGoogleCalendarStyle();
+    }
+
     get hasAlreadyHappened(): boolean {
         return DateTime.parseByDate(this.date).isInAPastDate();
     }
 
-    get isLocationAnUrl(): boolean {
-        try {
-            new URL(this.location);
-            return true;
-        } catch {
-            return false;
+    get renderedTitle(): string {
+        if (this.title) {
+            return this.title;
         }
+
+        return `${this.owner.name}'s ${DateTime.parseByDate(this.date).weekDayString()} Mob`;
+    }
+
+    get calendarUrl(): string {
+        let url = new URL('http://www.google.com/calendar/event');
+        url.searchParams.append('action', 'TEMPLATE');
+        url.searchParams.append('text', this.title);
+        url.searchParams.append('dates', this.googleCalendarDate);
+        url.searchParams.append('location', this.location);
+        url.searchParams.append('details', this.topic);
+
+        return url.toString();
     }
 
     canJoin(user: IUser): boolean {
@@ -59,7 +76,17 @@ export class SocialMob implements ISocialMob {
     }
 
     async join() {
-        this.refresh(await SocialMobApi.join(this));
+        try {
+            const updated = await SocialMobApi.join(this);
+            this.refresh(updated);
+            if (window.confirm("Would you like to add it to your calendar?")) {
+                window.open(this.calendarUrl, '_blank');
+            }
+        } catch (e) {
+
+        }
+
+
     }
 
     canLeave(user: IUser): boolean {

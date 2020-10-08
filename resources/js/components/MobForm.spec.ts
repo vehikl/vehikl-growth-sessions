@@ -18,16 +18,18 @@ describe('MobForm', () => {
 
     beforeEach(() => {
         wrapper = mount(MobForm, {propsData: {owner: user, startDate}});
-        SocialMobApi.store = jest.fn().mockResolvedValue({});
-        SocialMobApi.update = jest.fn().mockResolvedValue({});
+        SocialMobApi.store = jest.fn().mockImplementation(mob => mob);
+        SocialMobApi.update = jest.fn().mockImplementation(mob => mob);
     });
 
     it('allows a mob to be created', async () => {
+        const chosenTitle = 'The chosen title';
         const chosenTopic = 'The chosen topic';
         const chosenLocation = 'Somewhere over the rainbow';
         const chosenTime = "4:45 pm";
 
         wrapper.vm.$data.startTime = chosenTime;
+        wrapper.find('#title').setValue(chosenTitle);
         wrapper.find('#topic').setValue(chosenTopic);
         wrapper.find('#location').setValue(chosenLocation);
         await wrapper.vm.$nextTick();
@@ -35,6 +37,7 @@ describe('MobForm', () => {
         await flushPromises();
 
         const expectedPayload: IStoreSocialMobRequest = {
+            title: chosenTitle,
             location: chosenLocation,
             date: startDate,
             start_time: chosenTime,
@@ -46,6 +49,7 @@ describe('MobForm', () => {
 
     it('emits submitted event on success', async () => {
         wrapper.vm.$data.startTime = '3:30 pm';
+        wrapper.find('#title').setValue('Something');
         wrapper.find('#topic').setValue('Anything');
         wrapper.find('#location').setValue('Anywhere');
         await wrapper.vm.$nextTick();
@@ -60,6 +64,7 @@ describe('MobForm', () => {
 
     it('enables the submit button when all required fields are filled', async () => {
         wrapper.vm.$data.startTime = '3:30 pm';
+        wrapper.find('#title').setValue('Something');
         wrapper.find('#topic').setValue('Anything');
         wrapper.find('#location').setValue('Anywhere');
         await wrapper.vm.$nextTick();

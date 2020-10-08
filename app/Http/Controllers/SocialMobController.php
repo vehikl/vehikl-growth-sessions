@@ -37,7 +37,7 @@ class SocialMobController extends Controller
         return $newMob;
     }
 
-    public function join(SocialMob $socialMob, JoinSocialMobRequest $request)
+    public function join(SocialMob $socialMob, Request $request)
     {
         $socialMob->attendees()->attach($request->user());
         $this->notifyAttendeeChangeIfNeeded($socialMob->refresh());

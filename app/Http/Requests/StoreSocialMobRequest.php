@@ -2,18 +2,20 @@
 
 namespace App\Http\Requests;
 
+use App\SocialMob;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreSocialMobRequest extends FormRequest
 {
     public function authorize()
     {
-        return true;
+        return $this->user()->can('create', SocialMob::class);
     }
 
     public function rules()
     {
         return [
+            'title' => 'required|string|max:45',
             'topic' => 'required|string',
             'location' => 'required|string',
             'start_time' => 'required|date_format:h:i a',

@@ -24,4 +24,12 @@ class SocialMobTest extends TestCase
 
         $this->assertEquals('05:00 pm', $mob->fresh()->toArray()['end_time']);
     }
+
+    public function testItCanHaveACustomTitle()
+    {
+        $titleGiven = 'My title';
+        $mob = factory(SocialMob::class)->create(['title' => $titleGiven]);
+
+        $this->assertEquals($titleGiven, $mob->title);
+    }
 }

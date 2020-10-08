@@ -1,11 +1,10 @@
 <template>
     <div class="bg-gray-100 border border-blue-300 p-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
          @click="goToMob">
-        <div class="flex">
-            <div class="flex items-center flex-1">
-                <v-avatar :src="socialMob.owner.avatar" :alt="`${socialMob.owner.name}'s Avatar`" size="12"/>
-                <h3 class="ml-6 text-lg" v-text="socialMob.owner.name"/>
-            </div>
+        <div class="flex" :class="{'mb-4': socialMob.title}" v-if="socialMob.title || isDraggable">
+            <h3 class="flex-1 font-light text-lg text-blue-700 text-left mb-3"
+                :class="{'pr-4': isDraggable}"
+                v-text="socialMob.title"/>
             <div v-if="isDraggable"
                  @click.stop
                  class="z-10 handle cursor-grab">
@@ -13,8 +12,13 @@
             </div>
         </div>
         <pre
-            class="my-4 inline-block text-left whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
+            class="mb-4 inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
             v-text="socialMob.topic"/>
+        <div class="flex items-center flex-1 mb-4 text-blue-700">
+            <p class="mr-3">Host:</p>
+            <p class="mr-6 text-md" v-text="socialMob.owner.name"/>
+            <v-avatar :src="socialMob.owner.avatar" :alt="`${socialMob.owner.name}'s Avatar`" size="6"/>
+        </div>
         <div class="flex justify-between mb-2 text-blue-700">
             <div class="flex items-center attendees-count">
                 <i class="fa fa-user-circle text-lg mr-2" aria-hidden="true"></i>
@@ -28,9 +32,7 @@
 
         <div class="text-blue-700 text-left mb-4 break-all">
             <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
-            <a @click.stop v-if="socialMob.isLocationAnUrl" class="location underline" :href="socialMob.location"
-               target="_blank" v-text="socialMob.location"/>
-            <span v-else class="location" v-text="socialMob.location"/>
+            <location-renderer :locationString="socialMob.location"/>
         </div>
 
         <button
@@ -67,9 +69,10 @@
     import {IUser} from '../types';
     import VAvatar from './VAvatar.vue';
     import IconDraggable from '../svgs/IconDraggable.vue';
+    import LocationRenderer from './LocationRenderer.vue';
 
     @Component({
-        components: {VAvatar, IconDraggable}
+        components: {VAvatar, IconDraggable, LocationRenderer}
     })
     export default class MobCard extends Vue {
         @Prop({required: true}) socialMob!: SocialMob;
@@ -80,12 +83,12 @@
         }
 
         async joinMob() {
-            await SocialMobApi.join(this.socialMob);
+            await this.socialMob.join();
             this.$emit('mob-updated');
         }
 
         async leaveMob() {
-            await SocialMobApi.leave(this.socialMob);
+            await this.socialMob.leave();
             this.$emit('mob-updated');
         }
 
@@ -95,7 +98,7 @@
 
         async onDeleteClicked() {
             if (confirm('Are you sure you want to delete?')) {
-                await SocialMobApi.delete(this.socialMob);
+                await this.socialMob.delete();
                 this.$emit('delete-requested', this.socialMob);
             }
         }

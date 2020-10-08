@@ -35,6 +35,9 @@ describe('WeekView', () => {
     beforeEach(async () => {
         DateTime.setTestNow(todayDate);
         SocialMobApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(socialsThisWeek);
+        SocialMobApi.join = jest.fn().mockImplementation(mob => mob);
+        SocialMobApi.leave = jest.fn().mockImplementation(mob => mob);
+        SocialMobApi.delete = jest.fn().mockImplementation(mob => mob);
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
     });
@@ -62,7 +65,7 @@ describe('WeekView', () => {
     });
 
     it('shows only the current day in mobile devices', () => {
-        window = Object.assign(window, {innerWidth: 300});
+        window = Object.assign(window, {innerWidth: 300, open: () => null});
 
         let today = DateTime.today();
         let tomorrow = DateTime.today().addDays(1);
@@ -91,7 +94,7 @@ describe('WeekView', () => {
             await flushPromises();
         });
 
-        it('allows the user to create a social mob', async () => {
+        it('allows the user to create a growth session', async () => {
             wrapper.find('button.create-mob').trigger('click');
             await wrapper.vm.$nextTick();
 

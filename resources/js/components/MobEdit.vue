@@ -1,100 +1,89 @@
 <template>
     <div class="max-w-5xl text-blue-600">
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
-            <h2 class="text-2xl lg:text-3xl font-sans font-light flex items-center text-blue-700">
-                <v-avatar class="mr-4" :src="mob.owner.avatar" :alt="`${mob.owner.name}'s Avatar`"/>
-                {{mobName}}
+            <h2 class="text-2xl lg:text-3xl font-sans font-light flex flex-1 items-center text-blue-700 pr-6">
+                <v-avatar :alt="`${mob.owner.name}'s Avatar`" :src="mob.owner.avatar" class="mr-4"/>
+                <input class="flex-1 shadow appearance-none border rounded w-full px-3" placeholder="Please enter a mob title"
+                       type="text"
+                       maxlength="45"
+                       v-model="mob.title">
             </h2>
             <div>
                 <button
-                    class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="mob.join()"
-                    v-show="mob.canJoin(user)">
-                    Join
-                </button>
-                <button
-                    class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
-                    @click.stop="mob.leave()"
-                    v-show="mob.canLeave(user)">
-                    Leave
-                </button>
-                <button
-                    class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
                     @click.stop="updateMob"
-                    v-if="mob.canEditOrDelete(user)">
+                    class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded">
                     Save
                 </button>
                 <button
-                    class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
                     @click.stop="deleteMob"
-                    v-if="mob.canEditOrDelete(user)">
-                    <i class="fa fa-trash" aria-hidden="true"></i>
+                    class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                    <i aria-hidden="true" class="fa fa-trash"></i>
                 </button>
             </div>
         </div>
         <div class="flex flex-col lg:flex-row flex-wrap">
             <div class="flex-1 mr-2 max-w-5xl">
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Topic</h3>
-                <textarea id="topic"
-                          v-model="mob.topic"
-                          :class="{'error-outline': getError('topic')}"
+                <textarea :class="{'error-outline': getError('topic')}"
                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          id="topic"
+                          placeholder="What is this mob about?"
                           rows="4"
-                          placeholder="What is this mob about?"/>
+                          v-model="mob.topic"/>
             </div>
             <div class="flex-none max-w-md">
                 <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Location:</h3>
-                    <textarea id="location"
-                              rows="2"
-                              :class="{'error-outline': getError('location')}"
-                              v-model="mob.location"
+                    <textarea :class="{'error-outline': getError('location')}"
                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                              placeholder="Where should people go to participate?"/>
+                              id="location"
+                              placeholder="Where should people go to participate?"
+                              rows="2"
+                              v-model="mob.location"/>
                 </div>
 
                 <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Time:</h3>
                     <div>
-                        <label for="date" class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="date">
                             Date
                         </label>
-                        <div class="border p-1 border-gray-400 justify-center"
-                             :class="{'error-outline': getError('date')}">
-                            <date-picker v-model="mob.date" id="date"/>
+                        <div :class="{'error-outline': getError('date')}"
+                             class="border p-1 border-gray-400 justify-center">
+                            <date-picker id="date" v-model="mob.date"/>
                         </div>
 
-                        <label for="start_time" class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="start_time">
                             Start
                         </label>
-                        <vue-timepicker v-model="mob.start_time"
-                                        :class="{'error-outline': getError('start_time')}"
+                        <vue-timepicker :class="{'error-outline': getError('start_time')}"
+                                        :minute-interval="15"
                                         advanced-keyboard
                                         auto-scroll
-                                        hide-disabled-items
                                         format="hh:mm a"
-                                        :minute-interval="15"
-                                        id="start_time"/>
+                                        hide-disabled-items
+                                        id="start_time"
+                                        v-model="mob.start_time"/>
                     </div>
                     <div>
-                        <label for="end_time" class="block text-gray-700 text-sm font-bold mb-2">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="end_time">
                             End
                         </label>
-                        <vue-timepicker v-model="mob.end_time"
-                                        :class="{'error-outline': getError('end_time')}"
+                        <vue-timepicker :class="{'error-outline': getError('end_time')}"
+                                        :minute-interval="15"
                                         advanced-keyboard
                                         auto-scroll
-                                        hide-disabled-items
                                         format="hh:mm a"
-                                        :minute-interval="15"
-                                        id="end_time"/>
+                                        hide-disabled-items
+                                        id="end_time"
+                                        v-model="mob.end_time"/>
                     </div>
                 </div>
 
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Attendees</h3>
                 <ul>
-                    <li v-for="attendee in mob.attendees" class="flex items-center ml-6 my-4">
-                        <v-avatar class="mr-3" size="12" :src="attendee.avatar" :alt="`${attendee.name}'s Avatar`"/>
+                    <li class="flex items-center ml-6 my-4" v-for="attendee in mob.attendees">
+                        <v-avatar :alt="`${attendee.name}'s Avatar`" :src="attendee.avatar" class="mr-3" size="12"/>
                         {{attendee.name}}
                     </li>
                 </ul>
@@ -119,10 +108,6 @@
         @Prop({required: true}) mobJson!: ISocialMob;
         mob: SocialMob = new SocialMob(this.mobJson);
         validationErrors: IValidationError | null = null;
-
-        get mobName(): string {
-            return `${this.mob.owner.name}'s ${DateTime.parseByDate(this.mob.date).weekDayString()} Mob`;
-        }
 
         get date(): string {
             return `${DateTime.parseByDate(this.mob.date).format('MMM-DD')}`
@@ -149,7 +134,7 @@
 
         onRequestFailed(exception: any) {
             if (exception.response?.status === 422) {
-                console.log(exception.response.data.errors)
+                console.log(exception.response.data.errors);
                 this.validationErrors = exception.response.data;
             } else {
                 alert('Something went wrong :(');

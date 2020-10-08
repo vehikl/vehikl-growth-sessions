@@ -1,8 +1,8 @@
-# Social Mob
+# Vehikl Growth Sessions
 
-This application allows users to share and schedule their social mobs.
+This application allows users to share and schedule their Growth Sessions.
 
-To create / join a social mob, the user must login. 
+To create / join a Growth Session, the user must login.
 
 To avoid the registration step, this application uses oauth. 
 
@@ -10,7 +10,7 @@ To avoid the registration step, this application uses oauth.
 
 ### Prerequisites
 
- - PHP 7.3
+ - PHP 7.4
  - Composer
  - Node >= 12 LTS
  - Yarn
@@ -59,6 +59,11 @@ Once that is set up:
 
 ```sh
 touch database/database.sqlite
+php artisan migrate && php artisan db:seed --class FakeDatabaseSeeder (To have some pre-made fake mobs in your calendar)
+```
+
+OBS: For production, the initial migration and seeding can be done with the following command
+```sh
 php artisan migrate --seed
 ```
 

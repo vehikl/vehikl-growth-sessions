@@ -2,7 +2,7 @@
 
 @section('content')
     @guest
-        <p role="alert" class="block text-center text-orange-600 text-2xl my-10">To join/create mobs or see their location, you must
+        <p role="alert" class="block text-center text-orange-600 text-2xl my-10">To join/create growth session or see their location, you must
             <strong><a href="{{route('oauth.login.redirect')}}" class="underline hover:text-orange-400">log in</a></strong>!
         </p>
     @endguest

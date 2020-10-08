@@ -3,7 +3,7 @@
         <div class="flex items-center flex-shrink-0 mr-6 text-white hover:text-orange-200">
             <i class="fa fa-users text-2xl mr-2" aria-hidden="true"></i>
             <a href="{{ route('home') }}"
-               class="font-semibold text-3xl">{{ config('app.name', 'Social Mob') }}</a>
+               class="font-semibold text-3xl">{{ config('app.name', 'Vehikl Growth Sessions') }}</a>
         </div>
         <div class="block lg:hidden">
             <button

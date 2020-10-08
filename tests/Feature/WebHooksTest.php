@@ -164,8 +164,8 @@ class WebHooksTest extends TestCase
         $socialMobData = factory(SocialMob::class)->make(['date' => today()])->toArray();
         $this->actingAs($user)->postJson(route('social_mobs.store'), $socialMobData);
 
-        Http::assertSent(function (Request $request) {
-            return ! empty($request->data()['owner']);
+        Http::assertSent(function (Request $request) use ($socialMobData) {
+            return ! empty($request->data()['owner']) && $request->data()['location'] === $socialMobData['location'];
         });
     }
 

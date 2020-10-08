@@ -15,26 +15,32 @@ class SocialMobTest extends TestCase
     {
         $user = factory(User::class)->create();
         $topic = 'The fundamentals of foo';
+        $title = 'Foo';
         $this->actingAs($user)->postJson(route('social_mobs.store'), [
             'topic' => $topic,
+            'title' => $title,
             'location' => 'At the central mobbing area',
             'start_time' => now()->format('h:i a'),
             'date' => today(),
         ])->assertSuccessful();
 
         $this->assertEquals($topic, $user->socialMobs->first()->topic);
+        $this->assertEquals($title, $user->socialMobs->first()->title);
     }
 
     public function testTheOwnerOfAMobCanEditIt()
     {
         $mob = factory(SocialMob::class)->create();
         $newTopic = 'A brand new topic!';
+        $newTitle = 'A whole new title!';
 
         $this->actingAs($mob->owner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
             'topic' => $newTopic,
+            'title' => $newTitle
         ])->assertSuccessful();
 
         $this->assertEquals($newTopic, $mob->fresh()->topic);
+        $this->assertEquals($newTitle, $mob->fresh()->title);
     }
 
     public function testTheOwnerCanChangeTheDateOfAnUpcomingMob()
@@ -290,5 +296,13 @@ class SocialMobTest extends TestCase
         $response = $this->actingAs($user)->getJson(route('social_mobs.day'));
 
         $response->assertJson($todayMobs->toArray());
+    }
+
+    public function testTheSlackBotCanSeeTheMobLocation()
+    {
+        $this->seed();
+        $mob = factory(SocialMob::class)->create(['date' => today()]);
+        $this->getJson(route('social_mobs.day'), ['Authorization' => 'Bearer '.config('auth.slack_token')])
+            ->assertJsonFragment(['location' => $mob->location]);
     }
 }

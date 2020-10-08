@@ -36,6 +36,7 @@ const mobData: SocialMob = new SocialMob({
     date: '2020-05-08',
     start_time: '03:30 pm',
     end_time: '05:00 pm',
+    title: 'Foobar',
     topic: 'The fundamentals of Foobar',
     attendees: [
         attendee
@@ -86,32 +87,16 @@ describe('MobCard', () => {
         expect(wrapper.find('.join-button').element).toBeVisible();
     });
 
-    it('displays the mob location as an url if the location is a link', () => {
-        const mobWithUrl: SocialMob = new SocialMob({
-            id: 0,
-            owner: ownerOfTheMob,
-            location: 'https://www.somewhere.com',
-            date: '2020-05-08',
-            start_time: '03:30 pm',
-            end_time: '05:00 pm',
-            topic: 'The fundamentals of Foobar',
-            attendees: [],
-            comments: []
-        });
-        wrapper = mount(MobCard, {propsData: {socialMob: mobWithUrl, user: attendee}});
-
-        expect(wrapper.find('a.location').exists()).toBe(true);
-    });
-
-    it('allows a user to join a social mob', () => {
-        SocialMobApi.join = jest.fn();
+    it('allows a user to join a growth session', () => {
+        window.open = jest.fn();
+        SocialMobApi.join = jest.fn().mockImplementation(mob => mob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
         wrapper.find('.join-button').trigger('click');
         expect(SocialMobApi.join).toHaveBeenCalledWith(mobData);
     });
 
-    it('allows a user to leave a social mob', () => {
-        SocialMobApi.leave = jest.fn();
+    it('allows a user to leave a growth session', () => {
+        SocialMobApi.leave = jest.fn().mockImplementation(mob => mob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: attendee}});
         wrapper.find('.leave-button').trigger('click');
         expect(SocialMobApi.leave).toHaveBeenCalledWith(mobData);

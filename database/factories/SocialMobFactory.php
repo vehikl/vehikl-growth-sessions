@@ -12,6 +12,7 @@ $factory->define(SocialMob::class, function (Faker $faker) {
         'owner_id' => function() {
             return factory(User::class)->create()->id;
         },
+        'title' => $faker->sentence,
         'topic' => $faker->sentence,
         'location' => 'At AnyDesk XYZ - abcdefg',
         'date' => today(),

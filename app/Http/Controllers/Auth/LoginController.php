@@ -32,6 +32,7 @@ class LoginController extends Controller
         $githubUser = Socialite::driver('github')->user();
         $email = $githubUser->getEmail();
         $socialMobUser = User::query()->where('email', $email)->first();
+
         if (! $socialMobUser) {
             $socialMobUser = User::query()->create([
                 'name' => $githubUser->getName() ?? Str::before($email, '@'),

@@ -37,14 +37,12 @@
         <div class="flex flex-col lg:flex-row flex-wrap">
             <div class="flex-1 mr-2 max-w-5xl">
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Topic</h3>
-                <pre class="font-sans m-5 whitespace-pre-wrap" v-text="mob.topic"/>
+                <pre class="font-sans m-5 break-words-fixed whitespace-pre-wrap" v-text="mob.topic"/>
             </div>
             <div class="flex-none max-w-md">
                 <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Location:</h3>
-                    <a v-if="mob.isLocationAnUrl" class="underline" :href="mob.location" target="_blank"
-                       v-text="mob.location"/>
-                    <span v-else v-text="mob.location"></span>
+                    <location-renderer :location-string="mob.location"/>
                 </div>
 
                 <div class="mb-3">
@@ -78,17 +76,13 @@
     import {SocialMobApi} from '../services/SocialMobApi';
     import CommentList from './CommentList.vue';
     import VAvatar from './VAvatar.vue';
-    import {User} from "../classes/User";
+    import LocationRenderer from './LocationRenderer.vue';
 
-    @Component({components: {VAvatar, CommentList, VueTimepicker, Datepicker}})
+    @Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker}})
     export default class MobView extends Vue {
         @Prop({required: false}) userJson!: IUser;
         @Prop({required: true}) mobJson!: ISocialMob;
         mob: SocialMob = new SocialMob(this.mobJson);
-
-        get mobName(): string {
-            return `${this.mob.owner.name}'s ${DateTime.parseByDate(this.mob.date).weekDayString()} Mob`;
-        }
 
         get date(): string {
             return `${DateTime.parseByDate(this.mob.date).format('MMM-DD')}`
