@@ -1,6 +1,6 @@
 export interface IUser {
     id: number;
-    username: string;
+    github_nickname: string;
     name: string;
     email: string;
     avatar: string;

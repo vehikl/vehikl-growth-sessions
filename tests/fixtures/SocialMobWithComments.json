@@ -12,7 +12,7 @@
     "owner": {
         "id": 1,
         "name": "Tatyana Kohler Jr.",
-        "username": "owner1",
+        "github_nickname": "owner1",
         "avatar": "https://api.adorable.io/avatars/100/758927380",
         "email": "boyer.grace@example.com",
         "email_verified_at": "2020-06-13T15:46:28.000000Z",
@@ -32,7 +32,7 @@
             "user": {
                 "id": 6,
                 "name": "Commenter's name",
-                "username": "commenter6",
+                "github_nickname": "commenter6",
                 "avatar": "https://avatarurl.test/pic.jpeg",
                 "email": "commenter@email.com",
                 "email_verified_at": null,
@@ -51,7 +51,7 @@
             "user": {
                 "id": 6,
                 "name": "Commenter's name",
-                "username": "commenter6",
+                "github_nickname": "commenter6",
                 "avatar": "https://avatarurl.test/pic.jpeg",
                 "email": "commenter@email.com",
                 "email_verified_at": null,
@@ -70,7 +70,7 @@
             "user": {
                 "id": 6,
                 "name": "Commenter's name",
-                "username": "commenter6",
+                "github_nickname": "commenter6",
                 "avatar": "https://avatarurl.test/pic.jpeg",
                 "email": "commenter@email.com",
                 "email_verified_at": null,
@@ -89,7 +89,7 @@
             "user": {
                 "id": 6,
                 "name": "Commenter's name",
-                "username": "commenter6",
+                "github_nickname": "commenter6",
                 "avatar": "https://avatarurl.test/pic.jpeg",
                 "email": "commenter@email.com",
                 "email_verified_at": null,

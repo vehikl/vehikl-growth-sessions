@@ -10,7 +10,7 @@ class User extends Authenticatable
     use Notifiable;
 
     protected $fillable = [
-        'username',
+        'github_nickname',
         'name',
         'email',
         'avatar',
