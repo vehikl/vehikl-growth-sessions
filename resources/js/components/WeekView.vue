@@ -19,7 +19,7 @@
         </div>
 
         <div class="flex justify-center flex-wrap">
-            <modal :dynamic="true" :width="500" :height="515" name="mob-form">
+            <modal :dynamic="true" :width="500" :height="600" name="mob-form">
                 <div class="flex w-full h-full">
                     <mob-form class="mob-form"
                               @submitted="onFormSubmitted"
