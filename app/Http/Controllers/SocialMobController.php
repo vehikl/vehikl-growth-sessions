@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteSocialMobRequest;
 use App\Http\Requests\StoreSocialMobRequest;
 use App\Http\Requests\UpdateSocialMobRequest;
@@ -41,7 +42,7 @@ class SocialMobController extends Controller
     public function join(SocialMob $socialMob, Request $request)
     {
         if ($socialMob->attendees()->count() === $socialMob->attendee_limit) {
-            throw new BadRequestHttpException('The attendee limit has been reached.');
+            throw new AttendeeLimitReached;
         }
 
         $socialMob->attendees()->attach($request->user());
