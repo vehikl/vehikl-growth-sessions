@@ -28,9 +28,9 @@ describe('SocialMob', () => {
         });
     });
 
-   it('can return its dates in the proper google calendar style', () => {
-       expect(socialMob.googleCalendarDate).toEqual('20200101T200000Z/20200101T220000Z');
-   });
+    it('can return its dates in the proper google calendar style', () => {
+        expect(socialMob.googleCalendarDate).toEqual('20200101T200000Z/20200101T220000Z');
+    });
 
     it('prompts the user to add the growth session to their calendar when they join', async () => {
         const userAgreedToAddToCalendar = true;
