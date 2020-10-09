@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SocialMob extends Model
 {
+    const NO_LIMIT = PHP_INT_MAX;
     protected $with = ['owner', 'attendees', 'comments'];
 
     protected $casts = [
@@ -30,7 +31,7 @@ class SocialMob extends Model
 
     protected $attributes = [
         'end_time' => '17:00',
-        'attendee_limit' => PHP_INT_MAX,
+        'attendee_limit' => self::NO_LIMIT,
     ];
 
     public function owner()

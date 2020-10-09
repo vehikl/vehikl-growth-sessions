@@ -21,6 +21,7 @@ class SocialMobController extends Controller
 
     public function week(Request $request)
     {
+        // TODO: YA BUSTED - should be using SocialMobResource::collection
         return new SocialMobResource(SocialMob::allInTheWeekOf($request->input('date')));
     }
 

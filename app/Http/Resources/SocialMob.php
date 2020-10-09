@@ -10,8 +10,13 @@ class SocialMob extends JsonResource
     {
         $attributes = parent::toArray($request);
         if (! $request->user()) {
-            return $this->hideLocation($attributes);
+            $attributes = $this->hideLocation($attributes);
         }
+
+        if ($this->isSingleResource() && $attributes['attendee_limit'] === \App\SocialMob::NO_LIMIT) {
+            $attributes['attendee_limit'] = null;
+        }
+
         return $attributes;
     }
 
@@ -24,5 +29,10 @@ class SocialMob extends JsonResource
         });
 
         return $payload;
+    }
+
+    private function isSingleResource()
+    {
+        return $this->resource instanceof \App\SocialMob;
     }
 }

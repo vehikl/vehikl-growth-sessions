@@ -44,6 +44,6 @@ class SocialMobTest extends TestCase
         ]);
         $mob->save();
 
-        $this->assertEquals(PHP_INT_MAX, $mob->fresh()->attendee_limit);
+        $this->assertEquals(SocialMob::NO_LIMIT, $mob->fresh()->attendee_limit);
     }
 }

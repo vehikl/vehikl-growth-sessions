@@ -19,5 +19,6 @@ $factory->define(SocialMob::class, function (Faker $faker) {
         'date' => today(),
         'start_time' => now()->setTime(15, 30),
         'end_time' => now()->setTime(17, 00),
+        'attendee_limit' => SocialMob::NO_LIMIT,
     ];
 });
