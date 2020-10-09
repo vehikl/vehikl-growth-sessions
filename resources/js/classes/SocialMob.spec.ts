@@ -1,5 +1,5 @@
 import {SocialMob} from './SocialMob';
-import {IUser} from '../types';
+import {ISocialMob, IUser} from '../types';
 import {SocialMobApi} from '../services/SocialMobApi';
 
 describe('SocialMob', () => {
@@ -12,20 +12,22 @@ describe('SocialMob', () => {
         github_nickname: "johnjohn"
     };
 
+    const mobJson: ISocialMob = {
+        attendees: [],
+        comments: [],
+        date: "2020-01-01",
+        start_time: "03:00 pm",
+        end_time: "05:00 pm",
+        id: 0,
+        location: "Somewhere over the rainbow",
+        owner,
+        title: "The mob title",
+        topic: "The mob topic",
+        attendee_limit: null
+    };
+
     beforeEach(() => {
-        socialMob = new SocialMob({
-            attendees: [],
-            comments: [],
-            date: "2020-01-01",
-            start_time: "03:00 pm",
-            end_time: "05:00 pm",
-            id: 0,
-            location: "Somewhere over the rainbow",
-            owner,
-            title: "The mob title",
-            topic: "The mob topic",
-            attendee_limit: null
-        });
+        socialMob = new SocialMob(mobJson);
     });
 
     it('can return its dates in the proper google calendar style', () => {
@@ -40,5 +42,23 @@ describe('SocialMob', () => {
         await socialMob.join();
 
         expect(window.open).toHaveBeenCalledWith(socialMob.calendarUrl, '_blank');
+    });
+
+    describe('canJoin', () => {
+        it('prevents joining when limit reached', () => {
+            const mob: SocialMob = new SocialMob({...mobJson, attendees: [], date: '2021-01-01', attendee_limit: 1 })
+            mob.attendees.push({id: 2, name: "John Doe", email: "j.doe@example.com", avatar: "http://example.com/jdoe"});
+            const someUser: IUser = {id: 3, name: "Jane Doe", email: "jane.doe@example.com", avatar: "http://example.com/janedoe"}
+
+            expect(mob.canJoin(someUser)).toBe(false);
+        });
+
+        it('allows joining when limit has not been reached', () => {
+            const mob: SocialMob = new SocialMob({...mobJson, attendees: [], date: '2021-01-01', attendee_limit: 2 })
+            mob.attendees.push({id: 2, name: "John Doe", email: "j.doe@example.com", avatar: "http://example.com/jdoe"});
+            const someUser: IUser = {id: 3, name: "Jane Doe", email: "jane.doe@example.com", avatar: "http://example.com/janedoe"}
+
+            expect(mob.canJoin(someUser)).toBe(true);
+        });
     });
 });

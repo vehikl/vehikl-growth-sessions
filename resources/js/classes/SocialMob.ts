@@ -74,7 +74,16 @@ export class SocialMob implements ISocialMob {
         if (!user) {
             return false;
         }
+
+        if (this.hasReachedAttendeeLimit()) {
+            return false;
+        }
+
         return !this.isOwner(user) && !this.isAttendee(user) && !this.hasAlreadyHappened
+    }
+
+    private hasReachedAttendeeLimit() {
+        return this.attendee_limit === this.attendees.length;
     }
 
     async join() {
