@@ -23,7 +23,8 @@ describe('SocialMob', () => {
             location: "Somewhere over the rainbow",
             owner,
             title: "The mob title",
-            topic: "The mob topic"
+            topic: "The mob topic",
+            attendee_limit: null
         });
     });
 
