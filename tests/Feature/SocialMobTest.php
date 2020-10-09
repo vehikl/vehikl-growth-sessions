@@ -291,8 +291,8 @@ class SocialMobTest extends TestCase
         $this->setTestNow($today);
         $user = factory(User::class)->create();
 
-        $todayMobs = factory(SocialMob::class, 2)->create(['date' => $today]);
-        factory(SocialMob::class, 2)->create(['date' => $tomorrow]);
+        $todayMobs = factory(SocialMob::class, 2)->create(['date' => $today, 'attendee_limit' => 4]);
+        factory(SocialMob::class, 2)->create(['date' => $tomorrow, 'attendee_limit' => 4]);
 
         $response = $this->actingAs($user)->getJson(route('social_mobs.day'));
 

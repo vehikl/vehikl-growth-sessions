@@ -26,7 +26,7 @@ class SocialMobController extends Controller
 
     public function day()
     {
-        return new SocialMobResource(SocialMob::today()->get());
+        return SocialMobResource::collection(SocialMob::today()->get());
     }
 
     public function store(StoreSocialMobRequest $request)
