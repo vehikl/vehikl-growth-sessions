@@ -7,6 +7,7 @@ use App\Http\Requests\JoinSocialMobRequest;
 use App\Http\Requests\StoreSocialMobRequest;
 use App\Http\Requests\UpdateSocialMobRequest;
 use App\Http\Resources\SocialMob as SocialMobResource;
+use App\Http\Resources\SocialMobWeek;
 use App\SocialMob;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -21,8 +22,7 @@ class SocialMobController extends Controller
 
     public function week(Request $request)
     {
-        // TODO: YA BUSTED - should be using SocialMobResource::collection
-        return new SocialMobResource(SocialMob::allInTheWeekOf($request->input('date')));
+        return new SocialMobWeek(SocialMob::allInTheWeekOf($request->input('date')));
     }
 
     public function day()

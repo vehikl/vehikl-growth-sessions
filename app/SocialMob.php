@@ -4,6 +4,7 @@ namespace App;
 
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Model;
 
 class SocialMob extends Model
@@ -73,27 +74,17 @@ class SocialMob extends Model
             : $referenceDate->modify('Last Monday');
         $endPoint = $startPoint->addDays(4);
 
+        $emptyWeek = collect(CarbonPeriod::between($startPoint, $endPoint))->mapWithKeys(fn($date) => [$date->toDateString() => collect()]);
+
         $allWeekMobs = SocialMob::query()
             ->whereDate('date', '>=', $startPoint)
             ->whereDate('date', '<=', $endPoint)
             ->orderBy('date')
             ->orderBy('start_time')
-            ->get();
+            ->get()
+            ->groupBy(fn ($mob) => $mob->date->toDateString());
 
-        $mobsByDate = [
-            $startPoint->toDateString() => [],
-            $startPoint->addDays(1)->toDateString() => [],
-            $startPoint->addDays(2)->toDateString() => [],
-            $startPoint->addDays(3)->toDateString() => [],
-            $startPoint->addDays(4)->toDateString() => [],
-        ];
-
-        foreach ($allWeekMobs as $mobModel) {
-            $mob = $mobModel->toArray();
-            array_push($mobsByDate[$mob['date']], $mob);
-        }
-
-        return $mobsByDate;
+        return $emptyWeek->merge($allWeekMobs);
     }
 
     public function scopeToday($query)
