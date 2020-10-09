@@ -332,6 +332,22 @@ class SocialMobTest extends TestCase
             ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 4']);
     }
 
+    public function testASocialMobCannotBeJoinedIfTheAttendeeLimitIsMet()
+    {
+        $user = factory(User::class)->create();
+        $attendess = factory(User::class, 4)->create();
+        /** @var SocialMob $mob */
+        $mob = factory(SocialMob::class)->create(['attendee_limit' => 4]);
+        $mob->attendees()->attach($attendess);
+
+
+        $response = $this->actingAs($user)
+            ->postJson(route('social_mobs.join', ['social_mob' => $mob->id]));
+
+        $response->assertStatus(Response::HTTP_BAD_REQUEST);
+        $response->assertJson(['message' => 'The attendee limit has been reached.']);
+    }
+
     /**
      * @param int $expectedAttendeeLimit
      * @return array

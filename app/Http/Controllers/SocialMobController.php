@@ -11,6 +11,7 @@ use App\SocialMob;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class SocialMobController extends Controller
 {
@@ -39,6 +40,10 @@ class SocialMobController extends Controller
 
     public function join(SocialMob $socialMob, Request $request)
     {
+        if ($socialMob->attendees()->count() === $socialMob->attendee_limit) {
+            throw new BadRequestHttpException('The attendee limit has been reached.');
+        }
+
         $socialMob->attendees()->attach($request->user());
         $this->notifyAttendeeChangeIfNeeded($socialMob->refresh());
         return $socialMob;
