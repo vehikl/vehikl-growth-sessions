@@ -51,6 +51,10 @@
                     <span class="whitespace-no-wrap">( {{time}} )</span>
                 </div>
 
+                <div class="mb-3">
+                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Attendee Limit:</h3>
+                </div>
+
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Attendees</h3>
                 <ul>
                     <li v-for="attendee in mob.attendees">

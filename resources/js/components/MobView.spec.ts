@@ -3,6 +3,11 @@ import MobView from "./MobView.vue";
 import userJson from '../../../tests/fixtures/User.json';
 import mobJson from '../../../tests/fixtures/SocialMobWithComments.json'
 import {User} from "../classes/User";
+import {ISocialMob} from '../types';
+import socialMobWithComments from '../../../tests/fixtures/SocialMobWithComments.json';
+import {SocialMob} from "../classes/SocialMob";
+
+const dummyMob: ISocialMob = socialMobWithComments;
 
 describe('MobView', () => {
     let wrapper: Wrapper<MobView>;
@@ -26,4 +31,9 @@ describe('MobView', () => {
             )
         })
     })
+
+    it('can display the attendee limit', () => {
+        wrapper = mount(MobView, {propsData: {mobJson: new SocialMob({...dummyMob, attendee_limit: 42})}});
+        expect(wrapper.text()).toContain('Attendee Limit');
+    });
 })
