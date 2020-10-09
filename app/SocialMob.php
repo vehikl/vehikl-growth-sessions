@@ -17,6 +17,7 @@ class SocialMob extends Model
         'start_time' => 'datetime:h:i a',
         'end_time' => 'datetime:h:i a',
         'date' => 'datetime:Y-m-d',
+        'attendee_limit' => 'int'
     ];
 
     protected $fillable = [
@@ -74,17 +75,14 @@ class SocialMob extends Model
             : $referenceDate->modify('Last Monday');
         $endPoint = $startPoint->addDays(4);
 
-        $emptyWeek = collect(CarbonPeriod::between($startPoint, $endPoint))->mapWithKeys(fn($date) => [$date->toDateString() => collect()]);
-
         $allWeekMobs = SocialMob::query()
             ->whereDate('date', '>=', $startPoint)
             ->whereDate('date', '<=', $endPoint)
             ->orderBy('date')
             ->orderBy('start_time')
-            ->get()
-            ->groupBy(fn ($mob) => $mob->date->toDateString());
+            ->get();
 
-        return $emptyWeek->merge($allWeekMobs);
+        return $allWeekMobs;
     }
 
     public function scopeToday($query)

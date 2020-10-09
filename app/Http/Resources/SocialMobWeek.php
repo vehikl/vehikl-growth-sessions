@@ -2,10 +2,15 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonPeriod;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Carbon;
 
-class SocialMobWeek extends JsonResource
+class SocialMobWeek extends ResourceCollection
 {
+    public $collects = SocialMob::class;
+
     /**
      * Transform the resource into an array.
      *
@@ -14,17 +19,19 @@ class SocialMobWeek extends JsonResource
      */
     public function toArray($request)
     {
-        return collect($this->resource)->mapWithKeys(function ($week, $key) use ($request) {
-            $hideLocation = ! $request->user();
-            return [$key => collect($week)->map(function ($mob) use ($hideLocation) {
-                $mob['attendee_limit'] = $mob['attendee_limit'] == \App\SocialMob::NO_LIMIT ? null : $mob['attendee_limit'];
+        return $this->emptyWeek()->merge(collect(parent::toArray($request))->groupBy('date'));
+    }
 
-                if ($hideLocation) {
-                    $mob['location'] = '< Login to see the location >';
-                }
+    private function emptyWeek()
+    {
 
-                return $mob;
-            })->all()];
-        })->all();
+        /** @var Carbon $firstSessionDate */
+        $firstSessionDate = $this->collection->first()->date;
+
+        $monday = $firstSessionDate->clone()->subDays(Carbon::MONDAY - $firstSessionDate->dayOfWeek);
+
+        return collect(CarbonPeriod::between($monday, $monday->clone()->addDays(4)))
+            ->mapWithKeys(fn ($date) => [$date->toDateString() => collect()]);
+
     }
 }
