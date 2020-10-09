@@ -33,7 +33,9 @@ describe('MobView', () => {
     })
 
     it('can display the attendee limit', () => {
-        wrapper = mount(MobView, {propsData: {mobJson: new SocialMob({...dummyMob, attendee_limit: 42})}});
+        let socialMob = new SocialMob({...dummyMob, attendee_limit: 42});
+        wrapper = mount(MobView, {propsData: {mobJson: socialMob}});
         expect(wrapper.text()).toContain('Attendee Limit');
+        expect(wrapper.find('.attendee_limit').text()).toContain(socialMob.attendee_limit);
     });
 })
