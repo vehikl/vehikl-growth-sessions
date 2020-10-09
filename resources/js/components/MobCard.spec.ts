@@ -38,6 +38,7 @@ const mobData: SocialMob = new SocialMob({
     end_time: '05:00 pm',
     title: 'Foobar',
     topic: 'The fundamentals of Foobar',
+    attendee_limit: 41,
     attendees: [
         attendee
     ],
@@ -66,6 +67,17 @@ describe('MobCard', () => {
     it('displays the number of attendees', () => {
         expect(wrapper.find('.attendees-count').text()).toContain(mobData.attendees.length);
     });
+
+    it('displays the attendee limit', () => {
+        expect(wrapper.find('.attendee-limit').text()).toContain(mobData.attendee_limit);
+    });
+
+    it('does not display the attendee limit if there is none', () => {
+        const noLimitMob = new SocialMob({...mobData, attendee_limit: null});
+        wrapper = mount(MobCard, {propsData: {socialMob: noLimitMob}})
+        // TODO: is there a better way to make sure something isn't displayed in the card??
+        expect(wrapper.find('.attendee-limit').element).not.toBeDefined();
+    })
 
     it('does not display the join button to the owner of the mob', () => {
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});

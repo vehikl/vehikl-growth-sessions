@@ -23,6 +23,7 @@
             <div class="flex items-center attendees-count">
                 <i class="fa fa-user-circle text-lg mr-2" aria-hidden="true"></i>
                 <span v-text="socialMob.attendees.length"/>
+                <span v-if="socialMob.attendee_limit" class="attendee-limit">(limit of {{ socialMob.attendee_limit }})</span>
             </div>
             <div class="flex items-center">
                 <i class="fa fa-clock-o text-lg mr-2" aria-hidden="true"></i>

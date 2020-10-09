@@ -14,6 +14,7 @@ export class SocialMob implements ISocialMob {
     owner!: User;
     attendees!: User[];
     comments!: IComment[];
+    attendee_limit!: number | null;
 
     constructor(mob: ISocialMob) {
         this.refresh(mob);
@@ -30,6 +31,7 @@ export class SocialMob implements ISocialMob {
         this.owner = new User(mob.owner);
         this.attendees = mob.attendees.map(attendee => new User(attendee));
         this.comments = mob.comments;
+        this.attendee_limit = mob.attendee_limit;
     }
 
     get startTime(): string {
