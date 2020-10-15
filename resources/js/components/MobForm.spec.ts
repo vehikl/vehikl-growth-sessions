@@ -7,6 +7,7 @@ import {SocialMobApi} from '../services/SocialMobApi';
 const user: IUser = {
     avatar: 'lastAirBender.jpg',
     email: 'jack@bauer.com',
+    github_nickname: 'jackjack',
     id: 987,
     name: 'Jack Bauer'
 };

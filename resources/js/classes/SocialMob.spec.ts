@@ -8,7 +8,8 @@ describe('SocialMob', () => {
         id: 0,
         avatar: "",
         email: "john@doe.test",
-        name: "John Doe"
+        name: "John Doe",
+        github_nickname: "johnjohn"
     };
 
     beforeEach(() => {

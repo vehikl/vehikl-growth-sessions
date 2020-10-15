@@ -41,21 +41,11 @@ describe('SocialMobApi', () => {
     });
 
     it('stores a new mob', async () => {
-        const storeRequest = {
-            topic: 'Any topic',
-            title: 'Any title',
-            location: 'Slack #social-mobbing',
-            date: '2020-05-31',
-            start_time: '20:30:20'
-        };
-        mockBackend.onPost('social_mobs').reply(201, {
-            id: 1,
-            ...storeRequest
-        });
+        mockBackend.onPost('social_mobs').reply(201, socialMobWithComments);
 
-        const result = await SocialMobApi.store(storeRequest);
+        const result = await SocialMobApi.store(socialMobWithComments);
 
-        expect(result.topic).toEqual(storeRequest.topic);
+        expect(result.topic).toEqual(socialMobWithComments.topic);
     });
 
     it('updates an existing mob', async () => {

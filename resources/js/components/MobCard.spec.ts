@@ -7,6 +7,7 @@ import {SocialMob} from '../classes/SocialMob';
 
 const ownerOfTheMob: IUser = {
     name: 'Jack Bauer',
+    github_nickname: 'jackjack',
     id: 1,
     email: 'jack@bauer.com',
     avatar: 'theLastAirBender.jpg'
@@ -14,6 +15,7 @@ const ownerOfTheMob: IUser = {
 
 const attendee: IUser = {
     name: 'Alice',
+    github_nickname: 'alisss',
     id: 2,
     email: 'alice@ecila.com',
     avatar: 'avatar.jpg'
@@ -21,6 +23,7 @@ const attendee: IUser = {
 
 const outsider: IUser = {
     name: 'Rudolf',
+    github_nickname: 'deer123',
     id: 3,
     email: 'red@nose.com',
     avatar: 'avatar.jpg'

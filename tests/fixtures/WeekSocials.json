@@ -13,6 +13,7 @@
             "title": "Voluptas vel distinctio est quos molestiae dolor ex.",
             "owner": {
                 "id": 1,
+                "github_nickname": "owner1",
                 "name": "Stephan Klocko",
                 "avatar": "https:\/\/api.adorable.io\/avatars\/100\/1475344512",
                 "email": "kub.jayne@example.com",
@@ -39,6 +40,7 @@
             "title": "Maxime voluptas suscipit voluptatibus et debitis et vero.",
             "owner": {
                 "id": 3,
+                "github_nickname": "owner3",
                 "name": "Melody Considine",
                 "avatar": "https:\/\/api.adorable.io\/avatars\/100\/37827441",
                 "email": "trevor81@example.com",
@@ -62,6 +64,7 @@
             "title": "Quia minima laboriosam quibusdam sit sunt labore.",
             "owner": {
                 "id": 2,
+                "github_nickname": "owner2",
                 "name": "Prof. Katheryn Emard MD",
                 "avatar": "https:\/\/api.adorable.io\/avatars\/100\/569245729",
                 "email": "hand.callie@example.com",
@@ -88,6 +91,7 @@
             "title": "Dolorem architecto occaecati beatae odit quis velit corporis.",
             "owner": {
                 "id": 4,
+                "github_nickname": "owner4",
                 "name": "Tamia Thompson",
                 "avatar": "https:\/\/api.adorable.io\/avatars\/100\/2117643461",
                 "email": "qgoldner@example.net",
