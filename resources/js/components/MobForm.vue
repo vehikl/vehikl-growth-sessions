@@ -69,6 +69,12 @@
 
         <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                <input type="checkbox" ref="no-limit" @click="toggleLimitlessMob"> No Limit
+            </label>
+        </div>
+
+        <div class="mb-4" v-if="canSetAtendeeLimit">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
                 Limit
             </label>
             <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -128,10 +134,11 @@
         endTime: string = '05:00 pm';
         location: string = '';
         title: string = '';
-        attendeeLimit?: number;
+        attendeeLimit: number = 4;
         topic: string = '';
         date: string = '';
         validationErrors: IValidationError | null = null;
+        canSetAtendeeLimit: boolean = true;
 
         mounted() {
             this.date = this.startDate;
@@ -170,6 +177,10 @@
             return errors ? errors[0] : '';
         }
 
+        toggleLimitlessMob() {
+            this.canSetAtendeeLimit = !this.canSetAtendeeLimit
+        }
+
         async createMob() {
             try {
                 let newMob: ISocialMob = await SocialMobApi.store(this.storeOrUpdatePayload);
@@ -204,7 +215,7 @@
                 date: this.date,
                 start_time: this.startTime,
                 end_time: this.endTime,
-                attendee_limit:  this.attendeeLimit
+                attendee_limit:  this.canSetAtendeeLimit ? this.attendeeLimit : undefined
             }
         }
     }

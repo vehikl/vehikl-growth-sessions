@@ -54,18 +54,6 @@ describe('MobForm', () => {
             ]
         ]
 
-        /*
-        test.each([
-          [it, payload],
-          [1, 1, 2],
-          [1, 2, 3],
-          [2, 1, 3],
-        ])('.add(%i, %i)', (a, b, expected) => {
-          expect(a + b).toBe(expected);
-        });
-        * */
-
-        // it.each([ ['Can accept no limit', { payload }] ])
         it.each(scenarios)('%s', async (testTitle, payload) => {
             const {
                 title: chosenTitle,
@@ -79,6 +67,11 @@ describe('MobForm', () => {
             wrapper.find('#title').setValue(chosenTitle);
             wrapper.find('#topic').setValue(chosenTopic);
             wrapper.find('#location').setValue(chosenLocation);
+
+            if (! chosenLimit) {
+                wrapper.findComponent({ref: 'no-limit'}).trigger('click');
+            }
+
             if (chosenLimit) {
                 wrapper.findComponent({ref: 'attendee-limit'}).setValue(chosenLimit);
             }
@@ -127,4 +120,15 @@ describe('MobForm', () => {
         await wrapper.vm.$nextTick();
         expect(wrapper.find('button[type="submit"]').element).not.toBeDisabled();
     });
+
+    it('has a no limit checkbox', () => {
+        expect(wrapper.findComponent({ref: 'no-limit'}).exists()).toBeTruthy();
+    })
+
+    it('hides the attendee limit input, if no limit checkbox is checked', async () => {
+        wrapper.findComponent({ref: 'no-limit'}).trigger('click')
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.findComponent({ref: 'attendee-limit'}).exists()).toBeFalsy();
+    })
 });
