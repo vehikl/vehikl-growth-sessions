@@ -1,6 +1,7 @@
 import {SocialMob} from './SocialMob';
 import {ISocialMob, IUser} from '../types';
 import {SocialMobApi} from '../services/SocialMobApi';
+import {User} from "./User";
 
 describe('SocialMob', () => {
     let socialMob: SocialMob;
@@ -47,16 +48,16 @@ describe('SocialMob', () => {
     describe('canJoin', () => {
         it('prevents joining when limit reached', () => {
             const mob: SocialMob = new SocialMob({...mobJson, attendees: [], date: '2021-01-01', attendee_limit: 1 })
-            mob.attendees.push({id: 2, name: "John Doe", email: "j.doe@example.com", avatar: "http://example.com/jdoe"});
-            const someUser: IUser = {id: 3, name: "Jane Doe", email: "jane.doe@example.com", avatar: "http://example.com/janedoe"}
+            mob.attendees.push(new User({id: 2, name: "John Doe", email: "j.doe@example.com", github_nickname: 'jdoe', avatar: "http://example.com/jdoe"}));
+            const someUser: IUser = {id: 3, name: "Jane Doe", github_nickname: 'jdoe', email: "jane.doe@example.com", avatar: "http://example.com/janedoe"}
 
             expect(mob.canJoin(someUser)).toBe(false);
         });
 
         it('allows joining when limit has not been reached', () => {
             const mob: SocialMob = new SocialMob({...mobJson, attendees: [], date: '2021-01-01', attendee_limit: 2 })
-            mob.attendees.push({id: 2, name: "John Doe", email: "j.doe@example.com", avatar: "http://example.com/jdoe"});
-            const someUser: IUser = {id: 3, name: "Jane Doe", email: "jane.doe@example.com", avatar: "http://example.com/janedoe"}
+            mob.attendees.push(new User({id: 2, name: "John Doe", email: "j.doe@example.com",  github_nickname: 'jdoe', avatar: "http://example.com/jdoe"}));
+            const someUser: IUser = {id: 3, name: "Jane Doe", github_nickname: 'jdoe', email: "jane.doe@example.com", avatar: "http://example.com/janedoe"}
 
             expect(mob.canJoin(someUser)).toBe(true);
         });
