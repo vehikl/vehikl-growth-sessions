@@ -8,6 +8,7 @@ export interface ISocialMob {
     date: string;
     start_time: string;
     end_time: string;
+    attendee_limit: number | null;
     owner: IUser;
     attendees: IUser[];
     comments: IComment[];

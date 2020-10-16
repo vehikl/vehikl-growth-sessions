@@ -14,6 +14,7 @@ export class SocialMob implements ISocialMob {
     owner!: User;
     attendees!: User[];
     comments!: IComment[];
+    attendee_limit!: number | null;
 
     constructor(mob: ISocialMob) {
         this.refresh(mob);
@@ -30,6 +31,7 @@ export class SocialMob implements ISocialMob {
         this.owner = new User(mob.owner);
         this.attendees = mob.attendees.map(attendee => new User(attendee));
         this.comments = mob.comments;
+        this.attendee_limit = mob.attendee_limit;
     }
 
     get startTime(): string {
@@ -72,7 +74,16 @@ export class SocialMob implements ISocialMob {
         if (!user) {
             return false;
         }
+
+        if (this.hasReachedAttendeeLimit()) {
+            return false;
+        }
+
         return !this.isOwner(user) && !this.isAttendee(user) && !this.hasAlreadyHappened
+    }
+
+    private hasReachedAttendeeLimit() {
+        return this.attendee_limit === this.attendees.length;
     }
 
     async join() {

@@ -6,6 +6,7 @@ use App\SocialMob;
 use App\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
@@ -36,7 +37,7 @@ class SocialMobTest extends TestCase
 
         $this->actingAs($mob->owner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
             'topic' => $newTopic,
-            'title' => $newTitle
+            'title' => $newTitle,
         ])->assertSuccessful();
 
         $this->assertEquals($newTopic, $mob->fresh()->topic);
@@ -84,7 +85,7 @@ class SocialMobTest extends TestCase
         $notTheOwner = factory(User::class)->create();
 
         $this->actingAs($notTheOwner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
-            'topic' => 'Anything'
+            'topic' => 'Anything',
         ])->assertForbidden();
     }
 
@@ -138,7 +139,6 @@ class SocialMobTest extends TestCase
         $user = factory(User::class)->create();
         $existingSocialMob->attendees()->attach($user);
 
-
         $this->actingAs($user)
             ->postJson(route('social_mobs.leave', ['social_mob' => $existingSocialMob->id]))
             ->assertSuccessful();
@@ -148,23 +148,24 @@ class SocialMobTest extends TestCase
 
     public function testItCanProvideAllSocialMobsOfTheCurrentWeekForAuthenticatedUser()
     {
+        $this->withoutExceptionHandling();
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
 
         $mondaySocial = factory(SocialMob::class)
-            ->create(['date' => $monday, 'start_time' => '03:30 pm'])
+            ->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
         $lateWednesdaySocial = factory(SocialMob::class)
-            ->create(['date' => $monday->addDays(2), 'start_time' => '04:30 pm'])
+            ->create(['date' => $monday->addDays(2), 'start_time' => '04:30 pm', 'attendee_limit' => 4])
             ->toArray();
         $earlyWednesdaySocial = factory(SocialMob::class)
-            ->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm'])
+            ->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
         $fridaySocial = factory(SocialMob::class)
-            ->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm'])
+            ->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
         factory(SocialMob::class)
-            ->create(['date' => $monday->addDays(8), 'start_time' => '03:30 pm']); // Socials on another week
+            ->create(['date' => $monday->addDays(8), 'start_time' => '03:30 pm', 'attendee_limit' => 4]); // Socials on another week
 
         $expectedResponse = [
             $monday->toDateString() => [$mondaySocial],
@@ -186,10 +187,10 @@ class SocialMobTest extends TestCase
         $this->setTestNow('Next Friday');
 
         $mondaySocial = factory(SocialMob::class)
-            ->create(['date' => Carbon::parse('Last Monday')])
+            ->create(['date' => Carbon::parse('Last Monday'), 'attendee_limit' => 4])
             ->toArray();
         $fridaySocial = factory(SocialMob::class)
-            ->create(['date' => today()])
+            ->create(['date' => today(), 'attendee_limit' => 4])
             ->toArray();
 
         $expectedResponse = [
@@ -215,16 +216,16 @@ class SocialMobTest extends TestCase
         $mondayOfWeekWithMobs = CarbonImmutable::parse($weekThatHasTheMobs);
 
         $mondaySocial = factory(SocialMob::class)
-            ->create(['date' => $mondayOfWeekWithMobs, 'start_time' => '03:30 pm'])
+            ->create(['date' => $mondayOfWeekWithMobs, 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
         $lateWednesdaySocial = factory(SocialMob::class)
-            ->create(['date' => $mondayOfWeekWithMobs->addDays(2), 'start_time' => '04:30 pm'])
+            ->create(['date' => $mondayOfWeekWithMobs->addDays(2), 'start_time' => '04:30 pm', 'attendee_limit' => 4])
             ->toArray();
         $earlyWednesdaySocial = factory(SocialMob::class)
-            ->create(['date' => $mondayOfWeekWithMobs->addDays(2), 'start_time' => '03:30 pm'])
+            ->create(['date' => $mondayOfWeekWithMobs->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
         $fridaySocial = factory(SocialMob::class)
-            ->create(['date' => $mondayOfWeekWithMobs->addDays(4), 'start_time' => '03:30 pm'])
+            ->create(['date' => $mondayOfWeekWithMobs->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
 
         $expectedResponse = [
@@ -246,11 +247,11 @@ class SocialMobTest extends TestCase
     {
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
-        factory(SocialMob::class)->create(['date' => $monday, 'start_time' => '03:30 pm']);
-        factory(SocialMob::class)->create(['date' => $monday->addDays(2), 'start_time' => '04:30 pm']);
-        factory(SocialMob::class)->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm']);
-        factory(SocialMob::class)->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm']);
-        factory(SocialMob::class)->create(['date' => $monday->addDays(8), 'start_time' => '03:30 pm']);
+        factory(SocialMob::class)->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
+        factory(SocialMob::class)->create(['date' => $monday->addDays(2), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
+        factory(SocialMob::class)->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
+        factory(SocialMob::class)->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
+        factory(SocialMob::class)->create(['date' => $monday->addDays(8), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
 
         $response = $this->getJson(route('social_mobs.week'));
 
@@ -290,8 +291,8 @@ class SocialMobTest extends TestCase
         $this->setTestNow($today);
         $user = factory(User::class)->create();
 
-        $todayMobs = factory(SocialMob::class, 2)->create(['date' => $today]);
-        factory(SocialMob::class, 2)->create(['date' => $tomorrow]);
+        $todayMobs = factory(SocialMob::class, 2)->create(['date' => $today, 'attendee_limit' => 4]);
+        factory(SocialMob::class, 2)->create(['date' => $tomorrow, 'attendee_limit' => 4]);
 
         $response = $this->actingAs($user)->getJson(route('social_mobs.day'));
 
@@ -304,5 +305,61 @@ class SocialMobTest extends TestCase
         $mob = factory(SocialMob::class)->create(['date' => today()]);
         $this->getJson(route('social_mobs.day'), ['Authorization' => 'Bearer '.config('auth.slack_token')])
             ->assertJsonFragment(['location' => $mob->location]);
+    }
+
+    public function testAnAttendeeLimitCanBeSetWhenCreatingAtMob()
+    {
+        $user = factory(User::class)->create();
+
+        $expectedAttendeeLimit = 420;
+        $this->actingAs($user)->postJson(
+            route('social_mobs.store'),
+            $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
+        )->assertSuccessful();
+
+        $this->assertEquals($expectedAttendeeLimit, $user->socialMobs->first()->attendee_limit);
+    }
+
+    public function testAnAttendeeLimitCannotBeLessThanFour()
+    {
+        $user = factory(User::class)->create();
+
+        $expectedAttendeeLimit = 3;
+        $this->actingAs($user)->postJson(
+            route('social_mobs.store'),
+            $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
+        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 4']);
+    }
+
+    public function testASocialMobCannotBeJoinedIfTheAttendeeLimitIsMet()
+    {
+        $user = factory(User::class)->create();
+        $attendess = factory(User::class, 4)->create();
+        /** @var SocialMob $mob */
+        $mob = factory(SocialMob::class)->create(['attendee_limit' => 4]);
+        $mob->attendees()->attach($attendess);
+
+
+        $response = $this->actingAs($user)
+            ->postJson(route('social_mobs.join', ['social_mob' => $mob->id]));
+
+        $response->assertStatus(Response::HTTP_BAD_REQUEST);
+        $response->assertJson(['message' => 'The attendee limit has been reached.']);
+    }
+
+    /**
+     * @param int $expectedAttendeeLimit
+     * @return array
+     */
+    private function defaultParameters(array $params = []): array
+    {
+        return array_merge([
+            'topic' => 'The fundamentals of foo',
+            'title' => 'Foo',
+            'location' => 'At the central mobbing area',
+            'start_time' => now()->format('h:i a'),
+            'date' => today(),
+        ], $params);
     }
 }

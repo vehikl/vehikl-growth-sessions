@@ -12,11 +12,12 @@ $factory->define(SocialMob::class, function (Faker $faker) {
         'owner_id' => function() {
             return factory(User::class)->create()->id;
         },
-        'title' => $faker->sentence,
+        'title' => $faker->sentence(2),
         'topic' => $faker->sentence,
         'location' => 'At AnyDesk XYZ - abcdefg',
         'date' => today(),
         'start_time' => now()->setTime(15, 30),
         'end_time' => now()->setTime(17, 00),
+        'attendee_limit' => SocialMob::NO_LIMIT,
     ];
 });

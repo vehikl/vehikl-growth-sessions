@@ -4,10 +4,12 @@ namespace App;
 
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Model;
 
 class SocialMob extends Model
 {
+    const NO_LIMIT = PHP_INT_MAX;
     protected $with = ['owner', 'attendees', 'comments'];
 
     protected $casts = [
@@ -15,6 +17,7 @@ class SocialMob extends Model
         'start_time' => 'datetime:h:i a',
         'end_time' => 'datetime:h:i a',
         'date' => 'datetime:Y-m-d',
+        'attendee_limit' => 'int'
     ];
 
     protected $fillable = [
@@ -24,7 +27,13 @@ class SocialMob extends Model
         'start_time',
         'end_time',
         'date',
-        'owner_id'
+        'owner_id',
+        'attendee_limit',
+    ];
+
+    protected $attributes = [
+        'end_time' => '17:00',
+        'attendee_limit' => self::NO_LIMIT,
     ];
 
     public function owner()
@@ -73,20 +82,7 @@ class SocialMob extends Model
             ->orderBy('start_time')
             ->get();
 
-        $mobsByDate = [
-            $startPoint->toDateString() => [],
-            $startPoint->addDays(1)->toDateString() => [],
-            $startPoint->addDays(2)->toDateString() => [],
-            $startPoint->addDays(3)->toDateString() => [],
-            $startPoint->addDays(4)->toDateString() => []
-        ];
-
-        foreach ($allWeekMobs as $mobModel) {
-            $mob = $mobModel->toArray();
-            array_push($mobsByDate[$mob['date']], $mob);
-        }
-
-        return $mobsByDate;
+        return $allWeekMobs;
     }
 
     public function scopeToday($query)
@@ -96,6 +92,6 @@ class SocialMob extends Model
 
     public function hasUser(User $user): bool
     {
-        return !! $this->attendees->find($user);
+        return ! ! $this->attendees->find($user);
     }
 }

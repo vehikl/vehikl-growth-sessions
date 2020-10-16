@@ -11,6 +11,7 @@
             "created_at": "2020-01-15T05:00:00.000000Z",
             "updated_at": "2020-01-15T05:00:00.000000Z",
             "title": "Voluptas vel distinctio est quos molestiae dolor ex.",
+            "attendee_limit": null,
             "owner": {
                 "id": 1,
                 "github_nickname": "owner1",
@@ -38,6 +39,7 @@
             "created_at": "2020-01-15T05:00:00.000000Z",
             "updated_at": "2020-01-15T05:00:00.000000Z",
             "title": "Maxime voluptas suscipit voluptatibus et debitis et vero.",
+            "attendee_limit":  null,
             "owner": {
                 "id": 3,
                 "github_nickname": "owner3",
@@ -62,6 +64,7 @@
             "created_at": "2020-01-15T05:00:00.000000Z",
             "updated_at": "2020-01-15T05:00:00.000000Z",
             "title": "Quia minima laboriosam quibusdam sit sunt labore.",
+            "attendee_limit":  null,
             "owner": {
                 "id": 2,
                 "github_nickname": "owner2",
@@ -89,6 +92,7 @@
             "created_at": "2020-01-15T05:00:00.000000Z",
             "updated_at": "2020-01-15T05:00:00.000000Z",
             "title": "Dolorem architecto occaecati beatae odit quis velit corporis.",
+            "attendee_limit":  null,
             "owner": {
                 "id": 4,
                 "github_nickname": "owner4",

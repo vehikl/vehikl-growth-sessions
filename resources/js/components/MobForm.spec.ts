@@ -22,29 +22,79 @@ describe('MobForm', () => {
         SocialMobApi.update = jest.fn().mockImplementation(mob => mob);
     });
 
-    it('allows a mob to be created', async () => {
-        const chosenTitle = 'The chosen title';
-        const chosenTopic = 'The chosen topic';
-        const chosenLocation = 'Somewhere over the rainbow';
-        const chosenTime = "4:45 pm";
+    const baseMobRequest: IStoreSocialMobRequest = {
+        location: 'The mob location',
+        topic: 'Chosen topic',
+        title: 'Chosen title',
+        date: '2020-10-01',
+        start_time: '4:45 pm',
+    }
 
-        wrapper.vm.$data.startTime = chosenTime;
-        wrapper.find('#title').setValue(chosenTitle);
-        wrapper.find('#topic').setValue(chosenTopic);
-        wrapper.find('#location').setValue(chosenLocation);
-        await wrapper.vm.$nextTick();
-        wrapper.find('button[type="submit"]').trigger('click');
-        await flushPromises();
+    describe('allows a mob to be created', () => {
+        type TMobCreationScenario = [string, IStoreSocialMobRequest]
 
-        const expectedPayload: IStoreSocialMobRequest = {
-            title: chosenTitle,
-            location: chosenLocation,
-            date: startDate,
-            start_time: chosenTime,
-            end_time: '05:00 pm',
-            topic: chosenTopic
-        };
-        expect(SocialMobApi.store).toHaveBeenCalledWith(expectedPayload);
+        const scenarios: TMobCreationScenario[] = [
+            [
+                'Can accept no limit and no end time',
+                {...baseMobRequest, attendee_limit: undefined, end_time: undefined}
+            ],
+            [
+                'Can accept a limit',
+                {
+                    ...baseMobRequest,
+                    attendee_limit: 4
+                }
+            ],
+            [
+                'Can accept an end time',
+                {
+                    ...baseMobRequest,
+                    end_time: '5:45 pm',
+                }
+            ]
+        ]
+
+        it.each(scenarios)('%s', async (testTitle, payload) => {
+            const {
+                title: chosenTitle,
+                topic: chosenTopic,
+                location: chosenLocation,
+                start_time: chosenStartTime,
+                attendee_limit: chosenLimit,
+            } = payload;
+
+            wrapper.vm.$data.startTime = chosenStartTime;
+            wrapper.find('#title').setValue(chosenTitle);
+            wrapper.find('#topic').setValue(chosenTopic);
+            wrapper.find('#location').setValue(chosenLocation);
+
+            if (! chosenLimit) {
+                wrapper.findComponent({ref: 'no-limit'}).trigger('click');
+            }
+
+            if (chosenLimit) {
+                wrapper.findComponent({ref: 'attendee-limit'}).setValue(chosenLimit);
+            }
+            await wrapper.vm.$nextTick();
+            wrapper.find('button[type="submit"]').trigger('click');
+            await flushPromises();
+
+            const expectedPayload: IStoreSocialMobRequest = {
+                title: chosenTitle,
+                attendee_limit: chosenLimit,
+                location: chosenLocation,
+                date: startDate,
+                start_time: chosenStartTime,
+                end_time: '05:00 pm',
+                topic: chosenTopic
+            };
+
+            if (!chosenLimit) {
+                delete expectedPayload.attendee_limit;
+            }
+
+            expect(SocialMobApi.store).toHaveBeenCalledWith(expectedPayload);
+        });
     });
 
     it('emits submitted event on success', async () => {
@@ -70,4 +120,15 @@ describe('MobForm', () => {
         await wrapper.vm.$nextTick();
         expect(wrapper.find('button[type="submit"]').element).not.toBeDisabled();
     });
+
+    it('has a no limit checkbox', () => {
+        expect(wrapper.findComponent({ref: 'no-limit'}).exists()).toBeTruthy();
+    })
+
+    it('hides the attendee limit input, if no limit checkbox is checked', async () => {
+        wrapper.findComponent({ref: 'no-limit'}).trigger('click')
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.findComponent({ref: 'attendee-limit'}).exists()).toBeFalsy();
+    })
 });

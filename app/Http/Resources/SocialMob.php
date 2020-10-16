@@ -9,20 +9,16 @@ class SocialMob extends JsonResource
     public function toArray($request)
     {
         $attributes = parent::toArray($request);
+
         if (! $request->user()) {
-            return $this->hideLocation($attributes);
+            $attributes['location'] = '< Login to see the location >';
         }
+
+        if ($attributes['attendee_limit'] === \App\SocialMob::NO_LIMIT) {
+            $attributes['attendee_limit'] = null;
+        }
+
         return $attributes;
     }
 
-    public function hideLocation(array $payload)
-    {
-        array_walk_recursive ($payload, function(&$entry, $key) {
-            if($key === 'location') {
-                $entry = '< Login to see the location >';
-            }
-        });
-
-        return $payload;
-    }
 }

@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteSocialMobRequest;
-use App\Http\Requests\JoinSocialMobRequest;
 use App\Http\Requests\StoreSocialMobRequest;
 use App\Http\Requests\UpdateSocialMobRequest;
 use App\Http\Resources\SocialMob as SocialMobResource;
+use App\Http\Resources\SocialMobWeek;
 use App\SocialMob;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class SocialMobController extends Controller
 {
@@ -21,12 +23,12 @@ class SocialMobController extends Controller
 
     public function week(Request $request)
     {
-        return new SocialMobResource(SocialMob::allInTheWeekOf($request->input('date')));
+        return new SocialMobWeek(SocialMob::allInTheWeekOf($request->input('date')));
     }
 
     public function day()
     {
-        return new SocialMobResource(SocialMob::today()->get());
+        return SocialMobResource::collection(SocialMob::today()->get());
     }
 
     public function store(StoreSocialMobRequest $request)
@@ -39,6 +41,10 @@ class SocialMobController extends Controller
 
     public function join(SocialMob $socialMob, Request $request)
     {
+        if ($socialMob->attendees()->count() === $socialMob->attendee_limit) {
+            throw new AttendeeLimitReached;
+        }
+
         $socialMob->attendees()->attach($request->user());
         $this->notifyAttendeeChangeIfNeeded($socialMob->refresh());
         return $socialMob;
