@@ -5,7 +5,7 @@
                 <a :href="mob.owner.githubURL" ref="owner-avatar-link">
                     <v-avatar class="mr-4" :src="mob.owner.avatar" :alt="`${mob.owner.name}'s Avatar`"/>
                 </a>
-                {{mobName}}
+                {{mob.title}}
             </h2>
             <div>
                 <button
@@ -72,18 +72,18 @@
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {ISocialMob, IUser} from '../types';
-    import {DateTime} from '../classes/DateTime';
-    import {SocialMob} from '../classes/SocialMob';
-    import VueTimepicker from 'vue2-timepicker';
-    import Datepicker from 'vuejs-datepicker';
-    import {SocialMobApi} from '../services/SocialMobApi';
-    import CommentList from './CommentList.vue';
-    import VAvatar from './VAvatar.vue';
-    import LocationRenderer from './LocationRenderer.vue';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import {ISocialMob, IUser} from '../types';
+import {DateTime} from '../classes/DateTime';
+import {SocialMob} from '../classes/SocialMob';
+import VueTimepicker from 'vue2-timepicker';
+import Datepicker from 'vuejs-datepicker';
+import {SocialMobApi} from '../services/SocialMobApi';
+import CommentList from './CommentList.vue';
+import VAvatar from './VAvatar.vue';
+import LocationRenderer from './LocationRenderer.vue';
 
-    @Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker}})
+@Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker}})
     export default class MobView extends Vue {
         @Prop({required: false}) userJson!: IUser;
         @Prop({required: true}) mobJson!: ISocialMob;
