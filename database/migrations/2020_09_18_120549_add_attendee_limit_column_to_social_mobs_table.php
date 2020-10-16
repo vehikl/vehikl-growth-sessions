@@ -9,7 +9,7 @@ class AddAttendeeLimitColumnToSocialMobsTable extends Migration
     public function up()
     {
         Schema::table('social_mobs', function (Blueprint $table) {
-            $table->unsignedInteger('attendee_limit')->default(PHP_INT_MAX);
+            $table->unsignedBigInteger('attendee_limit')->default(PHP_INT_MAX);
         });
     }
 
