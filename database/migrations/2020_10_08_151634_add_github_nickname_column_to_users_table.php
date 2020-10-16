@@ -9,7 +9,7 @@ class AddGithubNicknameColumnToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('github_nickname')->nullable();
+            $table->string('github_nickname')->after('name')->nullable();
         });
     }
 
