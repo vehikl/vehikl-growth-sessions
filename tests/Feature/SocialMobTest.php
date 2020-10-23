@@ -67,8 +67,17 @@ class SocialMobTest extends TestCase
             'attendee_limit' => $newAttendeeLimit
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 5.']);
+    }
 
+    public function testTheNewAttendeeLimitHasToBeANumber()
+    {
+        $mob = factory(SocialMob::class)->create(['attendee_limit' => 5]);
 
+        $newAttendeeLimit = 'bananas';
+        $this->actingAs($mob->owner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
+            'attendee_limit' => $newAttendeeLimit
+        ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be an integer.']);
     }
 
     public function testTheOwnerCanChangeTheDateOfAnUpcomingMob()
