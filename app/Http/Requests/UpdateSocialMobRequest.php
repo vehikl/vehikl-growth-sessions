@@ -13,6 +13,9 @@ class UpdateSocialMobRequest extends FormRequest
 
     public function rules()
     {
+        $minimumAttendees = 4;
+        $currentAttendees = $this->social_mob->attendees()->count();
+
         return [
             'title' => 'sometimes|required|string|max:45',
             'topic' => 'sometimes|required|string',
@@ -20,7 +23,7 @@ class UpdateSocialMobRequest extends FormRequest
             'start_time' => 'sometimes|required|date_format:h:i a',
             'end_time' => 'sometimes|required|after:start_time|date_format:h:i a',
             'date' => 'sometimes|required|date|after_or_equal:today',
-            'attendee_limit' => 'sometimes|integer|min:4',
+            'attendee_limit' => 'sometimes|integer|min:'.max($minimumAttendees, $currentAttendees),
         ];
     }
 }
