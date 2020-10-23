@@ -43,6 +43,19 @@ class SocialMobTest extends TestCase
         $this->assertEquals($newTitle, $mob->fresh()->title);
     }
 
+    public function testTheOwnerOfAMobCanChangeTheAttendeeLimit()
+    {
+        $mob = factory(SocialMob::class)->create(['attendee_limit' => 5]);
+
+
+        $newAttendeeLimit = 10;
+        $this->actingAs($mob->owner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
+            'attendee_limit' => $newAttendeeLimit
+        ])->assertSuccessful();
+
+        $this->assertEquals($newAttendeeLimit, $mob->fresh()->attendee_limit);
+    }
+
     public function testTheOwnerCanChangeTheDateOfAnUpcomingMob()
     {
         $this->setTestNow('2020-01-01');
