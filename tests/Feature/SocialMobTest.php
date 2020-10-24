@@ -6,7 +6,6 @@ use App\SocialMob;
 use App\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
@@ -91,6 +90,7 @@ class SocialMobTest extends TestCase
 
     public function testTheOwnerCanDeleteAnExistingMob()
     {
+        $this->withoutExceptionHandling();
         $mob = factory(SocialMob::class)->create();
 
         $this->actingAs($mob->owner)->deleteJson(route('social_mobs.destroy', ['social_mob' => $mob->id]))

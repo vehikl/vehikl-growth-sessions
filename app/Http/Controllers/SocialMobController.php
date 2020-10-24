@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\SocialMobAttendeeChanged;
 use App\Events\SocialMobCreated;
+use App\Events\SocialMobDeleted;
 use App\Events\SocialMobUpdated;
 use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteSocialMobRequest;
@@ -12,9 +13,7 @@ use App\Http\Requests\UpdateSocialMobRequest;
 use App\Http\Resources\SocialMob as SocialMobResource;
 use App\Http\Resources\SocialMobWeek;
 use App\SocialMob;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class SocialMobController extends Controller
 {
@@ -79,22 +78,6 @@ class SocialMobController extends Controller
     public function destroy(DeleteSocialMobRequest $request, SocialMob $socialMob)
     {
         $socialMob->delete();
-        $this->notifyDeleteIfNeeded($socialMob);
-    }
-
-
-    private function notifyDeleteIfNeeded(SocialMob $socialMob)
-    {
-        if ($this->isWithinWebHookNotificationWindow()
-            && config('webhooks.deleted_today')
-            && today()->isSameDay($socialMob->date)) {
-            Http::post(config('webhooks.deleted_today'), $socialMob->toArray());
-        }
-    }
-
-    private function isWithinWebHookNotificationWindow(): bool
-    {
-        return now()
-            ->isBetween(Carbon::parse(config('webhooks.start_time')), Carbon::parse(config('webhooks.end_time')));
+        event(new SocialMobDeleted($socialMob));
     }
 }
