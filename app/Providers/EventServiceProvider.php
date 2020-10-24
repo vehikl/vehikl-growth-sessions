@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use App\Events\SocialMobAttendeeChanged;
 use App\Events\SocialMobCreated;
+use App\Events\SocialMobDeleted;
 use App\Events\SocialMobUpdated;
 use App\Listeners\NotifySocialMobAttendeeChange;
 use App\Listeners\NotifySocialMobCreation;
+use App\Listeners\NotifySocialMobDelete;
 use App\Listeners\NotifySocialMobUpdate;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -23,7 +25,8 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [SendEmailVerificationNotification::class],
         SocialMobCreated::class => [NotifySocialMobCreation::class],
         SocialMobAttendeeChanged::class => [NotifySocialMobAttendeeChange::class],
-        SocialMobUpdated::class => [NotifySocialMobUpdate::class]
+        SocialMobUpdated::class => [NotifySocialMobUpdate::class],
+        SocialMobDeleted::class => [NotifySocialMobDelete::class]
     ];
 
     /**
