@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SocialMobAttendeeChanged;
 use App\Events\SocialMobCreated;
 use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteSocialMobRequest;
@@ -47,14 +48,16 @@ class SocialMobController extends Controller
         }
 
         $socialMob->attendees()->attach($request->user());
-        $this->notifyAttendeeChangeIfNeeded($socialMob->refresh());
+        event(new SocialMobAttendeeChanged($socialMob->refresh()));
+
         return $socialMob;
     }
 
     public function leave(SocialMob $socialMob, Request $request)
     {
         $socialMob->attendees()->detach($request->user());
-        $this->notifyAttendeeChangeIfNeeded($socialMob->refresh());
+        event(new SocialMobAttendeeChanged($socialMob->refresh()));
+
         return $socialMob;
     }
 
@@ -95,13 +98,6 @@ class SocialMobController extends Controller
             && config('webhooks.updated_today')
             && ($wasMobOriginallyToday || $wasMobMovedToToday)) {
             Http::post(config('webhooks.updated_today'), $newValues);
-        }
-    }
-
-    private function notifyAttendeeChangeIfNeeded(SocialMob $socialMob)
-    {
-        if ($this->isWithinWebHookNotificationWindow() && config('webhooks.attendees_today')) {
-            Http::post(config('webhooks.attendees_today'), $socialMob->toArray());
         }
     }
 
