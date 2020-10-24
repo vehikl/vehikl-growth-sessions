@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\SocialMobAttendeeChanged;
 use App\Events\SocialMobCreated;
+use App\Events\SocialMobUpdated;
 use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteSocialMobRequest;
 use App\Http\Requests\StoreSocialMobRequest;
@@ -70,7 +71,8 @@ class SocialMobController extends Controller
     {
         $originalValues = $socialMob->toArray();
         $socialMob->update($request->validated());
-        $this->notifyUpdateIfNeeded($originalValues, $socialMob->toArray());
+        event(new SocialMobUpdated($originalValues, $socialMob->toArray()));
+
         return $socialMob;
     }
 
@@ -87,17 +89,6 @@ class SocialMobController extends Controller
             && config('webhooks.deleted_today')
             && today()->isSameDay($socialMob->date)) {
             Http::post(config('webhooks.deleted_today'), $socialMob->toArray());
-        }
-    }
-
-    private function notifyUpdateIfNeeded(array $originalValues, array $newValues)
-    {
-        $wasMobOriginallyToday = today()->isSameDay($originalValues['date']);
-        $wasMobMovedToToday = today()->isSameDay($newValues['date']);
-        if ($this->isWithinWebHookNotificationWindow()
-            && config('webhooks.updated_today')
-            && ($wasMobOriginallyToday || $wasMobMovedToToday)) {
-            Http::post(config('webhooks.updated_today'), $newValues);
         }
     }
 
