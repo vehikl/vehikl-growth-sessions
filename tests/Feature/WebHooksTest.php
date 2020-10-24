@@ -98,6 +98,7 @@ class WebHooksTest extends TestCase
 
     public function testItHitsTheAttendeesWebHookIfSomeoneJoinsAMobThatWillHappenToday()
     {
+        $this->withoutExceptionHandling();
         $socialMob = factory(SocialMob::class)->create();
         $newMember = factory(User::class)->create();
 
