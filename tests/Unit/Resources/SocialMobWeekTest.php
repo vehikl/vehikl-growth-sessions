@@ -12,6 +12,8 @@ class SocialMobWeekTest extends TestCase
 {
     public function testItReturnsAnEmptyWeekStartingOnMondayIfThereAreNoSocialMobs()
     {
+        Carbon::setTestNow('Last Tuesday');
+
         $weekResource = new SocialMobWeek(collect());
 
         $firstIndex = now()->startOfWeek()->toDateString();
@@ -23,6 +25,8 @@ class SocialMobWeekTest extends TestCase
 
     public function testItReturnsFiveDaysWhenASocialMobExistsOnThatWeek()
     {
+        Carbon::setTestNow('Last Tuesday');
+
         $weekResource = new SocialMobWeek(
             collect([factory(SocialMob::class)->create(['date' => now()])])
         );
