@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Events\SocialMobAttendeeChanged;
 use App\Events\SocialMobCreated;
+use App\Events\SocialMobUpdated;
 use App\Listeners\NotifySocialMobAttendeeChange;
 use App\Listeners\NotifySocialMobCreation;
+use App\Listeners\NotifySocialMobUpdate;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -20,7 +22,8 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [SendEmailVerificationNotification::class],
         SocialMobCreated::class => [NotifySocialMobCreation::class],
-        SocialMobAttendeeChanged::class => [NotifySocialMobAttendeeChange::class]
+        SocialMobAttendeeChanged::class => [NotifySocialMobAttendeeChange::class],
+        SocialMobUpdated::class => [NotifySocialMobUpdate::class]
     ];
 
     /**
