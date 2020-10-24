@@ -6,7 +6,7 @@ namespace App\Listeners;
 
 use Carbon\Carbon;
 
-class WebHookNotificationEventListener
+abstract class WebHookNotificationEventListener
 {
     protected function isWithinWebHookNotificationWindow(): bool
     {
