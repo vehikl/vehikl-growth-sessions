@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SocialMobCreated;
 use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteSocialMobRequest;
 use App\Http\Requests\StoreSocialMobRequest;
@@ -12,7 +13,6 @@ use App\SocialMob;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class SocialMobController extends Controller
 {
@@ -35,7 +35,8 @@ class SocialMobController extends Controller
     {
         $newMob = $request->user()->socialMobs()->save(new SocialMob($request->validated()));
         $newMob->load(['owner', 'attendees', 'comments']);
-        $this->notifyCreationIfNeeded($newMob);
+        event(new SocialMobCreated($newMob));
+
         return $newMob;
     }
 
@@ -76,14 +77,6 @@ class SocialMobController extends Controller
         $this->notifyDeleteIfNeeded($socialMob);
     }
 
-    private function notifyCreationIfNeeded(SocialMob $socialMob)
-    {
-        if ($this->isWithinWebHookNotificationWindow()
-            && config('webhooks.created_today')
-            && today()->isSameDay($socialMob->date)) {
-            Http::post(config('webhooks.created_today'), $socialMob->toArray());
-        }
-    }
 
     private function notifyDeleteIfNeeded(SocialMob $socialMob)
     {

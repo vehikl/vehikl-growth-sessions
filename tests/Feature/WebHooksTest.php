@@ -89,7 +89,7 @@ class WebHooksTest extends TestCase
         $this->setTestNow('2020-01-01T10:30:00.000');
         $user = factory(User::class)->create();
         $socialMobData = factory(SocialMob::class)->make(['date' => today()])->toArray();
-        $response = $this->actingAs($user)->postJson(route('social_mobs.store'), $socialMobData)->assertSuccessful();
+        $this->actingAs($user)->postJson(route('social_mobs.store'), $socialMobData)->assertSuccessful();
 
         Http::assertSent(function (Request $request) {
             return $request->url() === config('webhooks.created_today');
