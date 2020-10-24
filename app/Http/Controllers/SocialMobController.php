@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SocialMobAttendeeChanged;
+use App\Events\SocialMobCreated;
+use App\Events\SocialMobDeleted;
+use App\Events\SocialMobUpdated;
 use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteSocialMobRequest;
 use App\Http\Requests\StoreSocialMobRequest;
@@ -9,10 +13,7 @@ use App\Http\Requests\UpdateSocialMobRequest;
 use App\Http\Resources\SocialMob as SocialMobResource;
 use App\Http\Resources\SocialMobWeek;
 use App\SocialMob;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class SocialMobController extends Controller
 {
@@ -35,7 +36,8 @@ class SocialMobController extends Controller
     {
         $newMob = $request->user()->socialMobs()->save(new SocialMob($request->validated()));
         $newMob->load(['owner', 'attendees', 'comments']);
-        $this->notifyCreationIfNeeded($newMob);
+        event(new SocialMobCreated($newMob));
+
         return $newMob;
     }
 
@@ -46,14 +48,16 @@ class SocialMobController extends Controller
         }
 
         $socialMob->attendees()->attach($request->user());
-        $this->notifyAttendeeChangeIfNeeded($socialMob->refresh());
+        event(new SocialMobAttendeeChanged($socialMob->refresh()));
+
         return $socialMob;
     }
 
     public function leave(SocialMob $socialMob, Request $request)
     {
         $socialMob->attendees()->detach($request->user());
-        $this->notifyAttendeeChangeIfNeeded($socialMob->refresh());
+        event(new SocialMobAttendeeChanged($socialMob->refresh()));
+
         return $socialMob;
     }
 
@@ -66,55 +70,14 @@ class SocialMobController extends Controller
     {
         $originalValues = $socialMob->toArray();
         $socialMob->update($request->validated());
-        $this->notifyUpdateIfNeeded($originalValues, $socialMob->toArray());
+        event(new SocialMobUpdated($originalValues, $socialMob->toArray()));
+
         return $socialMob;
     }
 
     public function destroy(DeleteSocialMobRequest $request, SocialMob $socialMob)
     {
         $socialMob->delete();
-        $this->notifyDeleteIfNeeded($socialMob);
-    }
-
-    private function notifyCreationIfNeeded(SocialMob $socialMob)
-    {
-        if ($this->isWithinWebHookNotificationWindow()
-            && config('webhooks.created_today')
-            && today()->isSameDay($socialMob->date)) {
-            Http::post(config('webhooks.created_today'), $socialMob->toArray());
-        }
-    }
-
-    private function notifyDeleteIfNeeded(SocialMob $socialMob)
-    {
-        if ($this->isWithinWebHookNotificationWindow()
-            && config('webhooks.deleted_today')
-            && today()->isSameDay($socialMob->date)) {
-            Http::post(config('webhooks.deleted_today'), $socialMob->toArray());
-        }
-    }
-
-    private function notifyUpdateIfNeeded(array $originalValues, array $newValues)
-    {
-        $wasMobOriginallyToday = today()->isSameDay($originalValues['date']);
-        $wasMobMovedToToday = today()->isSameDay($newValues['date']);
-        if ($this->isWithinWebHookNotificationWindow()
-            && config('webhooks.updated_today')
-            && ($wasMobOriginallyToday || $wasMobMovedToToday)) {
-            Http::post(config('webhooks.updated_today'), $newValues);
-        }
-    }
-
-    private function notifyAttendeeChangeIfNeeded(SocialMob $socialMob)
-    {
-        if ($this->isWithinWebHookNotificationWindow() && config('webhooks.attendees_today')) {
-            Http::post(config('webhooks.attendees_today'), $socialMob->toArray());
-        }
-    }
-
-    private function isWithinWebHookNotificationWindow(): bool
-    {
-        return now()
-            ->isBetween(Carbon::parse(config('webhooks.start_time')), Carbon::parse(config('webhooks.end_time')));
+        event(new SocialMobDeleted($socialMob));
     }
 }
