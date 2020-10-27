@@ -63,6 +63,7 @@ describe('MobForm', () => {
                 attendee_limit: chosenLimit,
             } = payload;
 
+            window.confirm = jest.fn();
             wrapper.vm.$data.startTime = chosenStartTime;
             wrapper.find('#title').setValue(chosenTitle);
             wrapper.find('#topic').setValue(chosenTopic);

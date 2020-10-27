@@ -48,6 +48,7 @@ const mobData: SocialMob = new SocialMob({
 describe('MobCard', () => {
     let wrapper: Wrapper<MobCard>;
     beforeEach(() => {
+        window.confirm = jest.fn();
         DateTime.setTestNow('2020-05-01 00:00:00.0000');
         wrapper = mount(MobCard, {propsData: {socialMob: mobData}})
     });

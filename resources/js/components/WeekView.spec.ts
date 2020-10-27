@@ -58,6 +58,7 @@ describe('WeekView', () => {
     });
 
     it('allows the user to view mobs of the next week', async () => {
+        window.confirm = jest.fn();
         wrapper.find('button.load-next-week').trigger('click');
         await flushPromises();
         let sevenDaysInTheFuture = DateTime.parseByDate(todayDate).addDays(7).toDateString();
