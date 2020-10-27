@@ -80,6 +80,17 @@ class SocialMobTest extends TestCase
             ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be an integer.']);
     }
 
+    public function testItAllowsTheAttendeeLimitToBeUnset()
+    {
+        $mob = factory(SocialMob::class)->create(['attendee_limit' => 5]);
+
+        $this->actingAs($mob->owner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
+            'attendee_limit' => null
+        ])->assertSuccessful();
+
+        $this->assertEquals(SocialMob::NO_LIMIT, $mob->fresh()->attendee_limit);
+    }
+
     public function testTheOwnerCanChangeTheDateOfAnUpcomingMob()
     {
         $this->setTestNow('2020-01-01');

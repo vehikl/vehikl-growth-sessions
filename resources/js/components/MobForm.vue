@@ -67,25 +67,26 @@
                    v-model="title"/>
         </div>
 
-        <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
-                <input type="checkbox" ref="no-limit" @click="toggleLimitlessMob"> No Limit
+        <div class="mb-4 mt-6 flex items-center justify-between">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="title" @click="isLimitless = !isLimitless">
+                <input ref="no-limit" v-model="isLimitless" type="checkbox"> No Limit
             </label>
-        </div>
 
-        <div class="mb-4" v-if="canSetAtendeeLimit">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
-                Limit
-            </label>
-            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                   :class="{'error-outline': getError('limit')}"
-                   id="limit"
-                   placeholder="Limit of participants"
-                   tabindex="4"
-                   min="4"
-                   type="number"
-                   ref="attendee-limit"
-                   v-model.number="attendeeLimit"/>
+            <div v-if="!isLimitless" class="flex items-center">
+                <label class="block text-gray-700 text-sm font-bold mr-4" for="title">
+                    Limit
+                </label>
+                <input
+                    id="limit"
+                    ref="attendee-limit"
+                    v-model.number="attendeeLimit"
+                    :class="{'error-outline': getError('limit')}"
+                    class="w-24 text-center shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    min="4"
+                    placeholder="Limit of participants"
+                    tabindex="4"
+                    type="number"/>
+            </div>
         </div>
 
         <div class="mb-4">
@@ -117,14 +118,14 @@
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {ISocialMob, IStoreSocialMobRequest, IUser, IValidationError} from '../types';
-    import VueTimepicker from 'vue2-timepicker'
-    import {SocialMobApi} from '../services/SocialMobApi';
-    import {DateTime} from '../classes/DateTime';
-    import DatePicker from './DatePicker.vue';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import {ISocialMob, IStoreSocialMobRequest, IUser, IValidationError} from '../types';
+import VueTimepicker from 'vue2-timepicker'
+import {SocialMobApi} from '../services/SocialMobApi';
+import {DateTime} from '../classes/DateTime';
+import DatePicker from './DatePicker.vue';
 
-    @Component({components: {DatePicker, VueTimepicker}})
+@Component({components: {DatePicker, VueTimepicker}})
     export default class CreateMob extends Vue {
         @Prop({required: true}) owner!: IUser;
         @Prop({required: false, default: null}) mob!: ISocialMob;
@@ -138,7 +139,7 @@
         topic: string = '';
         date: string = '';
         validationErrors: IValidationError | null = null;
-        canSetAtendeeLimit: boolean = true;
+        isLimitless: boolean = false;
 
         mounted() {
             this.date = this.startDate;
@@ -154,6 +155,8 @@
                 this.location = this.mob.location;
                 this.title = this.mob.title;
                 this.topic = this.mob.topic;
+                this.isLimitless = ! this.mob.attendee_limit;
+                this.attendeeLimit = this.mob.attendee_limit || 4;
             }
         }
 
@@ -175,10 +178,6 @@
         getError(field: string): string {
             let errors = this.validationErrors?.errors[field];
             return errors ? errors[0] : '';
-        }
-
-        toggleLimitlessMob() {
-            this.canSetAtendeeLimit = !this.canSetAtendeeLimit
         }
 
         async createMob() {
@@ -215,7 +214,7 @@
                 date: this.date,
                 start_time: this.startTime,
                 end_time: this.endTime,
-                attendee_limit:  this.canSetAtendeeLimit ? this.attendeeLimit : undefined
+                attendee_limit:  this.isLimitless ? undefined : this.attendeeLimit
             }
         }
     }

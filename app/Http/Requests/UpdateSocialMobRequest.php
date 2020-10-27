@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\SocialMob;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateSocialMobRequest extends FormRequest
@@ -9,6 +10,15 @@ class UpdateSocialMobRequest extends FormRequest
     public function authorize()
     {
         return $this->user()->can('update', $this->social_mob);
+    }
+
+    protected function prepareForValidation()
+    {
+        if(empty($this->attendee_limit)) {
+            $this->merge([
+                'attendee_limit' => SocialMob::NO_LIMIT
+            ]);
+        }
     }
 
     public function rules()
