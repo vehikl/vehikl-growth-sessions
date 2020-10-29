@@ -87,7 +87,7 @@ class WebHooksTest extends TestCase
     public function testItHitsTheCreatedTodayWebHookIfAMobWasCreatedForToday()
     {
         $this->setTestNow('2020-01-01T10:30:00.000');
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $socialMobData = factory(SocialMob::class)->make(['date' => today()])->toArray();
         $this->actingAs($user)->postJson(route('social_mobs.store'), $socialMobData)->assertSuccessful();
 
@@ -100,7 +100,7 @@ class WebHooksTest extends TestCase
     {
         $this->withoutExceptionHandling();
         $socialMob = factory(SocialMob::class)->create();
-        $newMember = factory(User::class)->create();
+        $newMember = User::factory()->create();
 
         $this->actingAs($newMember)->postJson(route('social_mobs.join', $socialMob))->assertSuccessful();
 
@@ -114,7 +114,7 @@ class WebHooksTest extends TestCase
     {
         $socialMob = factory(SocialMob::class)->create();
         /** @var SocialMob $socialMob */
-        $attendee = factory(User::class)->create();
+        $attendee = User::factory()->create();
         $socialMob->attendees()->attach($attendee);
 
         $this->actingAs($attendee)->postJson(route('social_mobs.leave', $socialMob))->assertSuccessful();
@@ -137,7 +137,7 @@ class WebHooksTest extends TestCase
         $this->setTestNow("2020-01-01 {$requestTime}");
         Config::set('webhooks.start_time', $startTime);
         Config::set('webhooks.end_time', $endTime);
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $socialMobData = factory(SocialMob::class)->make(['date' => today()])->toArray();
 
         $socialMob = $this->actingAs($user)
@@ -162,7 +162,7 @@ class WebHooksTest extends TestCase
 
     public function testItIncludesTheOwnerInformationOnThePayload()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $socialMobData = factory(SocialMob::class)->make(['date' => today()])->toArray();
         $this->actingAs($user)->postJson(route('social_mobs.store'), $socialMobData)->assertSuccessful();
 

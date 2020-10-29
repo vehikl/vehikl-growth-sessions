@@ -13,7 +13,7 @@ class SocialMobTest extends TestCase
 {
     public function testAnAuthenticatedUserCanCreateASocialMob()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $topic = 'The fundamentals of foo';
         $title = 'Foo';
         $this->actingAs($user)->postJson(route('social_mobs.store'), [
@@ -58,7 +58,7 @@ class SocialMobTest extends TestCase
     public function testTheOwnerOfAMobCanNotChangeTheAttendeeLimitBelowTheCurrentAttendeeCount()
     {
         $mob = factory(SocialMob::class)->create(['attendee_limit' => 6]);
-        $users = factory(User::class)->times(5)->create();
+        $users = User::factory()->times(5)->create();
         $mob->attendees()->attach($users->pluck('id'));
 
         $newAttendeeLimit = 4;
@@ -129,7 +129,7 @@ class SocialMobTest extends TestCase
     public function testAUserThatIsNotAnOwnerOfAMobCannotEditIt()
     {
         $mob = factory(SocialMob::class)->create();
-        $notTheOwner = factory(User::class)->create();
+        $notTheOwner = User::factory()->create();
 
         $this->actingAs($notTheOwner)->putJson(route('social_mobs.update', ['social_mob' => $mob->id]), [
             'topic' => 'Anything',
@@ -150,7 +150,7 @@ class SocialMobTest extends TestCase
     public function testAUserThatIsNotAnOwnerOfAMobCannotDeleteIt()
     {
         $mob = factory(SocialMob::class)->create();
-        $notTheOwner = factory(User::class)->create();
+        $notTheOwner = User::factory()->create();
 
         $this->actingAs($notTheOwner)->deleteJson(route('social_mobs.destroy', ['social_mob' => $mob->id]))
             ->assertForbidden();
@@ -159,7 +159,7 @@ class SocialMobTest extends TestCase
     public function testAGivenUserCanRSVPToASocialMob()
     {
         $existingSocialMob = factory(SocialMob::class)->create();
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $this->actingAs($user)
             ->postJson(route('social_mobs.join', ['social_mob' => $existingSocialMob->id]))
@@ -171,7 +171,7 @@ class SocialMobTest extends TestCase
     public function testAUserCannotJoinTheSameMobTwice()
     {
         $existingSocialMob = factory(SocialMob::class)->create();
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $existingSocialMob->attendees()->attach($user);
 
         $this->actingAs($user)
@@ -184,7 +184,7 @@ class SocialMobTest extends TestCase
     public function testAUserCanLeaveTheMob()
     {
         $existingSocialMob = factory(SocialMob::class)->create();
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $existingSocialMob->attendees()->attach($user);
 
         $this->actingAs($user)
@@ -223,7 +223,7 @@ class SocialMobTest extends TestCase
             $monday->addDays(4)->toDateString() => [$fridaySocial],
         ];
 
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $response = $this->actingAs($user)->getJson(route('social_mobs.week'));
         $response->assertSuccessful();
@@ -249,7 +249,7 @@ class SocialMobTest extends TestCase
             today()->toDateString() => [$fridaySocial],
         ];
 
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $response = $this->actingAs($user)->getJson(route('social_mobs.week'));
         $response->assertSuccessful();
@@ -284,7 +284,7 @@ class SocialMobTest extends TestCase
             $mondayOfWeekWithMobs->addDays(4)->toDateString() => [$fridaySocial],
         ];
 
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $response = $this->actingAs($user)->getJson(route('social_mobs.week', ['date' => $weekThatHasTheMobs]));
         $response->assertSuccessful();
@@ -325,7 +325,7 @@ class SocialMobTest extends TestCase
         $monday = CarbonImmutable::parse('Last Monday');
         $socialMob = factory(SocialMob::class)->create(['date' => $monday, 'start_time' => '03:30 pm']);
 
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $response = $this->actingAs($user)->get(route('social_mobs.show', $socialMob));
 
         $response->assertSuccessful();
@@ -337,7 +337,7 @@ class SocialMobTest extends TestCase
         $today = '2020-01-02';
         $tomorrow = '2020-01-03';
         $this->setTestNow($today);
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $todayMobs = factory(SocialMob::class, 2)->create(['date' => $today, 'attendee_limit' => 4]);
         factory(SocialMob::class, 2)->create(['date' => $tomorrow, 'attendee_limit' => 4]);
@@ -357,7 +357,7 @@ class SocialMobTest extends TestCase
 
     public function testAnAttendeeLimitCanBeSetWhenCreatingAtMob()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $expectedAttendeeLimit = 420;
         $this->actingAs($user)->postJson(
@@ -370,7 +370,7 @@ class SocialMobTest extends TestCase
 
     public function testAnAttendeeLimitCannotBeLessThanFour()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $expectedAttendeeLimit = 3;
         $this->actingAs($user)->postJson(
@@ -382,8 +382,8 @@ class SocialMobTest extends TestCase
 
     public function testASocialMobCannotBeJoinedIfTheAttendeeLimitIsMet()
     {
-        $user = factory(User::class)->create();
-        $attendess = factory(User::class, 4)->create();
+        $user = User::factory()->create();
+        $attendess = User::factory()->times(4)->create();
         /** @var SocialMob $mob */
         $mob = factory(SocialMob::class)->create(['attendee_limit' => 4]);
         $mob->attendees()->attach($attendess);

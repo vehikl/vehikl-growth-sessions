@@ -10,7 +10,7 @@ use Faker\Generator as Faker;
 $factory->define(SocialMob::class, function (Faker $faker) {
     return [
         'owner_id' => function() {
-            return factory(User::class)->create()->id;
+            return User::factory()->create()->id;
         },
         'title' => $faker->sentence(2),
         'topic' => $faker->sentence,

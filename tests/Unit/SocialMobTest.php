@@ -14,7 +14,7 @@ class SocialMobTest extends TestCase
     public function testItSetsEndTimeTo5PMByDefault()
     {
         $mob = new SocialMob([
-            'owner_id' => factory(User::class)->create()->id,
+            'owner_id' => User::factory()->create()->id,
             'start_time' => '15:30:00',
             'date' => '2020-01-01',
             'topic' => 'does not matter',
@@ -36,7 +36,7 @@ class SocialMobTest extends TestCase
     public function testItHasTheAttendeeLimitToMaxIntByDefault()
     {
         $mob = new SocialMob([
-            'owner_id' => factory(User::class)->create()->id,
+            'owner_id' => User::factory()->create()->id,
             'start_time' => '15:30:00',
             'date' => '2020-01-01',
             'topic' => 'does not matter',

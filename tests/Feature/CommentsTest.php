@@ -12,7 +12,7 @@ class CommentsTest extends TestCase
 {
     public function testAUserCanPostCommentsOnAnExistingMob()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $socialMob = factory(SocialMob::class)->create();
 
         $this->actingAs($user)
@@ -56,7 +56,7 @@ class CommentsTest extends TestCase
         $comment = factory(Comment::class)->create();
         $socialMob = $comment->socialMob;
 
-        $anotherUser = factory(User::class)->create();
+        $anotherUser = User::factory()->create();
 
         $this->actingAs($anotherUser)
             ->deleteJson(route('social_mobs.comments.destroy', [$socialMob, $comment]))
