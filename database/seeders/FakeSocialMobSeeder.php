@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\SocialMob;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;

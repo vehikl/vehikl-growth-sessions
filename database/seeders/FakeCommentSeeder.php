@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Comment;
 use App\SocialMob;
 use Illuminate\Database\Seeder;
