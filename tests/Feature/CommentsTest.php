@@ -33,14 +33,14 @@ class CommentsTest extends TestCase
     public function testAGuestCanGetAllCommentsOfAMob()
     {
         $socialMob = factory(SocialMob::class)->create();
-        $comments = factory(Comment::class, 4)->create(['social_mob_id' => $socialMob->id]);
+        $comments = Comment::factory()->times(4)->create(['social_mob_id' => $socialMob->id]);
 
         $this->getJson(route('social_mobs.comments.index', $socialMob))->assertJson($comments->toArray());
     }
 
     public function testAUserCanDeleteTheirComment()
     {
-        $comment = factory(Comment::class)->create();
+        $comment = Comment::factory()->create();
         $socialMob = $comment->socialMob;
         $commentOwner = $comment->user;
 
@@ -53,7 +53,7 @@ class CommentsTest extends TestCase
 
     public function testAUserCannotDeleteAnotherUsersComment()
     {
-        $comment = factory(Comment::class)->create();
+        $comment = Comment::factory()->create();
         $socialMob = $comment->socialMob;
 
         $anotherUser = User::factory()->create();
