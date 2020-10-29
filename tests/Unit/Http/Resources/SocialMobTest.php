@@ -2,7 +2,8 @@
 
 namespace Tests\Unit\Http\Resources;
 
-use App\Http\Resources\SocialMob;
+use App\Http\Resources\SocialMob as SocialMobResource;
+use App\SocialMob as SocialMobModel;
 use Illuminate\Http\Request;
 use Tests\TestCase;
 
@@ -15,7 +16,7 @@ class SocialMobTest extends TestCase
      */
     public function testTheAttendeeLimitIsRemovedForNoLimitMobs()
     {
-        $resource = new SocialMob(factory(\App\SocialMob::class)->make(['attendee_limit' => \App\SocialMob::NO_LIMIT]));
+        $resource = new SocialMobResource(SocialMobModel::factory()->make(['attendee_limit' => SocialMobModel::NO_LIMIT]));
 
         $anyOldRequest = Request::createFromGlobals();
         $this->assertNull($resource->toArray($anyOldRequest)['attendee_limit']);
@@ -24,7 +25,7 @@ class SocialMobTest extends TestCase
     public function testTheAttendeeLimitIsNotRemovedForMobsWithLimits()
     {
         $expectedLimit = 4;
-        $resource = new SocialMob(factory(\App\SocialMob::class)->make(['attendee_limit' => $expectedLimit]));
+        $resource = new SocialMobResource(SocialMobModel::factory()->make(['attendee_limit' => $expectedLimit]));
 
         $anyOldRequest = Request::createFromGlobals();
         $this->assertEquals($expectedLimit, $resource->toArray($anyOldRequest)['attendee_limit']);

@@ -5,10 +5,13 @@ namespace App;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class SocialMob extends Model
 {
+    use HasFactory;
+
     const NO_LIMIT = PHP_INT_MAX;
     protected $with = ['owner', 'attendees', 'comments'];
 

@@ -28,7 +28,7 @@ class SocialMobWeekTest extends TestCase
         Carbon::setTestNow('Last Tuesday');
 
         $weekResource = new SocialMobWeek(
-            collect([factory(SocialMob::class)->create(['date' => now()])])
+            collect([SocialMob::factory()->create(['date' => now()])])
         );
 
         $firstIndex = now()->startOfWeek()->toDateString();

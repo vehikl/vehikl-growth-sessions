@@ -1,20 +1,33 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
 use App\Comment;
 use App\SocialMob;
 use App\User;
-use Faker\Generator as Faker;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 
-$factory->define(Comment::class, function (Faker $faker) {
-    return [
-        'user_id' => function() {
-            return factory(User::class)->create()->id;
-        },
-        'social_mob_id' => function() {
-            return factory(SocialMob::class)->create()->id;
-        },
-        'content' => $faker->text
-    ];
-});
+class CommentFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Comment::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            'user_id' => User::factory(),
+            'social_mob_id' => SocialMob::factory(),
+            'content' => $this->faker->text
+        ];
+    }
+}

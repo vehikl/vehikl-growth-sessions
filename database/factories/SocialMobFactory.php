@@ -1,23 +1,36 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
-use App\Model;
 use App\SocialMob;
 use App\User;
-use Faker\Generator as Faker;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(SocialMob::class, function (Faker $faker) {
-    return [
-        'owner_id' => function() {
-            return factory(User::class)->create()->id;
-        },
-        'title' => $faker->sentence(2),
-        'topic' => $faker->sentence,
-        'location' => 'At AnyDesk XYZ - abcdefg',
-        'date' => today(),
-        'start_time' => now()->setTime(15, 30),
-        'end_time' => now()->setTime(17, 00),
-        'attendee_limit' => SocialMob::NO_LIMIT,
-    ];
-});
+class SocialMobFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = SocialMob::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            'owner_id' => User::factory(),
+            'title' => $this->faker->sentence(2),
+            'topic' => $this->faker->sentence,
+            'location' => 'At AnyDesk XYZ - abcdefg',
+            'date' => today(),
+            'start_time' => now()->setTime(15, 30),
+            'end_time' => now()->setTime(17, 00),
+            'attendee_limit' => SocialMob::NO_LIMIT,
+        ];
+    }
+}
