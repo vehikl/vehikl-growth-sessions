@@ -15,7 +15,7 @@ class FakeSocialMobSeeder extends Seeder
         $monday = today()->isDayOfWeek($MONDAY) ? CarbonImmutable::today() : CarbonImmutable::parse('Last Monday');
         $numberOfFakeMobs = 5;
         for ($i = 0; $i < $numberOfFakeMobs; $i++) {
-            factory(SocialMob::class)->create([
+            SocialMob::factory()->create([
                 'date' => $monday->addDays(random_int(0, 4)),
                 'start_time' => Carbon::createFromTime(random_int(15, 16))
             ]);

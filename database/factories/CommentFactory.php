@@ -28,7 +28,7 @@ class CommentFactory extends Factory
                 return User::factory()->create()->id;
             },
             'social_mob_id' => function() {
-                return factory(SocialMob::class)->create()->id;
+                return SocialMob::factory()->create()->id;
             },
             'content' => $this->faker->text
         ];

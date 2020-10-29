@@ -45,7 +45,6 @@
             "Database\\Factories\\": "database/factories"
         },
         "classmap": [
-            "database/legacy-factories"
         ]
     },
     "autoload-dev": {

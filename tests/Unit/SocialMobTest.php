@@ -28,7 +28,7 @@ class SocialMobTest extends TestCase
     public function testItCanHaveACustomTitle()
     {
         $titleGiven = 'My title';
-        $mob = factory(SocialMob::class)->create(['title' => $titleGiven]);
+        $mob = SocialMob::factory()->create(['title' => $titleGiven]);
 
         $this->assertEquals($titleGiven, $mob->title);
     }
