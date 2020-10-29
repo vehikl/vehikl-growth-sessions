@@ -6,6 +6,7 @@ use App\Comment;
 use App\SocialMob;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 
 class CommentFactory extends Factory
 {
@@ -24,12 +25,8 @@ class CommentFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => function() {
-                return User::factory()->create()->id;
-            },
-            'social_mob_id' => function() {
-                return SocialMob::factory()->create()->id;
-            },
+            'user_id' => User::factory(),
+            'social_mob_id' => SocialMob::factory(),
             'content' => $this->faker->text
         ];
     }

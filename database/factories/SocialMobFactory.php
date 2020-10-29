@@ -23,9 +23,7 @@ class SocialMobFactory extends Factory
     public function definition()
     {
         return [
-            'owner_id' => function() {
-                return User::factory()->create()->id;
-            },
+            'owner_id' => User::factory(),
             'title' => $this->faker->sentence(2),
             'topic' => $this->faker->sentence,
             'location' => 'At AnyDesk XYZ - abcdefg',
