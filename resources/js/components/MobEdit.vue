@@ -93,16 +93,16 @@
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {ISocialMob, IUser, IValidationError} from '../types';
-    import {DateTime} from '../classes/DateTime';
-    import {SocialMob} from '../classes/SocialMob';
-    import VueTimepicker from 'vue2-timepicker';
-    import {SocialMobApi} from '../services/SocialMobApi';
-    import VAvatar from './VAvatar.vue';
-    import DatePicker from './DatePicker.vue';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import {ISocialMob, IUser, IValidationError} from '../types';
+import {DateTime} from '../classes/DateTime';
+import {SocialMob} from '../classes/SocialMob';
+import VueTimepicker from 'vue2-timepicker';
+import {SocialMobApi} from '../services/SocialMobApi';
+import VAvatar from './VAvatar.vue';
+import DatePicker from './DatePicker.vue';
 
-    @Component({components: {DatePicker, VAvatar, VueTimepicker}})
+@Component({components: {DatePicker, VAvatar, VueTimepicker}})
     export default class MobView extends Vue {
         @Prop({required: false}) user!: IUser;
         @Prop({required: true}) mobJson!: ISocialMob;
@@ -124,7 +124,11 @@
 
         async updateMob() {
             try {
-                let updatedMob: ISocialMob = await SocialMobApi.update(this.mob, this.mob);
+                const payload = {...this.mob}
+                if (this.mob.isLimitless) {
+                    payload.attendee_limit = null;
+                }
+                let updatedMob: ISocialMob = await SocialMobApi.update(this.mob, payload);
                 this.$emit('submitted', updatedMob);
                 window.history.back()
             } catch (e) {

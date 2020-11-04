@@ -1,7 +1,7 @@
 import {IComment, ISocialMob, IUser} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {SocialMobApi} from '../services/SocialMobApi';
-import {User} from "./User";
+import {User} from './User';
 
 export class SocialMob implements ISocialMob {
     id!: number;
@@ -32,6 +32,11 @@ export class SocialMob implements ISocialMob {
         this.attendees = mob.attendees.map(attendee => new User(attendee));
         this.comments = mob.comments;
         this.attendee_limit = mob.attendee_limit;
+    }
+
+    get isLimitless(): boolean {
+        const PHP_MAX_INT = 9223372036854776000;
+        return ! this.attendee_limit || this.attendee_limit >= PHP_MAX_INT;
     }
 
     get startTime(): string {
