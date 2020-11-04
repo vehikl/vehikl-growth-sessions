@@ -93,4 +93,14 @@ describe('Activity/Friends', () => {
             'Based on the 3 growth sessions you\'ve participated in.',
         );
     });
+
+    it('shows the count of mobs with specific people', () => {
+      wrapper = mount(ActivityFriends, {
+        propsData: {
+          peers: [{user: {id: 42}, count: 123}]
+        }
+      });
+
+      const tableRow = wrapper.findComponent({ref: 'user-row-42'})
+    });
 })

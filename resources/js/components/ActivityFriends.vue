@@ -13,7 +13,7 @@
         </thead>
         <tbody>
 
-          <tr v-for="peer in orderedPeers" :key="peer.user.id">
+          <tr v-for="peer in orderedPeers" :key="peer.user.id" :ref="`user-row-${id}`">
             <td class="py-2 border-b border-b-gray-200">
               <div class="flex flex-row items-center justify-start">
                 <v-avatar :src="peer.user.avatar" alt="" size="8"></v-avatar>
@@ -23,7 +23,7 @@
               </div>
             </td>
             <td class="py-2 text-right border-b border-b-gray-200">
-              {{ (peer.count / totalMobs * 100).toFixed(0) }}%
+              {{ (peer.count / totalMobs * 100).toFixed(0) }}% - {{ peer.count }}
             </td>
           </tr>
         </tbody>
