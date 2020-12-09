@@ -105,7 +105,6 @@
         draggedMob!: SocialMob;
 
         async created() {
-            // Update reference date if needed
             const urlSearchParams = new URLSearchParams(window.location.search);
             if (urlSearchParams.has('date')) {
                 this.referenceDate = DateTime.parseByDate(urlSearchParams.get('date')!);
