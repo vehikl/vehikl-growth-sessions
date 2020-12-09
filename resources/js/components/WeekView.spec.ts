@@ -43,6 +43,10 @@ describe('WeekView', () => {
         await flushPromises();
     });
 
+    afterEach(() => {
+        window.history.replaceState({}, document.title, 'localhost')
+    });
+
     it('loads with the current week socials in display', () => {
         const topicsOfTheWeek = socialsThisWeek.allMobs.map((mob: SocialMob) => mob.topic);
         for (let topic of topicsOfTheWeek) {
@@ -116,15 +120,22 @@ describe('WeekView', () => {
     });
 
     describe('week persistence', () => {
-       it('displays the current week of the day if no date value is provided in the url',() => {
-           expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.today.date);
-       });
+        it('displays the current week of the day if no date value is provided in the url', () => {
+            expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.today.date);
+        });
 
-        it('displays the mobs of the week of the date provided in the query string if it exists',() => {
+        it('displays the mobs of the week of the date provided in the query string if it exists', () => {
             window.history.pushState({}, 'sometitle', `?date=${metadataForSocialsFixture.nextWeek.date}`)
             wrapper = mount(WeekView, {localVue});
             expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.nextWeek.date);
         });
 
+        it('updates the query string for the date whenever the user navigates the weeks', async () => {
+            wrapper.findComponent({ref: 'load-next-week-button'}).trigger('click');
+            await flushPromises();
+
+            const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
+            expect(urlParameters.get('date')).toEqual(metadataForSocialsFixture.nextWeek.date);
+        });
     });
 });

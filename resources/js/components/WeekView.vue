@@ -12,6 +12,7 @@
                 {{ socialMobs.lastDay.format('MMM-DD')}}
             </h2>
             <button class="load-next-week mx-4 mb-2"
+                    ref="load-next-week-button"
                     aria-label="Load next week"
                     @click="changeReferenceDate(+7)">
                 <i class="fa fa-chevron-right" aria-hidden="true"></i>
@@ -151,6 +152,7 @@
 
         async changeReferenceDate(deltaDays: number) {
             this.referenceDate.addDays(deltaDays);
+            window.history.pushState({}, document.title, `?date=${this.referenceDate.toDateString()}`);
             await this.getAllMobsOfTheWeek();
         }
     }
