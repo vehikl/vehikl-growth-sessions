@@ -24,7 +24,8 @@ let socialsThisWeek: WeekMobs = new WeekMobs(socialsThisWeekJson);
 
 const metadataForSocialsFixture = {
     today: {date: '2020-01-15', weekday: 'Wednesday'},
-    dayWithNoMobs: {date: '2020-01-16', weekday: 'Tuesday'}
+    dayWithNoMobs: {date: '2020-01-16', weekday: 'Tuesday'},
+    nextWeek: {date: '2020-01-22', weekday: 'Wednesday'}
 };
 
 const todayDate: string = metadataForSocialsFixture.today.date;
@@ -112,5 +113,18 @@ describe('WeekView', () => {
             expect(wrapper.find('[weekday=Thursday] button.create-mob').exists(), failFuture).toBe(true);
             expect(wrapper.find('[weekday=Friday] button.create-mob').exists(), failFuture).toBe(true);
         });
+    });
+
+    describe('week persistence', () => {
+       it('displays the current week of the day if no date value is provided in the url',() => {
+           expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.today.date);
+       });
+
+        it('displays the mobs of the week of the date provided in the query string if it exists',() => {
+            window.history.pushState({}, 'sometitle', `?date=${metadataForSocialsFixture.nextWeek.date}`)
+            wrapper = mount(WeekView, {localVue});
+            expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.nextWeek.date);
+        });
+
     });
 });
