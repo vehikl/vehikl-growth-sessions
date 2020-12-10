@@ -75,18 +75,18 @@
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {IUser} from '../types';
-    import MobCard from './MobCard.vue';
-    import MobForm from './MobForm.vue';
-    import {SocialMobApi} from '../services/SocialMobApi';
-    import {DateTime} from '../classes/DateTime';
-    import Draggable from 'vuedraggable';
-    import {SocialMob} from '../classes/SocialMob';
-    import {WeekMobs} from '../classes/WeekMobs';
-    import {Nothingator} from '../classes/Nothingator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import {IUser} from '../types';
+import MobCard from './MobCard.vue';
+import MobForm from './MobForm.vue';
+import {SocialMobApi} from '../services/SocialMobApi';
+import {DateTime} from '../classes/DateTime';
+import Draggable from 'vuedraggable';
+import {SocialMob} from '../classes/SocialMob';
+import {WeekMobs} from '../classes/WeekMobs';
+import {Nothingator} from '../classes/Nothingator';
 
-    interface IMobCardDragChange {
+interface IMobCardDragChange {
         added?: { element: SocialMob, index: number }
         removed?: { element: SocialMob, index: number }
     }
@@ -105,11 +105,25 @@
         draggedMob!: SocialMob;
 
         async created() {
+            await this.refreshMobsOfTheWeek()
+            window.onpopstate = this.refreshMobsOfTheWeek;
+        }
+
+        beforeDestroy() {
+            window.onpopstate = null;
+        }
+
+        async refreshMobsOfTheWeek() {
+            this.useDateFromUrlAsReference();
+            await this.getAllMobsOfTheWeek();
+        }
+
+        useDateFromUrlAsReference() {
             const urlSearchParams = new URLSearchParams(window.location.search);
+
             if (urlSearchParams.has('date')) {
                 this.referenceDate = DateTime.parseByDate(urlSearchParams.get('date')!);
             }
-            await this.getAllMobsOfTheWeek();
         }
 
         async onDragEnd(location: any) {

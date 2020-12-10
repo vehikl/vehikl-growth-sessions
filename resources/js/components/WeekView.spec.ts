@@ -45,6 +45,7 @@ describe('WeekView', () => {
 
     afterEach(() => {
         window.history.replaceState({}, document.title, 'localhost')
+        jest.restoreAllMocks();
     });
 
     it('loads with the current week socials in display', () => {
@@ -136,6 +137,24 @@ describe('WeekView', () => {
 
             const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
             expect(urlParameters.get('date')).toEqual(metadataForSocialsFixture.nextWeek.date);
+        });
+
+        it('properly display the mobs of the day from the query string when the user navigates back in history', async () => {
+            window.history.pushState({}, 'sometitle', `?date=${metadataForSocialsFixture.nextWeek.date}`)
+            wrapper = mount(WeekView, {localVue});
+            await flushPromises();
+            SocialMobApi.getAllMobsOfTheWeek = jest.fn();
+
+            window.history.back =  () => {
+                console.error = jest.fn()
+                const fakeMockEvent = {} as unknown as PopStateEvent;
+                window.onpopstate!(fakeMockEvent);
+            }
+
+            window.history.back();
+            await flushPromises();
+
+            expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.nextWeek.date);
         });
     });
 });
