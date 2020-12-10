@@ -120,10 +120,9 @@ interface IMobCardDragChange {
 
         useDateFromUrlAsReference() {
             const urlSearchParams = new URLSearchParams(window.location.search);
-
-            if (urlSearchParams.has('date')) {
-                this.referenceDate = DateTime.parseByDate(urlSearchParams.get('date')!);
-            }
+            this.referenceDate = urlSearchParams.has('date')
+                ? DateTime.parseByDate(urlSearchParams.get('date')!)
+                :  DateTime.today();
         }
 
         async onDragEnd(location: any) {
