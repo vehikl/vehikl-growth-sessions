@@ -7,14 +7,14 @@ services:
         uid: 1000
       context: ./
       dockerfile: docker/app/Dockerfile
-    image: growth-web
-    container_name: growth-app
+    image: growth-app
+    container_name: growth-app-php
     restart: unless-stopped
     working_dir: /var/www/
     volumes:
       - code:/var/www
     networks:
-      - growth-web
+      - growth-app
 
   yarn:
     image: node:lts-alpine
@@ -24,18 +24,18 @@ services:
     entrypoint: yarn
 
   artisan:
-    image: growth-web
+    image: growth-app
     depends_on:
       - app
     volumes:
       - code:/app
     working_dir: /app
     networks:
-      - growth-web
+      - growth-app
     entrypoint: php artisan
 
   composer:
-    image: growth-web
+    image: growth-app
     depends_on:
       - app
     environment:
@@ -47,7 +47,7 @@ services:
     entrypoint: composer
 
   phpunit:
-    image: growth-web
+    image: growth-app
     depends_on:
       - app
     volumes:
@@ -56,7 +56,7 @@ services:
 
   db:
     image: mysql:5.7
-    container_name: growth-web-db
+    container_name: growth-app-db
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
@@ -66,11 +66,11 @@ services:
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     networks:
-      - growth-web
+      - growth-app
 
   nginx:
     image: nginx:alpine
-    container_name: growth-web-nginx
+    container_name: growth-app-nginx
     restart: unless-stopped
     ports:
       - 8000:80
@@ -78,18 +78,18 @@ services:
       - code:/var/www
       - ./docker/nginx:/etc/nginx/conf.d/
     networks:
-      - growth-web
+      - growth-app
 
   files:
     image: alpine:latest
-    container_name: growth-web-files
+    container_name: growth-app-files
     entrypoint: top
     restart: unless-stopped
     volumes:
       - code:/app
 
 networks:
-  growth-web:
+  growth-app:
     driver: bridge
 
 volumes:
