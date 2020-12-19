@@ -27,6 +27,7 @@ services:
     image: growth-app
     depends_on:
       - app
+    user: root
     volumes:
       - code:/app
     working_dir: /app
@@ -41,6 +42,7 @@ services:
     environment:
       - COMPOSER_CACHE_DIR=/app/var/cache/composer
     restart: "no"
+    user: root
     volumes:
       - code:/app
     working_dir: /app
@@ -50,6 +52,7 @@ services:
     image: growth-app
     depends_on:
       - app
+    user: root
     volumes:
       - code:/var/www
     entrypoint: vendor/bin/phpunit
