@@ -13,8 +13,8 @@ class GrowthSessionCreated
 
     public SocialMob $growthSession;
 
-    public function __construct(SocialMob $socialMob)
+    public function __construct(SocialMob $growthSession)
     {
-        $this->growthSession = $socialMob;
+        $this->growthSession = $growthSession;
     }
 }
