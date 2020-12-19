@@ -1,5 +1,21 @@
 version: '3'
 services:
+  app:
+    build:
+      args:
+        user: mogo
+        uid: 1000
+      context: ./
+      dockerfile: docker/app/Dockerfile
+    image: growth-web
+    container_name: growth-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - code:/var/www
+    networks:
+      - growth-web
+
   yarn:
     image: node:lts-alpine
     volumes:
@@ -10,7 +26,7 @@ services:
   artisan:
     image: growth-web
     depends_on:
-      - web-app
+      - app
     volumes:
       - code:/app
     working_dir: /app
@@ -21,7 +37,7 @@ services:
   composer:
     image: growth-web
     depends_on:
-      - web-app
+      - app
     environment:
       - COMPOSER_CACHE_DIR=/app/var/cache/composer
     restart: "no"
@@ -33,26 +49,10 @@ services:
   phpunit:
     image: growth-web
     depends_on:
-      - web-app
+      - app
     volumes:
       - code:/var/www
     entrypoint: vendor/bin/phpunit
-
-  web-app:
-    build:
-      args:
-        user: mogo
-        uid: 1000
-      context: ./
-      dockerfile: docker/web-app/Dockerfile
-    image: growth-web
-    container_name: growth-web-app
-    restart: unless-stopped
-    working_dir: /var/www/
-    volumes:
-      - code:/var/www
-    networks:
-      - growth-web
 
   db:
     image: mysql:5.7
