@@ -16,7 +16,7 @@ docker-compose up --build -d app
 docker-compose up -d db nginx
 
 # PHP Dependencies
-docker-compose run --rm -u 0 composer install
+docker-compose run --rm composer install
 
 # Setup env
 docker-compose run --rm artisan key:generate
