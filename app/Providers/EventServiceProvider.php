@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Events\SocialMobAttendeeChanged;
-use App\Events\SocialMobCreated;
+use App\Events\GrowthSessionCreated;
 use App\Events\SocialMobDeleted;
 use App\Events\SocialMobUpdated;
 use App\Listeners\NotifySocialMobAttendeeChange;
@@ -23,7 +23,7 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         Registered::class => [SendEmailVerificationNotification::class],
-        SocialMobCreated::class => [NotifySocialMobCreation::class],
+        GrowthSessionCreated::class => [NotifySocialMobCreation::class],
         SocialMobAttendeeChanged::class => [NotifySocialMobAttendeeChange::class],
         SocialMobUpdated::class => [NotifySocialMobUpdate::class],
         SocialMobDeleted::class => [NotifySocialMobDelete::class]

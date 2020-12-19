@@ -2,12 +2,12 @@
 
 namespace App\Listeners;
 
-use App\Events\SocialMobCreated;
+use App\Events\GrowthSessionCreated;
 use Illuminate\Support\Facades\Http;
 
 class NotifySocialMobCreation extends WebHookNotificationEventListener
 {
-    public function handle(SocialMobCreated $event)
+    public function handle(GrowthSessionCreated $event)
     {
         if ($this->isWithinWebHookNotificationWindow()
             && config('webhooks.created_today')

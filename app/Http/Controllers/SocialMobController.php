@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\SocialMobAttendeeChanged;
-use App\Events\SocialMobCreated;
+use App\Events\GrowthSessionCreated;
 use App\Events\SocialMobDeleted;
 use App\Events\SocialMobUpdated;
 use App\Exceptions\AttendeeLimitReached;
@@ -36,7 +36,7 @@ class SocialMobController extends Controller
     {
         $newMob = $request->user()->socialMobs()->save(new SocialMob($request->validated()));
         $newMob->load(['owner', 'attendees', 'comments']);
-        event(new SocialMobCreated($newMob));
+        event(new GrowthSessionCreated($newMob));
 
         return $newMob;
     }
