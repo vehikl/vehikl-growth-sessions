@@ -86,7 +86,7 @@ services:
     entrypoint: top
     restart: unless-stopped
     volumes:
-      - code:/app
+      - code:/project
 
 networks:
   growth-app:
