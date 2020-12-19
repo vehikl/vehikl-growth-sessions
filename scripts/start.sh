@@ -7,8 +7,8 @@ docker-compose up -d files
 mutagen sync create --name=growth-app \
     --ignore-vcs \
     --ignore=".idea" \
-    --default-directory-mode=0777 \
-    --default-file-mode=0666 \
+    --default-directory-mode=777 \
+    --default-file-mode=666 \
     ./ docker://growth-app-files/project
 
 # Turn on the containers
