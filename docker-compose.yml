@@ -44,5 +44,51 @@ services:
     volumes:
       - code:/app
 
+  web-app:
+    build:
+      args:
+        user: www-data
+        uid: 1000
+      context: ./
+      dockerfile: docker/web-app/Dockerfile
+    image: growth-web
+    container_name: growth-web-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    networks:
+      - growth-web
+
+  db:
+    image: mysql:5.7
+    container_name: growth-web-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - growth-web
+
+  nginx:
+    image: nginx:alpine
+    container_name: growth-web-nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d/
+    networks:
+      - growth-web
+
+networks:
+  growth-web:
+    driver: bridge
+
 volumes:
   code:
