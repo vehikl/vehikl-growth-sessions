@@ -3,7 +3,7 @@ services:
   app:
     build:
       context: ./
-      dockerfile: docker/api/Dockerfile
+      dockerfile: docker/app/Dockerfile
     image: growth-app
     container_name: growth-app
     restart: unless-stopped
