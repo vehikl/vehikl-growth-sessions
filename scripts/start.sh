@@ -4,7 +4,12 @@ cp .env.example .env
 
 # Set up mutagen.io file share
 docker-compose up -d files
-mutagen sync create --name=growth-app ./ docker://growth-app-files/project
+mutagen sync create --name=growth-app \
+    --ignore-vcs \
+    --ignore=".idea" \
+    --default-directory-mode=0777 \
+    --default-file-mode=0666 \
+    ./ docker://growth-app-files/project
 
 # Turn on the containers
 docker-compose up --build -d app

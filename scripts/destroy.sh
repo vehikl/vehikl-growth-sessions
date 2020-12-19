@@ -1,11 +1,14 @@
 #!/bin/sh
 
+rm -rf node_modules
+rm -rf var
+rm -rf vendor
+rm -rf .env
+
+sleep 5
+
 # Turn off file sharing
 mutagen sync terminate growth-app
-
-# Remove files from the images
-docker-compose exec files rm -rf /project/.*
-docker-compose exec files rm -rf /project/*
 
 # Turn off docker
 docker-compose down
