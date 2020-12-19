@@ -1,10 +1,10 @@
 version: '3'
 services:
-  api:
+  app:
     build:
       context: ./
       dockerfile: docker/api/Dockerfile
-    image: api
+    image: growth-app
     container_name: growth-app
     restart: unless-stopped
     volumes:
@@ -12,23 +12,23 @@ services:
   yarn:
     image: node:lts-alpine
     depends_on:
-      - api
+      - app
     volumes:
       - code:/app
     working_dir: /app
     entrypoint: yarn
   artisan:
-    image: api
+    image: growth-app
     depends_on:
-      - api
+      - app
     volumes:
       - code:/app
     working_dir: /app
     entrypoint: php artisan
   composer:
-    image: api
+    image: growth-app
     depends_on:
-      - api
+      - app
     environment:
       - COMPOSER_CACHE_DIR=/app/var/cache/composer
     volumes:
@@ -36,9 +36,9 @@ services:
     restart: "no"
     entrypoint: composer
   phpunit:
-    image: api
+    image: growth-app
     depends_on:
-      - api
+      - app
     working_dir: /app
     entrypoint: vendor/bin/phpunit
     volumes:
