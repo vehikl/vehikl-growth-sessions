@@ -11,9 +11,9 @@ class NotifySocialMobCreation extends WebHookNotificationEventListener
     {
         if ($this->isWithinWebHookNotificationWindow()
             && config('webhooks.created_today')
-            && today()->isSameDay($event->socialMob->date)) {
+            && today()->isSameDay($event->growthSession->date)) {
 
-            Http::post(config('webhooks.created_today'), $event->socialMob->toArray());
+            Http::post(config('webhooks.created_today'), $event->growthSession->toArray());
         }
     }
 }
