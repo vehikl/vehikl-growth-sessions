@@ -1,53 +1,47 @@
 version: '3'
 services:
-  app:
-    build:
-      context: ./
-      dockerfile: docker/app/Dockerfile
-    image: growth-app
-    container_name: growth-app
-    restart: unless-stopped
-    volumes:
-      - code:/app
   yarn:
     image: node:lts-alpine
-    depends_on:
-      - app
     volumes:
       - code:/app
     working_dir: /app
     entrypoint: yarn
+
   artisan:
-    image: growth-app
+    image: growth-web
     depends_on:
-      - app
+      - web-app
     volumes:
       - code:/app
     working_dir: /app
+    networks:
+      - growth-web
     entrypoint: php artisan
+
   composer:
-    image: growth-app
+    image: growth-web
     depends_on:
-      - app
+      - web-app
     environment:
       - COMPOSER_CACHE_DIR=/app/var/cache/composer
-    volumes:
-      - code:/app
     restart: "no"
-    entrypoint: composer
-  phpunit:
-    image: growth-app
-    depends_on:
-      - app
-    working_dir: /app
-    entrypoint: vendor/bin/phpunit
     volumes:
       - code:/app
+    working_dir: /app
+    entrypoint: composer
+
+  phpunit:
+    image: growth-web
+    depends_on:
+      - web-app
+    volumes:
+      - code:/var/www
+    entrypoint: vendor/bin/phpunit
 
   web-app:
     build:
       args:
-        user: www-data
+        user: mogo
         uid: 1000
       context: ./
       dockerfile: docker/web-app/Dockerfile
@@ -56,7 +50,7 @@ services:
     restart: unless-stopped
     working_dir: /var/www/
     volumes:
-      - ./:/var/www
+      - code:/var/www
     networks:
       - growth-web
 
@@ -81,10 +75,18 @@ services:
     ports:
       - 8000:80
     volumes:
-      - ./:/var/www
+      - code:/var/www
       - ./docker/nginx:/etc/nginx/conf.d/
     networks:
       - growth-web
+
+  files:
+    image: alpine:latest
+    container_name: growth-web-files
+    entrypoint: top
+    restart: unless-stopped
+    volumes:
+      - code:/app
 
 networks:
   growth-web:
