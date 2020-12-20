@@ -57,11 +57,11 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.text()).toContain(growthSessionData.owner.name);
     });
 
-    it('displays the mob topic', () => {
+    it('displays the growth session topic', () => {
         expect(wrapper.text()).toContain(growthSessionData.topic);
     });
 
-    it('displays the mob location', () => {
+    it('displays the growth session location', () => {
         expect(wrapper.text()).toContain(growthSessionData.location);
     });
 
@@ -80,12 +80,12 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.find('.attendee-limit').element).not.toBeDefined();
     })
 
-    it('does not display the join button to the owner of the mob', () => {
+    it('does not display the join button to the owner of the growth session', () => {
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: ownerOfTheGrowthSession}});
         expect(wrapper.find('.join-button').element).not.toBeVisible();
     });
 
-    it('does not display the join button if you are already part of the mob', () => {
+    it('does not display the join button if you are already part of the growth session', () => {
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: attendee}});
         expect(wrapper.find('.join-button').element).not.toBeVisible();
     });
@@ -95,7 +95,7 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.find('.join-button').element).not.toBeVisible();
     });
 
-    it('does display the join button if you are authenticated and not part of the mob', () => {
+    it('does display the join button if you are authenticated and not part of the growth session', () => {
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: outsider}});
         expect(wrapper.find('.join-button').element).toBeVisible();
     });
@@ -122,7 +122,7 @@ describe('GrowthSessionCard', () => {
         expect(window.confirm).toHaveBeenCalled();
     });
 
-    it('deletes the mob if the user clicks on the delete button and confirms', ()=> {
+    it('deletes the growth session if the user clicks on the delete button and confirms', ()=> {
         GrowthSessionApi.delete = jest.fn();
         window.confirm = jest.fn().mockReturnValue(true);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: ownerOfTheGrowthSession}});
@@ -130,7 +130,7 @@ describe('GrowthSessionCard', () => {
         expect(GrowthSessionApi.delete).toHaveBeenCalledWith(growthSessionData);
     });
 
-    it('does not display the edit button to the owner if the date of the mob is in the past', () => {
+    it('does not display the edit button to the owner if the date of the growth session is in the past', () => {
         const oneDayAfterTheGrowthSession = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
         DateTime.setTestNow(oneDayAfterTheGrowthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: ownerOfTheGrowthSession}});
@@ -138,7 +138,7 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.find('.delete-button').element).not.toBeVisible()
     });
 
-    it('does not display the edit button to the owner if the date of the mob is in the past', () => {
+    it('does not display the edit button to the owner if the date of the growth session is in the past', () => {
         const oneDayAfterTheGrowthSession = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
         DateTime.setTestNow(oneDayAfterTheGrowthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: ownerOfTheGrowthSession}});
@@ -146,7 +146,7 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.find('.update-button').element).not.toBeVisible()
     });
 
-    it('does not display the join button if the date of the mob is in the past', () => {
+    it('does not display the join button if the date of the growth session is in the past', () => {
         const oneDayAfterTheGrowthSession = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
         DateTime.setTestNow(oneDayAfterTheGrowthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: outsider}});
