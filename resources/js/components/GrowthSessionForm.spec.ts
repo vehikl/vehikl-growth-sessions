@@ -31,9 +31,9 @@ describe('CreateGrowthSession', () => {
     }
 
     describe('allows a mob to be created', () => {
-        type TMobCreationScenario = [string, IStoreGrowthSessionRequest]
+        type TGrowthSessionCreationScenario = [string, IStoreGrowthSessionRequest]
 
-        const scenarios: TMobCreationScenario[] = [
+        const scenarios: TGrowthSessionCreationScenario[] = [
             [
                 'Can accept no limit and no end time',
                 {...baseGrowthSessionRequest, attendee_limit: undefined, end_time: undefined}
