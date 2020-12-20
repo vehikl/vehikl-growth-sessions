@@ -10,9 +10,9 @@ class GrowthSessionPolicy
 {
     use HandlesAuthorization;
 
-    private function isInTheFuture(GrowthSession $mob): bool
+    private function isInTheFuture(GrowthSession $growthSession): bool
     {
-        return today()->diffInDays($mob->date, false) >= 0;
+        return today()->diffInDays($growthSession->date, false) >= 0;
     }
 
     public function viewAny(User $user)
