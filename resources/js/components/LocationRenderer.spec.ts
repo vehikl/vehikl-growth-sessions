@@ -25,7 +25,7 @@ describe('LocationRenderer', () => {
     });
 
     it('renders a url in an anchor tag even if there is clutter around', () => {
-        const url: string = "https://social.vehikl.com";
+        const url: string = "https://growth.vehikl.com";
         const complexLocation: string = `It is happening (${url})!!! Right now!`;
         wrapper = mount(LocationRenderer, {propsData: {locationString: complexLocation}});
 
@@ -33,7 +33,7 @@ describe('LocationRenderer', () => {
     });
 
     it('renders 2 urls as separate links', async () => {
-        const url = 'https://social.vehikl.com';
+        const url = 'https://growth.vehikl.com';
         const complexLocation: string = `I can't decide between ${url} and ${url}`;
         wrapper = mount(LocationRenderer, {propsData: {locationString: complexLocation}});
 
