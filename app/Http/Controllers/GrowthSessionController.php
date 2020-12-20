@@ -75,9 +75,9 @@ class GrowthSessionController extends Controller
         return $growthSession;
     }
 
-    public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $socialMob)
+    public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $growthSession)
     {
-        $socialMob->delete();
-        event(new GrowthSessionDeleted($socialMob));
+        $growthSession->delete();
+        event(new GrowthSessionDeleted($growthSession));
     }
 }
