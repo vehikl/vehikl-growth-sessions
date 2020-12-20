@@ -1,10 +1,10 @@
 <template>
     <div class="bg-gray-100 border border-blue-300 p-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
          @click="goToGrowthSession">
-        <div class="flex" :class="{'mb-4': socialMob.title}" v-if="socialMob.title || isDraggable">
+        <div class="flex" :class="{'mb-4': growthSession.title}" v-if="growthSession.title || isDraggable">
             <h3 class="flex-1 font-light text-lg text-blue-700 text-left mb-3"
                 :class="{'pr-4': isDraggable}"
-                v-text="socialMob.title"/>
+                v-text="growthSession.title"/>
             <div v-if="isDraggable"
                  @click.stop
                  class="z-10 handle cursor-grab">
@@ -13,45 +13,45 @@
         </div>
         <pre
             class="mb-4 inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
-            v-text="socialMob.topic"/>
+            v-text="growthSession.topic"/>
         <div class="flex items-center flex-1 mb-4 text-blue-700">
             <p class="mr-3">Host:</p>
-            <p class="mr-6 text-md" v-text="socialMob.owner.name"/>
-            <v-avatar :src="socialMob.owner.avatar" :alt="`${socialMob.owner.name}'s Avatar`" size="6"/>
+            <p class="mr-6 text-md" v-text="growthSession.owner.name"/>
+            <v-avatar :src="growthSession.owner.avatar" :alt="`${growthSession.owner.name}'s Avatar`" size="6"/>
         </div>
         <div class="flex justify-between mb-2 text-blue-700">
             <div class="flex items-center attendees-count">
                 <i class="fa fa-user-circle text-lg mr-2" aria-hidden="true"></i>
-                <span v-text="socialMob.attendees.length"/>
-                <span v-if="socialMob.attendee_limit" class="pl-1 attendee-limit">of {{ socialMob.attendee_limit }}</span>
+                <span v-text="growthSession.attendees.length"/>
+                <span v-if="growthSession.attendee_limit" class="pl-1 attendee-limit">of {{ growthSession.attendee_limit }}</span>
             </div>
             <div class="flex items-center">
                 <i class="fa fa-clock-o text-lg mr-2" aria-hidden="true"></i>
-                {{socialMob.startTime}} to {{socialMob.endTime}}
+                {{growthSession.startTime}} to {{growthSession.endTime}}
             </div>
         </div>
 
         <div class="text-blue-700 text-left mb-4 break-all">
             <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
-            <location-renderer :locationString="socialMob.location"/>
+            <location-renderer :locationString="growthSession.location"/>
         </div>
 
         <button
             class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             @click.stop="joinGrowthSession"
-            v-show="socialMob.canJoin(user)">
+            v-show="growthSession.canJoin(user)">
             Join
         </button>
         <button
             class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
             @click.stop="leaveGrowthSession"
-            v-show="socialMob.canLeave(user)">
+            v-show="growthSession.canLeave(user)">
             Leave
         </button>
-        <div v-show="socialMob.canEditOrDelete(user)">
+        <div v-show="growthSession.canEditOrDelete(user)">
             <button
                 class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                @click.stop="$emit('edit-requested', socialMob)">
+                @click.stop="$emit('edit-requested', growthSession)">
                 Edit
             </button>
             <button
@@ -76,31 +76,31 @@
         components: {VAvatar, IconDraggable, LocationRenderer}
     })
     export default class GrowthSessionCard extends Vue {
-        @Prop({required: true}) socialMob!: GrowthSession;
+        @Prop({required: true}) growthSession!: GrowthSession;
         @Prop({required: false, default: null}) user!: IUser;
 
         goToGrowthSession() {
-            window.location.assign(GrowthSessionApi.showUrl(this.socialMob));
+            window.location.assign(GrowthSessionApi.showUrl(this.growthSession));
         }
 
         async joinGrowthSession() {
-            await this.socialMob.join();
+            await this.growthSession.join();
             this.$emit('mob-updated');
         }
 
         async leaveGrowthSession() {
-            await this.socialMob.leave();
+            await this.growthSession.leave();
             this.$emit('mob-updated');
         }
 
         get isDraggable(): boolean {
-            return this.socialMob.canEditOrDelete(this.user);
+            return this.growthSession.canEditOrDelete(this.user);
         }
 
         async onDeleteClicked() {
             if (confirm('Are you sure you want to delete?')) {
-                await this.socialMob.delete();
-                this.$emit('delete-requested', this.socialMob);
+                await this.growthSession.delete();
+                this.$emit('delete-requested', this.growthSession);
             }
         }
     }

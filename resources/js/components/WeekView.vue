@@ -54,7 +54,7 @@
                     <div v-for="growthSession in growthSessions.getSessionByDate(date)"
                          :key="growthSession.id">
                         <growth-session-card
-                            :socialMob="growthSession"
+                            :growth-session="growthSession"
                             :user="user"
                             class="mb-3 transform transition-transform duration-150"
                             @mob-updated="getAllGrowthSessionsOfTheWeek"
