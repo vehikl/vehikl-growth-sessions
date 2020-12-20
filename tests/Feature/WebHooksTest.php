@@ -20,7 +20,7 @@ class WebHooksTest extends TestCase
         $this->enableHooks();
     }
 
-    public function testItHitsTheMobDeletedTodayWebHookWheneverAGrowthSessionIsDeletedToday()
+    public function testItHitsTheGrowthSessionDeletedTodayWebHookWheneverAGrowthSessionIsDeletedToday()
     {
         $growthSession = GrowthSession::factory()->create(['date' => today()]);
         $user = $growthSession->owner;
@@ -31,7 +31,7 @@ class WebHooksTest extends TestCase
         });
     }
 
-    public function testItDoesNotHittheMobDeletedTodayWebHookIfTheGrowthSessionWasDeletedAtAnyOtherDay()
+    public function testItDoesNotHitTheGrowthSessionDeletedTodayWebHookIfTheGrowthSessionWasDeletedAtAnyOtherDay()
     {
         $growthSession = GrowthSession::factory()->create(['date' => today()->addDay()]);
         $user = $growthSession->owner;
