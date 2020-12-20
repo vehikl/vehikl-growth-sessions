@@ -4,7 +4,7 @@ import LocationRenderer from './LocationRenderer.vue';
 describe('LocationRenderer', () => {
     let wrapper: Wrapper<LocationRenderer>;
     it('renders a simple location as text', () => {
-        const simpleMobLocation: string = 'This is a simple mob location';
+        const simpleMobLocation: string = 'This is a simple location';
         wrapper = mount(LocationRenderer, {propsData: {locationString: simpleMobLocation}});
 
         expect(wrapper.find('span').text()).toContain(simpleMobLocation);
