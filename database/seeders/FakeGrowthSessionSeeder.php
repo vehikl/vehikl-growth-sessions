@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
-class FakeSocialMobSeeder extends Seeder
+class FakeGrowthSessionSeeder extends Seeder
 {
     public function run()
     {

@@ -10,9 +10,9 @@ class FakeCommentSeeder extends Seeder
 {
     public function run()
     {
-        GrowthSession::all()->each(fn($socialMob) => Comment::factory()
+        GrowthSession::all()->each(fn($growthSession) => Comment::factory()
             ->times(random_int(0, 3))
-            ->create(['social_mob_id' => $socialMob->id])
+            ->create(['social_mob_id' => $growthSession->id])
         );
     }
 }
