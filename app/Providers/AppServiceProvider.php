@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Http\Resources\GrowthSession as SocialMobResource;
+use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +26,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        SocialMobResource::withoutWrapping();
+        GrowthSessionResource::withoutWrapping();
     }
 }
