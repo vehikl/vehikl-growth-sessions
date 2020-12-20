@@ -38,7 +38,7 @@
 
         <button
             class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            @click.stop="joinMob"
+            @click.stop="joinGrowthSession"
             v-show="socialMob.canJoin(user)">
             Join
         </button>
@@ -83,7 +83,7 @@
             window.location.assign(GrowthSessionApi.showUrl(this.socialMob));
         }
 
-        async joinMob() {
+        async joinGrowthSession() {
             await this.socialMob.join();
             this.$emit('mob-updated');
         }
