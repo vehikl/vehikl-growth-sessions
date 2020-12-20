@@ -110,7 +110,7 @@ class WebHooksTest extends TestCase
     }
 
 
-    public function testItHitsTheAttendeesWebHookIfSomeoneLeavesAMobThatWillHappenToday()
+    public function testItHitsTheAttendeesWebHookIfSomeoneLeavesAGrowthSessionThatWillHappenToday()
     {
         $socialMob = GrowthSession::factory()->create();
         /** @var GrowthSession $socialMob */
