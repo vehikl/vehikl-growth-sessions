@@ -142,7 +142,7 @@ export default class WeekView extends Vue {
     }
 
     async getAllGrowthSessionsOfTheWeek() {
-        this.growthSessions = await GrowthSessionApi.getAllMobsOfTheWeek(this.referenceDate.toDateString());
+        this.growthSessions = await GrowthSessionApi.getAllGrowthSessionsOfTheWeek(this.referenceDate.toDateString());
     }
 
     async onFormSubmitted() {

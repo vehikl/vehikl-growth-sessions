@@ -35,7 +35,7 @@ describe('WeekView', () => {
 
     beforeEach(async () => {
         DateTime.setTestNow(todayDate);
-        GrowthSessionApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(growthSessionsThisWeek);
+        GrowthSessionApi.getAllGrowthSessionsOfTheWeek = jest.fn().mockResolvedValue(growthSessionsThisWeek);
         GrowthSessionApi.join = jest.fn().mockImplementation(mob => mob);
         GrowthSessionApi.leave = jest.fn().mockImplementation(mob => mob);
         GrowthSessionApi.delete = jest.fn().mockImplementation(mob => mob);
@@ -60,7 +60,7 @@ describe('WeekView', () => {
         wrapper.find('button.load-previous-week').trigger('click');
         await flushPromises();
         let sevenDaysInThePast = DateTime.parseByDate(todayDate).addDays(-7).toDateString();
-        expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInThePast);
+        expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(sevenDaysInThePast);
     });
 
     it('allows the user to view mobs of the next week', async () => {
@@ -68,7 +68,7 @@ describe('WeekView', () => {
         wrapper.find('button.load-next-week').trigger('click');
         await flushPromises();
         let sevenDaysInTheFuture = DateTime.parseByDate(todayDate).addDays(7).toDateString();
-        expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInTheFuture);
+        expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(sevenDaysInTheFuture);
     });
 
     it('shows only the current day in mobile devices', () => {
@@ -122,13 +122,13 @@ describe('WeekView', () => {
 
     describe('week persistence', () => {
         it('displays the current week of the day if no date value is provided in the url', () => {
-            expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.today.date);
+            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.today.date);
         });
 
         it('displays the mobs of the week of the date provided in the query string if it exists', () => {
             window.history.pushState({}, 'sometitle', `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`)
             wrapper = mount(WeekView, {localVue});
-            expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
+            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
         });
 
         it('updates the query string for the date whenever the user navigates the weeks', async () => {
@@ -143,7 +143,7 @@ describe('WeekView', () => {
             window.history.pushState({}, 'sometitle', `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`)
             wrapper = mount(WeekView, {localVue});
             await flushPromises();
-            GrowthSessionApi.getAllMobsOfTheWeek = jest.fn();
+            GrowthSessionApi.getAllGrowthSessionsOfTheWeek = jest.fn();
 
             window.history.back =  () => {
                 console.error = jest.fn()
@@ -154,7 +154,7 @@ describe('WeekView', () => {
             window.history.back();
             await flushPromises();
 
-            expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
+            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
         });
     });
 });

@@ -25,7 +25,7 @@ describe('GrowthSessionApi', () => {
         DateTime.setTestNow('2020-05-01');
         mockBackend.onGet('social_mobs/week?date=2020-05-01').reply(200, growthSessionsThisWeekJson);
 
-        const result = await GrowthSessionApi.getAllMobsOfTheWeek();
+        const result = await GrowthSessionApi.getAllGrowthSessionsOfTheWeek();
 
         expect(result).toEqual(growthSessionsThisWeek);
     });
@@ -35,7 +35,7 @@ describe('GrowthSessionApi', () => {
         DateTime.setTestNow('2020-05-01');
         mockBackend.onGet('social_mobs/week?date=2020-01-01').reply(200, growthSessionsThisWeekJson);
 
-        const result = await GrowthSessionApi.getAllMobsOfTheWeek('2020-01-01');
+        const result = await GrowthSessionApi.getAllGrowthSessionsOfTheWeek('2020-01-01');
 
         expect(result).toEqual(growthSessionsThisWeek);
     });

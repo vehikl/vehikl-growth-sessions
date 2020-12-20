@@ -5,7 +5,7 @@ import {GrowthSession} from '../classes/GrowthSession';
 import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 
 export class GrowthSessionApi extends BaseApi {
-    static async getAllMobsOfTheWeek(date: string = DateTime.today().toDateString()): Promise<WeekGrowthSessions> {
+    static async getAllGrowthSessionsOfTheWeek(date: string = DateTime.today().toDateString()): Promise<WeekGrowthSessions> {
         let dateString = DateTime.parseByDate(date).toDateString();
         let response = await BaseApi.httpRequest.get<IWeekGrowthSessions>(`/social_mobs/week?date=${dateString}`);
         return new WeekGrowthSessions(response.data);
