@@ -2,7 +2,7 @@ import {IGrowthSession, IWeekGrowthSessions} from '../types';
 import {GrowthSession} from './GrowthSession';
 import {DateTime} from '../classes/DateTime';
 
-export class WeekMobs {
+export class WeekGrowthSessions {
     weekMobs: IWeekGrowthSessions;
     weekDates: DateTime[] = [];
 
@@ -40,7 +40,7 @@ export class WeekMobs {
         return this.weekDates[this.weekDates.length - 1];
     }
 
-    static empty(): WeekMobs {
-        return new WeekMobs({[DateTime.today().toDateString()] : []});
+    static empty(): WeekGrowthSessions {
+        return new WeekGrowthSessions({[DateTime.today().toDateString()] : []});
     }
 }

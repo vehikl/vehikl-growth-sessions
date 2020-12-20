@@ -83,7 +83,7 @@ import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
 import Draggable from 'vuedraggable';
 import {GrowthSession} from '../classes/GrowthSession';
-import {WeekMobs} from '../classes/WeekMobs';
+import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 import {Nothingator} from '../classes/Nothingator';
 
 interface IMobCardDragChange {
@@ -97,7 +97,7 @@ interface IMobCardDragChange {
 export default class WeekView extends Vue {
     @Prop({required: false, default: null}) user!: IUser;
     referenceDate: DateTime = DateTime.today();
-    socialMobs: WeekMobs = WeekMobs.empty();
+    socialMobs: WeekGrowthSessions = WeekGrowthSessions.empty();
     newMobDate: string = '';
     mobToUpdate: GrowthSession | null = null;
     DateTime = DateTime;

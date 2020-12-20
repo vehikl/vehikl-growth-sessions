@@ -2,13 +2,13 @@ import BaseApi from './BaseApi';
 import {IComment, IGrowthSession, IStoreGrowthSessionRequest, IUpdateGrowthSessionRequest, IWeekGrowthSessions} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {GrowthSession} from '../classes/GrowthSession';
-import {WeekMobs} from '../classes/WeekMobs';
+import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 
 export class GrowthSessionApi extends BaseApi {
-    static async getAllMobsOfTheWeek(date: string = DateTime.today().toDateString()): Promise<WeekMobs> {
+    static async getAllMobsOfTheWeek(date: string = DateTime.today().toDateString()): Promise<WeekGrowthSessions> {
         let dateString = DateTime.parseByDate(date).toDateString();
         let response = await BaseApi.httpRequest.get<IWeekGrowthSessions>(`/social_mobs/week?date=${dateString}`);
-        return new WeekMobs(response.data);
+        return new WeekGrowthSessions(response.data);
     }
 
     static async store(payload: IStoreGrowthSessionRequest): Promise<GrowthSession> {

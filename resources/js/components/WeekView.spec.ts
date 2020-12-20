@@ -6,7 +6,7 @@ import {IUser} from '../types';
 import VModal from 'vue-js-modal';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
-import {WeekMobs} from '../classes/WeekMobs';
+import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 import {GrowthSession} from '../classes/GrowthSession';
 import {Nothingator} from '../classes/Nothingator';
 
@@ -20,7 +20,7 @@ const authUser: IUser = {
 
 const localVue = createLocalVue();
 localVue.use(VModal);
-let socialsThisWeek: WeekMobs = new WeekMobs(socialsThisWeekJson);
+let socialsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(socialsThisWeekJson);
 
 const metadataForSocialsFixture = {
     today: {date: '2020-01-15', weekday: 'Wednesday'},

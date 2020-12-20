@@ -5,9 +5,9 @@ import socialMobWithComments from '../../../tests/fixtures/SocialMobWithComments
 import {GrowthSessionApi} from './GrowthSessionApi';
 import {IGrowthSession, IUpdateGrowthSessionRequest} from '../types';
 import {DateTime} from '../classes/DateTime';
-import {WeekMobs} from '../classes/WeekMobs';
+import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 
-const socialsThisWeek: WeekMobs = new WeekMobs(socialsThisWeekJson);
+const socialsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(socialsThisWeekJson);
 const dummyMob: IGrowthSession = socialMobWithComments;
 
 describe('SocialMobApi', () => {
