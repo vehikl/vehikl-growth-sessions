@@ -105,15 +105,15 @@ export default class WeekView extends Vue {
     draggedGrowthSession!: GrowthSession;
 
     async created() {
-        await this.refreshMobsOfTheWeek()
-        window.onpopstate = this.refreshMobsOfTheWeek;
+        await this.refreshGrowthSessionsOfTheWeek()
+        window.onpopstate = this.refreshGrowthSessionsOfTheWeek;
     }
 
     beforeDestroy() {
         window.onpopstate = null;
     }
 
-    async refreshMobsOfTheWeek() {
+    async refreshGrowthSessionsOfTheWeek() {
         this.useDateFromUrlAsReference();
         await this.getAllMobsOfTheWeek();
     }
