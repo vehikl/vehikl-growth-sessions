@@ -12,36 +12,36 @@ use App\Http\Requests\StoreSocialMobRequest;
 use App\Http\Requests\UpdateSocialMobRequest;
 use App\Http\Resources\SocialMob as SocialMobResource;
 use App\Http\Resources\SocialMobWeek;
-use App\SocialMob;
+use App\SocialMob as GrowthSession;
 use Illuminate\Http\Request;
 
 class GrowthSessionController extends Controller
 {
-    public function show(SocialMob $socialMob)
+    public function show(GrowthSession $socialMob)
     {
         return view('social-mob', ['socialMob' => new SocialMobResource($socialMob)]);
     }
 
     public function week(Request $request)
     {
-        return new SocialMobWeek(SocialMob::allInTheWeekOf($request->input('date')));
+        return new SocialMobWeek(GrowthSession ::allInTheWeekOf($request->input('date')));
     }
 
     public function day()
     {
-        return SocialMobResource::collection(SocialMob::today()->get());
+        return SocialMobResource::collection(GrowthSession ::today()->get());
     }
 
     public function store(StoreSocialMobRequest $request)
     {
-        $newMob = $request->user()->socialMobs()->save(new SocialMob($request->validated()));
+        $newMob = $request->user()->socialMobs()->save(new GrowthSession ($request->validated()));
         $newMob->load(['owner', 'attendees', 'comments']);
         event(new GrowthSessionCreated($newMob));
 
         return $newMob;
     }
 
-    public function join(SocialMob $socialMob, Request $request)
+    public function join(GrowthSession $socialMob, Request $request)
     {
         if ($socialMob->attendees()->count() === $socialMob->attendee_limit) {
             throw new AttendeeLimitReached;
@@ -53,7 +53,7 @@ class GrowthSessionController extends Controller
         return $socialMob;
     }
 
-    public function leave(SocialMob $socialMob, Request $request)
+    public function leave(GrowthSession $socialMob, Request $request)
     {
         $socialMob->attendees()->detach($request->user());
         event(new SocialMobAttendeeChanged($socialMob->refresh()));
@@ -61,12 +61,12 @@ class GrowthSessionController extends Controller
         return $socialMob;
     }
 
-    public function edit(SocialMob $socialMob)
+    public function edit(GrowthSession $socialMob)
     {
         return view('social-mob-edit', compact('socialMob'));
     }
 
-    public function update(UpdateSocialMobRequest $request, SocialMob $socialMob)
+    public function update(UpdateSocialMobRequest $request, GrowthSession $socialMob)
     {
         $originalValues = $socialMob->toArray();
         $socialMob->update($request->validated());
@@ -75,7 +75,7 @@ class GrowthSessionController extends Controller
         return $socialMob;
     }
 
-    public function destroy(DeleteSocialMobRequest $request, SocialMob $socialMob)
+    public function destroy(DeleteSocialMobRequest $request, GrowthSession $socialMob)
     {
         $socialMob->delete();
         event(new SocialMobDeleted($socialMob));
