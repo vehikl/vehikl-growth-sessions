@@ -8,7 +8,7 @@ import {DateTime} from '../classes/DateTime';
 import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 
 const socialsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(socialsThisWeekJson);
-const dummyMob: IGrowthSession = growthSessionWithComments;
+const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
 
 describe('SocialMobApi', () => {
     let mockBackend: MockAdapter;
@@ -50,56 +50,56 @@ describe('SocialMobApi', () => {
 
     it('updates an existing mob', async () => {
         let newTopic: string = 'A totally new topic';
-        mockBackend.onPut(`social_mobs/${dummyMob.id}`).reply(200, {
-            ...dummyMob,
+        mockBackend.onPut(`social_mobs/${dummyGrowthSession.id}`).reply(200, {
+            ...dummyGrowthSession,
             topic: newTopic
         });
 
         const payload: IUpdateGrowthSessionRequest = {topic: newTopic};
-        const result = await GrowthSessionApi.update(dummyMob, payload);
+        const result = await GrowthSessionApi.update(dummyGrowthSession, payload);
 
         expect(result.topic).toEqual(newTopic);
     });
 
     it('deletes an existing mob', async () => {
-        mockBackend.onDelete(`social_mobs/${dummyMob.id}`).reply(200);
+        mockBackend.onDelete(`social_mobs/${dummyGrowthSession.id}`).reply(200);
 
-        const result = await GrowthSessionApi.delete(dummyMob);
+        const result = await GrowthSessionApi.delete(dummyGrowthSession);
 
         expect(result).toBe(true);
     });
 
     it('joins an existing mob', async () => {
-        mockBackend.onPost(`social_mobs/${dummyMob.id}/join`).reply(200, dummyMob);
+        mockBackend.onPost(`social_mobs/${dummyGrowthSession.id}/join`).reply(200, dummyGrowthSession);
 
-        await GrowthSessionApi.join(dummyMob);
+        await GrowthSessionApi.join(dummyGrowthSession);
 
-        expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyMob.id}/join`);
+        expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyGrowthSession.id}/join`);
     });
 
     it('leaves an existing mob', async () => {
-        mockBackend.onPost(`social_mobs/${dummyMob.id}/leave`).reply(200, dummyMob);
+        mockBackend.onPost(`social_mobs/${dummyGrowthSession.id}/leave`).reply(200, dummyGrowthSession);
 
-        await GrowthSessionApi.leave(dummyMob);
+        await GrowthSessionApi.leave(dummyGrowthSession);
 
-        expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyMob.id}/leave`);
+        expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyGrowthSession.id}/leave`);
     });
 
     it('allows a new comment to be created', async () => {
-        mockBackend.onPost(`social_mobs/${dummyMob.id}/comments`).reply(201, dummyMob);
+        mockBackend.onPost(`social_mobs/${dummyGrowthSession.id}/comments`).reply(201, dummyGrowthSession);
         const content = 'Hello world';
 
-        await GrowthSessionApi.postComment(dummyMob, content);
+        await GrowthSessionApi.postComment(dummyGrowthSession, content);
 
-        expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyMob.id}/comments`);
+        expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyGrowthSession.id}/comments`);
         expect(JSON.parse(mockBackend.history.post[0].data)).toEqual({content: content})
     });
 
     it('allows a comment to be deleted', async () => {
-        mockBackend.onDelete(`social_mobs/${dummyMob.id}/comments/${dummyMob.comments[0].id}`).reply(200, dummyMob);
+        mockBackend.onDelete(`social_mobs/${dummyGrowthSession.id}/comments/${dummyGrowthSession.comments[0].id}`).reply(200, dummyGrowthSession);
 
-        await GrowthSessionApi.deleteComment(dummyMob.comments[0]);
+        await GrowthSessionApi.deleteComment(dummyGrowthSession.comments[0]);
 
-        expect(mockBackend.history.delete[0].url).toBe(`/social_mobs/${dummyMob.id}/comments/${dummyMob.comments[0].id}`);
+        expect(mockBackend.history.delete[0].url).toBe(`/social_mobs/${dummyGrowthSession.id}/comments/${dummyGrowthSession.comments[0].id}`);
     });
 });
