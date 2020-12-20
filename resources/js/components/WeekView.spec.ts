@@ -48,7 +48,7 @@ describe('WeekView', () => {
         jest.restoreAllMocks();
     });
 
-    it('loads with the current week socials in display', () => {
+    it('loads with the current week growth sessions in display', () => {
         const topicsOfTheWeek = growthSessionsThisWeek.allMobs.map((mob: GrowthSession) => mob.topic);
         for (let topic of topicsOfTheWeek) {
             expect(wrapper.text()).toContain(topic);
@@ -56,14 +56,14 @@ describe('WeekView', () => {
     });
 
 
-    it('allows the user to view mobs of the previous week', async () => {
+    it('allows the user to view growth sessions of the previous week', async () => {
         wrapper.find('button.load-previous-week').trigger('click');
         await flushPromises();
         let sevenDaysInThePast = DateTime.parseByDate(todayDate).addDays(-7).toDateString();
         expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(sevenDaysInThePast);
     });
 
-    it('allows the user to view mobs of the next week', async () => {
+    it('allows the user to view growth sessions of the next week', async () => {
         window.confirm = jest.fn();
         wrapper.find('button.load-next-week').trigger('click');
         await flushPromises();
@@ -81,11 +81,11 @@ describe('WeekView', () => {
     });
 
 
-    it('does not display the mob creation buttons for guests', async () => {
+    it('does not display the growth session creation buttons for guests', async () => {
         expect(wrapper.find('button.create-mob').exists()).toBe(false);
     });
 
-    it('if no mobs are available on that day, display a variation of nothing in different languages', async () => {
+    it('if no growth sessions are available on that day, display a variation of nothing in different languages', async () => {
         const wordForNothing = 'A random nothing';
         Nothingator.random = jest.fn().mockReturnValue(wordForNothing);
         wrapper = mount(WeekView, {localVue});
@@ -108,7 +108,7 @@ describe('WeekView', () => {
             expect(wrapper.find('form.create-mob').exists()).toBe(true);
         });
 
-        it('does not display the mob creation buttons for days in the past', async () => {
+        it('does not display the growth session creation buttons for days in the past', async () => {
             const failPast = 'The create button was rendered in a past date';
             const failFuture = 'The create button was not rendered in a future date';
             expect(wrapper.find('[weekday=Monday] button.create-mob').exists(), failPast).toBe(false);
@@ -125,7 +125,7 @@ describe('WeekView', () => {
             expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.today.date);
         });
 
-        it('displays the mobs of the week of the date provided in the query string if it exists', () => {
+        it('displays the growth sessions of the week of the date provided in the query string if it exists', () => {
             window.history.pushState({}, 'sometitle', `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`)
             wrapper = mount(WeekView, {localVue});
             expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
@@ -139,7 +139,7 @@ describe('WeekView', () => {
             expect(urlParameters.get('date')).toEqual(metadataForGrowthSessionsFixture.nextWeek.date);
         });
 
-        it('properly display the mobs of the day from the query string when the user navigates back in history', async () => {
+        it('properly display the growth sessions of the day from the query string when the user navigates back in history', async () => {
             window.history.pushState({}, 'sometitle', `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`)
             wrapper = mount(WeekView, {localVue});
             await flushPromises();
