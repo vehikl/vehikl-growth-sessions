@@ -1,5 +1,5 @@
-import {ISocialMob} from '.';
+import {IGrowthSession} from '.';
 
 export interface IWeekMobs {
-    [dateString: string]: ISocialMob[],
+    [dateString: string]: IGrowthSession[],
 }

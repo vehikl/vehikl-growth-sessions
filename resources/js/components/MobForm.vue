@@ -119,7 +119,7 @@
 
 <script lang="ts">
 import {Component, Prop, Vue} from 'vue-property-decorator';
-import {ISocialMob, IStoreSocialMobRequest, IUser, IValidationError} from '../types';
+import {IGrowthSession, IStoreSocialMobRequest, IUser, IValidationError} from '../types';
 import VueTimepicker from 'vue2-timepicker'
 import {SocialMobApi} from '../services/SocialMobApi';
 import {DateTime} from '../classes/DateTime';
@@ -128,7 +128,7 @@ import DatePicker from './DatePicker.vue';
 @Component({components: {DatePicker, VueTimepicker}})
     export default class CreateMob extends Vue {
         @Prop({required: true}) owner!: IUser;
-        @Prop({required: false, default: null}) mob!: ISocialMob;
+        @Prop({required: false, default: null}) mob!: IGrowthSession;
         @Prop({required: false, default: ''}) startDate!: string;
 
         startTime: string = '03:30 pm';
@@ -182,7 +182,7 @@ import DatePicker from './DatePicker.vue';
 
         async createMob() {
             try {
-                let newMob: ISocialMob = await SocialMobApi.store(this.storeOrUpdatePayload);
+                let newMob: IGrowthSession = await SocialMobApi.store(this.storeOrUpdatePayload);
                 this.$emit('submitted', newMob);
             } catch (e) {
                 this.onRequestFailed(e);
@@ -191,7 +191,7 @@ import DatePicker from './DatePicker.vue';
 
         async updateMob() {
             try {
-                let updatedMob: ISocialMob = await SocialMobApi.update(this.mob, this.storeOrUpdatePayload);
+                let updatedMob: IGrowthSession = await SocialMobApi.update(this.mob, this.storeOrUpdatePayload);
                 this.$emit('submitted', updatedMob);
             } catch (e) {
                 this.onRequestFailed(e);

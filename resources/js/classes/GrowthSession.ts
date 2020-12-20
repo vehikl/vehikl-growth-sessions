@@ -1,9 +1,9 @@
-import {IComment, ISocialMob, IUser} from '../types';
+import {IComment, IGrowthSession, IUser} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {SocialMobApi} from '../services/SocialMobApi';
 import {User} from './User';
 
-export class GrowthSession implements ISocialMob {
+export class GrowthSession implements IGrowthSession {
     id!: number;
     title!: string;
     topic!: string;
@@ -16,11 +16,11 @@ export class GrowthSession implements ISocialMob {
     comments!: IComment[];
     attendee_limit!: number | null;
 
-    constructor(mob: ISocialMob) {
+    constructor(mob: IGrowthSession) {
         this.refresh(mob);
     }
 
-    refresh(mob: ISocialMob) {
+    refresh(mob: IGrowthSession) {
         this.id = mob.id;
         this.title = mob.title;
         this.topic = mob.topic;

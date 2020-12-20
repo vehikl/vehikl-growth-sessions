@@ -94,7 +94,7 @@
 
 <script lang="ts">
 import {Component, Prop, Vue} from 'vue-property-decorator';
-import {ISocialMob, IUser, IValidationError} from '../types';
+import {IGrowthSession, IUser, IValidationError} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {GrowthSession} from '../classes/GrowthSession';
 import VueTimepicker from 'vue2-timepicker';
@@ -105,7 +105,7 @@ import DatePicker from './DatePicker.vue';
 @Component({components: {DatePicker, VAvatar, VueTimepicker}})
     export default class MobView extends Vue {
         @Prop({required: false}) user!: IUser;
-        @Prop({required: true}) mobJson!: ISocialMob;
+        @Prop({required: true}) mobJson!: IGrowthSession;
         mob: GrowthSession = new GrowthSession(this.mobJson);
         validationErrors: IValidationError | null = null;
 
@@ -128,7 +128,7 @@ import DatePicker from './DatePicker.vue';
                 if (this.mob.isLimitless) {
                     payload.attendee_limit = null;
                 }
-                let updatedMob: ISocialMob = await SocialMobApi.update(this.mob, payload);
+                let updatedMob: IGrowthSession = await SocialMobApi.update(this.mob, payload);
                 this.$emit('submitted', updatedMob);
                 window.history.back()
             } catch (e) {

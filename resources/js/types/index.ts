@@ -1,6 +1,6 @@
 export * from './IUser';
 export * from './IComment';
-export * from './ISocialMob';
+export * from './IGrowthSession';
 export * from './IWeekMobs';
 
 export * from './IStoreSocialMobRequest';

@@ -1,4 +1,4 @@
-import {ISocialMob, IWeekMobs} from '../types';
+import {IGrowthSession, IWeekMobs} from '../types';
 import {GrowthSession} from './GrowthSession';
 import {DateTime} from '../classes/DateTime';
 
@@ -10,7 +10,7 @@ export class WeekMobs {
         this.weekMobs = weekMobs;
         let weekDateStrings = Object.keys(weekMobs);
         for (let weekDate of weekDateStrings) {
-            this.weekMobs[weekDate] = weekMobs[weekDate].map((jsonMob: ISocialMob) => new GrowthSession(jsonMob));
+            this.weekMobs[weekDate] = weekMobs[weekDate].map((jsonMob: IGrowthSession) => new GrowthSession(jsonMob));
             this.weekDates.push(DateTime.parseByDate(weekDate))
         }
     }

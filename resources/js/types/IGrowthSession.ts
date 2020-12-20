@@ -1,6 +1,6 @@
 import {IComment, IUser} from '.';
 
-export interface ISocialMob {
+export interface IGrowthSession {
     id: number;
     title: string;
     topic: string;

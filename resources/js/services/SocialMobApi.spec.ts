@@ -3,12 +3,12 @@ import MockAdapter from 'axios-mock-adapter';
 import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
 import socialMobWithComments from '../../../tests/fixtures/SocialMobWithComments.json';
 import {SocialMobApi} from './SocialMobApi';
-import {ISocialMob, IUpdateSocialMobRequest} from '../types';
+import {IGrowthSession, IUpdateSocialMobRequest} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {WeekMobs} from '../classes/WeekMobs';
 
 const socialsThisWeek: WeekMobs = new WeekMobs(socialsThisWeekJson);
-const dummyMob: ISocialMob = socialMobWithComments;
+const dummyMob: IGrowthSession = socialMobWithComments;
 
 describe('SocialMobApi', () => {
     let mockBackend: MockAdapter;

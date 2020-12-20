@@ -73,7 +73,7 @@
 
 <script lang="ts">
 import {Component, Prop, Vue} from 'vue-property-decorator';
-import {ISocialMob, IUser} from '../types';
+import {IGrowthSession, IUser} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {GrowthSession} from '../classes/GrowthSession';
 import VueTimepicker from 'vue2-timepicker';
@@ -86,7 +86,7 @@ import LocationRenderer from './LocationRenderer.vue';
 @Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker}})
     export default class MobView extends Vue {
         @Prop({required: false}) userJson!: IUser;
-        @Prop({required: true}) mobJson!: ISocialMob;
+        @Prop({required: true}) mobJson!: IGrowthSession;
         mob: GrowthSession = new GrowthSession(this.mobJson);
 
         get date(): string {

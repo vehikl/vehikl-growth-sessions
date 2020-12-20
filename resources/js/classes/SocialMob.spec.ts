@@ -1,5 +1,5 @@
 import {GrowthSession} from './GrowthSession';
-import {ISocialMob, IUser} from '../types';
+import {IGrowthSession, IUser} from '../types';
 import {SocialMobApi} from '../services/SocialMobApi';
 import {User} from "./User";
 
@@ -13,7 +13,7 @@ describe('SocialMob', () => {
         github_nickname: "johnjohn"
     };
 
-    const mobJson: ISocialMob = {
+    const mobJson: IGrowthSession = {
         attendees: [],
         comments: [],
         date: "2020-01-01",

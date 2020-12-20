@@ -1,5 +1,5 @@
 import BaseApi from './BaseApi';
-import {IComment, ISocialMob, IStoreSocialMobRequest, IUpdateSocialMobRequest, IWeekMobs} from '../types';
+import {IComment, IGrowthSession, IStoreSocialMobRequest, IUpdateSocialMobRequest, IWeekMobs} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {GrowthSession} from '../classes/GrowthSession';
 import {WeekMobs} from '../classes/WeekMobs';
@@ -12,31 +12,31 @@ export class SocialMobApi extends BaseApi {
     }
 
     static async store(payload: IStoreSocialMobRequest): Promise<GrowthSession> {
-        let response = await BaseApi.httpRequest.post<ISocialMob>('/social_mobs', payload);
+        let response = await BaseApi.httpRequest.post<IGrowthSession>('/social_mobs', payload);
         return new GrowthSession(response.data);
     }
 
-    static async update(target: ISocialMob, payload: IUpdateSocialMobRequest): Promise<GrowthSession> {
-        let response = await BaseApi.httpRequest.put<ISocialMob>(`/social_mobs/${target.id}`, payload);
+    static async update(target: IGrowthSession, payload: IUpdateSocialMobRequest): Promise<GrowthSession> {
+        let response = await BaseApi.httpRequest.put<IGrowthSession>(`/social_mobs/${target.id}`, payload);
         return new GrowthSession(response.data);
     }
 
-    static async delete(target: ISocialMob): Promise<boolean> {
+    static async delete(target: IGrowthSession): Promise<boolean> {
         await BaseApi.httpRequest.delete(`/social_mobs/${target.id}`);
         return true;
     }
 
-    static async join(target: ISocialMob): Promise<GrowthSession> {
+    static async join(target: IGrowthSession): Promise<GrowthSession> {
         let response = await BaseApi.httpRequest.post(`/social_mobs/${target.id}/join`);
         return new GrowthSession(response.data);
     }
 
-    static async leave(target: ISocialMob): Promise<GrowthSession> {
+    static async leave(target: IGrowthSession): Promise<GrowthSession> {
         let response = await BaseApi.httpRequest.post(`/social_mobs/${target.id}/leave`);
         return new GrowthSession(response.data);
     }
 
-    static async postComment(target: ISocialMob, content: string): Promise<GrowthSession> {
+    static async postComment(target: IGrowthSession, content: string): Promise<GrowthSession> {
         let response = await BaseApi.httpRequest.post(`/social_mobs/${target.id}/comments`, {content});
         return new GrowthSession(response.data);
     }
@@ -46,11 +46,11 @@ export class SocialMobApi extends BaseApi {
         return new GrowthSession(response.data);
     }
 
-    static editUrl(target: ISocialMob): string {
+    static editUrl(target: IGrowthSession): string {
         return `/social_mobs/${target.id}/edit`
     }
 
-    static showUrl(target: ISocialMob): string {
+    static showUrl(target: IGrowthSession): string {
         return `/social_mobs/${target.id}`;
     }
 }

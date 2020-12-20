@@ -3,11 +3,11 @@ import MobView from "./MobView.vue";
 import userJson from '../../../tests/fixtures/User.json';
 import mobJson from '../../../tests/fixtures/SocialMobWithComments.json'
 import {User} from "../classes/User";
-import {ISocialMob} from '../types';
+import {IGrowthSession} from '../types';
 import socialMobWithComments from '../../../tests/fixtures/SocialMobWithComments.json';
 import {GrowthSession} from "../classes/GrowthSession";
 
-const dummyMob: ISocialMob = socialMobWithComments;
+const dummyMob: IGrowthSession = socialMobWithComments;
 
 describe('MobView', () => {
     let wrapper: Wrapper<MobView>;
