@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\GrowthSession as GrowthSession;
+use App\GrowthSession;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
