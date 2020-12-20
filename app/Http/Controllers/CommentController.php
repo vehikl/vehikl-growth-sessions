@@ -23,10 +23,10 @@ class CommentController extends Controller
         return $growthSession->fresh();
     }
 
-    public function destroy(DeleteCommentRequest $request, GrowthSession $socialMob,Comment $comment)
+    public function destroy(DeleteCommentRequest $request, GrowthSession $growthSession,Comment $comment)
     {
         $comment->delete();
 
-        return $socialMob->fresh();
+        return $growthSession->fresh();
     }
 }
