@@ -1,5 +1,5 @@
 import {mount, Wrapper} from '@vue/test-utils';
-import MobForm from './GrowthSessionForm.vue';
+import GrowthSessionForm from './GrowthSessionForm.vue';
 import {IStoreGrowthSessionRequest, IUser} from '../types';
 import flushPromises from 'flush-promises';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
@@ -14,10 +14,10 @@ const user: IUser = {
 const startDate: string = "2020-06-25";
 
 describe('CreateGrowthSession', () => {
-    let wrapper: Wrapper<MobForm>;
+    let wrapper: Wrapper<GrowthSessionForm>;
 
     beforeEach(() => {
-        wrapper = mount(MobForm, {propsData: {owner: user, startDate}});
+        wrapper = mount(GrowthSessionForm, {propsData: {owner: user, startDate}});
         GrowthSessionApi.store = jest.fn().mockImplementation(mob => mob);
         GrowthSessionApi.update = jest.fn().mockImplementation(mob => mob);
     });
