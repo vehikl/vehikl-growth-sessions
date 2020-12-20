@@ -54,12 +54,12 @@ class CommentsTest extends TestCase
     public function testAUserCannotDeleteAnotherUsersComment()
     {
         $comment = Comment::factory()->create();
-        $socialMob = $comment->socialMob;
+        $growthSession = $comment->socialMob;
 
         $anotherUser = User::factory()->create();
 
         $this->actingAs($anotherUser)
-            ->deleteJson(route('social_mobs.comments.destroy', [$socialMob, $comment]))
+            ->deleteJson(route('social_mobs.comments.destroy', [$growthSession, $comment]))
             ->assertForbidden();
     }
 }
