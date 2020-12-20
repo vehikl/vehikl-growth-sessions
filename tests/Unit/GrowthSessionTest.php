@@ -13,16 +13,16 @@ class GrowthSessionTest extends TestCase
 
     public function testItSetsEndTimeTo5PMByDefault()
     {
-        $mob = new GrowthSession([
+        $growthSession = new GrowthSession([
             'owner_id' => User::factory()->create()->id,
             'start_time' => '15:30:00',
             'date' => '2020-01-01',
             'topic' => 'does not matter',
             'location' => 'not important either'
         ]);
-        $mob->save();
+        $growthSession->save();
 
-        $this->assertEquals('05:00 pm', $mob->fresh()->toArray()['end_time']);
+        $this->assertEquals('05:00 pm', $growthSession->fresh()->toArray()['end_time']);
     }
 
     public function testItCanHaveACustomTitle()
