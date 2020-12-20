@@ -24,7 +24,7 @@
                 <div class="flex w-full h-full">
                     <growth-session-form :mob="growthSessionToUpdate"
                               :owner="user"
-                              :start-date="newMobDate"
+                              :start-date="newGrowthSessionDate"
                               class="mob-form"
                               @submitted="onFormSubmitted"/>
                 </div>
@@ -98,7 +98,7 @@ export default class WeekView extends Vue {
     @Prop({required: false, default: null}) user!: IUser;
     referenceDate: DateTime = DateTime.today();
     growthSessions: WeekGrowthSessions = WeekGrowthSessions.empty();
-    newMobDate: string = '';
+    newGrowthSessionDate: string = '';
     growthSessionToUpdate: GrowthSession | null = null;
     DateTime = DateTime;
     Nothingator = Nothingator;
@@ -152,13 +152,13 @@ export default class WeekView extends Vue {
 
     onCreateNewMobClicked(startDate: DateTime) {
         this.growthSessionToUpdate = null;
-        this.newMobDate = startDate.toISOString();
+        this.newGrowthSessionDate = startDate.toISOString();
         this.$modal.show('mob-form');
     }
 
     onMobEditRequested(mob: GrowthSession) {
         this.growthSessionToUpdate = mob;
-        this.newMobDate = '';
+        this.newGrowthSessionDate = '';
         this.$modal.show('mob-form');
     }
 
