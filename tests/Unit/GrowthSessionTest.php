@@ -7,7 +7,7 @@ use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class SocialMobTest extends TestCase
+class GrowthSessionTest extends TestCase
 {
     use RefreshDatabase;
 
