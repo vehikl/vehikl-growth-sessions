@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\SocialMob;
+use App\GrowthSession;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateGrowthSessionRequest extends FormRequest
@@ -16,7 +16,7 @@ class UpdateGrowthSessionRequest extends FormRequest
     {
         if(empty($this->attendee_limit)) {
             $this->merge([
-                'attendee_limit' => SocialMob::NO_LIMIT
+                'attendee_limit' => GrowthSession::NO_LIMIT
             ]);
         }
     }

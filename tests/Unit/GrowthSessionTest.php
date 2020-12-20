@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\SocialMob as GrowthSession;
+use App\GrowthSession as GrowthSession;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

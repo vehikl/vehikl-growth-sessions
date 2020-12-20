@@ -14,7 +14,7 @@ class GrowthSession extends JsonResource
             $attributes['location'] = '< Login to see the location >';
         }
 
-        if ($attributes['attendee_limit'] === \App\SocialMob::NO_LIMIT) {
+        if ($attributes['attendee_limit'] === \App\GrowthSession::NO_LIMIT) {
             $attributes['attendee_limit'] = null;
         }
 

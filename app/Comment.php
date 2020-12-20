@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\SocialMob as GrowthSession;
+use App\GrowthSession as GrowthSession;
 
 class Comment extends Model
 {

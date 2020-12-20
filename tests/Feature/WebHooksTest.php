@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\SocialMob;
+use App\GrowthSession;
 use App\User;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Response;
@@ -22,7 +22,7 @@ class WebHooksTest extends TestCase
 
     public function testItHitsTheMobDeletedTodayWebHookWheneverAMobIsDeletedToday()
     {
-        $socialMob = SocialMob::factory()->create(['date' => today()]);
+        $socialMob = GrowthSession::factory()->create(['date' => today()]);
         $user = $socialMob->owner;
         $this->actingAs($user)->deleteJson(route('social_mobs.destroy', $socialMob))->assertSuccessful();
 
@@ -33,7 +33,7 @@ class WebHooksTest extends TestCase
 
     public function testItDoesNotHittheMobDeletedTodayWebHookIfTheMobWasDeletedAtAnyOtherDay()
     {
-        $socialMob = SocialMob::factory()->create(['date' => today()->addDay()]);
+        $socialMob = GrowthSession::factory()->create(['date' => today()->addDay()]);
         $user = $socialMob->owner;
         $this->actingAs($user)->deleteJson(route('social_mobs.destroy', $socialMob))->assertSuccessful();
 
@@ -43,7 +43,7 @@ class WebHooksTest extends TestCase
     public function testItDoesNotHitTheWebHookIfTheHookIsNotDefined()
     {
         $this->disableHooks();
-        $socialMob = SocialMob::factory()->create();
+        $socialMob = GrowthSession::factory()->create();
         $user = $socialMob->owner;
         $this->actingAs($user)->deleteJson(route('social_mobs.destroy', $socialMob))->assertSuccessful();
 
@@ -55,7 +55,7 @@ class WebHooksTest extends TestCase
         Http::fake(function () {
             return Http::response('Oh no, the webhook failed! :(', Response::HTTP_INTERNAL_SERVER_ERROR);
         });
-        $socialMob = SocialMob::factory()->create();
+        $socialMob = GrowthSession::factory()->create();
         $user = $socialMob->owner;
 
         $this->actingAs($user)
@@ -64,7 +64,7 @@ class WebHooksTest extends TestCase
 
     public function testItHitsTheMobUpdatedTodayWebHookWheneverAMobIsUpdatedToday()
     {
-        $socialMob = SocialMob::factory()->create(['date' => today()]);
+        $socialMob = GrowthSession::factory()->create(['date' => today()]);
         $user = $socialMob->owner;
         $this->actingAs($user)->putJson(route('social_mobs.update', $socialMob), ['topic' => 'new topic'])->assertSuccessful();
 
@@ -75,7 +75,7 @@ class WebHooksTest extends TestCase
 
     public function testItHitsTheUpdatedTodayWebHookIfAMobChangedItsDateToToday()
     {
-        $socialMob = SocialMob::factory()->create(['date' => today()->addDay()]);
+        $socialMob = GrowthSession::factory()->create(['date' => today()->addDay()]);
         $user = $socialMob->owner;
         $this->actingAs($user)->putJson(route('social_mobs.update', $socialMob), ['date' => today()])->assertSuccessful();
 
@@ -88,7 +88,7 @@ class WebHooksTest extends TestCase
     {
         $this->setTestNow('2020-01-01T10:30:00.000');
         $user = User::factory()->create();
-        $socialMobData = SocialMob::factory()->make(['date' => today()])->toArray();
+        $socialMobData = GrowthSession::factory()->make(['date' => today()])->toArray();
         $this->actingAs($user)->postJson(route('social_mobs.store'), $socialMobData)->assertSuccessful();
 
         Http::assertSent(function (Request $request) {
@@ -99,7 +99,7 @@ class WebHooksTest extends TestCase
     public function testItHitsTheAttendeesWebHookIfSomeoneJoinsAMobThatWillHappenToday()
     {
         $this->withoutExceptionHandling();
-        $socialMob = SocialMob::factory()->create();
+        $socialMob = GrowthSession::factory()->create();
         $newMember = User::factory()->create();
 
         $this->actingAs($newMember)->postJson(route('social_mobs.join', $socialMob))->assertSuccessful();
@@ -112,8 +112,8 @@ class WebHooksTest extends TestCase
 
     public function testItHitsTheAttendeesWebHookIfSomeoneLeavesAMobThatWillHappenToday()
     {
-        $socialMob = SocialMob::factory()->create();
-        /** @var SocialMob $socialMob */
+        $socialMob = GrowthSession::factory()->create();
+        /** @var GrowthSession $socialMob */
         $attendee = User::factory()->create();
         $socialMob->attendees()->attach($attendee);
 
@@ -138,7 +138,7 @@ class WebHooksTest extends TestCase
         Config::set('webhooks.start_time', $startTime);
         Config::set('webhooks.end_time', $endTime);
         $user = User::factory()->create();
-        $socialMobData = SocialMob::factory()->make(['date' => today()])->toArray();
+        $socialMobData = GrowthSession::factory()->make(['date' => today()])->toArray();
 
         $socialMob = $this->actingAs($user)
             ->postJson(route('social_mobs.store'), $socialMobData)->assertSuccessful();
@@ -163,7 +163,7 @@ class WebHooksTest extends TestCase
     public function testItIncludesTheOwnerInformationOnThePayload()
     {
         $user = User::factory()->create();
-        $socialMobData = SocialMob::factory()->make(['date' => today()])->toArray();
+        $socialMobData = GrowthSession::factory()->make(['date' => today()])->toArray();
         $this->actingAs($user)->postJson(route('social_mobs.store'), $socialMobData)->assertSuccessful();
 
         Http::assertSent(function (Request $request) use ($socialMobData) {

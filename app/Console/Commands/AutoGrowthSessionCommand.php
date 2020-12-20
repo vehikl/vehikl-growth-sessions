@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\SocialMob as GrowthSession;
+use App\GrowthSession as GrowthSession;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;

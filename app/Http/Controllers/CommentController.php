@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Comment;
 use App\Http\Requests\DeleteCommentRequest;
-use App\SocialMob as GrowthSession;
+use App\GrowthSession as GrowthSession;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller

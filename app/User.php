@@ -32,7 +32,7 @@ class User extends Authenticatable
 
     public function growthSessions()
     {
-        return $this->hasMany(SocialMob::class, 'owner_id');
+        return $this->hasMany(GrowthSession::class, 'owner_id');
     }
 
     public function comments()

@@ -2,18 +2,18 @@
 
 namespace Database\Factories;
 
-use App\SocialMob;
+use App\GrowthSession;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class SocialMobFactory extends Factory
+class GrowthSessionFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = SocialMob::class;
+    protected $model = GrowthSession::class;
 
     /**
      * Define the model's default state.
@@ -30,7 +30,7 @@ class SocialMobFactory extends Factory
             'date' => today(),
             'start_time' => now()->setTime(15, 30),
             'end_time' => now()->setTime(17, 00),
-            'attendee_limit' => SocialMob::NO_LIMIT,
+            'attendee_limit' => GrowthSession::NO_LIMIT,
         ];
     }
 }

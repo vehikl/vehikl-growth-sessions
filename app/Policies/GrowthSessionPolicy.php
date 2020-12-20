@@ -2,15 +2,15 @@
 
 namespace App\Policies;
 
-use App\SocialMob;
+use App\GrowthSession;
 use App\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class SocialMobPolicy
+class GrowthSessionPolicy
 {
     use HandlesAuthorization;
 
-    private function isInTheFuture(SocialMob $mob): bool
+    private function isInTheFuture(GrowthSession $mob): bool
     {
         return today()->diffInDays($mob->date, false) >= 0;
     }
@@ -20,7 +20,7 @@ class SocialMobPolicy
         return true;
     }
 
-    public function view(User $user, SocialMob $socialMob)
+    public function view(User $user, GrowthSession $socialMob)
     {
         return true;
     }
@@ -30,32 +30,32 @@ class SocialMobPolicy
         return true;
     }
 
-    public function update(User $user, SocialMob $socialMob)
+    public function update(User $user, GrowthSession $socialMob)
     {
         return $user->is($socialMob->owner) && $this->isInTheFuture($socialMob);
     }
 
-    public function delete(User $user, SocialMob $socialMob)
+    public function delete(User $user, GrowthSession $socialMob)
     {
         return $user->is($socialMob->owner) && $this->isInTheFuture($socialMob);
     }
 
-    public function restore(User $user, SocialMob $socialMob)
+    public function restore(User $user, GrowthSession $socialMob)
     {
         return false;
     }
 
-    public function forceDelete(User $user, SocialMob $socialMob)
+    public function forceDelete(User $user, GrowthSession $socialMob)
     {
         return $user->is($socialMob->owner) && $this->isInTheFuture($socialMob);
     }
 
-    public function join(User $user, SocialMob $socialMob)
+    public function join(User $user, GrowthSession $socialMob)
     {
         return ! $socialMob->hasUser($user) && $this->isInTheFuture($socialMob);
     }
 
-    public function leave(User $user, SocialMob $socialMob)
+    public function leave(User $user, GrowthSession $socialMob)
     {
         return $socialMob->hasUser($user) && $this->isInTheFuture($socialMob);
     }

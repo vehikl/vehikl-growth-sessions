@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Comment;
-use App\SocialMob as GrowthSession;
+use App\GrowthSession as GrowthSession;
 use App\User;
 use Illuminate\Http\Response;
 use Tests\TestCase;

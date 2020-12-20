@@ -12,7 +12,7 @@ use App\Http\Requests\StoreGrowthSessionRequest;
 use App\Http\Requests\UpdateGrowthSessionRequest;
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
-use App\SocialMob as GrowthSession;
+use App\GrowthSession as GrowthSession;
 use Illuminate\Http\Request;
 
 class GrowthSessionController extends Controller

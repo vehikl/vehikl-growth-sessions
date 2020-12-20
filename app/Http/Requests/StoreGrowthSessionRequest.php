@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\SocialMob as GrowthSession;
+use App\GrowthSession as GrowthSession;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreGrowthSessionRequest extends FormRequest

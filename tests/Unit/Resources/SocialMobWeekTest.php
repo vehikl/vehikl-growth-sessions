@@ -3,7 +3,7 @@
 namespace Tests\Unit\Resources;
 
 use App\Http\Resources\GrowthSessionWeek;
-use App\SocialMob;
+use App\GrowthSession;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -28,7 +28,7 @@ class SocialMobWeekTest extends TestCase
         Carbon::setTestNow('Last Tuesday');
 
         $weekResource = new GrowthSessionWeek(
-            collect([SocialMob::factory()->create(['date' => now()])])
+            collect([GrowthSession::factory()->create(['date' => now()])])
         );
 
         $firstIndex = now()->startOfWeek()->toDateString();

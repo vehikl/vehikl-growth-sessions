@@ -7,7 +7,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SocialMob extends Model
+class GrowthSession extends Model
 {
     protected $table = 'social_mobs';
 
@@ -80,7 +80,7 @@ class SocialMob extends Model
             : $referenceDate->modify('Last Monday');
         $endPoint = $startPoint->addDays(4);
 
-        $allWeekMobs = SocialMob::query()
+        $allWeekMobs = GrowthSession::query()
             ->whereDate('date', '>=', $startPoint)
             ->whereDate('date', '<=', $endPoint)
             ->orderBy('date')
