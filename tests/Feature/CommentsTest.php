@@ -41,11 +41,11 @@ class CommentsTest extends TestCase
     public function testAUserCanDeleteTheirComment()
     {
         $comment = Comment::factory()->create();
-        $socialMob = $comment->socialMob;
+        $growthSession = $comment->socialMob;
         $commentOwner = $comment->user;
 
         $this->actingAs($commentOwner)
-            ->deleteJson(route('social_mobs.comments.destroy', [$socialMob, $comment]))
+            ->deleteJson(route('social_mobs.comments.destroy', [$growthSession, $comment]))
             ->assertSuccessful();
 
         $this->assertEmpty($comment->fresh());
