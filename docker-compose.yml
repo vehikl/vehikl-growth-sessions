@@ -23,6 +23,13 @@ services:
     working_dir: /app
     entrypoint: yarn
 
+  jest:
+    image: node:lts-alpine
+    volumes:
+      - code:/app
+    working_dir: /app
+    entrypoint: npm test
+
   artisan:
     image: growth-app
     depends_on:
