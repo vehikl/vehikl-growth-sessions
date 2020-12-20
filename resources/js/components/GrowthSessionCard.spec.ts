@@ -1,5 +1,5 @@
 import {mount, Wrapper} from '@vue/test-utils';
-import MobCard from './MobCard.vue';
+import MobCard from './GrowthSessionCard.vue';
 import {IUser} from '../types';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';

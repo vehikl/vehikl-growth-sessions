@@ -77,7 +77,7 @@
 <script lang="ts">
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import {IUser} from '../types';
-import MobCard from './MobCard.vue';
+import MobCard from './GrowthSessionCard.vue';
 import MobForm from './MobForm.vue';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
