@@ -21,7 +21,7 @@ describe('GrowthSessionApi', () => {
         mockBackend.restore();
     });
 
-    it('returns the mobs of the current week if no date is provided', async () => {
+    it('returns the growth sessions of the current week if no date is provided', async () => {
         DateTime.setTestNow('2020-05-01');
         mockBackend.onGet('social_mobs/week?date=2020-05-01').reply(200, growthSessionsThisWeekJson);
 
@@ -31,7 +31,7 @@ describe('GrowthSessionApi', () => {
     });
 
 
-    it('returns the mobs of the week of the date provided', async() => {
+    it('returns the growth sessions of the week of the date provided', async() => {
         DateTime.setTestNow('2020-05-01');
         mockBackend.onGet('social_mobs/week?date=2020-01-01').reply(200, growthSessionsThisWeekJson);
 
@@ -40,7 +40,7 @@ describe('GrowthSessionApi', () => {
         expect(result).toEqual(growthSessionsThisWeek);
     });
 
-    it('stores a new mob', async () => {
+    it('stores a new growth session', async () => {
         mockBackend.onPost('social_mobs').reply(201, growthSessionWithComments);
 
         const result = await GrowthSessionApi.store(growthSessionWithComments);
@@ -48,7 +48,7 @@ describe('GrowthSessionApi', () => {
         expect(result.topic).toEqual(growthSessionWithComments.topic);
     });
 
-    it('updates an existing mob', async () => {
+    it('updates an existing growth session', async () => {
         let newTopic: string = 'A totally new topic';
         mockBackend.onPut(`social_mobs/${dummyGrowthSession.id}`).reply(200, {
             ...dummyGrowthSession,
@@ -61,7 +61,7 @@ describe('GrowthSessionApi', () => {
         expect(result.topic).toEqual(newTopic);
     });
 
-    it('deletes an existing mob', async () => {
+    it('deletes an existing growth session', async () => {
         mockBackend.onDelete(`social_mobs/${dummyGrowthSession.id}`).reply(200);
 
         const result = await GrowthSessionApi.delete(dummyGrowthSession);
@@ -69,7 +69,7 @@ describe('GrowthSessionApi', () => {
         expect(result).toBe(true);
     });
 
-    it('joins an existing mob', async () => {
+    it('joins an existing growth session', async () => {
         mockBackend.onPost(`social_mobs/${dummyGrowthSession.id}/join`).reply(200, dummyGrowthSession);
 
         await GrowthSessionApi.join(dummyGrowthSession);
@@ -77,7 +77,7 @@ describe('GrowthSessionApi', () => {
         expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyGrowthSession.id}/join`);
     });
 
-    it('leaves an existing mob', async () => {
+    it('leaves an existing growth session', async () => {
         mockBackend.onPost(`social_mobs/${dummyGrowthSession.id}/leave`).reply(200, dummyGrowthSession);
 
         await GrowthSessionApi.leave(dummyGrowthSession);
