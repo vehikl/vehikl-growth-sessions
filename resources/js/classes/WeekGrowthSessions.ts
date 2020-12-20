@@ -16,11 +16,11 @@ export class WeekGrowthSessions {
     }
 
     get allMobs(): GrowthSession[] {
-        let mobs = [];
+        let growthSessions = [];
         for (let weekDate of this.weekDates) {
-            mobs.push(...this.weekGrowthSessions[weekDate.toDateString()]);
+            growthSessions.push(...this.weekGrowthSessions[weekDate.toDateString()]);
         }
-        return mobs as GrowthSession[];
+        return growthSessions as GrowthSession[];
     }
 
     getSessionByDate(date: DateTime): GrowthSession[] {
