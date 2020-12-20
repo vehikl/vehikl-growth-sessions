@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\SocialMob;
+use App\SocialMob as GrowthSession;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -29,7 +29,7 @@ class AutoMobCommand extends Command
             if ($host->socialMobs()->where('date', $date)->first()) {
                 return;
             }
-            $host->socialMobs()->save(new SocialMob([
+            $host->socialMobs()->save(new GrowthSession([
                 'topic' => 'Learn about Unity and C# with the QUES Team',
                 'location' => 'discord',
                 'date' => $date,
