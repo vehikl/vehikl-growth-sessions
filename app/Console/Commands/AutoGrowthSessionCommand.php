@@ -7,7 +7,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
-class AutoMobCommand extends Command
+class AutoGrowthSessionCommand extends Command
 {
     protected $signature = 'mob:auto';
 
