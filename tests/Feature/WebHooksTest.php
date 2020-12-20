@@ -20,7 +20,7 @@ class WebHooksTest extends TestCase
         $this->enableHooks();
     }
 
-    public function testItHitsTheMobDeletedTodayWebHookWheneverAMobIsDeletedToday()
+    public function testItHitsTheMobDeletedTodayWebHookWheneverAGrowthSessionIsDeletedToday()
     {
         $growthSession = GrowthSession::factory()->create(['date' => today()]);
         $user = $growthSession->owner;
