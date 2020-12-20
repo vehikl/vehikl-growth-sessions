@@ -22,8 +22,8 @@ describe('GrowthSession', () => {
         id: 0,
         location: "Somewhere over the rainbow",
         owner,
-        title: "The mob title",
-        topic: "The mob topic",
+        title: "The growth session title",
+        topic: "The growth session topic",
         attendee_limit: null
     };
 
