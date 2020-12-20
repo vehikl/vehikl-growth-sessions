@@ -74,8 +74,8 @@ describe('GrowthSessionCard', () => {
     });
 
     it('does not display the attendee limit if there is none', () => {
-        const noLimitMob = new GrowthSession({...growthSessionData, attendee_limit: null});
-        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: noLimitMob}})
+        const noLimitGrowthSession = new GrowthSession({...growthSessionData, attendee_limit: null});
+        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: noLimitGrowthSession}})
         // TODO: is there a better way to make sure something isn't displayed in the card??
         expect(wrapper.find('.attendee-limit').element).not.toBeDefined();
     })
