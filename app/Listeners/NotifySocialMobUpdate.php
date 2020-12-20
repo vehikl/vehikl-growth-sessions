@@ -10,13 +10,13 @@ class NotifySocialMobUpdate extends WebHookNotificationEventListener
     public function handle(GrowthSessionUpdated $event)
     {
         $wasMobOriginallyToday = today()->isSameDay($event->originalGrowthSessionAttributes['date']);
-        $wasMobMovedToToday = today()->isSameDay($event->newSocialMobAttributes['date']);
+        $wasMobMovedToToday = today()->isSameDay($event->newGrowthSessionAttributes['date']);
 
         if ($this->isWithinWebHookNotificationWindow()
             && config('webhooks.updated_today')
             && ($wasMobOriginallyToday || $wasMobMovedToToday)) {
 
-            Http::post(config('webhooks.updated_today'), $event->newSocialMobAttributes);
+            Http::post(config('webhooks.updated_today'), $event->newGrowthSessionAttributes);
         }
     }
 }
