@@ -1,14 +1,14 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
-import socialMobWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
+import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
 import {GrowthSessionApi} from './GrowthSessionApi';
 import {IGrowthSession, IUpdateGrowthSessionRequest} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 
 const socialsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(socialsThisWeekJson);
-const dummyMob: IGrowthSession = socialMobWithComments;
+const dummyMob: IGrowthSession = growthSessionWithComments;
 
 describe('SocialMobApi', () => {
     let mockBackend: MockAdapter;
@@ -41,11 +41,11 @@ describe('SocialMobApi', () => {
     });
 
     it('stores a new mob', async () => {
-        mockBackend.onPost('social_mobs').reply(201, socialMobWithComments);
+        mockBackend.onPost('social_mobs').reply(201, growthSessionWithComments);
 
-        const result = await GrowthSessionApi.store(socialMobWithComments);
+        const result = await GrowthSessionApi.store(growthSessionWithComments);
 
-        expect(result.topic).toEqual(socialMobWithComments.topic);
+        expect(result.topic).toEqual(growthSessionWithComments.topic);
     });
 
     it('updates an existing mob', async () => {
