@@ -10,6 +10,8 @@ import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 const growthSessionsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
 const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
 
+const resource = 'social_mobs';
+
 describe('GrowthSessionApi', () => {
     let mockBackend: MockAdapter;
 
@@ -23,7 +25,7 @@ describe('GrowthSessionApi', () => {
 
     it('returns the growth sessions of the current week if no date is provided', async () => {
         DateTime.setTestNow('2020-05-01');
-        mockBackend.onGet('social_mobs/week?date=2020-05-01').reply(200, growthSessionsThisWeekJson);
+        mockBackend.onGet(`${resource}/week?date=2020-05-01`).reply(200, growthSessionsThisWeekJson);
 
         const result = await GrowthSessionApi.getAllGrowthSessionsOfTheWeek();
 
@@ -33,7 +35,7 @@ describe('GrowthSessionApi', () => {
 
     it('returns the growth sessions of the week of the date provided', async() => {
         DateTime.setTestNow('2020-05-01');
-        mockBackend.onGet('social_mobs/week?date=2020-01-01').reply(200, growthSessionsThisWeekJson);
+        mockBackend.onGet(`${resource}/week?date=2020-01-01`).reply(200, growthSessionsThisWeekJson);
 
         const result = await GrowthSessionApi.getAllGrowthSessionsOfTheWeek('2020-01-01');
 
@@ -41,7 +43,7 @@ describe('GrowthSessionApi', () => {
     });
 
     it('stores a new growth session', async () => {
-        mockBackend.onPost('social_mobs').reply(201, growthSessionWithComments);
+        mockBackend.onPost(resource).reply(201, growthSessionWithComments);
 
         const result = await GrowthSessionApi.store(growthSessionWithComments);
 
@@ -50,7 +52,7 @@ describe('GrowthSessionApi', () => {
 
     it('updates an existing growth session', async () => {
         let newTopic: string = 'A totally new topic';
-        mockBackend.onPut(`social_mobs/${dummyGrowthSession.id}`).reply(200, {
+        mockBackend.onPut(`${resource}/${dummyGrowthSession.id}`).reply(200, {
             ...dummyGrowthSession,
             topic: newTopic
         });
@@ -62,7 +64,7 @@ describe('GrowthSessionApi', () => {
     });
 
     it('deletes an existing growth session', async () => {
-        mockBackend.onDelete(`social_mobs/${dummyGrowthSession.id}`).reply(200);
+        mockBackend.onDelete(`${resource}/${dummyGrowthSession.id}`).reply(200);
 
         const result = await GrowthSessionApi.delete(dummyGrowthSession);
 
@@ -70,36 +72,36 @@ describe('GrowthSessionApi', () => {
     });
 
     it('joins an existing growth session', async () => {
-        mockBackend.onPost(`social_mobs/${dummyGrowthSession.id}/join`).reply(200, dummyGrowthSession);
+        mockBackend.onPost(`${resource}/${dummyGrowthSession.id}/join`).reply(200, dummyGrowthSession);
 
         await GrowthSessionApi.join(dummyGrowthSession);
 
-        expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyGrowthSession.id}/join`);
+        expect(mockBackend.history.post[0].url).toBe(`/${resource}/${dummyGrowthSession.id}/join`);
     });
 
     it('leaves an existing growth session', async () => {
-        mockBackend.onPost(`social_mobs/${dummyGrowthSession.id}/leave`).reply(200, dummyGrowthSession);
+        mockBackend.onPost(`${resource}/${dummyGrowthSession.id}/leave`).reply(200, dummyGrowthSession);
 
         await GrowthSessionApi.leave(dummyGrowthSession);
 
-        expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyGrowthSession.id}/leave`);
+        expect(mockBackend.history.post[0].url).toBe(`/${resource}/${dummyGrowthSession.id}/leave`);
     });
 
     it('allows a new comment to be created', async () => {
-        mockBackend.onPost(`social_mobs/${dummyGrowthSession.id}/comments`).reply(201, dummyGrowthSession);
+        mockBackend.onPost(`${resource}/${dummyGrowthSession.id}/comments`).reply(201, dummyGrowthSession);
         const content = 'Hello world';
 
         await GrowthSessionApi.postComment(dummyGrowthSession, content);
 
-        expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyGrowthSession.id}/comments`);
+        expect(mockBackend.history.post[0].url).toBe(`/${resource}/${dummyGrowthSession.id}/comments`);
         expect(JSON.parse(mockBackend.history.post[0].data)).toEqual({content: content})
     });
 
     it('allows a comment to be deleted', async () => {
-        mockBackend.onDelete(`social_mobs/${dummyGrowthSession.id}/comments/${dummyGrowthSession.comments[0].id}`).reply(200, dummyGrowthSession);
+        mockBackend.onDelete(`${resource}/${dummyGrowthSession.id}/comments/${dummyGrowthSession.comments[0].id}`).reply(200, dummyGrowthSession);
 
         await GrowthSessionApi.deleteComment(dummyGrowthSession.comments[0]);
 
-        expect(mockBackend.history.delete[0].url).toBe(`/social_mobs/${dummyGrowthSession.id}/comments/${dummyGrowthSession.comments[0].id}`);
+        expect(mockBackend.history.delete[0].url).toBe(`/${resource}/${dummyGrowthSession.id}/comments/${dummyGrowthSession.comments[0].id}`);
     });
 });
