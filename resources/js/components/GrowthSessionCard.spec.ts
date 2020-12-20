@@ -131,24 +131,24 @@ describe('GrowthSessionCard', () => {
     });
 
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
-        DateTime.setTestNow(oneDayAfterTheMob);
+        const oneDayAfterTheGrowthSession = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
+        DateTime.setTestNow(oneDayAfterTheGrowthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: ownerOfTheGrowthSession}});
 
         expect(wrapper.find('.delete-button').element).not.toBeVisible()
     });
 
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
-        DateTime.setTestNow(oneDayAfterTheMob);
+        const oneDayAfterTheGrowthSession = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
+        DateTime.setTestNow(oneDayAfterTheGrowthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: ownerOfTheGrowthSession}});
 
         expect(wrapper.find('.update-button').element).not.toBeVisible()
     });
 
     it('does not display the join button if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
-        DateTime.setTestNow(oneDayAfterTheMob);
+        const oneDayAfterTheGrowthSession = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
+        DateTime.setTestNow(oneDayAfterTheGrowthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: outsider}});
 
         expect(wrapper.find('.join-button').element).not.toBeVisible()
