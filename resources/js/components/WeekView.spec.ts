@@ -82,7 +82,7 @@ describe('WeekView', () => {
 
 
     it('does not display the growth session creation buttons for guests', async () => {
-        expect(wrapper.find('button.create-mob').exists()).toBe(false);
+        expect(wrapper.find('button.create-growth-session').exists()).toBe(false);
     });
 
     it('if no growth sessions are available on that day, display a variation of nothing in different languages', async () => {
@@ -102,21 +102,21 @@ describe('WeekView', () => {
         });
 
         it('allows the user to create a growth session', async () => {
-            wrapper.find('button.create-mob').trigger('click');
+            wrapper.find('button.create-growth-session').trigger('click');
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.find('form.create-mob').exists()).toBe(true);
+            expect(wrapper.find('form.create-growth-session').exists()).toBe(true);
         });
 
         it('does not display the growth session creation buttons for days in the past', async () => {
             const failPast = 'The create button was rendered in a past date';
             const failFuture = 'The create button was not rendered in a future date';
-            expect(wrapper.find('[weekday=Monday] button.create-mob').exists(), failPast).toBe(false);
-            expect(wrapper.find('[weekday=Tuesday] button.create-mob').exists(), failPast).toBe(false);
+            expect(wrapper.find('[weekday=Monday] button.create-growth-session').exists(), failPast).toBe(false);
+            expect(wrapper.find('[weekday=Tuesday] button.create-growth-session').exists(), failPast).toBe(false);
 
-            expect(wrapper.find('[weekday=Wednesday] button.create-mob').exists(), failFuture).toBe(true);
-            expect(wrapper.find('[weekday=Thursday] button.create-mob').exists(), failFuture).toBe(true);
-            expect(wrapper.find('[weekday=Friday] button.create-mob').exists(), failFuture).toBe(true);
+            expect(wrapper.find('[weekday=Wednesday] button.create-growth-session').exists(), failFuture).toBe(true);
+            expect(wrapper.find('[weekday=Thursday] button.create-growth-session').exists(), failFuture).toBe(true);
+            expect(wrapper.find('[weekday=Friday] button.create-growth-session').exists(), failFuture).toBe(true);
         });
     });
 
