@@ -22,11 +22,11 @@
         <div class="flex justify-center flex-wrap">
             <modal :dynamic="true" :height="600" :width="500" name="mob-form">
                 <div class="flex w-full h-full">
-                    <growth-session-form :mob="growthSessionToUpdate"
-                              :owner="user"
-                              :start-date="newGrowthSessionDate"
-                              class="mob-form"
-                              @submitted="onFormSubmitted"/>
+                    <growth-session-form :growth-session="growthSessionToUpdate"
+                                         :owner="user"
+                                         :start-date="newGrowthSessionDate"
+                                         class="mob-form"
+                                         @submitted="onFormSubmitted"/>
                 </div>
             </modal>
             <div v-for="date in growthSessions.weekDates"

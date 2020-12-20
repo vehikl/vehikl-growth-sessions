@@ -128,7 +128,7 @@ import DatePicker from './DatePicker.vue';
 @Component({components: {DatePicker, VueTimepicker}})
     export default class GrowthSessionForm extends Vue {
         @Prop({required: true}) owner!: IUser;
-        @Prop({required: false, default: null}) mob!: IGrowthSession;
+        @Prop({required: false, default: null}) growthSession!: IGrowthSession;
         @Prop({required: false, default: ''}) startDate!: string;
 
         startTime: string = '03:30 pm';
@@ -148,15 +148,15 @@ import DatePicker from './DatePicker.vue';
                 input.focus();
             }
 
-            if (this.mob) {
-                this.date = this.mob.date;
-                this.startTime = DateTime.parseByTime(this.mob.start_time).toTimeString12Hours();
-                this.endTime = DateTime.parseByTime(this.mob.end_time).toTimeString12Hours();
-                this.location = this.mob.location;
-                this.title = this.mob.title;
-                this.topic = this.mob.topic;
-                this.isLimitless = ! this.mob.attendee_limit;
-                this.attendeeLimit = this.mob.attendee_limit || 4;
+            if (this.growthSession) {
+                this.date = this.growthSession.date;
+                this.startTime = DateTime.parseByTime(this.growthSession.start_time).toTimeString12Hours();
+                this.endTime = DateTime.parseByTime(this.growthSession.end_time).toTimeString12Hours();
+                this.location = this.growthSession.location;
+                this.title = this.growthSession.title;
+                this.topic = this.growthSession.topic;
+                this.isLimitless = ! this.growthSession.attendee_limit;
+                this.attendeeLimit = this.growthSession.attendee_limit || 4;
             }
         }
 
@@ -191,7 +191,7 @@ import DatePicker from './DatePicker.vue';
 
         async updateGrowthSession() {
             try {
-                let growthSession: IGrowthSession = await GrowthSessionApi.update(this.mob, this.storeOrUpdatePayload);
+                let growthSession: IGrowthSession = await GrowthSessionApi.update(this.growthSession, this.storeOrUpdatePayload);
                 this.$emit('submitted', growthSession);
             } catch (e) {
                 this.onRequestFailed(e);
@@ -199,7 +199,7 @@ import DatePicker from './DatePicker.vue';
         }
 
         get isCreating(): boolean {
-            return !this.mob;
+            return !this.growthSession;
         }
 
         get isReadyToSubmit(): boolean {
