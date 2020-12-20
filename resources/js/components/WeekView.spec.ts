@@ -36,9 +36,9 @@ describe('WeekView', () => {
     beforeEach(async () => {
         DateTime.setTestNow(todayDate);
         GrowthSessionApi.getAllGrowthSessionsOfTheWeek = jest.fn().mockResolvedValue(growthSessionsThisWeek);
-        GrowthSessionApi.join = jest.fn().mockImplementation(mob => mob);
-        GrowthSessionApi.leave = jest.fn().mockImplementation(mob => mob);
-        GrowthSessionApi.delete = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.join = jest.fn().mockImplementation(growthSession => growthSession);
+        GrowthSessionApi.leave = jest.fn().mockImplementation(growthSession => growthSession);
+        GrowthSessionApi.delete = jest.fn().mockImplementation(growthSession => growthSession);
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
     });
