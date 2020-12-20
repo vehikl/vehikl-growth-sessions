@@ -2,12 +2,12 @@
 
 namespace App\Listeners;
 
-use App\Events\SocialMobDeleted;
+use App\Events\GrowthSessionDeleted;
 use Illuminate\Support\Facades\Http;
 
 class NotifySocialMobDelete extends WebHookNotificationEventListener
 {
-    public function handle(SocialMobDeleted $event)
+    public function handle(GrowthSessionDeleted $event)
     {
         if ($this->isWithinWebHookNotificationWindow()
             && config('webhooks.deleted_today')

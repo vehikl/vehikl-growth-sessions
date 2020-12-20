@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\SocialMobAttendeeChanged;
 use App\Events\GrowthSessionCreated;
-use App\Events\SocialMobDeleted;
+use App\Events\GrowthSessionDeleted;
 use App\Events\SocialMobUpdated;
 use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteSocialMobRequest;
@@ -78,6 +78,6 @@ class GrowthSessionController extends Controller
     public function destroy(DeleteSocialMobRequest $request, GrowthSession $socialMob)
     {
         $socialMob->delete();
-        event(new SocialMobDeleted($socialMob));
+        event(new GrowthSessionDeleted($socialMob));
     }
 }
