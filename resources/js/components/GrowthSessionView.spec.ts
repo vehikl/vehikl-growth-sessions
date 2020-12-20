@@ -7,7 +7,7 @@ import {IGrowthSession} from '../types';
 import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
 import {GrowthSession} from "../classes/GrowthSession";
 
-const dummyMob: IGrowthSession = growthSessionWithComments;
+const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
 
 describe('GrowthSessionView', () => {
     let wrapper: Wrapper<GrowthSessionView>;
@@ -33,14 +33,14 @@ describe('GrowthSessionView', () => {
     });
 
     it('can display the attendee limit', () => {
-        let growthSession = new GrowthSession({...dummyMob, attendee_limit: 42});
+        let growthSession = new GrowthSession({...dummyGrowthSession, attendee_limit: 42});
         wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}});
         expect(wrapper.text()).toContain('Attendee Limit');
         expect(wrapper.find('.attendee_limit').text()).toContain(growthSession.attendee_limit);
     });
 
     it('can hide the attendee limit', () => {
-        let growthSession = new GrowthSession({...dummyMob, attendee_limit: null});
+        let growthSession = new GrowthSession({...dummyGrowthSession, attendee_limit: null});
         wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}});
         expect(wrapper.text()).not.toContain('Attendee Limit');
     });
