@@ -333,22 +333,22 @@ class GrowthSessionTest extends TestCase
         $response->assertSee('At AnyDesk XYZ - abcdefg');
     }
 
-    public function testItProvidesASummaryOfTheMobsOfTheDay()
+    public function testItProvidesASummaryOfTheGrowthSessionsOfTheDay()
     {
         $today = '2020-01-02';
         $tomorrow = '2020-01-03';
         $this->setTestNow($today);
         $user = User::factory()->create();
 
-        $todayMobs = GrowthSession::factory()->times(2)->create(['date' => $today, 'attendee_limit' => 4]);
+        $todayGrowthSessions = GrowthSession::factory()->times(2)->create(['date' => $today, 'attendee_limit' => 4]);
         GrowthSession::factory()->times(2)->create(['date' => $tomorrow, 'attendee_limit' => 4]);
 
         $response = $this->actingAs($user)->getJson(route('social_mobs.day'));
 
-        $response->assertJson($todayMobs->toArray());
+        $response->assertJson($todayGrowthSessions->toArray());
     }
 
-    public function testTheSlackBotCanSeeTheMobLocation()
+    public function testTheSlackBotCanSeeTheGrowthSessionLocation()
     {
         $this->seed();
         $growthSession = GrowthSession::factory()->create(['date' => today()]);
@@ -356,7 +356,7 @@ class GrowthSessionTest extends TestCase
             ->assertJsonFragment(['location' => $growthSession->location]);
     }
 
-    public function testAnAttendeeLimitCanBeSetWhenCreatingAtMob()
+    public function testAnAttendeeLimitCanBeSetWhenCreatingAtGrowthSession()
     {
         $user = User::factory()->create();
 
