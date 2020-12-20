@@ -11,7 +11,7 @@ use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreGrowthSessionRequest;
 use App\Http\Requests\UpdateGrowthSessionRequest;
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
-use App\Http\Resources\SocialMobWeek;
+use App\Http\Resources\GrowthSessionWeek;
 use App\SocialMob as GrowthSession;
 use Illuminate\Http\Request;
 
@@ -24,7 +24,7 @@ class GrowthSessionController extends Controller
 
     public function week(Request $request)
     {
-        return new SocialMobWeek(GrowthSession ::allInTheWeekOf($request->input('date')));
+        return new GrowthSessionWeek(GrowthSession ::allInTheWeekOf($request->input('date')));
     }
 
     public function day()

@@ -7,7 +7,7 @@ use Carbon\CarbonPeriod;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Carbon;
 
-class SocialMobWeek extends ResourceCollection
+class GrowthSessionWeek extends ResourceCollection
 {
     public $collects = GrowthSession::class;
     /**

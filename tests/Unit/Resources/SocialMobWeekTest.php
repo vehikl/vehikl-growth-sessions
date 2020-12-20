@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Resources;
 
-use App\Http\Resources\SocialMobWeek;
+use App\Http\Resources\GrowthSessionWeek;
 use App\SocialMob;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ class SocialMobWeekTest extends TestCase
     {
         Carbon::setTestNow('Last Tuesday');
 
-        $weekResource = new SocialMobWeek(collect());
+        $weekResource = new GrowthSessionWeek(collect());
 
         $firstIndex = now()->startOfWeek()->toDateString();
         $week = $weekResource->toArray(Request::createFromGlobals());
@@ -27,7 +27,7 @@ class SocialMobWeekTest extends TestCase
     {
         Carbon::setTestNow('Last Tuesday');
 
-        $weekResource = new SocialMobWeek(
+        $weekResource = new GrowthSessionWeek(
             collect([SocialMob::factory()->create(['date' => now()])])
         );
 
@@ -40,7 +40,7 @@ class SocialMobWeekTest extends TestCase
 
     public function testItReturnsAnEmptyPastWeekWithNoSocialMobs()
     {
-        $weekResource = new SocialMobWeek(collect());
+        $weekResource = new GrowthSessionWeek(collect());
 
         $twoWeeksAgo = now()->subWeeks(2);
         $expectedMonday = $twoWeeksAgo->startOfWeek()->toDateString();
