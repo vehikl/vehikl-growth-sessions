@@ -1,12 +1,12 @@
-import {IGrowthSession, IWeekMobs} from '../types';
+import {IGrowthSession, IWeekGrowthSessions} from '../types';
 import {GrowthSession} from './GrowthSession';
 import {DateTime} from '../classes/DateTime';
 
 export class WeekMobs {
-    weekMobs: IWeekMobs;
+    weekMobs: IWeekGrowthSessions;
     weekDates: DateTime[] = [];
 
-    constructor(weekMobs: IWeekMobs) {
+    constructor(weekMobs: IWeekGrowthSessions) {
         this.weekMobs = weekMobs;
         let weekDateStrings = Object.keys(weekMobs);
         for (let weekDate of weekDateStrings) {
