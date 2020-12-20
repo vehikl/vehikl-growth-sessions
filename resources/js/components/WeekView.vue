@@ -78,7 +78,7 @@
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import {IUser} from '../types';
 import MobCard from './GrowthSessionCard.vue';
-import MobForm from './MobForm.vue';
+import MobForm from './GrowthSessionForm.vue';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
 import Draggable from 'vuedraggable';

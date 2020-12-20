@@ -1,5 +1,5 @@
 import {mount, Wrapper} from '@vue/test-utils';
-import MobForm from './MobForm.vue';
+import MobForm from './GrowthSessionForm.vue';
 import {IStoreGrowthSessionRequest, IUser} from '../types';
 import flushPromises from 'flush-promises';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
