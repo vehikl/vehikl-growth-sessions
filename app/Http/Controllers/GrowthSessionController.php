@@ -10,7 +10,7 @@ use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreGrowthSessionRequest;
 use App\Http\Requests\UpdateGrowthSessionRequest;
-use App\Http\Resources\SocialMob as GrowthSessionResource;
+use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\SocialMobWeek;
 use App\SocialMob as GrowthSession;
 use Illuminate\Http\Request;

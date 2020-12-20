@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SocialMob extends JsonResource
+class GrowthSession extends JsonResource
 {
     public function toArray($request)
     {

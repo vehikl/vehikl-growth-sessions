@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Http\Resources\SocialMob as SocialMobResource;
+use App\Http\Resources\GrowthSession as SocialMobResource;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

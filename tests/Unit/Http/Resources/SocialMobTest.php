@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Http\Resources;
 
-use App\Http\Resources\SocialMob as SocialMobResource;
+use App\Http\Resources\GrowthSession as SocialMobResource;
 use App\SocialMob as SocialMobModel;
 use Illuminate\Http\Request;
 use Tests\TestCase;

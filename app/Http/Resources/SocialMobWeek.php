@@ -9,7 +9,7 @@ use Illuminate\Support\Carbon;
 
 class SocialMobWeek extends ResourceCollection
 {
-    public $collects = SocialMob::class;
+    public $collects = GrowthSession::class;
     /**
      * Transform the resource into an array.
      *
