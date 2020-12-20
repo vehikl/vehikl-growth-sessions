@@ -9,7 +9,7 @@ class NotifySocialMobUpdate extends WebHookNotificationEventListener
 {
     public function handle(GrowthSessionUpdated $event)
     {
-        $wasMobOriginallyToday = today()->isSameDay($event->originalSocialMobAttributes['date']);
+        $wasMobOriginallyToday = today()->isSameDay($event->originalGrowthSessionAttributes['date']);
         $wasMobMovedToToday = today()->isSameDay($event->newSocialMobAttributes['date']);
 
         if ($this->isWithinWebHookNotificationWindow()

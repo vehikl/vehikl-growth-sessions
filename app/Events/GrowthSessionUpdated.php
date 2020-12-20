@@ -10,12 +10,12 @@ class GrowthSessionUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public array $originalSocialMobAttributes;
+    public array $originalGrowthSessionAttributes;
     public array $newSocialMobAttributes;
 
     public function __construct(array $originalGrowthSessionAttributes, array $newGrowthSessionAttributes)
     {
-        $this->originalSocialMobAttributes = $originalGrowthSessionAttributes;
+        $this->originalGrowthSessionAttributes = $originalGrowthSessionAttributes;
         $this->newSocialMobAttributes = $newGrowthSessionAttributes;
     }
 }
