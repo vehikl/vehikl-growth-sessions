@@ -17,9 +17,9 @@ use Illuminate\Http\Request;
 
 class GrowthSessionController extends Controller
 {
-    public function show(GrowthSession $socialMob)
+    public function show(GrowthSession $growthSession)
     {
-        return view('social-mob', ['socialMob' => new GrowthSessionResource($socialMob)]);
+        return view('social-mob', ['socialMob' => new GrowthSessionResource($growthSession)]);
     }
 
     public function week(Request $request)
