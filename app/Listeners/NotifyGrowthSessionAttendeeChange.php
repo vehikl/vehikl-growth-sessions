@@ -5,7 +5,7 @@ namespace App\Listeners;
 use App\Events\GrowthSessionAttendeeChanged;
 use Illuminate\Support\Facades\Http;
 
-class NotifySocialMobAttendeeChange extends WebHookNotificationEventListener
+class NotifyGrowthSessionAttendeeChange extends WebHookNotificationEventListener
 {
     public function handle(GrowthSessionAttendeeChanged $event)
     {

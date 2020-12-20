@@ -6,7 +6,7 @@ use App\Events\GrowthSessionAttendeeChanged;
 use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionUpdated;
-use App\Listeners\NotifySocialMobAttendeeChange;
+use App\Listeners\NotifyGrowthSessionAttendeeChange;
 use App\Listeners\NotifySocialMobCreation;
 use App\Listeners\NotifySocialMobDelete;
 use App\Listeners\NotifySocialMobUpdate;
@@ -24,7 +24,7 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [SendEmailVerificationNotification::class],
         GrowthSessionCreated::class => [NotifySocialMobCreation::class],
-        GrowthSessionAttendeeChanged::class => [NotifySocialMobAttendeeChange::class],
+        GrowthSessionAttendeeChanged::class => [NotifyGrowthSessionAttendeeChange::class],
         GrowthSessionUpdated::class => [NotifySocialMobUpdate::class],
         GrowthSessionDeleted::class => [NotifySocialMobDelete::class]
     ];
