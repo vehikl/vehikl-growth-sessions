@@ -22,7 +22,7 @@
         <div class="flex justify-center flex-wrap">
             <modal :dynamic="true" :height="600" :width="500" name="mob-form">
                 <div class="flex w-full h-full">
-                    <mob-form :mob="mobToUpdate"
+                    <growth-session-form :mob="mobToUpdate"
                               :owner="user"
                               :start-date="newMobDate"
                               class="mob-form"
@@ -78,7 +78,7 @@
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import {IUser} from '../types';
 import GrowthSessionCard from './GrowthSessionCard.vue';
-import MobForm from './GrowthSessionForm.vue';
+import GrowthSessionForm from './GrowthSessionForm.vue';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
 import Draggable from 'vuedraggable';
@@ -92,7 +92,7 @@ interface IMobCardDragChange {
 }
 
 @Component({
-    components: {MobForm, GrowthSessionCard, Draggable}
+    components: {GrowthSessionForm, GrowthSessionCard, Draggable}
 })
 export default class WeekView extends Vue {
     @Prop({required: false, default: null}) user!: IUser;
