@@ -86,8 +86,8 @@ import LocationRenderer from './LocationRenderer.vue';
 @Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker}})
     export default class MobView extends Vue {
         @Prop({required: false}) userJson!: IUser;
-        @Prop({required: true}) mobJson!: IGrowthSession;
-        mob: GrowthSession = new GrowthSession(this.mobJson);
+        @Prop({required: true}) growthSessionJson!: IGrowthSession;
+        mob: GrowthSession = new GrowthSession(this.growthSessionJson);
 
         get date(): string {
             return `${DateTime.parseByDate(this.mob.date).format('MMM-DD')}`

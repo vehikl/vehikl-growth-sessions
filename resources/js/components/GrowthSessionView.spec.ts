@@ -13,7 +13,7 @@ describe('GrowthSessionView', () => {
     let wrapper: Wrapper<GrowthSessionView>;
 
     beforeEach(() => {
-        wrapper = mount(GrowthSessionView, {propsData: {user: userJson, mobJson: growthSessionJson}});
+        wrapper = mount(GrowthSessionView, {propsData: {userJson, growthSessionJson}});
     });
 
     it('redirects to the owners GitHub page when clicked on the profile', async () => {
@@ -33,15 +33,15 @@ describe('GrowthSessionView', () => {
     });
 
     it('can display the attendee limit', () => {
-        let socialMob = new GrowthSession({...dummyMob, attendee_limit: 42});
-        wrapper = mount(GrowthSessionView, {propsData: {mobJson: socialMob}});
+        let growthSession = new GrowthSession({...dummyMob, attendee_limit: 42});
+        wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}});
         expect(wrapper.text()).toContain('Attendee Limit');
-        expect(wrapper.find('.attendee_limit').text()).toContain(socialMob.attendee_limit);
+        expect(wrapper.find('.attendee_limit').text()).toContain(growthSession.attendee_limit);
     });
 
     it('can hide the attendee limit', () => {
-        let socialMob = new GrowthSession({...dummyMob, attendee_limit: null});
-        wrapper = mount(GrowthSessionView, {propsData: {mobJson: socialMob}});
+        let growthSession = new GrowthSession({...dummyMob, attendee_limit: null});
+        wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}});
         expect(wrapper.text()).not.toContain('Attendee Limit');
     });
 });
