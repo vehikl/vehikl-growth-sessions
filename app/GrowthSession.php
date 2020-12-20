@@ -80,14 +80,14 @@ class GrowthSession extends Model
             : $referenceDate->modify('Last Monday');
         $endPoint = $startPoint->addDays(4);
 
-        $allWeekMobs = GrowthSession::query()
+        $allWeekGrowthSessions = GrowthSession::query()
             ->whereDate('date', '>=', $startPoint)
             ->whereDate('date', '<=', $endPoint)
             ->orderBy('date')
             ->orderBy('start_time')
             ->get();
 
-        return $allWeekMobs;
+        return $allWeekGrowthSessions;
     }
 
     public function scopeToday($query)
