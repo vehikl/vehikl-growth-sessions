@@ -28,7 +28,7 @@ class GrowthSessionTest extends TestCase
         $this->assertEquals($title, $user->growthSessions->first()->title);
     }
 
-    public function testTheOwnerOfAMobCanEditIt()
+    public function testTheOwnerOfAGrowthSessionCanEditIt()
     {
         $growthSession = GrowthSession::factory()->create();
         $newTopic = 'A brand new topic!';
@@ -43,7 +43,7 @@ class GrowthSessionTest extends TestCase
         $this->assertEquals($newTitle, $growthSession->fresh()->title);
     }
 
-    public function testTheOwnerOfAMobCanChangeTheAttendeeLimit()
+    public function testTheOwnerOfAGrowthSessionCanChangeTheAttendeeLimit()
     {
         $growthSession = GrowthSession::factory()->create(['attendee_limit' => 5]);
 
@@ -55,7 +55,7 @@ class GrowthSessionTest extends TestCase
         $this->assertEquals($newAttendeeLimit, $growthSession->fresh()->attendee_limit);
     }
 
-    public function testTheOwnerOfAMobCanNotChangeTheAttendeeLimitBelowTheCurrentAttendeeCount()
+    public function testTheOwnerOfAGrowthSessionCanNotChangeTheAttendeeLimitBelowTheCurrentAttendeeCount()
     {
         $growthSession = GrowthSession::factory()->create(['attendee_limit' => 6]);
         $users = User::factory()->times(5)->create();
@@ -91,7 +91,7 @@ class GrowthSessionTest extends TestCase
         $this->assertEquals(GrowthSession::NO_LIMIT, $growthSession->fresh()->attendee_limit);
     }
 
-    public function testTheOwnerCanChangeTheDateOfAnUpcomingMob()
+    public function testTheOwnerCanChangeTheDateOfAnUpcomingGrowthSession()
     {
         $this->setTestNow('2020-01-01');
         $growthSession = GrowthSession::factory()->create(['date' => "2020-01-02"]);
@@ -104,7 +104,7 @@ class GrowthSessionTest extends TestCase
         $this->assertEquals($newDate, $growthSession->fresh()->toArray()['date']);
     }
 
-    public function testTheDateOfTheMobCannotBeSetToThePast()
+    public function testTheDateOfTheGrowthSessionCannotBeSetToThePast()
     {
         $this->setTestNow('2020-01-05');
         $growthSession = GrowthSession::factory()->create(['date' => "2020-01-06"]);
@@ -115,7 +115,7 @@ class GrowthSessionTest extends TestCase
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    public function testTheOwnerCannotUpdateAMobThatAlreadyHappened()
+    public function testTheOwnerCannotUpdateAGrowthSessionThatAlreadyHappened()
     {
         $this->setTestNow('2020-01-05');
         $growthSession = GrowthSession::factory()->create(['date' => "2020-01-01"]);
@@ -126,7 +126,7 @@ class GrowthSessionTest extends TestCase
         ])->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
-    public function testAUserThatIsNotAnOwnerOfAMobCannotEditIt()
+    public function testAUserThatIsNotAnOwnerOfAGrowthSessionCannotEditIt()
     {
         $growthSession = GrowthSession::factory()->create();
         $notTheOwner = User::factory()->create();
@@ -136,7 +136,7 @@ class GrowthSessionTest extends TestCase
         ])->assertForbidden();
     }
 
-    public function testTheOwnerCanDeleteAnExistingMob()
+    public function testTheOwnerCanDeleteAnExistingGrowthSession()
     {
         $this->withoutExceptionHandling();
         $growthSession = GrowthSession::factory()->create();
@@ -147,7 +147,7 @@ class GrowthSessionTest extends TestCase
         $this->assertEmpty($growthSession->fresh());
     }
 
-    public function testAUserThatIsNotAnOwnerOfAMobCannotDeleteIt()
+    public function testAUserThatIsNotAnOwnerOfAGrowthSessionCannotDeleteIt()
     {
         $growthSession = GrowthSession::factory()->create();
         $notTheOwner = User::factory()->create();
@@ -168,7 +168,7 @@ class GrowthSessionTest extends TestCase
         $this->assertEquals($user->id, $existingGrowthSession->attendees->first()->id);
     }
 
-    public function testAUserCannotJoinTheSameMobTwice()
+    public function testAUserCannotJoinTheSameGrowthSessionTwice()
     {
         $existingGrowthSession = GrowthSession::factory()->create();
         $user = User::factory()->create();
@@ -181,7 +181,7 @@ class GrowthSessionTest extends TestCase
         $this->assertCount(1, $existingGrowthSession->attendees);
     }
 
-    public function testAUserCanLeaveTheMob()
+    public function testAUserCanLeaveTheGrowthSession()
     {
         $existingGrowthSession = GrowthSession::factory()->create();
         $user = User::factory()->create();
@@ -258,35 +258,35 @@ class GrowthSessionTest extends TestCase
 
     public function testItCanProvideAllGrowthSessionsOfASpecifiedWeekForAuthenticatedUserIfADateIsGiven()
     {
-        $weekThatHasNoMobs = '2020-05-25';
-        $this->setTestNow($weekThatHasNoMobs);
-        $weekThatHasTheMobs = '2020-05-04';
-        $mondayOfWeekWithMobs = CarbonImmutable::parse($weekThatHasTheMobs);
+        $weekThatHasNoGrowthSessions = '2020-05-25';
+        $this->setTestNow($weekThatHasNoGrowthSessions);
+        $weekThatHasTheGrowthSessions = '2020-05-04';
+        $mondayOfWeekWithGrowthSessions = CarbonImmutable::parse($weekThatHasTheGrowthSessions);
 
         $mondaySocial = GrowthSession::factory()
-            ->create(['date' => $mondayOfWeekWithMobs, 'start_time' => '03:30 pm', 'attendee_limit' => 4])
+            ->create(['date' => $mondayOfWeekWithGrowthSessions, 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
         $lateWednesdaySocial = GrowthSession::factory()
-            ->create(['date' => $mondayOfWeekWithMobs->addDays(2), 'start_time' => '04:30 pm', 'attendee_limit' => 4])
+            ->create(['date' => $mondayOfWeekWithGrowthSessions->addDays(2), 'start_time' => '04:30 pm', 'attendee_limit' => 4])
             ->toArray();
         $earlyWednesdaySocial = GrowthSession::factory()
-            ->create(['date' => $mondayOfWeekWithMobs->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
+            ->create(['date' => $mondayOfWeekWithGrowthSessions->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
         $fridaySocial = GrowthSession::factory()
-            ->create(['date' => $mondayOfWeekWithMobs->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
+            ->create(['date' => $mondayOfWeekWithGrowthSessions->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
 
         $expectedResponse = [
-            $mondayOfWeekWithMobs->toDateString() => [$mondaySocial],
-            $mondayOfWeekWithMobs->addDays(1)->toDateString() => [],
-            $mondayOfWeekWithMobs->addDays(2)->toDateString() => [$earlyWednesdaySocial, $lateWednesdaySocial],
-            $mondayOfWeekWithMobs->addDays(3)->toDateString() => [],
-            $mondayOfWeekWithMobs->addDays(4)->toDateString() => [$fridaySocial],
+            $mondayOfWeekWithGrowthSessions->toDateString() => [$mondaySocial],
+            $mondayOfWeekWithGrowthSessions->addDays(1)->toDateString() => [],
+            $mondayOfWeekWithGrowthSessions->addDays(2)->toDateString() => [$earlyWednesdaySocial, $lateWednesdaySocial],
+            $mondayOfWeekWithGrowthSessions->addDays(3)->toDateString() => [],
+            $mondayOfWeekWithGrowthSessions->addDays(4)->toDateString() => [$fridaySocial],
         ];
 
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->getJson(route('social_mobs.week', ['date' => $weekThatHasTheMobs]));
+        $response = $this->actingAs($user)->getJson(route('social_mobs.week', ['date' => $weekThatHasTheGrowthSessions]));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
