@@ -7,7 +7,7 @@ import VModal from 'vue-js-modal';
 import {SocialMobApi} from '../services/SocialMobApi';
 import {DateTime} from '../classes/DateTime';
 import {WeekMobs} from '../classes/WeekMobs';
-import {SocialMob} from '../classes/SocialMob';
+import {GrowthSession} from '../classes/GrowthSession';
 import {Nothingator} from '../classes/Nothingator';
 
 const authUser: IUser = {
@@ -49,7 +49,7 @@ describe('WeekView', () => {
     });
 
     it('loads with the current week socials in display', () => {
-        const topicsOfTheWeek = socialsThisWeek.allMobs.map((mob: SocialMob) => mob.topic);
+        const topicsOfTheWeek = socialsThisWeek.allMobs.map((mob: GrowthSession) => mob.topic);
         for (let topic of topicsOfTheWeek) {
             expect(wrapper.text()).toContain(topic);
         }

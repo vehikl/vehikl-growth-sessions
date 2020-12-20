@@ -75,7 +75,7 @@
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import {ISocialMob, IUser} from '../types';
 import {DateTime} from '../classes/DateTime';
-import {SocialMob} from '../classes/SocialMob';
+import {GrowthSession} from '../classes/GrowthSession';
 import VueTimepicker from 'vue2-timepicker';
 import Datepicker from 'vuejs-datepicker';
 import {SocialMobApi} from '../services/SocialMobApi';
@@ -87,7 +87,7 @@ import LocationRenderer from './LocationRenderer.vue';
     export default class MobView extends Vue {
         @Prop({required: false}) userJson!: IUser;
         @Prop({required: true}) mobJson!: ISocialMob;
-        mob: SocialMob = new SocialMob(this.mobJson);
+        mob: GrowthSession = new GrowthSession(this.mobJson);
 
         get date(): string {
             return `${DateTime.parseByDate(this.mob.date).format('MMM-DD')}`

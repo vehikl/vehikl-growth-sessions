@@ -50,7 +50,7 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {SocialMob} from '../classes/SocialMob';
+    import {GrowthSession} from '../classes/GrowthSession';
     import {User} from '../classes/User';
     import VAvatar from './VAvatar.vue';
     import {IComment, IUser} from '../types';
@@ -59,7 +59,7 @@
         components: {VAvatar}
     })
     export default class CommentList extends Vue {
-        @Prop({required: true}) socialMob!: SocialMob;
+        @Prop({required: true}) socialMob!: GrowthSession;
         @Prop({required: false}) user!: IUser;
         newComment: string = '';
 

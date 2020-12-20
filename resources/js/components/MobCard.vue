@@ -66,7 +66,7 @@
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
     import {SocialMobApi} from '../services/SocialMobApi';
-    import {SocialMob} from '../classes/SocialMob';
+    import {GrowthSession} from '../classes/GrowthSession';
     import {IUser} from '../types';
     import VAvatar from './VAvatar.vue';
     import IconDraggable from '../svgs/IconDraggable.vue';
@@ -76,7 +76,7 @@
         components: {VAvatar, IconDraggable, LocationRenderer}
     })
     export default class MobCard extends Vue {
-        @Prop({required: true}) socialMob!: SocialMob;
+        @Prop({required: true}) socialMob!: GrowthSession;
         @Prop({required: false, default: null}) user!: IUser;
 
         goToMob() {

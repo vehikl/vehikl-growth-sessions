@@ -5,7 +5,7 @@ import mobJson from '../../../tests/fixtures/SocialMobWithComments.json'
 import {User} from "../classes/User";
 import {ISocialMob} from '../types';
 import socialMobWithComments from '../../../tests/fixtures/SocialMobWithComments.json';
-import {SocialMob} from "../classes/SocialMob";
+import {GrowthSession} from "../classes/GrowthSession";
 
 const dummyMob: ISocialMob = socialMobWithComments;
 
@@ -33,14 +33,14 @@ describe('MobView', () => {
     });
 
     it('can display the attendee limit', () => {
-        let socialMob = new SocialMob({...dummyMob, attendee_limit: 42});
+        let socialMob = new GrowthSession({...dummyMob, attendee_limit: 42});
         wrapper = mount(MobView, {propsData: {mobJson: socialMob}});
         expect(wrapper.text()).toContain('Attendee Limit');
         expect(wrapper.find('.attendee_limit').text()).toContain(socialMob.attendee_limit);
     });
 
     it('can hide the attendee limit', () => {
-        let socialMob = new SocialMob({...dummyMob, attendee_limit: null});
+        let socialMob = new GrowthSession({...dummyMob, attendee_limit: null});
         wrapper = mount(MobView, {propsData: {mobJson: socialMob}});
         expect(wrapper.text()).not.toContain('Attendee Limit');
     });

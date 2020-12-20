@@ -82,13 +82,13 @@ import MobForm from './MobForm.vue';
 import {SocialMobApi} from '../services/SocialMobApi';
 import {DateTime} from '../classes/DateTime';
 import Draggable from 'vuedraggable';
-import {SocialMob} from '../classes/SocialMob';
+import {GrowthSession} from '../classes/GrowthSession';
 import {WeekMobs} from '../classes/WeekMobs';
 import {Nothingator} from '../classes/Nothingator';
 
 interface IMobCardDragChange {
-    added?: { element: SocialMob, index: number }
-    removed?: { element: SocialMob, index: number }
+    added?: { element: GrowthSession, index: number }
+    removed?: { element: GrowthSession, index: number }
 }
 
 @Component({
@@ -99,10 +99,10 @@ export default class WeekView extends Vue {
     referenceDate: DateTime = DateTime.today();
     socialMobs: WeekMobs = WeekMobs.empty();
     newMobDate: string = '';
-    mobToUpdate: SocialMob | null = null;
+    mobToUpdate: GrowthSession | null = null;
     DateTime = DateTime;
     Nothingator = Nothingator;
-    draggedMob!: SocialMob;
+    draggedMob!: GrowthSession;
 
     async created() {
         await this.refreshMobsOfTheWeek()
@@ -156,7 +156,7 @@ export default class WeekView extends Vue {
         this.$modal.show('mob-form');
     }
 
-    onMobEditRequested(mob: SocialMob) {
+    onMobEditRequested(mob: GrowthSession) {
         this.mobToUpdate = mob;
         this.newMobDate = '';
         this.$modal.show('mob-form');

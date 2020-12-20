@@ -3,7 +3,7 @@ import {DateTime} from '../classes/DateTime';
 import {SocialMobApi} from '../services/SocialMobApi';
 import {User} from './User';
 
-export class SocialMob implements ISocialMob {
+export class GrowthSession implements ISocialMob {
     id!: number;
     title!: string;
     topic!: string;

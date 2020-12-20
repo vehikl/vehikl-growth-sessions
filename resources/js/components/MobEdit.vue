@@ -96,7 +96,7 @@
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import {ISocialMob, IUser, IValidationError} from '../types';
 import {DateTime} from '../classes/DateTime';
-import {SocialMob} from '../classes/SocialMob';
+import {GrowthSession} from '../classes/GrowthSession';
 import VueTimepicker from 'vue2-timepicker';
 import {SocialMobApi} from '../services/SocialMobApi';
 import VAvatar from './VAvatar.vue';
@@ -106,7 +106,7 @@ import DatePicker from './DatePicker.vue';
     export default class MobView extends Vue {
         @Prop({required: false}) user!: IUser;
         @Prop({required: true}) mobJson!: ISocialMob;
-        mob: SocialMob = new SocialMob(this.mobJson);
+        mob: GrowthSession = new GrowthSession(this.mobJson);
         validationErrors: IValidationError | null = null;
 
         get date(): string {

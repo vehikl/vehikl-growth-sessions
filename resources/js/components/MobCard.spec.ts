@@ -3,7 +3,7 @@ import MobCard from './MobCard.vue';
 import {IUser} from '../types';
 import {SocialMobApi} from '../services/SocialMobApi';
 import {DateTime} from '../classes/DateTime';
-import {SocialMob} from '../classes/SocialMob';
+import {GrowthSession} from '../classes/GrowthSession';
 
 const ownerOfTheMob: IUser = {
     name: 'Jack Bauer',
@@ -29,7 +29,7 @@ const outsider: IUser = {
     avatar: 'avatar.jpg'
 };
 
-const mobData: SocialMob = new SocialMob({
+const mobData: GrowthSession = new GrowthSession({
     id: 0,
     owner: ownerOfTheMob,
     location: 'Somewhere over the rainbow',
@@ -74,7 +74,7 @@ describe('MobCard', () => {
     });
 
     it('does not display the attendee limit if there is none', () => {
-        const noLimitMob = new SocialMob({...mobData, attendee_limit: null});
+        const noLimitMob = new GrowthSession({...mobData, attendee_limit: null});
         wrapper = mount(MobCard, {propsData: {socialMob: noLimitMob}})
         // TODO: is there a better way to make sure something isn't displayed in the card??
         expect(wrapper.find('.attendee-limit').element).not.toBeDefined();
