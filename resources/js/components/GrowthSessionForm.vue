@@ -162,7 +162,7 @@ import DatePicker from './DatePicker.vue';
 
         onSubmit() {
             if (this.isCreating) {
-                return this.createMob();
+                return this.createGrowthSession();
             }
             this.updateGrowthSession();
         }
@@ -180,7 +180,7 @@ import DatePicker from './DatePicker.vue';
             return errors ? errors[0] : '';
         }
 
-        async createMob() {
+        async createGrowthSession() {
             try {
                 let growthSession: IGrowthSession = await GrowthSessionApi.store(this.storeOrUpdatePayload);
                 this.$emit('submitted', growthSession);
