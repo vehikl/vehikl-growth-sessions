@@ -41,7 +41,7 @@ class CommentsTest extends TestCase
     public function testAUserCanDeleteTheirComment()
     {
         $comment = Comment::factory()->create();
-        $growthSession = $comment->socialMob;
+        $growthSession = $comment->growthSession;
         $commentOwner = $comment->user;
 
         $this->actingAs($commentOwner)
@@ -54,7 +54,7 @@ class CommentsTest extends TestCase
     public function testAUserCannotDeleteAnotherUsersComment()
     {
         $comment = Comment::factory()->create();
-        $growthSession = $comment->socialMob;
+        $growthSession = $comment->growthSession;
 
         $anotherUser = User::factory()->create();
 

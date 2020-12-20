@@ -18,7 +18,7 @@ class CommentController extends Controller
     {
         $comment = new Comment($request->all());
         $comment->user()->associate($request->user());
-        $comment->socialMob()->associate($growthSession);
+        $comment->growthSession()->associate($growthSession);
         $comment->save();
         return $growthSession->fresh();
     }

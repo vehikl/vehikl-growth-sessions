@@ -22,7 +22,7 @@ class Comment extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function socialMob()
+    public function growthSession()
     {
         return $this->belongsTo(GrowthSession::class, 'social_mob_id');
     }
