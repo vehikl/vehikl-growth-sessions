@@ -19,7 +19,9 @@ Route::prefix('social_mobs')->middleware(AuthenticateSlackApp::class)->name('soc
     Route::post('{social_mob}/join', 'GrowthSessionController@join')->middleware(['auth', 'can:join,social_mob'])->name('join');
     Route::post('{social_mob}/leave', 'GrowthSessionController@leave')->middleware(['auth', 'can:leave,social_mob'])->name('leave');
 });
-Route::resource('social_mobs', 'GrowthSessionController')->middleware('auth')->only(['store', 'update', 'destroy']);
+Route::resource('social_mobs', 'GrowthSessionController')->middleware('auth')->only(['store', 'update', 'destroy'])->names([
+    'update' => 'growth_sessions.update',
+]);
 
 Route::prefix('social_mobs/{social_mob}/comments')->name('growth_sessions.comments.')->group(function() {
     Route::get('/', 'CommentController@index')->name('index');
