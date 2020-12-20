@@ -9,7 +9,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
-class SocialMobTest extends TestCase
+class GrowthSessionTest extends TestCase
 {
     public function testAnAuthenticatedUserCanCreateASocialMob()
     {
