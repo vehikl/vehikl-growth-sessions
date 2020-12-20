@@ -89,7 +89,7 @@ class WebHooksTest extends TestCase
         $this->setTestNow('2020-01-01T10:30:00.000');
         $user = User::factory()->create();
         $growthSessionData = GrowthSession::factory()->make(['date' => today()])->toArray();
-        $this->actingAs($user)->postJson(route('social_mobs.store'), $growthSessionData)->assertSuccessful();
+        $this->actingAs($user)->postJson(route('growth_sessions.store'), $growthSessionData)->assertSuccessful();
 
         Http::assertSent(function (Request $request) {
             return $request->url() === config('webhooks.created_today');
@@ -141,7 +141,7 @@ class WebHooksTest extends TestCase
         $growthSessionData = GrowthSession::factory()->make(['date' => today()])->toArray();
 
         $growthSession = $this->actingAs($user)
-            ->postJson(route('social_mobs.store'), $growthSessionData)->assertSuccessful();
+            ->postJson(route('growth_sessions.store'), $growthSessionData)->assertSuccessful();
         $this->actingAs($user)
             ->putJson(route('growth_sessions.update', ['social_mob' => $growthSession['id']]), ['topic' => 'new topic'])->assertSuccessful();
         $this->actingAs($user)
@@ -164,7 +164,7 @@ class WebHooksTest extends TestCase
     {
         $user = User::factory()->create();
         $growthSessionData = GrowthSession::factory()->make(['date' => today()])->toArray();
-        $this->actingAs($user)->postJson(route('social_mobs.store'), $growthSessionData)->assertSuccessful();
+        $this->actingAs($user)->postJson(route('growth_sessions.store'), $growthSessionData)->assertSuccessful();
 
         Http::assertSent(function (Request $request) use ($growthSessionData) {
             return !empty($request->data()['owner']) && $request->data()['location'] === $growthSessionData['location'];

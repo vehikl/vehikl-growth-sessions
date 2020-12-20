@@ -20,6 +20,7 @@ Route::prefix('social_mobs')->middleware(AuthenticateSlackApp::class)->name('soc
     Route::post('{social_mob}/leave', 'GrowthSessionController@leave')->middleware(['auth', 'can:leave,social_mob'])->name('leave');
 });
 Route::resource('social_mobs', 'GrowthSessionController')->middleware('auth')->only(['store', 'update', 'destroy'])->names([
+    'store' => 'growth_sessions.store',
     'update' => 'growth_sessions.update',
 ]);
 

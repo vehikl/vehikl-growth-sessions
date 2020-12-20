@@ -16,7 +16,7 @@ class GrowthSessionTest extends TestCase
         $user = User::factory()->create();
         $topic = 'The fundamentals of foo';
         $title = 'Foo';
-        $this->actingAs($user)->postJson(route('social_mobs.store'), [
+        $this->actingAs($user)->postJson(route('growth_sessions.store'), [
             'topic' => $topic,
             'title' => $title,
             'location' => 'At the central mobbing area',
@@ -362,7 +362,7 @@ class GrowthSessionTest extends TestCase
 
         $expectedAttendeeLimit = 420;
         $this->actingAs($user)->postJson(
-            route('social_mobs.store'),
+            route('growth_sessions.store'),
             $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
         )->assertSuccessful();
 
@@ -375,7 +375,7 @@ class GrowthSessionTest extends TestCase
 
         $expectedAttendeeLimit = 3;
         $this->actingAs($user)->postJson(
-            route('social_mobs.store'),
+            route('growth_sessions.store'),
             $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
         )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 4']);
