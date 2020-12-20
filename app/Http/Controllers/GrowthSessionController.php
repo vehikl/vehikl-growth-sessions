@@ -53,17 +53,17 @@ class GrowthSessionController extends Controller
         return $growthSession;
     }
 
-    public function leave(GrowthSession $socialMob, Request $request)
+    public function leave(GrowthSession $growthSession, Request $request)
     {
-        $socialMob->attendees()->detach($request->user());
-        event(new GrowthSessionAttendeeChanged($socialMob->refresh()));
+        $growthSession->attendees()->detach($request->user());
+        event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
 
-        return $socialMob;
+        return $growthSession;
     }
 
-    public function edit(GrowthSession $socialMob)
+    public function edit(GrowthSession $growthSession)
     {
-        return view('social-mob-edit', compact('socialMob'));
+        return view('social-mob-edit', compact('growthSession'));
     }
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $socialMob)
