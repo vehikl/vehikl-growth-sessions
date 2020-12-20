@@ -2,12 +2,12 @@
 
 namespace App\Listeners;
 
-use App\Events\SocialMobAttendeeChanged;
+use App\Events\GrowthSessionAttendeeChanged;
 use Illuminate\Support\Facades\Http;
 
 class NotifySocialMobAttendeeChange extends WebHookNotificationEventListener
 {
-    public function handle(SocialMobAttendeeChanged $event)
+    public function handle(GrowthSessionAttendeeChanged $event)
     {
         if ($this->isWithinWebHookNotificationWindow() && config('webhooks.attendees_today')) {
 

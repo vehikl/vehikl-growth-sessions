@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\SocialMobAttendeeChanged;
+use App\Events\GrowthSessionAttendeeChanged;
 use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionDeleted;
 use App\Events\SocialMobUpdated;
@@ -48,7 +48,7 @@ class GrowthSessionController extends Controller
         }
 
         $socialMob->attendees()->attach($request->user());
-        event(new SocialMobAttendeeChanged($socialMob->refresh()));
+        event(new GrowthSessionAttendeeChanged($socialMob->refresh()));
 
         return $socialMob;
     }
@@ -56,7 +56,7 @@ class GrowthSessionController extends Controller
     public function leave(GrowthSession $socialMob, Request $request)
     {
         $socialMob->attendees()->detach($request->user());
-        event(new SocialMobAttendeeChanged($socialMob->refresh()));
+        event(new GrowthSessionAttendeeChanged($socialMob->refresh()));
 
         return $socialMob;
     }
