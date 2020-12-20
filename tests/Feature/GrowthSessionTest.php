@@ -324,10 +324,10 @@ class GrowthSessionTest extends TestCase
     {
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
-        $socialMob = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);
+        $growthSession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);
 
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->get(route('social_mobs.show', $socialMob));
+        $response = $this->actingAs($user)->get(route('social_mobs.show', $growthSession));
 
         $response->assertSuccessful();
         $response->assertSee('At AnyDesk XYZ - abcdefg');
