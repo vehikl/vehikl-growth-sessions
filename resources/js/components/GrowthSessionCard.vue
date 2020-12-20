@@ -1,6 +1,6 @@
 <template>
     <div class="bg-gray-100 border border-blue-300 p-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
-         @click="goToMob">
+         @click="goToGrowthSession">
         <div class="flex" :class="{'mb-4': socialMob.title}" v-if="socialMob.title || isDraggable">
             <h3 class="flex-1 font-light text-lg text-blue-700 text-left mb-3"
                 :class="{'pr-4': isDraggable}"
@@ -79,7 +79,7 @@
         @Prop({required: true}) socialMob!: GrowthSession;
         @Prop({required: false, default: null}) user!: IUser;
 
-        goToMob() {
+        goToGrowthSession() {
             window.location.assign(GrowthSessionApi.showUrl(this.socialMob));
         }
 
