@@ -31,10 +31,10 @@ class LoginController extends Controller
     {
         $githubUser = Socialite::driver('github')->user();
         $email = $githubUser->getEmail();
-        $socialMobUser = User::query()->where('email', $email)->first();
+        $growthSessionUser = User::query()->where('email', $email)->first();
 
-        if (! $socialMobUser) {
-            $socialMobUser = User::query()->create([
+        if (! $growthSessionUser) {
+            $growthSessionUser = User::query()->create([
                 'name' => $githubUser->getName() ?? Str::before($email, '@'),
                 'github_nickname' => $githubUser->getNickname(),
                 'email' => $email,
@@ -42,7 +42,7 @@ class LoginController extends Controller
                 'password' => Hash::make(Str::random()),
             ]);
         }
-        auth()->login($socialMobUser, true);
+        auth()->login($growthSessionUser, true);
         return redirect($this->redirectPath());
     }
 }
