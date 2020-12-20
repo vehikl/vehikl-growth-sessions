@@ -23,7 +23,7 @@ describe('CreateGrowthSession', () => {
     });
 
     const baseGrowthSessionRequest: IStoreGrowthSessionRequest = {
-        location: 'The mob location',
+        location: 'The growth session location',
         topic: 'Chosen topic',
         title: 'Chosen title',
         date: '2020-10-01',
