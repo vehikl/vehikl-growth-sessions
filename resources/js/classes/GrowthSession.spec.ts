@@ -3,7 +3,7 @@ import {IGrowthSession, IUser} from '../types';
 import {SocialMobApi} from '../services/SocialMobApi';
 import {User} from "./User";
 
-describe('SocialMob', () => {
+describe('GrowthSession', () => {
     let socialMob: GrowthSession;
     const owner: IUser = {
         id: 0,
