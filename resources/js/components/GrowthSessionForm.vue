@@ -61,7 +61,7 @@
                    :class="{'error-outline': getError('title')}"
                    id="title"
                    maxlength="45"
-                   placeholder="In a short sentence, what is this mob about?"
+                   placeholder="In a short sentence, what is this growth session about?"
                    tabindex="4"
                    type="text"
                    v-model="title"/>
@@ -96,7 +96,7 @@
             <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       :class="{'error-outline': getError('topic')}"
                       id="topic"
-                      placeholder="Do you want to provide more details about this mob?"
+                      placeholder="Do you want to provide more details about this growth session?"
                       rows="4"
                       tabindex="5"
                       v-model="topic"/>
