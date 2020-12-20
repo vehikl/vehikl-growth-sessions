@@ -155,8 +155,8 @@ describe('GrowthSessionCard', () => {
     });
 
     it('does not display the leave button if the date of the mob is in the past', () => {
-        const oneDayAfterTheMob = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
-        DateTime.setTestNow(oneDayAfterTheMob);
+        const oneDayAfterTheGrowthSession = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
+        DateTime.setTestNow(oneDayAfterTheGrowthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {socialMob: growthSessionData, user: attendee}});
 
         expect(wrapper.find('.leave-button').element).not.toBeVisible()
