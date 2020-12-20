@@ -30,7 +30,7 @@ class CommentsTest extends TestCase
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testAGuestCanGetAllCommentsOfAMob()
+    public function testAGuestCanGetAllCommentsOfAGrowthSession()
     {
         $socialMob = GrowthSession::factory()->create();
         $comments = Comment::factory()->times(4)->create(['social_mob_id' => $socialMob->id]);
