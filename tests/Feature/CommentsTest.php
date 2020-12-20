@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 class CommentsTest extends TestCase
 {
-    public function testAUserCanPostCommentsOnAnExistingMob()
+    public function testAUserCanPostCommentsOnAnExistingGrowthSession()
     {
         $user = User::factory()->create();
         $growthSession = SocialMob::factory()->create();
