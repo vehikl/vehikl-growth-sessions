@@ -61,7 +61,7 @@ export class GrowthSession implements IGrowthSession {
             return this.title;
         }
 
-        return `${this.owner.name}'s ${DateTime.parseByDate(this.date).weekDayString()} Mob`;
+        return `${this.owner.name}'s ${DateTime.parseByDate(this.date).weekDayString()} Growth Session`;
     }
 
     get calendarUrl(): string {
