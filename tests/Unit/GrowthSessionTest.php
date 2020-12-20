@@ -35,15 +35,15 @@ class GrowthSessionTest extends TestCase
 
     public function testItHasTheAttendeeLimitToMaxIntByDefault()
     {
-        $mob = new GrowthSession([
+        $growthSession = new GrowthSession([
             'owner_id' => User::factory()->create()->id,
             'start_time' => '15:30:00',
             'date' => '2020-01-01',
             'topic' => 'does not matter',
             'location' => 'not important either'
         ]);
-        $mob->save();
+        $growthSession->save();
 
-        $this->assertEquals(GrowthSession::NO_LIMIT, $mob->fresh()->attendee_limit);
+        $this->assertEquals(GrowthSession::NO_LIMIT, $growthSession->fresh()->attendee_limit);
     }
 }
