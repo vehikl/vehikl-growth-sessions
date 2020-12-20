@@ -47,7 +47,7 @@ describe('GrowthSession', () => {
 
     describe('canJoin', () => {
         it('prevents joining when limit reached', () => {
-            const growthSessionx: GrowthSession = new GrowthSession({...growthSessionJson, attendees: [], date: '2021-01-01', attendee_limit: 1 })
+            const growthSession: GrowthSession = new GrowthSession({...growthSessionJson, attendees: [], date: '2021-01-01', attendee_limit: 1 })
             growthSession.attendees.push(new User({id: 2, name: "John Doe", email: "j.doe@example.com", github_nickname: 'jdoe', avatar: "http://example.com/jdoe"}));
             const someUser: IUser = {id: 3, name: "Jane Doe", github_nickname: 'jdoe', email: "jane.doe@example.com", avatar: "http://example.com/janedoe"}
 
