@@ -57,9 +57,9 @@
                             :socialMob="growthSession"
                             :user="user"
                             class="mb-3 transform transition-transform duration-150"
-                            @mob-updated="getAllMobsOfTheWeek"
+                            @mob-updated="getAllGrowthSessionsOfTheWeek"
                             @edit-requested="onMobEditRequested"
-                            @delete-requested="getAllMobsOfTheWeek"/>
+                            @delete-requested="getAllGrowthSessionsOfTheWeek"/>
                     </div>
 
                     <button
@@ -115,7 +115,7 @@ export default class WeekView extends Vue {
 
     async refreshGrowthSessionsOfTheWeek() {
         this.useDateFromUrlAsReference();
-        await this.getAllMobsOfTheWeek();
+        await this.getAllGrowthSessionsOfTheWeek();
     }
 
     useDateFromUrlAsReference() {
@@ -132,7 +132,7 @@ export default class WeekView extends Vue {
         } catch (e) {
         }
 
-        await this.getAllMobsOfTheWeek();
+        await this.getAllGrowthSessionsOfTheWeek();
     }
 
     onChange(change: IMobCardDragChange) {
@@ -141,12 +141,12 @@ export default class WeekView extends Vue {
         }
     }
 
-    async getAllMobsOfTheWeek() {
+    async getAllGrowthSessionsOfTheWeek() {
         this.growthSessions = await GrowthSessionApi.getAllMobsOfTheWeek(this.referenceDate.toDateString());
     }
 
     async onFormSubmitted() {
-        await this.getAllMobsOfTheWeek();
+        await this.getAllGrowthSessionsOfTheWeek();
         this.$modal.hide('mob-form');
     }
 
@@ -165,7 +165,7 @@ export default class WeekView extends Vue {
     async changeReferenceDate(deltaDays: number) {
         this.referenceDate.addDays(deltaDays);
         window.history.pushState({}, document.title, `?date=${this.referenceDate.toDateString()}`);
-        await this.getAllMobsOfTheWeek();
+        await this.getAllGrowthSessionsOfTheWeek();
     }
 }
 </script>
