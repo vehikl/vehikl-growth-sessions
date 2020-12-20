@@ -62,7 +62,7 @@ class WebHooksTest extends TestCase
             ->deleteJson(route('social_mobs.destroy', $socialMob))->assertSuccessful();
     }
 
-    public function testItHitsTheMobUpdatedTodayWebHookWheneverAMobIsUpdatedToday()
+    public function testItHitsTheGrowthSessionUpdatedTodayWebHookWheneverAGrowthSessionIsUpdatedToday()
     {
         $socialMob = GrowthSession::factory()->create(['date' => today()]);
         $user = $socialMob->owner;
