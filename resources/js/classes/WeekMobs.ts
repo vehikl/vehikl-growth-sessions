@@ -23,7 +23,7 @@ export class WeekMobs {
         return mobs as SocialMob[];
     }
 
-    getMobByDate(date: DateTime): SocialMob[] {
+    getSessionByDate(date: DateTime): SocialMob[] {
         return this.weekMobs[date.toDateString()] as SocialMob[];
     }
 

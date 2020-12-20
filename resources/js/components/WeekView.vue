@@ -39,19 +39,19 @@
                  :weekDay="date.weekDayString()"
                  class="day text-center mx-1 mb-2 px-2 md:block">
                 <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="date.weekDayString()"></h3>
-                <div v-show="socialMobs.getMobByDate(date).length === 0" class="text-blue-600 text-lg my-4">
+                <div v-show="socialMobs.getSessionByDate(date).length === 0" class="text-blue-600 text-lg my-4">
                     <p v-text="`${Nothingator.random()}...`"/>
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
                 </div>
 
                 <draggable :date="date"
-                           :list="socialMobs.getMobByDate(date)"
+                           :list="socialMobs.getSessionByDate(date)"
                            class="h-full w-full"
                            group="social-mobs"
                            handle=".handle"
                            @change="onChange"
                            @end="onDragEnd">
-                    <div v-for="socialMob in socialMobs.getMobByDate(date)"
+                    <div v-for="socialMob in socialMobs.getSessionByDate(date)"
                          :key="socialMob.id">
                         <mob-card
                             :socialMob="socialMob"
