@@ -22,7 +22,7 @@
                 </button>
                 <button
                     class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="editMob"
+                    @click.stop="editGrowthSession"
                     v-if="growthSession.canEditOrDelete(userJson)">
                     Edit
                 </button>
@@ -102,7 +102,7 @@ import LocationRenderer from './LocationRenderer.vue';
             window.location.assign('/');
         }
 
-        async editMob() {
+        async editGrowthSession() {
             window.location.assign(GrowthSessionApi.editUrl(this.growthSession));
         }
     }
