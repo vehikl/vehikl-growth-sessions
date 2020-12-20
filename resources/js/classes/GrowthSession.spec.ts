@@ -47,11 +47,11 @@ describe('GrowthSession', () => {
 
     describe('canJoin', () => {
         it('prevents joining when limit reached', () => {
-            const mob: GrowthSession = new GrowthSession({...growthSessionJson, attendees: [], date: '2021-01-01', attendee_limit: 1 })
-            mob.attendees.push(new User({id: 2, name: "John Doe", email: "j.doe@example.com", github_nickname: 'jdoe', avatar: "http://example.com/jdoe"}));
+            const growthSessionx: GrowthSession = new GrowthSession({...growthSessionJson, attendees: [], date: '2021-01-01', attendee_limit: 1 })
+            growthSession.attendees.push(new User({id: 2, name: "John Doe", email: "j.doe@example.com", github_nickname: 'jdoe', avatar: "http://example.com/jdoe"}));
             const someUser: IUser = {id: 3, name: "Jane Doe", github_nickname: 'jdoe', email: "jane.doe@example.com", avatar: "http://example.com/janedoe"}
 
-            expect(mob.canJoin(someUser)).toBe(false);
+            expect(growthSession.canJoin(someUser)).toBe(false);
         });
 
         it('allows joining when limit has not been reached', () => {
