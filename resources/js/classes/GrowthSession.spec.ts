@@ -39,7 +39,7 @@ describe('GrowthSession', () => {
         const userAgreedToAddToCalendar = true;
         window.confirm = jest.fn().mockReturnValue(userAgreedToAddToCalendar);
         window.open = jest.fn();
-        GrowthSessionApi.join = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.join = jest.fn().mockImplementation(growthSession => growthSession);
         await growthSession.join();
 
         expect(window.open).toHaveBeenCalledWith(growthSession.calendarUrl, '_blank');
