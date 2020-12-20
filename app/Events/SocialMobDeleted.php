@@ -13,8 +13,8 @@ class SocialMobDeleted
 
     public GrowthSession $socialMob;
 
-    public function __construct(GrowthSession $socialMob)
+    public function __construct(GrowthSession $growthSession)
     {
-        $this->socialMob = $socialMob;
+        $this->socialMob = $growthSession;
     }
 }
