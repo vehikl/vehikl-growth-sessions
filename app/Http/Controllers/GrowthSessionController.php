@@ -15,7 +15,7 @@ use App\Http\Resources\SocialMobWeek;
 use App\SocialMob;
 use Illuminate\Http\Request;
 
-class SocialMobController extends Controller
+class GrowthSessionController extends Controller
 {
     public function show(SocialMob $socialMob)
     {
