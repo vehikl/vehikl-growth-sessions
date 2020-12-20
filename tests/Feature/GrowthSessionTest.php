@@ -200,27 +200,27 @@ class GrowthSessionTest extends TestCase
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
 
-        $mondaySocial = GrowthSession::factory()
+        $mondayGrowthSession = GrowthSession::factory()
             ->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
-        $lateWednesdaySocial = GrowthSession::factory()
+        $lateWednesdayGrowthSession = GrowthSession::factory()
             ->create(['date' => $monday->addDays(2), 'start_time' => '04:30 pm', 'attendee_limit' => 4])
             ->toArray();
-        $earlyWednesdaySocial = GrowthSession::factory()
+        $earlyWednesdayGrowthSession = GrowthSession::factory()
             ->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
-        $fridaySocial = GrowthSession::factory()
+        $fridayGrowthSession = GrowthSession::factory()
             ->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
         GrowthSession::factory()
-            ->create(['date' => $monday->addDays(8), 'start_time' => '03:30 pm', 'attendee_limit' => 4]); // Socials on another week
+            ->create(['date' => $monday->addDays(8), 'start_time' => '03:30 pm', 'attendee_limit' => 4]); // GrowthSessions on another week
 
         $expectedResponse = [
-            $monday->toDateString() => [$mondaySocial],
+            $monday->toDateString() => [$mondayGrowthSession],
             $monday->addDays(1)->toDateString() => [],
-            $monday->addDays(2)->toDateString() => [$earlyWednesdaySocial, $lateWednesdaySocial],
+            $monday->addDays(2)->toDateString() => [$earlyWednesdayGrowthSession, $lateWednesdayGrowthSession],
             $monday->addDays(3)->toDateString() => [],
-            $monday->addDays(4)->toDateString() => [$fridaySocial],
+            $monday->addDays(4)->toDateString() => [$fridayGrowthSession],
         ];
 
         $user = User::factory()->create();
@@ -234,19 +234,19 @@ class GrowthSessionTest extends TestCase
     {
         $this->setTestNow('Next Friday');
 
-        $mondaySocial = GrowthSession::factory()
+        $mondayGrowthSession = GrowthSession::factory()
             ->create(['date' => Carbon::parse('Last Monday'), 'attendee_limit' => 4])
             ->toArray();
-        $fridaySocial = GrowthSession::factory()
+        $fridayGrowthSession = GrowthSession::factory()
             ->create(['date' => today(), 'attendee_limit' => 4])
             ->toArray();
 
         $expectedResponse = [
-            Carbon::parse('Last Monday')->toDateString() => [$mondaySocial],
+            Carbon::parse('Last Monday')->toDateString() => [$mondayGrowthSession],
             Carbon::parse('Last Tuesday')->toDateString() => [],
             Carbon::parse('Last Wednesday')->toDateString() => [],
             Carbon::parse('Last Thursday')->toDateString() => [],
-            today()->toDateString() => [$fridaySocial],
+            today()->toDateString() => [$fridayGrowthSession],
         ];
 
         $user = User::factory()->create();
@@ -263,25 +263,25 @@ class GrowthSessionTest extends TestCase
         $weekThatHasTheGrowthSessions = '2020-05-04';
         $mondayOfWeekWithGrowthSessions = CarbonImmutable::parse($weekThatHasTheGrowthSessions);
 
-        $mondaySocial = GrowthSession::factory()
+        $mondayGrowthSession = GrowthSession::factory()
             ->create(['date' => $mondayOfWeekWithGrowthSessions, 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
-        $lateWednesdaySocial = GrowthSession::factory()
+        $lateWednesdayGrowthSession = GrowthSession::factory()
             ->create(['date' => $mondayOfWeekWithGrowthSessions->addDays(2), 'start_time' => '04:30 pm', 'attendee_limit' => 4])
             ->toArray();
-        $earlyWednesdaySocial = GrowthSession::factory()
+        $earlyWednesdayGrowthSession = GrowthSession::factory()
             ->create(['date' => $mondayOfWeekWithGrowthSessions->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
-        $fridaySocial = GrowthSession::factory()
+        $fridayGrowthSession = GrowthSession::factory()
             ->create(['date' => $mondayOfWeekWithGrowthSessions->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
             ->toArray();
 
         $expectedResponse = [
-            $mondayOfWeekWithGrowthSessions->toDateString() => [$mondaySocial],
+            $mondayOfWeekWithGrowthSessions->toDateString() => [$mondayGrowthSession],
             $mondayOfWeekWithGrowthSessions->addDays(1)->toDateString() => [],
-            $mondayOfWeekWithGrowthSessions->addDays(2)->toDateString() => [$earlyWednesdaySocial, $lateWednesdaySocial],
+            $mondayOfWeekWithGrowthSessions->addDays(2)->toDateString() => [$earlyWednesdayGrowthSession, $lateWednesdayGrowthSession],
             $mondayOfWeekWithGrowthSessions->addDays(3)->toDateString() => [],
-            $mondayOfWeekWithGrowthSessions->addDays(4)->toDateString() => [$fridaySocial],
+            $mondayOfWeekWithGrowthSessions->addDays(4)->toDateString() => [$fridayGrowthSession],
         ];
 
         $user = User::factory()->create();
