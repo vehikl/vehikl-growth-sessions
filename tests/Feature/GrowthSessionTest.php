@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 class GrowthSessionTest extends TestCase
 {
-    public function testAnAuthenticatedUserCanCreateASocialMob()
+    public function testAnAuthenticatedUserCanCreateAGrowthSession()
     {
         $user = User::factory()->create();
         $topic = 'The fundamentals of foo';
@@ -156,45 +156,45 @@ class GrowthSessionTest extends TestCase
             ->assertForbidden();
     }
 
-    public function testAGivenUserCanRSVPToASocialMob()
+    public function testAGivenUserCanRSVPToAGrowthSession()
     {
-        $existingSocialMob = GrowthSession::factory()->create();
+        $existingGrowthSession = GrowthSession::factory()->create();
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->postJson(route('social_mobs.join', ['social_mob' => $existingSocialMob->id]))
+            ->postJson(route('social_mobs.join', ['social_mob' => $existingGrowthSession->id]))
             ->assertSuccessful();
 
-        $this->assertEquals($user->id, $existingSocialMob->attendees->first()->id);
+        $this->assertEquals($user->id, $existingGrowthSession->attendees->first()->id);
     }
 
     public function testAUserCannotJoinTheSameMobTwice()
     {
-        $existingSocialMob = GrowthSession::factory()->create();
+        $existingGrowthSession = GrowthSession::factory()->create();
         $user = User::factory()->create();
-        $existingSocialMob->attendees()->attach($user);
+        $existingGrowthSession->attendees()->attach($user);
 
         $this->actingAs($user)
-            ->postJson(route('social_mobs.join', ['social_mob' => $existingSocialMob->id]))
+            ->postJson(route('social_mobs.join', ['social_mob' => $existingGrowthSession->id]))
             ->assertForbidden();
 
-        $this->assertCount(1, $existingSocialMob->attendees);
+        $this->assertCount(1, $existingGrowthSession->attendees);
     }
 
     public function testAUserCanLeaveTheMob()
     {
-        $existingSocialMob = GrowthSession::factory()->create();
+        $existingGrowthSession = GrowthSession::factory()->create();
         $user = User::factory()->create();
-        $existingSocialMob->attendees()->attach($user);
+        $existingGrowthSession->attendees()->attach($user);
 
         $this->actingAs($user)
-            ->postJson(route('social_mobs.leave', ['social_mob' => $existingSocialMob->id]))
+            ->postJson(route('social_mobs.leave', ['social_mob' => $existingGrowthSession->id]))
             ->assertSuccessful();
 
-        $this->assertEmpty($existingSocialMob->attendees);
+        $this->assertEmpty($existingGrowthSession->attendees);
     }
 
-    public function testItCanProvideAllSocialMobsOfTheCurrentWeekForAuthenticatedUser()
+    public function testItCanProvideAllGrowthSessionsOfTheCurrentWeekForAuthenticatedUser()
     {
         $this->withoutExceptionHandling();
         $this->setTestNow('2020-01-15');
@@ -230,7 +230,7 @@ class GrowthSessionTest extends TestCase
         $response->assertJson($expectedResponse);
     }
 
-    public function testItCanProvideAllSocialMobsOfTheCurrentWeekForAuthenticatedUserEvenOnFridays()
+    public function testItCanProvideAllGrowthSessionsOfTheCurrentWeekForAuthenticatedUserEvenOnFridays()
     {
         $this->setTestNow('Next Friday');
 
@@ -256,7 +256,7 @@ class GrowthSessionTest extends TestCase
         $response->assertJson($expectedResponse);
     }
 
-    public function testItCanProvideAllSocialMobsOfASpecifiedWeekForAuthenticatedUserIfADateIsGiven()
+    public function testItCanProvideAllGrowthSessionsOfASpecifiedWeekForAuthenticatedUserIfADateIsGiven()
     {
         $weekThatHasNoMobs = '2020-05-25';
         $this->setTestNow($weekThatHasNoMobs);
@@ -291,7 +291,7 @@ class GrowthSessionTest extends TestCase
         $response->assertJson($expectedResponse);
     }
 
-    public function testItDoesNotProvideLocationOfAllSocialMobsOfASpecifiedWeekForAnonymousUser()
+    public function testItDoesNotProvideLocationOfAllGrowthSessionsOfASpecifiedWeekForAnonymousUser()
     {
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
@@ -307,7 +307,7 @@ class GrowthSessionTest extends TestCase
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
     }
 
-    public function testItDoesNotProvideLocationOfASocialMobForAnonymousUser()
+    public function testItDoesNotProvideLocationOfAGrowthSessionForAnonymousUser()
     {
         $this->withoutExceptionHandling();
         $this->setTestNow('2020-01-15');
@@ -320,7 +320,7 @@ class GrowthSessionTest extends TestCase
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
     }
 
-    public function testItCanProvideSocialMobLocationForAuthenticatedUser()
+    public function testItCanProvideGrowthSessionLocationForAuthenticatedUser()
     {
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
@@ -381,7 +381,7 @@ class GrowthSessionTest extends TestCase
             ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 4']);
     }
 
-    public function testASocialMobCannotBeJoinedIfTheAttendeeLimitIsMet()
+    public function testAGrowthSessionCannotBeJoinedIfTheAttendeeLimitIsMet()
     {
         $user = User::factory()->create();
         $attendess = User::factory()->times(4)->create();
