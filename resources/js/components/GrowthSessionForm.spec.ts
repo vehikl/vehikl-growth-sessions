@@ -13,7 +13,7 @@ const user: IUser = {
 };
 const startDate: string = "2020-06-25";
 
-describe('MobForm', () => {
+describe('CreateGrowthSession', () => {
     let wrapper: Wrapper<MobForm>;
 
     beforeEach(() => {
