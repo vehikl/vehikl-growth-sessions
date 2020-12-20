@@ -96,7 +96,7 @@ class WebHooksTest extends TestCase
         });
     }
 
-    public function testItHitsTheAttendeesWebHookIfSomeoneJoinsAMobThatWillHappenToday()
+    public function testItHitsTheAttendeesWebHookIfSomeoneJoinsAGrowthSessionThatWillHappenToday()
     {
         $this->withoutExceptionHandling();
         $socialMob = GrowthSession::factory()->create();
