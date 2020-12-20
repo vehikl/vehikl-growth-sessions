@@ -7,7 +7,7 @@ import {IGrowthSession, IUpdateGrowthSessionRequest} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 
-const socialsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
+const growthSessionsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
 const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
 
 describe('GrowthSessionApi', () => {
@@ -27,7 +27,7 @@ describe('GrowthSessionApi', () => {
 
         const result = await GrowthSessionApi.getAllMobsOfTheWeek();
 
-        expect(result).toEqual(socialsThisWeek);
+        expect(result).toEqual(growthSessionsThisWeek);
     });
 
 
@@ -37,7 +37,7 @@ describe('GrowthSessionApi', () => {
 
         const result = await GrowthSessionApi.getAllMobsOfTheWeek('2020-01-01');
 
-        expect(result).toEqual(socialsThisWeek);
+        expect(result).toEqual(growthSessionsThisWeek);
     });
 
     it('stores a new mob', async () => {
