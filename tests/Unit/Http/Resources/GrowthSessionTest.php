@@ -22,7 +22,7 @@ class GrowthSessionTest extends TestCase
         $this->assertNull($resource->toArray($anyOldRequest)['attendee_limit']);
     }
 
-    public function testTheAttendeeLimitIsNotRemovedForMobsWithLimits()
+    public function testTheAttendeeLimitIsNotRemovedForGrowthSessionsWithLimits()
     {
         $expectedLimit = 4;
         $resource = new GrowthSessionResource(GrowthSession::factory()->make(['attendee_limit' => $expectedLimit]));
