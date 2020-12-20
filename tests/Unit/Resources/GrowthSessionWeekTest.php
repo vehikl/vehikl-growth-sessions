@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 class GrowthSessionWeekTest extends TestCase
 {
-    public function testItReturnsAnEmptyWeekStartingOnMondayIfThereAreNoSocialMobs()
+    public function testItReturnsAnEmptyWeekStartingOnMondayIfThereAreNoGrowthSessions()
     {
         Carbon::setTestNow('Last Tuesday');
 
@@ -38,7 +38,7 @@ class GrowthSessionWeekTest extends TestCase
         $this->assertEquals(now()->endOfWeek(Carbon::FRIDAY)->toDateString(), collect($week)->keys()->last());
     }
 
-    public function testItReturnsAnEmptyPastWeekWithNoSocialMobs()
+    public function testItReturnsAnEmptyPastWeekWithNoGrowthSessions()
     {
         $weekResource = new GrowthSessionWeek(collect());
 
