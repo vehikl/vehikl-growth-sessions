@@ -7,7 +7,7 @@ use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionDeleted;
 use App\Events\SocialMobUpdated;
 use App\Exceptions\AttendeeLimitReached;
-use App\Http\Requests\DeleteSocialMobRequest;
+use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreSocialMobRequest;
 use App\Http\Requests\UpdateSocialMobRequest;
 use App\Http\Resources\SocialMob as SocialMobResource;
@@ -75,7 +75,7 @@ class GrowthSessionController extends Controller
         return $socialMob;
     }
 
-    public function destroy(DeleteSocialMobRequest $request, GrowthSession $socialMob)
+    public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $socialMob)
     {
         $socialMob->delete();
         event(new GrowthSessionDeleted($socialMob));
