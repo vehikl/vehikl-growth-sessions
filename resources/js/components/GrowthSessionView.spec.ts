@@ -4,10 +4,10 @@ import userJson from '../../../tests/fixtures/User.json';
 import mobJson from '../../../tests/fixtures/GrowthSessionWithComments.json'
 import {User} from "../classes/User";
 import {IGrowthSession} from '../types';
-import socialMobWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
+import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
 import {GrowthSession} from "../classes/GrowthSession";
 
-const dummyMob: IGrowthSession = socialMobWithComments;
+const dummyMob: IGrowthSession = growthSessionWithComments;
 
 describe('MobView', () => {
     let wrapper: Wrapper<MobView>;
