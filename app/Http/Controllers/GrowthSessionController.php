@@ -10,7 +10,7 @@ use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreGrowthSessionRequest;
 use App\Http\Requests\UpdateGrowthSessionRequest;
-use App\Http\Resources\SocialMob as SocialMobResource;
+use App\Http\Resources\SocialMob as GrowthSessionResource;
 use App\Http\Resources\SocialMobWeek;
 use App\SocialMob as GrowthSession;
 use Illuminate\Http\Request;
@@ -19,7 +19,7 @@ class GrowthSessionController extends Controller
 {
     public function show(GrowthSession $socialMob)
     {
-        return view('social-mob', ['socialMob' => new SocialMobResource($socialMob)]);
+        return view('social-mob', ['socialMob' => new GrowthSessionResource($socialMob)]);
     }
 
     public function week(Request $request)
@@ -29,7 +29,7 @@ class GrowthSessionController extends Controller
 
     public function day()
     {
-        return SocialMobResource::collection(GrowthSession ::today()->get());
+        return GrowthSessionResource::collection(GrowthSession ::today()->get());
     }
 
     public function store(StoreGrowthSessionRequest $request)
