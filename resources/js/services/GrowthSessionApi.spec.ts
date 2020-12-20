@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
-import socialMobWithComments from '../../../tests/fixtures/SocialMobWithComments.json';
+import socialMobWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
 import {GrowthSessionApi} from './GrowthSessionApi';
 import {IGrowthSession, IUpdateGrowthSessionRequest} from '../types';
 import {DateTime} from '../classes/DateTime';

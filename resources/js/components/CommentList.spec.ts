@@ -1,7 +1,7 @@
 import {mount, Wrapper} from '@vue/test-utils';
 import CommentList from './CommentList.vue';
 import {GrowthSession} from '../classes/GrowthSession';
-import growthSessionWithCommentsJson from '../../../tests/fixtures/SocialMobWithComments.json';
+import growthSessionWithCommentsJson from '../../../tests/fixtures/GrowthSessionWithComments.json';
 import userJson from '../../../tests/fixtures/User.json';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {IUser} from '../types';
