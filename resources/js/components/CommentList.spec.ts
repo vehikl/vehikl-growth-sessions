@@ -1,13 +1,13 @@
 import {mount, Wrapper} from '@vue/test-utils';
 import CommentList from './CommentList.vue';
 import {GrowthSession} from '../classes/GrowthSession';
-import socialMobWithCommentsJson from '../../../tests/fixtures/SocialMobWithComments.json';
+import growthSessionWithCommentsJson from '../../../tests/fixtures/SocialMobWithComments.json';
 import userJson from '../../../tests/fixtures/User.json';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {IUser} from '../types';
 import {User} from "../classes/User";
 
-const growthSession: GrowthSession = new GrowthSession(socialMobWithCommentsJson);
+const growthSession: GrowthSession = new GrowthSession(growthSessionWithCommentsJson);
 const user: IUser = userJson;
 
 describe('CommentList', () => {
