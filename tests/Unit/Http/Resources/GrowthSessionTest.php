@@ -14,7 +14,7 @@ class GrowthSessionTest extends TestCase
      *
      * @return void
      */
-    public function testTheAttendeeLimitIsRemovedForNoLimitMobs()
+    public function testTheAttendeeLimitIsRemovedForNoLimitGrowthSessions()
     {
         $resource = new GrowthSessionResource(GrowthSession::factory()->make(['attendee_limit' => GrowthSession::NO_LIMIT]));
 
