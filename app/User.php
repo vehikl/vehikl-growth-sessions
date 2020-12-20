@@ -30,7 +30,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function socialMobs()
+    public function growthSessions()
     {
         return $this->hasMany(SocialMob::class, 'owner_id');
     }

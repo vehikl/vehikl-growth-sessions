@@ -24,8 +24,8 @@ class SocialMobTest extends TestCase
             'date' => today(),
         ])->assertSuccessful();
 
-        $this->assertEquals($topic, $user->socialMobs->first()->topic);
-        $this->assertEquals($title, $user->socialMobs->first()->title);
+        $this->assertEquals($topic, $user->growthSessions->first()->topic);
+        $this->assertEquals($title, $user->growthSessions->first()->title);
     }
 
     public function testTheOwnerOfAMobCanEditIt()
@@ -366,7 +366,7 @@ class SocialMobTest extends TestCase
             $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
         )->assertSuccessful();
 
-        $this->assertEquals($expectedAttendeeLimit, $user->socialMobs->first()->attendee_limit);
+        $this->assertEquals($expectedAttendeeLimit, $user->growthSessions->first()->attendee_limit);
     }
 
     public function testAnAttendeeLimitCannotBeLessThanFour()

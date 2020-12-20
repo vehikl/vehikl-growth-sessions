@@ -26,10 +26,10 @@ class AutoGrowthSessionCommand extends Command
         });
 
         $dates->each(function (string $date) use ($host) {
-            if ($host->socialMobs()->where('date', $date)->first()) {
+            if ($host->growthSessions()->where('date', $date)->first()) {
                 return;
             }
-            $host->socialMobs()->save(new GrowthSession([
+            $host->growthSessions()->save(new GrowthSession([
                 'topic' => 'Learn about Unity and C# with the QUES Team',
                 'location' => 'discord',
                 'date' => $date,

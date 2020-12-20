@@ -34,7 +34,7 @@ class GrowthSessionController extends Controller
 
     public function store(StoreGrowthSessionRequest $request)
     {
-        $growthSession = $request->user()->socialMobs()->save(new GrowthSession ($request->validated()));
+        $growthSession = $request->user()->growthSessions()->save(new GrowthSession ($request->validated()));
         $growthSession->load(['owner', 'attendees', 'comments']);
         event(new GrowthSessionCreated($growthSession));
 
