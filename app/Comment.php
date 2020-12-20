@@ -8,6 +8,8 @@ use App\SocialMob as GrowthSession;
 
 class Comment extends Model
 {
+    protected $table = 'comments';
+
     use HasFactory;
 
     protected $fillable = ['content'];
