@@ -156,8 +156,8 @@ export default class WeekView extends Vue {
         this.$modal.show('mob-form');
     }
 
-    onGrowthSessionEditRequested(mob: GrowthSession) {
-        this.growthSessionToUpdate = mob;
+    onGrowthSessionEditRequested(growthSession: GrowthSession) {
+        this.growthSessionToUpdate = growthSession;
         this.newGrowthSessionDate = '';
         this.$modal.show('mob-form');
     }
