@@ -102,14 +102,14 @@ describe('GrowthSessionCard', () => {
 
     it('allows a user to join a growth session', () => {
         window.open = jest.fn();
-        GrowthSessionApi.join = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.join = jest.fn().mockImplementation(growthSession => growthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: outsider}});
         wrapper.find('.join-button').trigger('click');
         expect(GrowthSessionApi.join).toHaveBeenCalledWith(growthSessionData);
     });
 
     it('allows a user to leave a growth session', () => {
-        GrowthSessionApi.leave = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.leave = jest.fn().mockImplementation(growthSession => growthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: attendee}});
         wrapper.find('.leave-button').trigger('click');
         expect(GrowthSessionApi.leave).toHaveBeenCalledWith(growthSessionData);
