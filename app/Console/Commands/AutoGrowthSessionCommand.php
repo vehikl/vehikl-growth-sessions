@@ -15,10 +15,10 @@ class AutoGrowthSessionCommand extends Command
 
     public function handle()
     {
-        $this->generateQuesMobs();
+        $this->generateQuesGrowthSessions();
     }
 
-    private function generateQuesMobs(): void
+    private function generateQuesGrowthSessions(): void
     {
         $host = User::query()->where('email', 'a.frank@vehikl.com')->firstOrFail();
         $dates = collect(['Monday', 'Tuesday', 'Wednesday'])->map(function (string $weekday) {
