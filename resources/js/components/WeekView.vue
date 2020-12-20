@@ -47,7 +47,7 @@
                 <draggable :date="date"
                            :list="growthSessions.getSessionByDate(date)"
                            class="h-full w-full"
-                           group="social-mobs"
+                           group="growth-sessions"
                            handle=".handle"
                            @change="onChange"
                            @end="onDragEnd">
