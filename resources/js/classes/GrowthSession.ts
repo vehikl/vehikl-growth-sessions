@@ -20,18 +20,18 @@ export class GrowthSession implements IGrowthSession {
         this.refresh(growthSession);
     }
 
-    refresh(mob: IGrowthSession) {
-        this.id = mob.id;
-        this.title = mob.title;
-        this.topic = mob.topic;
-        this.location = mob.location;
-        this.date = mob.date;
-        this.start_time = mob.start_time;
-        this.end_time = mob.end_time;
-        this.owner = new User(mob.owner);
-        this.attendees = mob.attendees.map(attendee => new User(attendee));
-        this.comments = mob.comments;
-        this.attendee_limit = mob.attendee_limit;
+    refresh(growthSession: IGrowthSession) {
+        this.id = growthSession.id;
+        this.title = growthSession.title;
+        this.topic = growthSession.topic;
+        this.location = growthSession.location;
+        this.date = growthSession.date;
+        this.start_time = growthSession.start_time;
+        this.end_time = growthSession.end_time;
+        this.owner = new User(growthSession.owner);
+        this.attendees = growthSession.attendees.map(attendee => new User(attendee));
+        this.comments = growthSession.comments;
+        this.attendee_limit = growthSession.attendee_limit;
     }
 
     get isLimitless(): boolean {
