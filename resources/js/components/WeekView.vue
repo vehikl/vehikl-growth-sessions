@@ -65,7 +65,7 @@
                     <button
                         v-if="user && ! date.isInAPastDate()"
                         class="create-mob text-5xl h-20 w-20 text-blue-600 hover:text-blue-700 focus:text-blue-700 font-bold my-3"
-                        @click="onCreateNewMobClicked(date)">
+                        @click="onCreateNewGrowthSessionClicked(date)">
                         <i aria-hidden="true" class="fa fa-plus-circle"></i>
                     </button>
                 </draggable>
@@ -150,7 +150,7 @@ export default class WeekView extends Vue {
         this.$modal.hide('mob-form');
     }
 
-    onCreateNewMobClicked(startDate: DateTime) {
+    onCreateNewGrowthSessionClicked(startDate: DateTime) {
         this.growthSessionToUpdate = null;
         this.newGrowthSessionDate = startDate.toISOString();
         this.$modal.show('mob-form');
