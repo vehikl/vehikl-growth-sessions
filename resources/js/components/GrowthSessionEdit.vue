@@ -27,7 +27,7 @@
                 <textarea :class="{'error-outline': getError('topic')}"
                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                           id="topic"
-                          placeholder="What is this mob about?"
+                          placeholder="What is this growth session about?"
                           rows="4"
                           v-model="growthSession.topic"/>
             </div>
