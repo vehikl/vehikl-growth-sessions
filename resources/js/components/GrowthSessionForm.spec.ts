@@ -18,8 +18,8 @@ describe('CreateGrowthSession', () => {
 
     beforeEach(() => {
         wrapper = mount(GrowthSessionForm, {propsData: {owner: user, startDate}});
-        GrowthSessionApi.store = jest.fn().mockImplementation(mob => mob);
-        GrowthSessionApi.update = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.store = jest.fn().mockImplementation(growthSession => growthSession);
+        GrowthSessionApi.update = jest.fn().mockImplementation(growthSession => growthSession);
     });
 
     const baseMobRequest: IStoreGrowthSessionRequest = {
