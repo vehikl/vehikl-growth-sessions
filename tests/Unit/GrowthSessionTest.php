@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\SocialMob;
+use App\SocialMob as GrowthSession;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -13,7 +13,7 @@ class GrowthSessionTest extends TestCase
 
     public function testItSetsEndTimeTo5PMByDefault()
     {
-        $mob = new SocialMob([
+        $mob = new GrowthSession([
             'owner_id' => User::factory()->create()->id,
             'start_time' => '15:30:00',
             'date' => '2020-01-01',
@@ -28,14 +28,14 @@ class GrowthSessionTest extends TestCase
     public function testItCanHaveACustomTitle()
     {
         $titleGiven = 'My title';
-        $mob = SocialMob::factory()->create(['title' => $titleGiven]);
+        $mob = GrowthSession::factory()->create(['title' => $titleGiven]);
 
         $this->assertEquals($titleGiven, $mob->title);
     }
 
     public function testItHasTheAttendeeLimitToMaxIntByDefault()
     {
-        $mob = new SocialMob([
+        $mob = new GrowthSession([
             'owner_id' => User::factory()->create()->id,
             'start_time' => '15:30:00',
             'date' => '2020-01-01',
@@ -44,6 +44,6 @@ class GrowthSessionTest extends TestCase
         ]);
         $mob->save();
 
-        $this->assertEquals(SocialMob::NO_LIMIT, $mob->fresh()->attendee_limit);
+        $this->assertEquals(GrowthSession::NO_LIMIT, $mob->fresh()->attendee_limit);
     }
 }
