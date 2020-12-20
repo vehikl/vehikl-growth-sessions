@@ -20,7 +20,7 @@ const authUser: IUser = {
 
 const localVue = createLocalVue();
 localVue.use(VModal);
-let socialsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
+let growthSessionsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
 
 const metadataForSocialsFixture = {
     today: {date: '2020-01-15', weekday: 'Wednesday'},
@@ -35,7 +35,7 @@ describe('WeekView', () => {
 
     beforeEach(async () => {
         DateTime.setTestNow(todayDate);
-        GrowthSessionApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(socialsThisWeek);
+        GrowthSessionApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(growthSessionsThisWeek);
         GrowthSessionApi.join = jest.fn().mockImplementation(mob => mob);
         GrowthSessionApi.leave = jest.fn().mockImplementation(mob => mob);
         GrowthSessionApi.delete = jest.fn().mockImplementation(mob => mob);
@@ -49,7 +49,7 @@ describe('WeekView', () => {
     });
 
     it('loads with the current week socials in display', () => {
-        const topicsOfTheWeek = socialsThisWeek.allMobs.map((mob: GrowthSession) => mob.topic);
+        const topicsOfTheWeek = growthSessionsThisWeek.allMobs.map((mob: GrowthSession) => mob.topic);
         for (let topic of topicsOfTheWeek) {
             expect(wrapper.text()).toContain(topic);
         }
