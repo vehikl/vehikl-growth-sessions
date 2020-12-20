@@ -1,4 +1,4 @@
-export interface IStoreSocialMobRequest {
+export interface IStoreGrowthSessionRequest {
     location: string;
     topic: string;
     title: string;

@@ -1,6 +1,6 @@
 import {mount, Wrapper} from '@vue/test-utils';
 import MobForm from './MobForm.vue';
-import {IStoreSocialMobRequest, IUser} from '../types';
+import {IStoreGrowthSessionRequest, IUser} from '../types';
 import flushPromises from 'flush-promises';
 import {SocialMobApi} from '../services/SocialMobApi';
 
@@ -22,7 +22,7 @@ describe('MobForm', () => {
         SocialMobApi.update = jest.fn().mockImplementation(mob => mob);
     });
 
-    const baseMobRequest: IStoreSocialMobRequest = {
+    const baseMobRequest: IStoreGrowthSessionRequest = {
         location: 'The mob location',
         topic: 'Chosen topic',
         title: 'Chosen title',
@@ -31,7 +31,7 @@ describe('MobForm', () => {
     }
 
     describe('allows a mob to be created', () => {
-        type TMobCreationScenario = [string, IStoreSocialMobRequest]
+        type TMobCreationScenario = [string, IStoreGrowthSessionRequest]
 
         const scenarios: TMobCreationScenario[] = [
             [
@@ -80,7 +80,7 @@ describe('MobForm', () => {
             wrapper.find('button[type="submit"]').trigger('click');
             await flushPromises();
 
-            const expectedPayload: IStoreSocialMobRequest = {
+            const expectedPayload: IStoreGrowthSessionRequest = {
                 title: chosenTitle,
                 attendee_limit: chosenLimit,
                 location: chosenLocation,

@@ -1,5 +1,5 @@
 import BaseApi from './BaseApi';
-import {IComment, IGrowthSession, IStoreSocialMobRequest, IUpdateGrowthSessionRequest, IWeekGrowthSessions} from '../types';
+import {IComment, IGrowthSession, IStoreGrowthSessionRequest, IUpdateGrowthSessionRequest, IWeekGrowthSessions} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {GrowthSession} from '../classes/GrowthSession';
 import {WeekMobs} from '../classes/WeekMobs';
@@ -11,7 +11,7 @@ export class SocialMobApi extends BaseApi {
         return new WeekMobs(response.data);
     }
 
-    static async store(payload: IStoreSocialMobRequest): Promise<GrowthSession> {
+    static async store(payload: IStoreGrowthSessionRequest): Promise<GrowthSession> {
         let response = await BaseApi.httpRequest.post<IGrowthSession>('/social_mobs', payload);
         return new GrowthSession(response.data);
     }

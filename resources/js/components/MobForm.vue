@@ -119,7 +119,7 @@
 
 <script lang="ts">
 import {Component, Prop, Vue} from 'vue-property-decorator';
-import {IGrowthSession, IStoreSocialMobRequest, IUser, IValidationError} from '../types';
+import {IGrowthSession, IStoreGrowthSessionRequest, IUser, IValidationError} from '../types';
 import VueTimepicker from 'vue2-timepicker'
 import {SocialMobApi} from '../services/SocialMobApi';
 import {DateTime} from '../classes/DateTime';
@@ -206,7 +206,7 @@ import DatePicker from './DatePicker.vue';
             return !!this.startTime && !!this.endTime && !!this.date && !!this.location && !!this.topic && !!this.title;
         }
 
-        get storeOrUpdatePayload(): IStoreSocialMobRequest {
+        get storeOrUpdatePayload(): IStoreGrowthSessionRequest {
             return {
                 location: this.location,
                 topic: this.topic,
