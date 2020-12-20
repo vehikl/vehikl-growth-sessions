@@ -24,12 +24,12 @@ class GrowthSessionController extends Controller
 
     public function week(Request $request)
     {
-        return new GrowthSessionWeek(GrowthSession ::allInTheWeekOf($request->input('date')));
+        return new GrowthSessionWeek(GrowthSession::allInTheWeekOf($request->input('date')));
     }
 
     public function day()
     {
-        return GrowthSessionResource::collection(GrowthSession ::today()->get());
+        return GrowthSessionResource::collection(GrowthSession::today()->get());
     }
 
     public function store(StoreGrowthSessionRequest $request)
