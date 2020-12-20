@@ -41,16 +41,16 @@ class GrowthSessionController extends Controller
         return $growthSession;
     }
 
-    public function join(GrowthSession $socialMob, Request $request)
+    public function join(GrowthSession $growthSession, Request $request)
     {
-        if ($socialMob->attendees()->count() === $socialMob->attendee_limit) {
+        if ($growthSession->attendees()->count() === $growthSession->attendee_limit) {
             throw new AttendeeLimitReached;
         }
 
-        $socialMob->attendees()->attach($request->user());
-        event(new GrowthSessionAttendeeChanged($socialMob->refresh()));
+        $growthSession->attendees()->attach($request->user());
+        event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
 
-        return $socialMob;
+        return $growthSession;
     }
 
     public function leave(GrowthSession $socialMob, Request $request)
