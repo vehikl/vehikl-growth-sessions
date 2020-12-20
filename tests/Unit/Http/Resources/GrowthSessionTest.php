@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Http\Resources;
 
-use App\Http\Resources\GrowthSession as SocialMobResource;
+use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\GrowthSession;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -16,7 +16,7 @@ class GrowthSessionTest extends TestCase
      */
     public function testTheAttendeeLimitIsRemovedForNoLimitMobs()
     {
-        $resource = new SocialMobResource(GrowthSession::factory()->make(['attendee_limit' => GrowthSession::NO_LIMIT]));
+        $resource = new GrowthSessionResource(GrowthSession::factory()->make(['attendee_limit' => GrowthSession::NO_LIMIT]));
 
         $anyOldRequest = Request::createFromGlobals();
         $this->assertNull($resource->toArray($anyOldRequest)['attendee_limit']);
@@ -25,7 +25,7 @@ class GrowthSessionTest extends TestCase
     public function testTheAttendeeLimitIsNotRemovedForMobsWithLimits()
     {
         $expectedLimit = 4;
-        $resource = new SocialMobResource(GrowthSession::factory()->make(['attendee_limit' => $expectedLimit]));
+        $resource = new GrowthSessionResource(GrowthSession::factory()->make(['attendee_limit' => $expectedLimit]));
 
         $anyOldRequest = Request::createFromGlobals();
         $this->assertEquals($expectedLimit, $resource->toArray($anyOldRequest)['attendee_limit']);
