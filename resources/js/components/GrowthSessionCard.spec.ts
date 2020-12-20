@@ -5,7 +5,7 @@ import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
 import {GrowthSession} from '../classes/GrowthSession';
 
-const ownerOfTheMob: IUser = {
+const ownerOfTheGrowthSession: IUser = {
     name: 'Jack Bauer',
     github_nickname: 'jackjack',
     id: 1,
@@ -31,7 +31,7 @@ const outsider: IUser = {
 
 const mobData: GrowthSession = new GrowthSession({
     id: 0,
-    owner: ownerOfTheMob,
+    owner: ownerOfTheGrowthSession,
     location: 'Somewhere over the rainbow',
     date: '2020-05-08',
     start_time: '03:30 pm',
@@ -81,7 +81,7 @@ describe('GrowthSessionCard', () => {
     })
 
     it('does not display the join button to the owner of the mob', () => {
-        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheGrowthSession}});
         expect(wrapper.find('.join-button').element).not.toBeVisible();
     });
 
@@ -117,7 +117,7 @@ describe('GrowthSessionCard', () => {
 
     it('prompts for confirmation when the owner clicks on the delete button', ()=> {
         window.confirm = jest.fn();
-        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheGrowthSession}});
         wrapper.find('.delete-button').trigger('click');
         expect(window.confirm).toHaveBeenCalled();
     });
@@ -125,7 +125,7 @@ describe('GrowthSessionCard', () => {
     it('deletes the mob if the user clicks on the delete button and confirms', ()=> {
         GrowthSessionApi.delete = jest.fn();
         window.confirm = jest.fn().mockReturnValue(true);
-        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheGrowthSession}});
         wrapper.find('.delete-button').trigger('click');
         expect(GrowthSessionApi.delete).toHaveBeenCalledWith(mobData);
     });
@@ -133,7 +133,7 @@ describe('GrowthSessionCard', () => {
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {
         const oneDayAfterTheMob = DateTime.parseByDate(mobData.date).addDays(1).toISOString();
         DateTime.setTestNow(oneDayAfterTheMob);
-        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheGrowthSession}});
 
         expect(wrapper.find('.delete-button').element).not.toBeVisible()
     });
@@ -141,7 +141,7 @@ describe('GrowthSessionCard', () => {
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {
         const oneDayAfterTheMob = DateTime.parseByDate(mobData.date).addDays(1).toISOString();
         DateTime.setTestNow(oneDayAfterTheMob);
-        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheGrowthSession}});
 
         expect(wrapper.find('.update-button').element).not.toBeVisible()
     });
