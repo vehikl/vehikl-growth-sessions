@@ -34,11 +34,11 @@ class GrowthSessionController extends Controller
 
     public function store(StoreGrowthSessionRequest $request)
     {
-        $newMob = $request->user()->socialMobs()->save(new GrowthSession ($request->validated()));
-        $newMob->load(['owner', 'attendees', 'comments']);
-        event(new GrowthSessionCreated($newMob));
+        $growthSession = $request->user()->socialMobs()->save(new GrowthSession ($request->validated()));
+        $growthSession->load(['owner', 'attendees', 'comments']);
+        event(new GrowthSessionCreated($growthSession));
 
-        return $newMob;
+        return $growthSession;
     }
 
     public function join(GrowthSession $socialMob, Request $request)
