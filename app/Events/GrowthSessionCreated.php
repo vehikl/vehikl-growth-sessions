@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\SocialMob;
+use App\SocialMob as GrowthSession;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -11,9 +11,9 @@ class GrowthSessionCreated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public SocialMob $growthSession;
+    public GrowthSession $growthSession;
 
-    public function __construct(SocialMob $growthSession)
+    public function __construct(GrowthSession $growthSession)
     {
         $this->growthSession = $growthSession;
     }
