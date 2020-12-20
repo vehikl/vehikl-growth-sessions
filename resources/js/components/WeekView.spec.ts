@@ -24,7 +24,7 @@ let growthSessionsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSe
 
 const metadataForGrowthSessionsFixture = {
     today: {date: '2020-01-15', weekday: 'Wednesday'},
-    dayWithNoMobs: {date: '2020-01-16', weekday: 'Tuesday'},
+    dayWithNoGrowthSessions: {date: '2020-01-16', weekday: 'Tuesday'},
     nextWeek: {date: '2020-01-22', weekday: 'Wednesday'}
 };
 
@@ -91,7 +91,7 @@ describe('WeekView', () => {
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
 
-        expect(wrapper.find(`[weekDay=${metadataForGrowthSessionsFixture.dayWithNoMobs.weekday}`).text())
+        expect(wrapper.find(`[weekDay=${metadataForGrowthSessionsFixture.dayWithNoGrowthSessions.weekday}`).text())
             .toContain(wordForNothing);
     });
 
