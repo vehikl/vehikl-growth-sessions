@@ -14,13 +14,13 @@ class CommentController extends Controller
         return $growthSession->comments()->orderByDesc('created_at')->get();
     }
 
-    public function store(Request $request, GrowthSession $socialMob)
+    public function store(Request $request, GrowthSession $growthSession)
     {
         $comment = new Comment($request->all());
         $comment->user()->associate($request->user());
-        $comment->socialMob()->associate($socialMob);
+        $comment->socialMob()->associate($growthSession);
         $comment->save();
-        return $socialMob->fresh();
+        return $growthSession->fresh();
     }
 
     public function destroy(DeleteCommentRequest $request, GrowthSession $socialMob,Comment $comment)
