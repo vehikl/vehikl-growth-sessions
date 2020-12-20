@@ -2,14 +2,14 @@
 
 namespace App\Http\Requests;
 
-use App\SocialMob;
+use App\SocialMob as GrowthSession;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreGrowthSessionRequest extends FormRequest
 {
     public function authorize()
     {
-        return $this->user()->can('create', SocialMob::class);
+        return $this->user()->can('create', GrowthSession::class);
     }
 
     public function rules()
