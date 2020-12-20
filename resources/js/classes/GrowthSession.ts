@@ -16,8 +16,8 @@ export class GrowthSession implements IGrowthSession {
     comments!: IComment[];
     attendee_limit!: number | null;
 
-    constructor(mob: IGrowthSession) {
-        this.refresh(mob);
+    constructor(growthSession: IGrowthSession) {
+        this.refresh(growthSession);
     }
 
     refresh(mob: IGrowthSession) {
