@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\SocialMob;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateSocialMobRequest extends FormRequest
+class UpdateGrowthSessionRequest extends FormRequest
 {
     public function authorize()
     {

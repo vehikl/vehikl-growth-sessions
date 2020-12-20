@@ -9,7 +9,7 @@ use App\Events\GrowthSessionUpdated;
 use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreGrowthSessionRequest;
-use App\Http\Requests\UpdateSocialMobRequest;
+use App\Http\Requests\UpdateGrowthSessionRequest;
 use App\Http\Resources\SocialMob as SocialMobResource;
 use App\Http\Resources\SocialMobWeek;
 use App\SocialMob as GrowthSession;
@@ -66,7 +66,7 @@ class GrowthSessionController extends Controller
         return view('social-mob-edit', compact('socialMob'));
     }
 
-    public function update(UpdateSocialMobRequest $request, GrowthSession $socialMob)
+    public function update(UpdateGrowthSessionRequest $request, GrowthSession $socialMob)
     {
         $originalValues = $socialMob->toArray();
         $socialMob->update($request->validated());
