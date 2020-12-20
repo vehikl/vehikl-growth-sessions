@@ -28,4 +28,4 @@ Route::resource('social_mobs.comments', 'CommentController')->middleware('auth')
     'store' => 'growth_sessions.comments.store',
     'update' => 'growth_sessions.comments.update',
     'destroy' => 'growth_sessions.comments.destroy',
-]);;
+]);
