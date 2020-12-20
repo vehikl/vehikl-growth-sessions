@@ -28,7 +28,7 @@
                 </button>
                 <button
                     class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="deleteMob"
+                    @click.stop="deleteGrowthSession"
                     v-if="growthSession.canEditOrDelete(userJson)">
                     <i class="fa fa-trash" aria-hidden="true"></i>
                 </button>
@@ -97,7 +97,7 @@ import LocationRenderer from './LocationRenderer.vue';
             return `${this.growthSession.startTime} - ${this.growthSession.endTime}`;
         }
 
-        async deleteMob() {
+        async deleteGrowthSession() {
             await this.growthSession.delete();
             window.location.assign('/');
         }
