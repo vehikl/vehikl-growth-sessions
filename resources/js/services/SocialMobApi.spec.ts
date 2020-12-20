@@ -3,7 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
 import socialMobWithComments from '../../../tests/fixtures/SocialMobWithComments.json';
 import {SocialMobApi} from './SocialMobApi';
-import {IGrowthSession, IUpdateSocialMobRequest} from '../types';
+import {IGrowthSession, IUpdateGrowthSessionRequest} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {WeekMobs} from '../classes/WeekMobs';
 
@@ -55,7 +55,7 @@ describe('SocialMobApi', () => {
             topic: newTopic
         });
 
-        const payload: IUpdateSocialMobRequest = {topic: newTopic};
+        const payload: IUpdateGrowthSessionRequest = {topic: newTopic};
         const result = await SocialMobApi.update(dummyMob, payload);
 
         expect(result.topic).toEqual(newTopic);

@@ -1,4 +1,4 @@
-export interface IUpdateSocialMobRequest {
+export interface IUpdateGrowthSessionRequest {
     location?: string;
     topic?: string;
     start_time?: string;
