@@ -8,7 +8,7 @@ use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionUpdated;
 use App\Listeners\NotifyGrowthSessionAttendeeChange;
 use App\Listeners\NotifyGrowthSessionCreation;
-use App\Listeners\NotifySocialMobDelete;
+use App\Listeners\NotifyGrowthSessionDelete;
 use App\Listeners\NotifySocialMobUpdate;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -26,7 +26,7 @@ class EventServiceProvider extends ServiceProvider
         GrowthSessionCreated::class => [NotifyGrowthSessionCreation::class],
         GrowthSessionAttendeeChanged::class => [NotifyGrowthSessionAttendeeChange::class],
         GrowthSessionUpdated::class => [NotifySocialMobUpdate::class],
-        GrowthSessionDeleted::class => [NotifySocialMobDelete::class]
+        GrowthSessionDeleted::class => [NotifyGrowthSessionDelete::class]
     ];
 
     /**

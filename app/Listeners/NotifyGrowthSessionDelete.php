@@ -5,7 +5,7 @@ namespace App\Listeners;
 use App\Events\GrowthSessionDeleted;
 use Illuminate\Support\Facades\Http;
 
-class NotifySocialMobDelete extends WebHookNotificationEventListener
+class NotifyGrowthSessionDelete extends WebHookNotificationEventListener
 {
     public function handle(GrowthSessionDeleted $event)
     {
