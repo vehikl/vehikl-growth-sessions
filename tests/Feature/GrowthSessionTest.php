@@ -141,7 +141,7 @@ class GrowthSessionTest extends TestCase
         $this->withoutExceptionHandling();
         $growthSession = GrowthSession::factory()->create();
 
-        $this->actingAs($growthSession->owner)->deleteJson(route('social_mobs.destroy', ['social_mob' => $growthSession->id]))
+        $this->actingAs($growthSession->owner)->deleteJson(route('growth_sessions.destroy', ['social_mob' => $growthSession->id]))
             ->assertSuccessful();
 
         $this->assertEmpty($growthSession->fresh());
@@ -152,7 +152,7 @@ class GrowthSessionTest extends TestCase
         $growthSession = GrowthSession::factory()->create();
         $notTheOwner = User::factory()->create();
 
-        $this->actingAs($notTheOwner)->deleteJson(route('social_mobs.destroy', ['social_mob' => $growthSession->id]))
+        $this->actingAs($notTheOwner)->deleteJson(route('growth_sessions.destroy', ['social_mob' => $growthSession->id]))
             ->assertForbidden();
     }
 

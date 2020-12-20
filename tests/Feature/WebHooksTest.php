@@ -24,7 +24,7 @@ class WebHooksTest extends TestCase
     {
         $growthSession = GrowthSession::factory()->create(['date' => today()]);
         $user = $growthSession->owner;
-        $this->actingAs($user)->deleteJson(route('social_mobs.destroy', $growthSession))->assertSuccessful();
+        $this->actingAs($user)->deleteJson(route('growth_sessions.destroy', $growthSession))->assertSuccessful();
 
         Http::assertSent(function (Request $request) {
             return $request->url() === config('webhooks.deleted_today');
@@ -35,7 +35,7 @@ class WebHooksTest extends TestCase
     {
         $growthSession = GrowthSession::factory()->create(['date' => today()->addDay()]);
         $user = $growthSession->owner;
-        $this->actingAs($user)->deleteJson(route('social_mobs.destroy', $growthSession))->assertSuccessful();
+        $this->actingAs($user)->deleteJson(route('growth_sessions.destroy', $growthSession))->assertSuccessful();
 
         Http::assertNothingSent();
     }
@@ -45,7 +45,7 @@ class WebHooksTest extends TestCase
         $this->disableHooks();
         $growthSession = GrowthSession::factory()->create();
         $user = $growthSession->owner;
-        $this->actingAs($user)->deleteJson(route('social_mobs.destroy', $growthSession))->assertSuccessful();
+        $this->actingAs($user)->deleteJson(route('growth_sessions.destroy', $growthSession))->assertSuccessful();
 
         Http::assertNothingSent();
     }
@@ -59,7 +59,7 @@ class WebHooksTest extends TestCase
         $user = $growthSession->owner;
 
         $this->actingAs($user)
-            ->deleteJson(route('social_mobs.destroy', $growthSession))->assertSuccessful();
+            ->deleteJson(route('growth_sessions.destroy', $growthSession))->assertSuccessful();
     }
 
     public function testItHitsTheGrowthSessionUpdatedTodayWebHookWheneverAGrowthSessionIsUpdatedToday()
@@ -145,7 +145,7 @@ class WebHooksTest extends TestCase
         $this->actingAs($user)
             ->putJson(route('growth_sessions.update', ['social_mob' => $growthSession['id']]), ['topic' => 'new topic'])->assertSuccessful();
         $this->actingAs($user)
-            ->deleteJson(route('social_mobs.destroy', ['social_mob' => $growthSession['id']]))->assertSuccessful();
+            ->deleteJson(route('growth_sessions.destroy', ['social_mob' => $growthSession['id']]))->assertSuccessful();
 
         Http::assertNothingSent();
     }
