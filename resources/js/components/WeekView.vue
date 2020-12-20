@@ -25,7 +25,7 @@
                     <growth-session-form :growth-session="growthSessionToUpdate"
                                          :owner="user"
                                          :start-date="newGrowthSessionDate"
-                                         class="mob-form"
+                                         class="growth-session-form"
                                          @submitted="onFormSubmitted"/>
                 </div>
             </modal>
