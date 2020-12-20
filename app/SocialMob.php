@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class SocialMob extends Model
 {
+    protected $table = 'social_mobs';
+
     use HasFactory;
 
     const NO_LIMIT = PHP_INT_MAX;
