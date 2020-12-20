@@ -13,13 +13,13 @@ class CommentsTest extends TestCase
     public function testAUserCanPostCommentsOnAnExistingMob()
     {
         $user = User::factory()->create();
-        $socialMob = SocialMob::factory()->create();
+        $growthSession = SocialMob::factory()->create();
 
         $this->actingAs($user)
-            ->postJson(route('social_mobs.comments.store', $socialMob), ['content' => 'Hello world'])
+            ->postJson(route('social_mobs.comments.store', $growthSession), ['content' => 'Hello world'])
             ->assertSuccessful();
 
-        $this->assertNotEmpty($socialMob->fresh()->comments);
+        $this->assertNotEmpty($growthSession->fresh()->comments);
     }
 
     public function testItDoesNotAllowGuestsToPostComments()
