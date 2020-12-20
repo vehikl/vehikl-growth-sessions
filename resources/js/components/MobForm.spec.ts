@@ -2,7 +2,7 @@ import {mount, Wrapper} from '@vue/test-utils';
 import MobForm from './MobForm.vue';
 import {IStoreGrowthSessionRequest, IUser} from '../types';
 import flushPromises from 'flush-promises';
-import {SocialMobApi} from '../services/SocialMobApi';
+import {GrowthSessionApi} from '../services/GrowthSessionApi';
 
 const user: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -18,8 +18,8 @@ describe('MobForm', () => {
 
     beforeEach(() => {
         wrapper = mount(MobForm, {propsData: {owner: user, startDate}});
-        SocialMobApi.store = jest.fn().mockImplementation(mob => mob);
-        SocialMobApi.update = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.store = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.update = jest.fn().mockImplementation(mob => mob);
     });
 
     const baseMobRequest: IStoreGrowthSessionRequest = {
@@ -94,7 +94,7 @@ describe('MobForm', () => {
                 delete expectedPayload.attendee_limit;
             }
 
-            expect(SocialMobApi.store).toHaveBeenCalledWith(expectedPayload);
+            expect(GrowthSessionApi.store).toHaveBeenCalledWith(expectedPayload);
         });
     });
 

@@ -1,6 +1,6 @@
 import {IComment, IGrowthSession, IUser} from '../types';
 import {DateTime} from '../classes/DateTime';
-import {SocialMobApi} from '../services/SocialMobApi';
+import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {User} from './User';
 
 export class GrowthSession implements IGrowthSession {
@@ -93,7 +93,7 @@ export class GrowthSession implements IGrowthSession {
 
     async join() {
         try {
-            const updated = await SocialMobApi.join(this);
+            const updated = await GrowthSessionApi.join(this);
             this.refresh(updated);
             if (window.confirm("Would you like to add it to your calendar?")) {
                 window.open(this.calendarUrl, '_blank');
@@ -113,11 +113,11 @@ export class GrowthSession implements IGrowthSession {
     }
 
     async leave() {
-        this.refresh(await SocialMobApi.leave(this));
+        this.refresh(await GrowthSessionApi.leave(this));
     }
 
     async postComment(content: string) {
-        this.refresh(await SocialMobApi.postComment(this, content));
+        this.refresh(await GrowthSessionApi.postComment(this, content));
     }
 
     canDeleteComment(user: IUser, comment: IComment) {
@@ -125,7 +125,7 @@ export class GrowthSession implements IGrowthSession {
     }
 
     async deleteComment(comment: IComment) {
-        this.refresh(await SocialMobApi.deleteComment(comment));
+        this.refresh(await GrowthSessionApi.deleteComment(comment));
     }
 
     canEditOrDelete(user: IUser): boolean {
@@ -137,7 +137,7 @@ export class GrowthSession implements IGrowthSession {
     }
 
     async delete() {
-        return await SocialMobApi.delete(this);
+        return await GrowthSessionApi.delete(this);
     }
 
     isAttendee(user: IUser): boolean {

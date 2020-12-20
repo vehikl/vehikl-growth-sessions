@@ -1,7 +1,7 @@
 import {mount, Wrapper} from '@vue/test-utils';
 import MobCard from './MobCard.vue';
 import {IUser} from '../types';
-import {SocialMobApi} from '../services/SocialMobApi';
+import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
 import {GrowthSession} from '../classes/GrowthSession';
 
@@ -102,17 +102,17 @@ describe('MobCard', () => {
 
     it('allows a user to join a growth session', () => {
         window.open = jest.fn();
-        SocialMobApi.join = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.join = jest.fn().mockImplementation(mob => mob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
         wrapper.find('.join-button').trigger('click');
-        expect(SocialMobApi.join).toHaveBeenCalledWith(mobData);
+        expect(GrowthSessionApi.join).toHaveBeenCalledWith(mobData);
     });
 
     it('allows a user to leave a growth session', () => {
-        SocialMobApi.leave = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.leave = jest.fn().mockImplementation(mob => mob);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: attendee}});
         wrapper.find('.leave-button').trigger('click');
-        expect(SocialMobApi.leave).toHaveBeenCalledWith(mobData);
+        expect(GrowthSessionApi.leave).toHaveBeenCalledWith(mobData);
     });
 
     it('prompts for confirmation when the owner clicks on the delete button', ()=> {
@@ -123,11 +123,11 @@ describe('MobCard', () => {
     });
 
     it('deletes the mob if the user clicks on the delete button and confirms', ()=> {
-        SocialMobApi.delete = jest.fn();
+        GrowthSessionApi.delete = jest.fn();
         window.confirm = jest.fn().mockReturnValue(true);
         wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
         wrapper.find('.delete-button').trigger('click');
-        expect(SocialMobApi.delete).toHaveBeenCalledWith(mobData);
+        expect(GrowthSessionApi.delete).toHaveBeenCalledWith(mobData);
     });
 
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {

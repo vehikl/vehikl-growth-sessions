@@ -98,7 +98,7 @@ import {IGrowthSession, IUser, IValidationError} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {GrowthSession} from '../classes/GrowthSession';
 import VueTimepicker from 'vue2-timepicker';
-import {SocialMobApi} from '../services/SocialMobApi';
+import {GrowthSessionApi} from '../services/SocialMobApi';
 import VAvatar from './VAvatar.vue';
 import DatePicker from './DatePicker.vue';
 
@@ -128,7 +128,7 @@ import DatePicker from './DatePicker.vue';
                 if (this.mob.isLimitless) {
                     payload.attendee_limit = null;
                 }
-                let updatedMob: IGrowthSession = await SocialMobApi.update(this.mob, payload);
+                let updatedMob: IGrowthSession = await GrowthSessionApi.update(this.mob, payload);
                 this.$emit('submitted', updatedMob);
                 window.history.back()
             } catch (e) {

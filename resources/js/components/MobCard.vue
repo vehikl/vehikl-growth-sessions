@@ -65,7 +65,7 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {SocialMobApi} from '../services/SocialMobApi';
+    import {GrowthSessionApi} from '../services/GrowthSessionApi';
     import {GrowthSession} from '../classes/GrowthSession';
     import {IUser} from '../types';
     import VAvatar from './VAvatar.vue';
@@ -80,7 +80,7 @@
         @Prop({required: false, default: null}) user!: IUser;
 
         goToMob() {
-            window.location.assign(SocialMobApi.showUrl(this.socialMob));
+            window.location.assign(GrowthSessionApi.showUrl(this.socialMob));
         }
 
         async joinMob() {

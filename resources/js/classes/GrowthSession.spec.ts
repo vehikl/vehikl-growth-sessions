@@ -1,6 +1,6 @@
 import {GrowthSession} from './GrowthSession';
 import {IGrowthSession, IUser} from '../types';
-import {SocialMobApi} from '../services/SocialMobApi';
+import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {User} from "./User";
 
 describe('GrowthSession', () => {
@@ -39,7 +39,7 @@ describe('GrowthSession', () => {
         const userAgreedToAddToCalendar = true;
         window.confirm = jest.fn().mockReturnValue(userAgreedToAddToCalendar);
         window.open = jest.fn();
-        SocialMobApi.join = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.join = jest.fn().mockImplementation(mob => mob);
         await growthSession.join();
 
         expect(window.open).toHaveBeenCalledWith(growthSession.calendarUrl, '_blank');

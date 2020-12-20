@@ -121,7 +121,7 @@
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import {IGrowthSession, IStoreGrowthSessionRequest, IUser, IValidationError} from '../types';
 import VueTimepicker from 'vue2-timepicker'
-import {SocialMobApi} from '../services/SocialMobApi';
+import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
 import DatePicker from './DatePicker.vue';
 
@@ -182,7 +182,7 @@ import DatePicker from './DatePicker.vue';
 
         async createMob() {
             try {
-                let newMob: IGrowthSession = await SocialMobApi.store(this.storeOrUpdatePayload);
+                let newMob: IGrowthSession = await GrowthSessionApi.store(this.storeOrUpdatePayload);
                 this.$emit('submitted', newMob);
             } catch (e) {
                 this.onRequestFailed(e);
@@ -191,7 +191,7 @@ import DatePicker from './DatePicker.vue';
 
         async updateMob() {
             try {
-                let updatedMob: IGrowthSession = await SocialMobApi.update(this.mob, this.storeOrUpdatePayload);
+                let updatedMob: IGrowthSession = await GrowthSessionApi.update(this.mob, this.storeOrUpdatePayload);
                 this.$emit('submitted', updatedMob);
             } catch (e) {
                 this.onRequestFailed(e);

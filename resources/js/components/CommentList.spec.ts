@@ -3,7 +3,7 @@ import CommentList from './CommentList.vue';
 import {GrowthSession} from '../classes/GrowthSession';
 import socialMobWithCommentsJson from '../../../tests/fixtures/SocialMobWithComments.json';
 import userJson from '../../../tests/fixtures/User.json';
-import {SocialMobApi} from '../services/SocialMobApi';
+import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {IUser} from '../types';
 import {User} from "../classes/User";
 
@@ -24,13 +24,13 @@ describe('CommentList', () => {
     });
 
     it('allows a new comment to be created', async () => {
-        SocialMobApi.postComment = jest.fn().mockResolvedValue(socialMob);
+        GrowthSessionApi.postComment = jest.fn().mockResolvedValue(socialMob);
         const comment = 'My comment';
 
         wrapper.find('#new-comment').setValue(comment);
         wrapper.find('form').trigger('submit');
 
-        expect(SocialMobApi.postComment).toHaveBeenCalled();
+        expect(GrowthSessionApi.postComment).toHaveBeenCalled();
     });
 
     it('disables the new comment form for guests',() => {

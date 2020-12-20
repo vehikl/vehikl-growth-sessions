@@ -4,7 +4,7 @@ import flushPromises from 'flush-promises';
 import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
 import {IUser} from '../types';
 import VModal from 'vue-js-modal';
-import {SocialMobApi} from '../services/SocialMobApi';
+import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
 import {WeekMobs} from '../classes/WeekMobs';
 import {GrowthSession} from '../classes/GrowthSession';
@@ -35,10 +35,10 @@ describe('WeekView', () => {
 
     beforeEach(async () => {
         DateTime.setTestNow(todayDate);
-        SocialMobApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(socialsThisWeek);
-        SocialMobApi.join = jest.fn().mockImplementation(mob => mob);
-        SocialMobApi.leave = jest.fn().mockImplementation(mob => mob);
-        SocialMobApi.delete = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(socialsThisWeek);
+        GrowthSessionApi.join = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.leave = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.delete = jest.fn().mockImplementation(mob => mob);
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
     });
@@ -60,7 +60,7 @@ describe('WeekView', () => {
         wrapper.find('button.load-previous-week').trigger('click');
         await flushPromises();
         let sevenDaysInThePast = DateTime.parseByDate(todayDate).addDays(-7).toDateString();
-        expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInThePast);
+        expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInThePast);
     });
 
     it('allows the user to view mobs of the next week', async () => {
@@ -68,7 +68,7 @@ describe('WeekView', () => {
         wrapper.find('button.load-next-week').trigger('click');
         await flushPromises();
         let sevenDaysInTheFuture = DateTime.parseByDate(todayDate).addDays(7).toDateString();
-        expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInTheFuture);
+        expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInTheFuture);
     });
 
     it('shows only the current day in mobile devices', () => {
@@ -122,13 +122,13 @@ describe('WeekView', () => {
 
     describe('week persistence', () => {
         it('displays the current week of the day if no date value is provided in the url', () => {
-            expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.today.date);
+            expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.today.date);
         });
 
         it('displays the mobs of the week of the date provided in the query string if it exists', () => {
             window.history.pushState({}, 'sometitle', `?date=${metadataForSocialsFixture.nextWeek.date}`)
             wrapper = mount(WeekView, {localVue});
-            expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.nextWeek.date);
+            expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.nextWeek.date);
         });
 
         it('updates the query string for the date whenever the user navigates the weeks', async () => {
@@ -143,7 +143,7 @@ describe('WeekView', () => {
             window.history.pushState({}, 'sometitle', `?date=${metadataForSocialsFixture.nextWeek.date}`)
             wrapper = mount(WeekView, {localVue});
             await flushPromises();
-            SocialMobApi.getAllMobsOfTheWeek = jest.fn();
+            GrowthSessionApi.getAllMobsOfTheWeek = jest.fn();
 
             window.history.back =  () => {
                 console.error = jest.fn()
@@ -154,7 +154,7 @@ describe('WeekView', () => {
             window.history.back();
             await flushPromises();
 
-            expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.nextWeek.date);
+            expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.nextWeek.date);
         });
     });
 });

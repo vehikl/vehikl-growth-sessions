@@ -78,7 +78,7 @@ import {DateTime} from '../classes/DateTime';
 import {GrowthSession} from '../classes/GrowthSession';
 import VueTimepicker from 'vue2-timepicker';
 import Datepicker from 'vuejs-datepicker';
-import {SocialMobApi} from '../services/SocialMobApi';
+import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import CommentList from './CommentList.vue';
 import VAvatar from './VAvatar.vue';
 import LocationRenderer from './LocationRenderer.vue';
@@ -103,7 +103,7 @@ import LocationRenderer from './LocationRenderer.vue';
         }
 
         async editMob() {
-            window.location.assign(SocialMobApi.editUrl(this.mob));
+            window.location.assign(GrowthSessionApi.editUrl(this.mob));
         }
     }
 </script>

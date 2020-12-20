@@ -2,7 +2,7 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
 import socialMobWithComments from '../../../tests/fixtures/SocialMobWithComments.json';
-import {SocialMobApi} from './SocialMobApi';
+import {GrowthSessionApi} from './GrowthSessionApi';
 import {IGrowthSession, IUpdateGrowthSessionRequest} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {WeekMobs} from '../classes/WeekMobs';
@@ -25,7 +25,7 @@ describe('SocialMobApi', () => {
         DateTime.setTestNow('2020-05-01');
         mockBackend.onGet('social_mobs/week?date=2020-05-01').reply(200, socialsThisWeekJson);
 
-        const result = await SocialMobApi.getAllMobsOfTheWeek();
+        const result = await GrowthSessionApi.getAllMobsOfTheWeek();
 
         expect(result).toEqual(socialsThisWeek);
     });
@@ -35,7 +35,7 @@ describe('SocialMobApi', () => {
         DateTime.setTestNow('2020-05-01');
         mockBackend.onGet('social_mobs/week?date=2020-01-01').reply(200, socialsThisWeekJson);
 
-        const result = await SocialMobApi.getAllMobsOfTheWeek('2020-01-01');
+        const result = await GrowthSessionApi.getAllMobsOfTheWeek('2020-01-01');
 
         expect(result).toEqual(socialsThisWeek);
     });
@@ -43,7 +43,7 @@ describe('SocialMobApi', () => {
     it('stores a new mob', async () => {
         mockBackend.onPost('social_mobs').reply(201, socialMobWithComments);
 
-        const result = await SocialMobApi.store(socialMobWithComments);
+        const result = await GrowthSessionApi.store(socialMobWithComments);
 
         expect(result.topic).toEqual(socialMobWithComments.topic);
     });
@@ -56,7 +56,7 @@ describe('SocialMobApi', () => {
         });
 
         const payload: IUpdateGrowthSessionRequest = {topic: newTopic};
-        const result = await SocialMobApi.update(dummyMob, payload);
+        const result = await GrowthSessionApi.update(dummyMob, payload);
 
         expect(result.topic).toEqual(newTopic);
     });
@@ -64,7 +64,7 @@ describe('SocialMobApi', () => {
     it('deletes an existing mob', async () => {
         mockBackend.onDelete(`social_mobs/${dummyMob.id}`).reply(200);
 
-        const result = await SocialMobApi.delete(dummyMob);
+        const result = await GrowthSessionApi.delete(dummyMob);
 
         expect(result).toBe(true);
     });
@@ -72,7 +72,7 @@ describe('SocialMobApi', () => {
     it('joins an existing mob', async () => {
         mockBackend.onPost(`social_mobs/${dummyMob.id}/join`).reply(200, dummyMob);
 
-        await SocialMobApi.join(dummyMob);
+        await GrowthSessionApi.join(dummyMob);
 
         expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyMob.id}/join`);
     });
@@ -80,7 +80,7 @@ describe('SocialMobApi', () => {
     it('leaves an existing mob', async () => {
         mockBackend.onPost(`social_mobs/${dummyMob.id}/leave`).reply(200, dummyMob);
 
-        await SocialMobApi.leave(dummyMob);
+        await GrowthSessionApi.leave(dummyMob);
 
         expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyMob.id}/leave`);
     });
@@ -89,7 +89,7 @@ describe('SocialMobApi', () => {
         mockBackend.onPost(`social_mobs/${dummyMob.id}/comments`).reply(201, dummyMob);
         const content = 'Hello world';
 
-        await SocialMobApi.postComment(dummyMob, content);
+        await GrowthSessionApi.postComment(dummyMob, content);
 
         expect(mockBackend.history.post[0].url).toBe(`/social_mobs/${dummyMob.id}/comments`);
         expect(JSON.parse(mockBackend.history.post[0].data)).toEqual({content: content})
@@ -98,7 +98,7 @@ describe('SocialMobApi', () => {
     it('allows a comment to be deleted', async () => {
         mockBackend.onDelete(`social_mobs/${dummyMob.id}/comments/${dummyMob.comments[0].id}`).reply(200, dummyMob);
 
-        await SocialMobApi.deleteComment(dummyMob.comments[0]);
+        await GrowthSessionApi.deleteComment(dummyMob.comments[0]);
 
         expect(mockBackend.history.delete[0].url).toBe(`/social_mobs/${dummyMob.id}/comments/${dummyMob.comments[0].id}`);
     });

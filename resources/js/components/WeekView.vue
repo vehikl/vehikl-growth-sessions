@@ -79,7 +79,7 @@ import {Component, Prop, Vue} from 'vue-property-decorator';
 import {IUser} from '../types';
 import MobCard from './MobCard.vue';
 import MobForm from './MobForm.vue';
-import {SocialMobApi} from '../services/SocialMobApi';
+import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
 import Draggable from 'vuedraggable';
 import {GrowthSession} from '../classes/GrowthSession';
@@ -128,7 +128,7 @@ export default class WeekView extends Vue {
     async onDragEnd(location: any) {
         let targetDate = location.to.__vue__.$attrs.date;
         try {
-            await SocialMobApi.update(this.draggedMob, {date: targetDate.toDateString()});
+            await GrowthSessionApi.update(this.draggedMob, {date: targetDate.toDateString()});
         } catch (e) {
         }
 
@@ -142,7 +142,7 @@ export default class WeekView extends Vue {
     }
 
     async getAllMobsOfTheWeek() {
-        this.socialMobs = await SocialMobApi.getAllMobsOfTheWeek(this.referenceDate.toDateString());
+        this.socialMobs = await GrowthSessionApi.getAllMobsOfTheWeek(this.referenceDate.toDateString());
     }
 
     async onFormSubmitted() {
