@@ -35,7 +35,7 @@ class CommentsTest extends TestCase
         $growthSession = GrowthSession::factory()->create();
         $comments = Comment::factory()->times(4)->create(['social_mob_id' => $growthSession->id]);
 
-        $this->getJson(route('social_mobs.comments.index', $growthSession))->assertJson($comments->toArray());
+        $this->getJson(route('growth_sessions.comments.index', $growthSession))->assertJson($comments->toArray());
     }
 
     public function testAUserCanDeleteTheirComment()
