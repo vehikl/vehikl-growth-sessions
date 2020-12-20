@@ -32,10 +32,10 @@ class CommentsTest extends TestCase
 
     public function testAGuestCanGetAllCommentsOfAGrowthSession()
     {
-        $socialMob = GrowthSession::factory()->create();
-        $comments = Comment::factory()->times(4)->create(['social_mob_id' => $socialMob->id]);
+        $growthSession = GrowthSession::factory()->create();
+        $comments = Comment::factory()->times(4)->create(['social_mob_id' => $growthSession->id]);
 
-        $this->getJson(route('social_mobs.comments.index', $socialMob))->assertJson($comments->toArray());
+        $this->getJson(route('social_mobs.comments.index', $growthSession))->assertJson($comments->toArray());
     }
 
     public function testAUserCanDeleteTheirComment()
