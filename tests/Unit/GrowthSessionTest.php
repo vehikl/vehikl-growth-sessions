@@ -28,9 +28,9 @@ class GrowthSessionTest extends TestCase
     public function testItCanHaveACustomTitle()
     {
         $titleGiven = 'My title';
-        $mob = GrowthSession::factory()->create(['title' => $titleGiven]);
+        $growthSession = GrowthSession::factory()->create(['title' => $titleGiven]);
 
-        $this->assertEquals($titleGiven, $mob->title);
+        $this->assertEquals($titleGiven, $growthSession->title);
     }
 
     public function testItHasTheAttendeeLimitToMaxIntByDefault()
