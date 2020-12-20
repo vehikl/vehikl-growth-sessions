@@ -1,7 +1,7 @@
 import {createLocalVue, mount, Wrapper} from '@vue/test-utils';
 import WeekView from './WeekView.vue';
 import flushPromises from 'flush-promises';
-import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
+import socialsThisWeekJson from '../../../tests/fixtures/WeekGrowthSessions.json';
 import {IUser} from '../types';
 import VModal from 'vue-js-modal';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';

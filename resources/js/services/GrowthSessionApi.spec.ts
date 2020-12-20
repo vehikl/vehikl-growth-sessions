@@ -1,6 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import growthSessionsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
+import growthSessionsThisWeekJson from '../../../tests/fixtures/WeekGrowthSessions.json';
 import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
 import {GrowthSessionApi} from './GrowthSessionApi';
 import {IGrowthSession, IUpdateGrowthSessionRequest} from '../types';
