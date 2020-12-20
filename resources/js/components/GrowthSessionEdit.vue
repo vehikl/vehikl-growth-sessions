@@ -2,11 +2,11 @@
     <div class="max-w-5xl text-blue-600">
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
             <h2 class="text-2xl lg:text-3xl font-sans font-light flex flex-1 items-center text-blue-700 pr-6">
-                <v-avatar :alt="`${mob.owner.name}'s Avatar`" :src="mob.owner.avatar" class="mr-4"/>
+                <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :src="growthSession.owner.avatar" class="mr-4"/>
                 <input class="flex-1 shadow appearance-none border rounded w-full px-3" placeholder="Please enter a mob title"
                        type="text"
                        maxlength="45"
-                       v-model="mob.title">
+                       v-model="growthSession.title">
             </h2>
             <div>
                 <button
@@ -29,7 +29,7 @@
                           id="topic"
                           placeholder="What is this mob about?"
                           rows="4"
-                          v-model="mob.topic"/>
+                          v-model="growthSession.topic"/>
             </div>
             <div class="flex-none max-w-md">
                 <div class="mb-3">
@@ -39,7 +39,7 @@
                               id="location"
                               placeholder="Where should people go to participate?"
                               rows="2"
-                              v-model="mob.location"/>
+                              v-model="growthSession.location"/>
                 </div>
 
                 <div class="mb-3">
@@ -50,7 +50,7 @@
                         </label>
                         <div :class="{'error-outline': getError('date')}"
                              class="border p-1 border-gray-400 justify-center">
-                            <date-picker id="date" v-model="mob.date"/>
+                            <date-picker id="date" v-model="growthSession.date"/>
                         </div>
 
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="start_time">
@@ -63,7 +63,7 @@
                                         format="hh:mm a"
                                         hide-disabled-items
                                         id="start_time"
-                                        v-model="mob.start_time"/>
+                                        v-model="growthSession.start_time"/>
                     </div>
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="end_time">
@@ -76,13 +76,13 @@
                                         format="hh:mm a"
                                         hide-disabled-items
                                         id="end_time"
-                                        v-model="mob.end_time"/>
+                                        v-model="growthSession.end_time"/>
                     </div>
                 </div>
 
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Attendees</h3>
                 <ul>
-                    <li class="flex items-center ml-6 my-4" v-for="attendee in mob.attendees">
+                    <li class="flex items-center ml-6 my-4" v-for="attendee in growthSession.attendees">
                         <v-avatar :alt="`${attendee.name}'s Avatar`" :src="attendee.avatar" class="mr-3" size="12"/>
                         {{attendee.name}}
                     </li>
@@ -106,29 +106,29 @@ import DatePicker from './DatePicker.vue';
     export default class MobView extends Vue {
         @Prop({required: false}) user!: IUser;
         @Prop({required: true}) mobJson!: IGrowthSession;
-        mob: GrowthSession = new GrowthSession(this.mobJson);
+        growthSession: GrowthSession = new GrowthSession(this.mobJson);
         validationErrors: IValidationError | null = null;
 
         get date(): string {
-            return `${DateTime.parseByDate(this.mob.date).format('MMM-DD')}`
+            return `${DateTime.parseByDate(this.growthSession.date).format('MMM-DD')}`
         }
 
         get time(): string {
-            return `${this.mob.startTime} - ${this.mob.endTime}`;
+            return `${this.growthSession.startTime} - ${this.growthSession.endTime}`;
         }
 
         async deleteMob() {
-            await this.mob.delete();
+            await this.growthSession.delete();
             window.location.assign('/');
         }
 
         async updateMob() {
             try {
-                const payload = {...this.mob}
-                if (this.mob.isLimitless) {
+                const payload = {...this.growthSession}
+                if (this.growthSession.isLimitless) {
                     payload.attendee_limit = null;
                 }
-                let updatedMob: IGrowthSession = await GrowthSessionApi.update(this.mob, payload);
+                let updatedMob: IGrowthSession = await GrowthSessionApi.update(this.growthSession, payload);
                 this.$emit('submitted', updatedMob);
                 window.history.back()
             } catch (e) {
