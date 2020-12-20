@@ -20,7 +20,7 @@ class GrowthSessionPolicy
         return true;
     }
 
-    public function view(User $user, GrowthSession $socialMob)
+    public function view(User $user, GrowthSession $growthSession)
     {
         return true;
     }
@@ -30,33 +30,33 @@ class GrowthSessionPolicy
         return true;
     }
 
-    public function update(User $user, GrowthSession $socialMob)
+    public function update(User $user, GrowthSession $growthSession)
     {
-        return $user->is($socialMob->owner) && $this->isInTheFuture($socialMob);
+        return $user->is($growthSession->owner) && $this->isInTheFuture($growthSession);
     }
 
-    public function delete(User $user, GrowthSession $socialMob)
+    public function delete(User $user, GrowthSession $growthSession)
     {
-        return $user->is($socialMob->owner) && $this->isInTheFuture($socialMob);
+        return $user->is($growthSession->owner) && $this->isInTheFuture($growthSession);
     }
 
-    public function restore(User $user, GrowthSession $socialMob)
+    public function restore(User $user, GrowthSession $growthSession)
     {
         return false;
     }
 
-    public function forceDelete(User $user, GrowthSession $socialMob)
+    public function forceDelete(User $user, GrowthSession $growthSession)
     {
-        return $user->is($socialMob->owner) && $this->isInTheFuture($socialMob);
+        return $user->is($growthSession->owner) && $this->isInTheFuture($growthSession);
     }
 
-    public function join(User $user, GrowthSession $socialMob)
+    public function join(User $user, GrowthSession $growthSession)
     {
-        return ! $socialMob->hasUser($user) && $this->isInTheFuture($socialMob);
+        return ! $growthSession->hasUser($user) && $this->isInTheFuture($growthSession);
     }
 
-    public function leave(User $user, GrowthSession $socialMob)
+    public function leave(User $user, GrowthSession $growthSession)
     {
-        return $socialMob->hasUser($user) && $this->isInTheFuture($socialMob);
+        return $growthSession->hasUser($user) && $this->isInTheFuture($growthSession);
     }
 }
