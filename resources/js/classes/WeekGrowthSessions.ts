@@ -3,14 +3,14 @@ import {GrowthSession} from './GrowthSession';
 import {DateTime} from '../classes/DateTime';
 
 export class WeekGrowthSessions {
-    weekMobs: IWeekGrowthSessions;
+    weekGrowthSessions: IWeekGrowthSessions;
     weekDates: DateTime[] = [];
 
     constructor(weekMobs: IWeekGrowthSessions) {
-        this.weekMobs = weekMobs;
+        this.weekGrowthSessions = weekMobs;
         let weekDateStrings = Object.keys(weekMobs);
         for (let weekDate of weekDateStrings) {
-            this.weekMobs[weekDate] = weekMobs[weekDate].map((jsonMob: IGrowthSession) => new GrowthSession(jsonMob));
+            this.weekGrowthSessions[weekDate] = weekMobs[weekDate].map((jsonMob: IGrowthSession) => new GrowthSession(jsonMob));
             this.weekDates.push(DateTime.parseByDate(weekDate))
         }
     }
@@ -18,13 +18,13 @@ export class WeekGrowthSessions {
     get allMobs(): GrowthSession[] {
         let mobs = [];
         for (let weekDate of this.weekDates) {
-            mobs.push(...this.weekMobs[weekDate.toDateString()]);
+            mobs.push(...this.weekGrowthSessions[weekDate.toDateString()]);
         }
         return mobs as GrowthSession[];
     }
 
     getSessionByDate(date: DateTime): GrowthSession[] {
-        return this.weekMobs[date.toDateString()] as GrowthSession[];
+        return this.weekGrowthSessions[date.toDateString()] as GrowthSession[];
     }
 
     get isReady(): boolean {
