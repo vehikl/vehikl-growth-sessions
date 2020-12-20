@@ -1,15 +1,15 @@
 <template>
-    <div v-if="socialMobs.isReady">
+    <div v-if="growthSessions.isReady">
         <div class="flex justify-center items-center text-xl text-blue-600 font-bold">
             <button aria-label="Load previous week"
                     class="load-previous-week mx-4 mb-2"
                     @click="changeReferenceDate(-7)">
                 <i aria-hidden="true" class="fa fa-chevron-left"></i>
             </button>
-            <h2 v-if="socialMobs.weekDates.length > 0" class="text-center mb-2 w-72">
+            <h2 v-if="growthSessions.weekDates.length > 0" class="text-center mb-2 w-72">
                 Week of
-                {{ socialMobs.firstDay.format('MMM-DD') }} to
-                {{ socialMobs.lastDay.format('MMM-DD') }}
+                {{ growthSessions.firstDay.format('MMM-DD') }} to
+                {{ growthSessions.lastDay.format('MMM-DD') }}
             </h2>
             <button ref="load-next-week-button"
                     aria-label="Load next week"
@@ -29,7 +29,7 @@
                               @submitted="onFormSubmitted"/>
                 </div>
             </modal>
-            <div v-for="date in socialMobs.weekDates"
+            <div v-for="date in growthSessions.weekDates"
                  :key="date.toDateString()"
                  :class="{
                  'bg-blue-100': date.weekDayNumber() % 2 === 0,
@@ -39,19 +39,19 @@
                  :weekDay="date.weekDayString()"
                  class="day text-center mx-1 mb-2 px-2 md:block">
                 <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="date.weekDayString()"></h3>
-                <div v-show="socialMobs.getSessionByDate(date).length === 0" class="text-blue-600 text-lg my-4">
+                <div v-show="growthSessions.getSessionByDate(date).length === 0" class="text-blue-600 text-lg my-4">
                     <p v-text="`${Nothingator.random()}...`"/>
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
                 </div>
 
                 <draggable :date="date"
-                           :list="socialMobs.getSessionByDate(date)"
+                           :list="growthSessions.getSessionByDate(date)"
                            class="h-full w-full"
                            group="social-mobs"
                            handle=".handle"
                            @change="onChange"
                            @end="onDragEnd">
-                    <div v-for="growthSession in socialMobs.getSessionByDate(date)"
+                    <div v-for="growthSession in growthSessions.getSessionByDate(date)"
                          :key="growthSession.id">
                         <growth-session-card
                             :socialMob="growthSession"
@@ -97,7 +97,7 @@ interface IMobCardDragChange {
 export default class WeekView extends Vue {
     @Prop({required: false, default: null}) user!: IUser;
     referenceDate: DateTime = DateTime.today();
-    socialMobs: WeekGrowthSessions = WeekGrowthSessions.empty();
+    growthSessions: WeekGrowthSessions = WeekGrowthSessions.empty();
     newMobDate: string = '';
     growthSessionToUpdate: GrowthSession | null = null;
     DateTime = DateTime;
@@ -142,7 +142,7 @@ export default class WeekView extends Vue {
     }
 
     async getAllMobsOfTheWeek() {
-        this.socialMobs = await GrowthSessionApi.getAllMobsOfTheWeek(this.referenceDate.toDateString());
+        this.growthSessions = await GrowthSessionApi.getAllMobsOfTheWeek(this.referenceDate.toDateString());
     }
 
     async onFormSubmitted() {
