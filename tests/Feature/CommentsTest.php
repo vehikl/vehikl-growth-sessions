@@ -16,7 +16,7 @@ class CommentsTest extends TestCase
         $growthSession = GrowthSession::factory()->create();
 
         $this->actingAs($user)
-            ->postJson(route('social_mobs.comments.store', $growthSession), ['content' => 'Hello world'])
+            ->postJson(route('growth_sessions.comments.store', $growthSession), ['content' => 'Hello world'])
             ->assertSuccessful();
 
         $this->assertNotEmpty($growthSession->fresh()->comments);
@@ -26,7 +26,7 @@ class CommentsTest extends TestCase
     {
         $growthSession = GrowthSession::factory()->create();
 
-        $this->postJson(route('social_mobs.comments.store', $growthSession), ['content' => 'Hello world'])
+        $this->postJson(route('growth_sessions.comments.store', $growthSession), ['content' => 'Hello world'])
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
@@ -45,7 +45,7 @@ class CommentsTest extends TestCase
         $commentOwner = $comment->user;
 
         $this->actingAs($commentOwner)
-            ->deleteJson(route('social_mobs.comments.destroy', [$growthSession, $comment]))
+            ->deleteJson(route('growth_sessions.comments.destroy', [$growthSession, $comment]))
             ->assertSuccessful();
 
         $this->assertEmpty($comment->fresh());
@@ -59,7 +59,7 @@ class CommentsTest extends TestCase
         $anotherUser = User::factory()->create();
 
         $this->actingAs($anotherUser)
-            ->deleteJson(route('social_mobs.comments.destroy', [$growthSession, $comment]))
+            ->deleteJson(route('growth_sessions.comments.destroy', [$growthSession, $comment]))
             ->assertForbidden();
     }
 }

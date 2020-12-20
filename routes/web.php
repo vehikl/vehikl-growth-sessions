@@ -24,4 +24,8 @@ Route::resource('social_mobs', 'GrowthSessionController')->middleware('auth')->o
 Route::prefix('social_mobs/{social_mob}/comments')->name('social_mobs.comments.')->group(function() {
     Route::get('/', 'CommentController@index')->name('index');
 });
-Route::resource('social_mobs.comments', 'CommentController')->middleware('auth')->only(['store','update','destroy']);
+Route::resource('social_mobs.comments', 'CommentController')->middleware('auth')->only(['store','update','destroy'])->names([
+    'store' => 'growth_sessions.comments.store',
+    'update' => 'growth_sessions.comments.update',
+    'destroy' => 'growth_sessions.comments.destroy',
+]);;
