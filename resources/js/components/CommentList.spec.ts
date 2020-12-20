@@ -17,7 +17,7 @@ describe('CommentList', () => {
         wrapper = mount(CommentList, {propsData: {growthSession, user}})
     });
 
-    it('displays all comments of a given mob', () => {
+    it('displays all comments of a given growth session', () => {
         growthSession.comments.map(comment => comment.content).forEach(comment => {
             expect(wrapper.text()).toContain(comment);
         });
