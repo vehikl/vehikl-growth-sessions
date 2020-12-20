@@ -11,10 +11,10 @@ class GrowthSessionDeleted
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public GrowthSession $socialMob;
+    public GrowthSession $growthSession;
 
     public function __construct(GrowthSession $growthSession)
     {
-        $this->socialMob = $growthSession;
+        $this->growthSession = $growthSession;
     }
 }

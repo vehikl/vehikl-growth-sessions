@@ -11,9 +11,9 @@ class NotifySocialMobDelete extends WebHookNotificationEventListener
     {
         if ($this->isWithinWebHookNotificationWindow()
             && config('webhooks.deleted_today')
-            && today()->isSameDay($event->socialMob->date)) {
+            && today()->isSameDay($event->growthSession->date)) {
 
-            Http::post(config('webhooks.deleted_today'), $event->socialMob->toArray());
+            Http::post(config('webhooks.deleted_today'), $event->growthSession->toArray());
         }
     }
 }
