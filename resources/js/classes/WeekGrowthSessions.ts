@@ -15,7 +15,7 @@ export class WeekGrowthSessions {
         }
     }
 
-    get allMobs(): GrowthSession[] {
+    get allGrowthSessions(): GrowthSession[] {
         let growthSessions = [];
         for (let weekDate of this.weekDates) {
             growthSessions.push(...this.weekGrowthSessions[weekDate.toDateString()]);

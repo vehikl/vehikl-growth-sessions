@@ -49,7 +49,7 @@ describe('WeekView', () => {
     });
 
     it('loads with the current week growth sessions in display', () => {
-        const topicsOfTheWeek = growthSessionsThisWeek.allMobs.map((mob: GrowthSession) => mob.topic);
+        const topicsOfTheWeek = growthSessionsThisWeek.allGrowthSessions.map((mob: GrowthSession) => mob.topic);
         for (let topic of topicsOfTheWeek) {
             expect(wrapper.text()).toContain(topic);
         }
