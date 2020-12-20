@@ -58,7 +58,7 @@
                             :user="user"
                             class="mb-3 transform transition-transform duration-150"
                             @mob-updated="getAllGrowthSessionsOfTheWeek"
-                            @edit-requested="onMobEditRequested"
+                            @edit-requested="onGrowthSessionEditRequested"
                             @delete-requested="getAllGrowthSessionsOfTheWeek"/>
                     </div>
 
@@ -156,7 +156,7 @@ export default class WeekView extends Vue {
         this.$modal.show('mob-form');
     }
 
-    onMobEditRequested(mob: GrowthSession) {
+    onGrowthSessionEditRequested(mob: GrowthSession) {
         this.growthSessionToUpdate = mob;
         this.newGrowthSessionDate = '';
         this.$modal.show('mob-form');
