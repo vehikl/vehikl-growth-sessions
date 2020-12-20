@@ -1,5 +1,5 @@
 import {mount, Wrapper} from "@vue/test-utils";
-import MobView from "./GrowthSessionView.vue";
+import GrowthSessionView from "./GrowthSessionView.vue";
 import userJson from '../../../tests/fixtures/User.json';
 import mobJson from '../../../tests/fixtures/GrowthSessionWithComments.json'
 import {User} from "../classes/User";
@@ -9,11 +9,11 @@ import {GrowthSession} from "../classes/GrowthSession";
 
 const dummyMob: IGrowthSession = growthSessionWithComments;
 
-describe('MobView', () => {
-    let wrapper: Wrapper<MobView>;
+describe('GrowthSessionView', () => {
+    let wrapper: Wrapper<GrowthSessionView>;
 
     beforeEach(() => {
-        wrapper = mount(MobView, {propsData: {user: userJson, mobJson}});
+        wrapper = mount(GrowthSessionView, {propsData: {user: userJson, mobJson}});
     });
 
     it('redirects to the owners GitHub page when clicked on the profile', async () => {
@@ -34,14 +34,14 @@ describe('MobView', () => {
 
     it('can display the attendee limit', () => {
         let socialMob = new GrowthSession({...dummyMob, attendee_limit: 42});
-        wrapper = mount(MobView, {propsData: {mobJson: socialMob}});
+        wrapper = mount(GrowthSessionView, {propsData: {mobJson: socialMob}});
         expect(wrapper.text()).toContain('Attendee Limit');
         expect(wrapper.find('.attendee_limit').text()).toContain(socialMob.attendee_limit);
     });
 
     it('can hide the attendee limit', () => {
         let socialMob = new GrowthSession({...dummyMob, attendee_limit: null});
-        wrapper = mount(MobView, {propsData: {mobJson: socialMob}});
+        wrapper = mount(GrowthSessionView, {propsData: {mobJson: socialMob}});
         expect(wrapper.text()).not.toContain('Attendee Limit');
     });
 });
