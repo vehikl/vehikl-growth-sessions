@@ -102,7 +102,7 @@ export default class WeekView extends Vue {
     growthSessionToUpdate: GrowthSession | null = null;
     DateTime = DateTime;
     Nothingator = Nothingator;
-    draggedMob!: GrowthSession;
+    draggedGrowthSession!: GrowthSession;
 
     async created() {
         await this.refreshMobsOfTheWeek()
@@ -128,7 +128,7 @@ export default class WeekView extends Vue {
     async onDragEnd(location: any) {
         let targetDate = location.to.__vue__.$attrs.date;
         try {
-            await GrowthSessionApi.update(this.draggedMob, {date: targetDate.toDateString()});
+            await GrowthSessionApi.update(this.draggedGrowthSession, {date: targetDate.toDateString()});
         } catch (e) {
         }
 
@@ -137,7 +137,7 @@ export default class WeekView extends Vue {
 
     onChange(change: IMobCardDragChange) {
         if (change.added) {
-            return this.draggedMob = change.added.element;
+            return this.draggedGrowthSession = change.added.element;
         }
     }
 
