@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Tests\TestCase;
 
-class SocialMobWeekTest extends TestCase
+class GrowthSessionWeekTest extends TestCase
 {
     public function testItReturnsAnEmptyWeekStartingOnMondayIfThereAreNoSocialMobs()
     {
