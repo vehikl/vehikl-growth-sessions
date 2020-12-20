@@ -6,7 +6,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class SocialMobUpdated
+class GrowthSessionUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

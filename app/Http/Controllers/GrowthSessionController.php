@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\GrowthSessionAttendeeChanged;
 use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionDeleted;
-use App\Events\SocialMobUpdated;
+use App\Events\GrowthSessionUpdated;
 use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreSocialMobRequest;
@@ -70,7 +70,7 @@ class GrowthSessionController extends Controller
     {
         $originalValues = $socialMob->toArray();
         $socialMob->update($request->validated());
-        event(new SocialMobUpdated($originalValues, $socialMob->toArray()));
+        event(new GrowthSessionUpdated($originalValues, $socialMob->toArray()));
 
         return $socialMob;
     }
