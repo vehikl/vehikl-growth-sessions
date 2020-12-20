@@ -22,13 +22,13 @@ const localVue = createLocalVue();
 localVue.use(VModal);
 let growthSessionsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
 
-const metadataForSocialsFixture = {
+const metadataForGrowthSessionsFixture = {
     today: {date: '2020-01-15', weekday: 'Wednesday'},
     dayWithNoMobs: {date: '2020-01-16', weekday: 'Tuesday'},
     nextWeek: {date: '2020-01-22', weekday: 'Wednesday'}
 };
 
-const todayDate: string = metadataForSocialsFixture.today.date;
+const todayDate: string = metadataForGrowthSessionsFixture.today.date;
 
 describe('WeekView', () => {
     let wrapper: Wrapper<WeekView>;
@@ -91,7 +91,7 @@ describe('WeekView', () => {
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
 
-        expect(wrapper.find(`[weekDay=${metadataForSocialsFixture.dayWithNoMobs.weekday}`).text())
+        expect(wrapper.find(`[weekDay=${metadataForGrowthSessionsFixture.dayWithNoMobs.weekday}`).text())
             .toContain(wordForNothing);
     });
 
@@ -122,13 +122,13 @@ describe('WeekView', () => {
 
     describe('week persistence', () => {
         it('displays the current week of the day if no date value is provided in the url', () => {
-            expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.today.date);
+            expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.today.date);
         });
 
         it('displays the mobs of the week of the date provided in the query string if it exists', () => {
-            window.history.pushState({}, 'sometitle', `?date=${metadataForSocialsFixture.nextWeek.date}`)
+            window.history.pushState({}, 'sometitle', `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`)
             wrapper = mount(WeekView, {localVue});
-            expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.nextWeek.date);
+            expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
         });
 
         it('updates the query string for the date whenever the user navigates the weeks', async () => {
@@ -136,11 +136,11 @@ describe('WeekView', () => {
             await flushPromises();
 
             const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
-            expect(urlParameters.get('date')).toEqual(metadataForSocialsFixture.nextWeek.date);
+            expect(urlParameters.get('date')).toEqual(metadataForGrowthSessionsFixture.nextWeek.date);
         });
 
         it('properly display the mobs of the day from the query string when the user navigates back in history', async () => {
-            window.history.pushState({}, 'sometitle', `?date=${metadataForSocialsFixture.nextWeek.date}`)
+            window.history.pushState({}, 'sometitle', `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`)
             wrapper = mount(WeekView, {localVue});
             await flushPromises();
             GrowthSessionApi.getAllMobsOfTheWeek = jest.fn();
@@ -154,7 +154,7 @@ describe('WeekView', () => {
             window.history.back();
             await flushPromises();
 
-            expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.nextWeek.date);
+            expect(GrowthSessionApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
         });
     });
 });
