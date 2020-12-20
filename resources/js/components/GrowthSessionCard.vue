@@ -75,7 +75,7 @@
     @Component({
         components: {VAvatar, IconDraggable, LocationRenderer}
     })
-    export default class MobCard extends Vue {
+    export default class GrowthSessionCard extends Vue {
         @Prop({required: true}) socialMob!: GrowthSession;
         @Prop({required: false, default: null}) user!: IUser;
 
