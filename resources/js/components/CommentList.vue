@@ -22,7 +22,7 @@
 
 
         <ul class="mt-6">
-            <li v-for="comment in socialMob.comments" :key="comment.id" class="flex py-4 border-b border-blue-200">
+            <li v-for="comment in growthSession.comments" :key="comment.id" class="flex py-4 border-b border-blue-200">
                 <a ref="commenter-avatar-link" :href="getGithubURL(comment)">
                     <v-avatar :src="comment.user.avatar"
                               class="mr-4"
@@ -31,12 +31,12 @@
                 <div class="flex-1 mx-6">
                     <div class="flex items-center">
                         <i class="fa fa-star text-orange-500 mr-2"
-                           v-if="socialMob.isOwner(comment.user)"
+                           v-if="growthSession.isOwner(comment.user)"
                            aria-hidden="true"/>
                         <h3 class="font-bold flex-1" v-text="comment.user.name"/>
-                        <button v-show="socialMob.canDeleteComment(user, comment)"
+                        <button v-show="growthSession.canDeleteComment(user, comment)"
                                 class="text-red-600 hover:text-red-800"
-                                @click="socialMob.deleteComment(comment)">
+                                @click="growthSession.deleteComment(comment)">
                             <i class="fa fa-minus-circle" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -59,12 +59,12 @@
         components: {VAvatar}
     })
     export default class CommentList extends Vue {
-        @Prop({required: true}) socialMob!: GrowthSession;
+        @Prop({required: true}) growthSession!: GrowthSession;
         @Prop({required: false}) user!: IUser;
         newComment: string = '';
 
         async createNewComment() {
-            await this.socialMob.postComment(this.newComment);
+            await this.growthSession.postComment(this.newComment);
             this.newComment = '';
         }
 

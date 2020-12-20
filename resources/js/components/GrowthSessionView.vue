@@ -67,7 +67,7 @@
                 </ul>
             </div>
         </div>
-        <comment-list class="mt-24 max-w-xl" :social-mob="mob" :user="userJson"/>
+        <comment-list class="mt-24 max-w-xl" :growth-session="mob" :user="userJson"/>
     </div>
 </template>
 
