@@ -1,8 +1,8 @@
 export * from './IUser';
 export * from './IComment';
 export * from './IGrowthSession';
-export * from './IWeekMobs';
+export * from './IWeekGrowthSessions';
 
-export * from './IStoreSocialMobRequest';
-export * from './IUpdateSocialMobRequest';
+export * from './IStoreGrowthSessionRequest';
+export * from './IUpdateGrowthSessionRequest';
 export * from './IValidationError';
