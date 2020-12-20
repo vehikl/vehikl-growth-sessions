@@ -51,10 +51,10 @@
                            handle=".handle"
                            @change="onChange"
                            @end="onDragEnd">
-                    <div v-for="socialMob in socialMobs.getSessionByDate(date)"
-                         :key="socialMob.id">
+                    <div v-for="growthSession in socialMobs.getSessionByDate(date)"
+                         :key="growthSession.id">
                         <growth-session-card
-                            :socialMob="socialMob"
+                            :socialMob="growthSession"
                             :user="user"
                             class="mb-3 transform transition-transform duration-150"
                             @mob-updated="getAllMobsOfTheWeek"
