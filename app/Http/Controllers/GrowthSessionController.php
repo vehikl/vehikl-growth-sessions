@@ -66,13 +66,13 @@ class GrowthSessionController extends Controller
         return view('social-mob-edit', compact('growthSession'));
     }
 
-    public function update(UpdateGrowthSessionRequest $request, GrowthSession $socialMob)
+    public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
     {
-        $originalValues = $socialMob->toArray();
-        $socialMob->update($request->validated());
-        event(new GrowthSessionUpdated($originalValues, $socialMob->toArray()));
+        $originalValues = $growthSession->toArray();
+        $growthSession->update($request->validated());
+        event(new GrowthSessionUpdated($originalValues, $growthSession->toArray()));
 
-        return $socialMob;
+        return $growthSession;
     }
 
     public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $socialMob)
