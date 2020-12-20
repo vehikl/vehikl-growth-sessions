@@ -84,7 +84,7 @@ class WebHooksTest extends TestCase
         });
     }
 
-    public function testItHitsTheCreatedTodayWebHookIfAMobWasCreatedForToday()
+    public function testItHitsTheCreatedTodayWebHookIfAGrowthSessionWasCreatedForToday()
     {
         $this->setTestNow('2020-01-01T10:30:00.000');
         $user = User::factory()->create();
