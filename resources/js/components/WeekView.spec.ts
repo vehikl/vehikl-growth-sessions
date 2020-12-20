@@ -1,7 +1,7 @@
 import {createLocalVue, mount, Wrapper} from '@vue/test-utils';
 import WeekView from './WeekView.vue';
 import flushPromises from 'flush-promises';
-import socialsThisWeekJson from '../../../tests/fixtures/WeekGrowthSessions.json';
+import growthSessionsThisWeekJson from '../../../tests/fixtures/WeekGrowthSessions.json';
 import {IUser} from '../types';
 import VModal from 'vue-js-modal';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
@@ -20,7 +20,7 @@ const authUser: IUser = {
 
 const localVue = createLocalVue();
 localVue.use(VModal);
-let socialsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(socialsThisWeekJson);
+let socialsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
 
 const metadataForSocialsFixture = {
     today: {date: '2020-01-15', weekday: 'Wednesday'},
