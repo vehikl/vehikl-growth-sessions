@@ -4,7 +4,7 @@ import {SocialMobApi} from '../services/SocialMobApi';
 import {User} from "./User";
 
 describe('GrowthSession', () => {
-    let socialMob: GrowthSession;
+    let growthSession: GrowthSession;
     const owner: IUser = {
         id: 0,
         avatar: "",
@@ -28,11 +28,11 @@ describe('GrowthSession', () => {
     };
 
     beforeEach(() => {
-        socialMob = new GrowthSession(mobJson);
+        growthSession = new GrowthSession(mobJson);
     });
 
     it('can return its dates in the proper google calendar style', () => {
-        expect(socialMob.googleCalendarDate).toEqual('20200101T200000Z/20200101T220000Z');
+        expect(growthSession.googleCalendarDate).toEqual('20200101T200000Z/20200101T220000Z');
     });
 
     it('prompts the user to add the growth session to their calendar when they join', async () => {
@@ -40,9 +40,9 @@ describe('GrowthSession', () => {
         window.confirm = jest.fn().mockReturnValue(userAgreedToAddToCalendar);
         window.open = jest.fn();
         SocialMobApi.join = jest.fn().mockImplementation(mob => mob);
-        await socialMob.join();
+        await growthSession.join();
 
-        expect(window.open).toHaveBeenCalledWith(socialMob.calendarUrl, '_blank');
+        expect(window.open).toHaveBeenCalledWith(growthSession.calendarUrl, '_blank');
     });
 
     describe('canJoin', () => {
