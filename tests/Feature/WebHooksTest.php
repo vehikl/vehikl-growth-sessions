@@ -31,7 +31,7 @@ class WebHooksTest extends TestCase
         });
     }
 
-    public function testItDoesNotHittheMobDeletedTodayWebHookIfTheMobWasDeletedAtAnyOtherDay()
+    public function testItDoesNotHittheMobDeletedTodayWebHookIfTheGrowthSessionWasDeletedAtAnyOtherDay()
     {
         $socialMob = GrowthSession::factory()->create(['date' => today()->addDay()]);
         $user = $socialMob->owner;
