@@ -52,7 +52,8 @@ class SocialMob extends Model
 
     public function comments()
     {
-        return $this->hasMany(Comment::class)->orderByDesc('created_at');
+        return $this->hasMany(Comment::class, 'social_mob_id')
+            ->orderByDesc('created_at');
     }
 
     public function setDateAttribute($value)
