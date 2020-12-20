@@ -10,7 +10,7 @@ export class WeekGrowthSessions {
         this.weekGrowthSessions = weekGrowthSessions;
         let weekDateStrings = Object.keys(weekGrowthSessions);
         for (let weekDate of weekDateStrings) {
-            this.weekGrowthSessions[weekDate] = weekGrowthSessions[weekDate].map((jsonMob: IGrowthSession) => new GrowthSession(jsonMob));
+            this.weekGrowthSessions[weekDate] = weekGrowthSessions[weekDate].map((growthSession: IGrowthSession) => new GrowthSession(growthSession));
             this.weekDates.push(DateTime.parseByDate(weekDate))
         }
     }
