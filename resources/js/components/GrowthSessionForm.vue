@@ -126,7 +126,7 @@ import {DateTime} from '../classes/DateTime';
 import DatePicker from './DatePicker.vue';
 
 @Component({components: {DatePicker, VueTimepicker}})
-    export default class CreateGrowthSession extends Vue {
+    export default class GrowthSessionForm extends Vue {
         @Prop({required: true}) owner!: IUser;
         @Prop({required: false, default: null}) mob!: IGrowthSession;
         @Prop({required: false, default: ''}) startDate!: string;
