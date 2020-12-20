@@ -10,11 +10,11 @@ class NotifyGrowthSessionUpdate extends WebHookNotificationEventListener
     public function handle(GrowthSessionUpdated $event)
     {
         $wasGrowthSessionOriginallyToday = today()->isSameDay($event->originalGrowthSessionAttributes['date']);
-        $wasMobMovedToToday = today()->isSameDay($event->newGrowthSessionAttributes['date']);
+        $wasGrowthSessionMovedToToday = today()->isSameDay($event->newGrowthSessionAttributes['date']);
 
         if ($this->isWithinWebHookNotificationWindow()
             && config('webhooks.updated_today')
-            && ($wasGrowthSessionOriginallyToday || $wasMobMovedToToday)) {
+            && ($wasGrowthSessionOriginallyToday || $wasGrowthSessionMovedToToday)) {
 
             Http::post(config('webhooks.updated_today'), $event->newGrowthSessionAttributes);
         }
