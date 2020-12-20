@@ -57,7 +57,7 @@
                             :growth-session="growthSession"
                             :user="user"
                             class="mb-3 transform transition-transform duration-150"
-                            @mob-updated="getAllGrowthSessionsOfTheWeek"
+                            @growth-session-updated="getAllGrowthSessionsOfTheWeek"
                             @edit-requested="onGrowthSessionEditRequested"
                             @delete-requested="getAllGrowthSessionsOfTheWeek"/>
                     </div>

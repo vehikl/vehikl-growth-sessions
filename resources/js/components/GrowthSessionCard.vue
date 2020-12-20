@@ -85,12 +85,12 @@
 
         async joinGrowthSession() {
             await this.growthSession.join();
-            this.$emit('mob-updated');
+            this.$emit('growth-session-updated');
         }
 
         async leaveGrowthSession() {
             await this.growthSession.leave();
-            this.$emit('mob-updated');
+            this.$emit('growth-session-updated');
         }
 
         get isDraggable(): boolean {
