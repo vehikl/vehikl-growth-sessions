@@ -24,7 +24,7 @@ class Comment extends Model
 
     public function socialMob()
     {
-        return $this->belongsTo(GrowthSession::class);
+        return $this->belongsTo(GrowthSession::class, 'social_mob_id');
     }
 
     public function getTimeStampAttribute()
