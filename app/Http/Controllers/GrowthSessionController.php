@@ -8,7 +8,7 @@ use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionUpdated;
 use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteGrowthSessionRequest;
-use App\Http\Requests\StoreSocialMobRequest;
+use App\Http\Requests\StoreGrowthSessionRequest;
 use App\Http\Requests\UpdateSocialMobRequest;
 use App\Http\Resources\SocialMob as SocialMobResource;
 use App\Http\Resources\SocialMobWeek;
@@ -32,7 +32,7 @@ class GrowthSessionController extends Controller
         return SocialMobResource::collection(GrowthSession ::today()->get());
     }
 
-    public function store(StoreSocialMobRequest $request)
+    public function store(StoreGrowthSessionRequest $request)
     {
         $newMob = $request->user()->socialMobs()->save(new GrowthSession ($request->validated()));
         $newMob->load(['owner', 'attendees', 'comments']);
