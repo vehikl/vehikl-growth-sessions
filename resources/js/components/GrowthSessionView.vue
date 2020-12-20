@@ -84,7 +84,7 @@ import VAvatar from './VAvatar.vue';
 import LocationRenderer from './LocationRenderer.vue';
 
 @Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker}})
-    export default class MobView extends Vue {
+    export default class GrowthSessionView extends Vue {
         @Prop({required: false}) userJson!: IUser;
         @Prop({required: true}) growthSessionJson!: IGrowthSession;
         growthSession: GrowthSession = new GrowthSession(this.growthSessionJson);
