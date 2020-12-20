@@ -182,8 +182,8 @@ import DatePicker from './DatePicker.vue';
 
         async createMob() {
             try {
-                let newMob: IGrowthSession = await GrowthSessionApi.store(this.storeOrUpdatePayload);
-                this.$emit('submitted', newMob);
+                let growthSession: IGrowthSession = await GrowthSessionApi.store(this.storeOrUpdatePayload);
+                this.$emit('submitted', growthSession);
             } catch (e) {
                 this.onRequestFailed(e);
             }
