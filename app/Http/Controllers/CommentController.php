@@ -9,9 +9,9 @@ use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
-    public function index(Request $request, GrowthSession $socialMob)
+    public function index(Request $request, GrowthSession $growthSession)
     {
-        return $socialMob->comments()->orderByDesc('created_at')->get();
+        return $growthSession->comments()->orderByDesc('created_at')->get();
     }
 
     public function store(Request $request, GrowthSession $socialMob)
