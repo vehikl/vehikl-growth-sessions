@@ -10,7 +10,7 @@ import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 const socialsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(socialsThisWeekJson);
 const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
 
-describe('SocialMobApi', () => {
+describe('GrowthSessionApi', () => {
     let mockBackend: MockAdapter;
 
     beforeEach(() => {
