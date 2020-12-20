@@ -6,11 +6,11 @@ export class WeekGrowthSessions {
     weekGrowthSessions: IWeekGrowthSessions;
     weekDates: DateTime[] = [];
 
-    constructor(weekMobs: IWeekGrowthSessions) {
-        this.weekGrowthSessions = weekMobs;
-        let weekDateStrings = Object.keys(weekMobs);
+    constructor(weekGrowthSessions: IWeekGrowthSessions) {
+        this.weekGrowthSessions = weekGrowthSessions;
+        let weekDateStrings = Object.keys(weekGrowthSessions);
         for (let weekDate of weekDateStrings) {
-            this.weekGrowthSessions[weekDate] = weekMobs[weekDate].map((jsonMob: IGrowthSession) => new GrowthSession(jsonMob));
+            this.weekGrowthSessions[weekDate] = weekGrowthSessions[weekDate].map((jsonMob: IGrowthSession) => new GrowthSession(jsonMob));
             this.weekDates.push(DateTime.parseByDate(weekDate))
         }
     }
