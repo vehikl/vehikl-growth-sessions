@@ -1,5 +1,5 @@
 import {mount, Wrapper} from "@vue/test-utils";
-import MobView from "./MobView.vue";
+import MobView from "./GrowthSessionView.vue";
 import userJson from '../../../tests/fixtures/User.json';
 import mobJson from '../../../tests/fixtures/SocialMobWithComments.json'
 import {User} from "../classes/User";
