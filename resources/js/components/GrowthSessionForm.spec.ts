@@ -22,7 +22,7 @@ describe('CreateGrowthSession', () => {
         GrowthSessionApi.update = jest.fn().mockImplementation(growthSession => growthSession);
     });
 
-    const baseMobRequest: IStoreGrowthSessionRequest = {
+    const baseGrowthSessionRequest: IStoreGrowthSessionRequest = {
         location: 'The mob location',
         topic: 'Chosen topic',
         title: 'Chosen title',
@@ -36,19 +36,19 @@ describe('CreateGrowthSession', () => {
         const scenarios: TMobCreationScenario[] = [
             [
                 'Can accept no limit and no end time',
-                {...baseMobRequest, attendee_limit: undefined, end_time: undefined}
+                {...baseGrowthSessionRequest, attendee_limit: undefined, end_time: undefined}
             ],
             [
                 'Can accept a limit',
                 {
-                    ...baseMobRequest,
+                    ...baseGrowthSessionRequest,
                     attendee_limit: 4
                 }
             ],
             [
                 'Can accept an end time',
                 {
-                    ...baseMobRequest,
+                    ...baseGrowthSessionRequest,
                     end_time: '5:45 pm',
                 }
             ]
