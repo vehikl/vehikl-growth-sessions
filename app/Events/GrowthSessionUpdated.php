@@ -13,9 +13,9 @@ class GrowthSessionUpdated
     public array $originalSocialMobAttributes;
     public array $newSocialMobAttributes;
 
-    public function __construct(array $originalSocialMobAttributes, array $newSocialMobAttributes)
+    public function __construct(array $originalGrowthSessionAttributes, array $newSocialMobAttributes)
     {
-        $this->originalSocialMobAttributes = $originalSocialMobAttributes;
+        $this->originalSocialMobAttributes = $originalGrowthSessionAttributes;
         $this->newSocialMobAttributes = $newSocialMobAttributes;
     }
 }
