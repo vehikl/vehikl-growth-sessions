@@ -86,7 +86,7 @@ import {GrowthSession} from '../classes/GrowthSession';
 import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 import {Nothingator} from '../classes/Nothingator';
 
-interface IMobCardDragChange {
+interface IGrowthSessionCardDragChange {
     added?: { element: GrowthSession, index: number }
     removed?: { element: GrowthSession, index: number }
 }
@@ -135,7 +135,7 @@ export default class WeekView extends Vue {
         await this.getAllGrowthSessionsOfTheWeek();
     }
 
-    onChange(change: IMobCardDragChange) {
+    onChange(change: IGrowthSessionCardDragChange) {
         if (change.added) {
             return this.draggedGrowthSession = change.added.element;
         }
