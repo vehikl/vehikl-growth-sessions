@@ -1,13 +1,13 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
+import growthSessionsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
 import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
 import {GrowthSessionApi} from './GrowthSessionApi';
 import {IGrowthSession, IUpdateGrowthSessionRequest} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 
-const socialsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(socialsThisWeekJson);
+const socialsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
 const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
 
 describe('GrowthSessionApi', () => {
@@ -23,7 +23,7 @@ describe('GrowthSessionApi', () => {
 
     it('returns the mobs of the current week if no date is provided', async () => {
         DateTime.setTestNow('2020-05-01');
-        mockBackend.onGet('social_mobs/week?date=2020-05-01').reply(200, socialsThisWeekJson);
+        mockBackend.onGet('social_mobs/week?date=2020-05-01').reply(200, growthSessionsThisWeekJson);
 
         const result = await GrowthSessionApi.getAllMobsOfTheWeek();
 
@@ -33,7 +33,7 @@ describe('GrowthSessionApi', () => {
 
     it('returns the mobs of the week of the date provided', async() => {
         DateTime.setTestNow('2020-05-01');
-        mockBackend.onGet('social_mobs/week?date=2020-01-01').reply(200, socialsThisWeekJson);
+        mockBackend.onGet('social_mobs/week?date=2020-01-01').reply(200, growthSessionsThisWeekJson);
 
         const result = await GrowthSessionApi.getAllMobsOfTheWeek('2020-01-01');
 
