@@ -30,7 +30,7 @@ describe('CreateGrowthSession', () => {
         start_time: '4:45 pm',
     }
 
-    describe('allows a mob to be created', () => {
+    describe('allows a growth session to be created', () => {
         type TGrowthSessionCreationScenario = [string, IStoreGrowthSessionRequest]
 
         const scenarios: TGrowthSessionCreationScenario[] = [
