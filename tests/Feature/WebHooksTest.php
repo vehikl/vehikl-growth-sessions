@@ -73,7 +73,7 @@ class WebHooksTest extends TestCase
         });
     }
 
-    public function testItHitsTheUpdatedTodayWebHookIfAMobChangedItsDateToToday()
+    public function testItHitsTheUpdatedTodayWebHookIfAGrowthSessionChangedItsDateToToday()
     {
         $socialMob = GrowthSession::factory()->create(['date' => today()->addDay()]);
         $user = $socialMob->owner;
