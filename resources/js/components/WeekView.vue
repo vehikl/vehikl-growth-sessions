@@ -53,7 +53,7 @@
                            @end="onDragEnd">
                     <div v-for="socialMob in socialMobs.getSessionByDate(date)"
                          :key="socialMob.id">
-                        <mob-card
+                        <growth-session-card
                             :socialMob="socialMob"
                             :user="user"
                             class="mb-3 transform transition-transform duration-150"
@@ -77,7 +77,7 @@
 <script lang="ts">
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import {IUser} from '../types';
-import MobCard from './GrowthSessionCard.vue';
+import GrowthSessionCard from './GrowthSessionCard.vue';
 import MobForm from './GrowthSessionForm.vue';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
@@ -92,7 +92,7 @@ interface IMobCardDragChange {
 }
 
 @Component({
-    components: {MobForm, MobCard, Draggable}
+    components: {MobForm, GrowthSessionCard, Draggable}
 })
 export default class WeekView extends Vue {
     @Prop({required: false, default: null}) user!: IUser;
