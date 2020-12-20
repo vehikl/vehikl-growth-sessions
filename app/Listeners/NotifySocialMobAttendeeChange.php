@@ -11,7 +11,7 @@ class NotifySocialMobAttendeeChange extends WebHookNotificationEventListener
     {
         if ($this->isWithinWebHookNotificationWindow() && config('webhooks.attendees_today')) {
 
-            Http::post(config('webhooks.attendees_today'), $event->socialMob->toArray());
+            Http::post(config('webhooks.attendees_today'), $event->growthSession->toArray());
         }
     }
 }

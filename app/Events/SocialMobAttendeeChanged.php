@@ -11,10 +11,10 @@ class SocialMobAttendeeChanged
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public GrowthSession $socialMob;
+    public GrowthSession $growthSession;
 
     public function __construct(GrowthSession $socialMob)
     {
-        $this->socialMob = $socialMob;
+        $this->growthSession = $socialMob;
     }
 }
