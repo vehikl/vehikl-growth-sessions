@@ -24,9 +24,9 @@ class CommentsTest extends TestCase
 
     public function testItDoesNotAllowGuestsToPostComments()
     {
-        $socialMob = GrowthSession::factory()->create();
+        $growthSession = GrowthSession::factory()->create();
 
-        $this->postJson(route('social_mobs.comments.store', $socialMob), ['content' => 'Hello world'])
+        $this->postJson(route('social_mobs.comments.store', $growthSession), ['content' => 'Hello world'])
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
