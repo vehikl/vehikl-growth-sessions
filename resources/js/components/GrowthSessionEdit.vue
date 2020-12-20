@@ -98,7 +98,7 @@ import {IGrowthSession, IUser, IValidationError} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {GrowthSession} from '../classes/GrowthSession';
 import VueTimepicker from 'vue2-timepicker';
-import {GrowthSessionApi} from '../services/SocialMobApi';
+import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import VAvatar from './VAvatar.vue';
 import DatePicker from './DatePicker.vue';
 
