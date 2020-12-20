@@ -47,7 +47,7 @@ class SocialMob extends Model
 
     public function attendees()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'social_mob_user', 'social_mob_id');
     }
 
     public function comments()
