@@ -20,7 +20,7 @@
         </div>
 
         <div class="flex justify-center flex-wrap">
-            <modal :dynamic="true" :height="600" :width="500" name="mob-form">
+            <modal :dynamic="true" :height="600" :width="500" name="growth-session-form">
                 <div class="flex w-full h-full">
                     <growth-session-form :growth-session="growthSessionToUpdate"
                                          :owner="user"
@@ -147,19 +147,19 @@ export default class WeekView extends Vue {
 
     async onFormSubmitted() {
         await this.getAllGrowthSessionsOfTheWeek();
-        this.$modal.hide('mob-form');
+        this.$modal.hide('growth-session-form');
     }
 
     onCreateNewGrowthSessionClicked(startDate: DateTime) {
         this.growthSessionToUpdate = null;
         this.newGrowthSessionDate = startDate.toISOString();
-        this.$modal.show('mob-form');
+        this.$modal.show('growth-session-form');
     }
 
     onGrowthSessionEditRequested(growthSession: GrowthSession) {
         this.growthSessionToUpdate = growthSession;
         this.newGrowthSessionDate = '';
-        this.$modal.show('mob-form');
+        this.$modal.show('growth-session-form');
     }
 
     async changeReferenceDate(deltaDays: number) {
