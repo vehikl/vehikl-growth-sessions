@@ -102,7 +102,7 @@ class WebHooksTest extends TestCase
         $growthSession = GrowthSession::factory()->create();
         $newMember = User::factory()->create();
 
-        $this->actingAs($newMember)->postJson(route('social_mobs.join', $growthSession))->assertSuccessful();
+        $this->actingAs($newMember)->postJson(route('growth_sessions.join', $growthSession))->assertSuccessful();
 
         Http::assertSent(function (Request $request) {
             return $request->url() === config('webhooks.attendees_today');
@@ -117,7 +117,7 @@ class WebHooksTest extends TestCase
         $attendee = User::factory()->create();
         $growthSession->attendees()->attach($attendee);
 
-        $this->actingAs($attendee)->postJson(route('social_mobs.leave', $growthSession))->assertSuccessful();
+        $this->actingAs($attendee)->postJson(route('growth_sessions.leave', $growthSession))->assertSuccessful();
 
         Http::assertSent(function (Request $request) {
             return $request->url() === config('webhooks.attendees_today');

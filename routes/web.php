@@ -11,7 +11,7 @@ Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
 Route::view('/', 'home')->name('home');
 
-Route::prefix('social_mobs')->middleware(AuthenticateSlackApp::class)->name('social_mobs.')->group(function() {
+Route::prefix('social_mobs')->middleware(AuthenticateSlackApp::class)->name('growth_sessions.')->group(function() {
     Route::get('week', 'GrowthSessionController@week')->name('week');
     Route::get('day', 'GrowthSessionController@day')->name('day');
     Route::get('{social_mob}', 'GrowthSessionController@show')->name('show');

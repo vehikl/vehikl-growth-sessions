@@ -162,7 +162,7 @@ class GrowthSessionTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->postJson(route('social_mobs.join', ['social_mob' => $existingGrowthSession->id]))
+            ->postJson(route('growth_sessions.join', ['social_mob' => $existingGrowthSession->id]))
             ->assertSuccessful();
 
         $this->assertEquals($user->id, $existingGrowthSession->attendees->first()->id);
@@ -175,7 +175,7 @@ class GrowthSessionTest extends TestCase
         $existingGrowthSession->attendees()->attach($user);
 
         $this->actingAs($user)
-            ->postJson(route('social_mobs.join', ['social_mob' => $existingGrowthSession->id]))
+            ->postJson(route('growth_sessions.join', ['social_mob' => $existingGrowthSession->id]))
             ->assertForbidden();
 
         $this->assertCount(1, $existingGrowthSession->attendees);
@@ -188,7 +188,7 @@ class GrowthSessionTest extends TestCase
         $existingGrowthSession->attendees()->attach($user);
 
         $this->actingAs($user)
-            ->postJson(route('social_mobs.leave', ['social_mob' => $existingGrowthSession->id]))
+            ->postJson(route('growth_sessions.leave', ['social_mob' => $existingGrowthSession->id]))
             ->assertSuccessful();
 
         $this->assertEmpty($existingGrowthSession->attendees);
@@ -225,7 +225,7 @@ class GrowthSessionTest extends TestCase
 
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->getJson(route('social_mobs.week'));
+        $response = $this->actingAs($user)->getJson(route('growth_sessions.week'));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
@@ -251,7 +251,7 @@ class GrowthSessionTest extends TestCase
 
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->getJson(route('social_mobs.week'));
+        $response = $this->actingAs($user)->getJson(route('growth_sessions.week'));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
@@ -286,7 +286,7 @@ class GrowthSessionTest extends TestCase
 
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->getJson(route('social_mobs.week', ['date' => $weekThatHasTheGrowthSessions]));
+        $response = $this->actingAs($user)->getJson(route('growth_sessions.week', ['date' => $weekThatHasTheGrowthSessions]));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
@@ -301,7 +301,7 @@ class GrowthSessionTest extends TestCase
         GrowthSession::factory()->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
         GrowthSession::factory()->create(['date' => $monday->addDays(8), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
 
-        $response = $this->getJson(route('social_mobs.week'));
+        $response = $this->getJson(route('growth_sessions.week'));
 
         $response->assertSuccessful();
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
@@ -314,7 +314,7 @@ class GrowthSessionTest extends TestCase
         $monday = CarbonImmutable::parse('Last Monday');
         $growthSession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);
 
-        $response = $this->get(route('social_mobs.show', ['social_mob' => $growthSession]));
+        $response = $this->get(route('growth_sessions.show', ['social_mob' => $growthSession]));
 
         $response->assertSuccessful();
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
@@ -327,7 +327,7 @@ class GrowthSessionTest extends TestCase
         $growthSession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);
 
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->get(route('social_mobs.show', $growthSession));
+        $response = $this->actingAs($user)->get(route('growth_sessions.show', $growthSession));
 
         $response->assertSuccessful();
         $response->assertSee('At AnyDesk XYZ - abcdefg');
@@ -343,7 +343,7 @@ class GrowthSessionTest extends TestCase
         $todayGrowthSessions = GrowthSession::factory()->times(2)->create(['date' => $today, 'attendee_limit' => 4]);
         GrowthSession::factory()->times(2)->create(['date' => $tomorrow, 'attendee_limit' => 4]);
 
-        $response = $this->actingAs($user)->getJson(route('social_mobs.day'));
+        $response = $this->actingAs($user)->getJson(route('growth_sessions.day'));
 
         $response->assertJson($todayGrowthSessions->toArray());
     }
@@ -352,7 +352,7 @@ class GrowthSessionTest extends TestCase
     {
         $this->seed();
         $growthSession = GrowthSession::factory()->create(['date' => today()]);
-        $this->getJson(route('social_mobs.day'), ['Authorization' => 'Bearer '.config('auth.slack_token')])
+        $this->getJson(route('growth_sessions.day'), ['Authorization' => 'Bearer '.config('auth.slack_token')])
             ->assertJsonFragment(['location' => $growthSession->location]);
     }
 
@@ -391,7 +391,7 @@ class GrowthSessionTest extends TestCase
 
 
         $response = $this->actingAs($user)
-            ->postJson(route('social_mobs.join', ['social_mob' => $growthSession->id]));
+            ->postJson(route('growth_sessions.join', ['social_mob' => $growthSession->id]));
 
         $response->assertStatus(Response::HTTP_BAD_REQUEST);
         $response->assertJson(['message' => 'The attendee limit has been reached.']);
