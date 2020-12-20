@@ -9,11 +9,6 @@ use Tests\TestCase;
 
 class GrowthSessionTest extends TestCase
 {
-    /**
-     * A basic unit test example.
-     *
-     * @return void
-     */
     public function testTheAttendeeLimitIsRemovedForNoLimitGrowthSessions()
     {
         $resource = new GrowthSessionResource(GrowthSession::factory()->make(['attendee_limit' => GrowthSession::NO_LIMIT]));
