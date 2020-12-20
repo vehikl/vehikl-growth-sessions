@@ -23,7 +23,7 @@ class GrowthSessionWeekTest extends TestCase
         $this->assertEquals(now()->endOfWeek(Carbon::FRIDAY)->toDateString(), collect($week)->keys()->last());
     }
 
-    public function testItReturnsFiveDaysWhenASocialMobExistsOnThatWeek()
+    public function testItReturnsFiveDaysWhenAGrowthSessionExistsOnThatWeek()
     {
         Carbon::setTestNow('Last Tuesday');
 
