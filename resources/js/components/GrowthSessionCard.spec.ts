@@ -1,5 +1,5 @@
 import {mount, Wrapper} from '@vue/test-utils';
-import MobCard from './GrowthSessionCard.vue';
+import GrowthSessionCard from './GrowthSessionCard.vue';
 import {IUser} from '../types';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
@@ -45,12 +45,12 @@ const mobData: GrowthSession = new GrowthSession({
     comments: []
 });
 
-describe('MobCard', () => {
-    let wrapper: Wrapper<MobCard>;
+describe('GrowthSessionCard', () => {
+    let wrapper: Wrapper<GrowthSessionCard>;
     beforeEach(() => {
         window.confirm = jest.fn();
         DateTime.setTestNow('2020-05-01 00:00:00.0000');
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData}})
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData}})
     });
 
     it('displays the owner name', () => {
@@ -75,49 +75,49 @@ describe('MobCard', () => {
 
     it('does not display the attendee limit if there is none', () => {
         const noLimitMob = new GrowthSession({...mobData, attendee_limit: null});
-        wrapper = mount(MobCard, {propsData: {socialMob: noLimitMob}})
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: noLimitMob}})
         // TODO: is there a better way to make sure something isn't displayed in the card??
         expect(wrapper.find('.attendee-limit').element).not.toBeDefined();
     })
 
     it('does not display the join button to the owner of the mob', () => {
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
         expect(wrapper.find('.join-button').element).not.toBeVisible();
     });
 
     it('does not display the join button if you are already part of the mob', () => {
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: attendee}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: attendee}});
         expect(wrapper.find('.join-button').element).not.toBeVisible();
     });
 
     it('does not display the join button to guests', () => {
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData}});
         expect(wrapper.find('.join-button').element).not.toBeVisible();
     });
 
     it('does display the join button if you are authenticated and not part of the mob', () => {
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: outsider}});
         expect(wrapper.find('.join-button').element).toBeVisible();
     });
 
     it('allows a user to join a growth session', () => {
         window.open = jest.fn();
         GrowthSessionApi.join = jest.fn().mockImplementation(mob => mob);
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: outsider}});
         wrapper.find('.join-button').trigger('click');
         expect(GrowthSessionApi.join).toHaveBeenCalledWith(mobData);
     });
 
     it('allows a user to leave a growth session', () => {
         GrowthSessionApi.leave = jest.fn().mockImplementation(mob => mob);
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: attendee}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: attendee}});
         wrapper.find('.leave-button').trigger('click');
         expect(GrowthSessionApi.leave).toHaveBeenCalledWith(mobData);
     });
 
     it('prompts for confirmation when the owner clicks on the delete button', ()=> {
         window.confirm = jest.fn();
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
         wrapper.find('.delete-button').trigger('click');
         expect(window.confirm).toHaveBeenCalled();
     });
@@ -125,7 +125,7 @@ describe('MobCard', () => {
     it('deletes the mob if the user clicks on the delete button and confirms', ()=> {
         GrowthSessionApi.delete = jest.fn();
         window.confirm = jest.fn().mockReturnValue(true);
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
         wrapper.find('.delete-button').trigger('click');
         expect(GrowthSessionApi.delete).toHaveBeenCalledWith(mobData);
     });
@@ -133,7 +133,7 @@ describe('MobCard', () => {
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {
         const oneDayAfterTheMob = DateTime.parseByDate(mobData.date).addDays(1).toISOString();
         DateTime.setTestNow(oneDayAfterTheMob);
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
 
         expect(wrapper.find('.delete-button').element).not.toBeVisible()
     });
@@ -141,7 +141,7 @@ describe('MobCard', () => {
     it('does not display the edit button to the owner if the date of the mob is in the past', () => {
         const oneDayAfterTheMob = DateTime.parseByDate(mobData.date).addDays(1).toISOString();
         DateTime.setTestNow(oneDayAfterTheMob);
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: ownerOfTheMob}});
 
         expect(wrapper.find('.update-button').element).not.toBeVisible()
     });
@@ -149,7 +149,7 @@ describe('MobCard', () => {
     it('does not display the join button if the date of the mob is in the past', () => {
         const oneDayAfterTheMob = DateTime.parseByDate(mobData.date).addDays(1).toISOString();
         DateTime.setTestNow(oneDayAfterTheMob);
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: outsider}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: outsider}});
 
         expect(wrapper.find('.join-button').element).not.toBeVisible()
     });
@@ -157,7 +157,7 @@ describe('MobCard', () => {
     it('does not display the leave button if the date of the mob is in the past', () => {
         const oneDayAfterTheMob = DateTime.parseByDate(mobData.date).addDays(1).toISOString();
         DateTime.setTestNow(oneDayAfterTheMob);
-        wrapper = mount(MobCard, {propsData: {socialMob: mobData, user: attendee}});
+        wrapper = mount(GrowthSessionCard, {propsData: {socialMob: mobData, user: attendee}});
 
         expect(wrapper.find('.leave-button').element).not.toBeVisible()
     });
