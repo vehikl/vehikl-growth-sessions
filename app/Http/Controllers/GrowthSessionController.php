@@ -19,7 +19,7 @@ class GrowthSessionController extends Controller
 {
     public function show(GrowthSession $growthSession)
     {
-        return view('social-mob', ['socialMob' => new GrowthSessionResource($growthSession)]);
+        return view('growth-session', ['growthSession' => new GrowthSessionResource($growthSession)]);
     }
 
     public function week(Request $request)
@@ -63,7 +63,7 @@ class GrowthSessionController extends Controller
 
     public function edit(GrowthSession $growthSession)
     {
-        return view('social-mob-edit', compact('growthSession'));
+        return view('growth-session-edit', compact('growthSession'));
     }
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
