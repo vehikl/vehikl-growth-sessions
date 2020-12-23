@@ -1,12 +1,11 @@
 import {mount, Wrapper} from '@vue/test-utils';
 import CommentList from './CommentList.vue';
 import {SocialMob} from '../classes/SocialMob';
-import socialMobWithCommentsJson from '../../../tests/fixtures/socialMobWithComments.json';
+import socialMobWithCommentsJson from '../../../tests/fixtures/SocialMobWithComments.json';
 import userJson from '../../../tests/fixtures/User.json';
 import {SocialMobApi} from '../services/SocialMobApi';
 import {IUser} from '../types';
 import {User} from "../classes/User";
-import mobJson from "../../../tests/fixtures/SocialMobWithComments.json";
 
 const socialMob: SocialMob = new SocialMob(socialMobWithCommentsJson);
 const user: IUser = userJson;
