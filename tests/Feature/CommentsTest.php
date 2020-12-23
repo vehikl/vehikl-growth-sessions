@@ -3,49 +3,49 @@
 namespace Tests\Feature;
 
 use App\Comment;
-use App\SocialMob;
+use App\GrowthSession;
 use App\User;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
 class CommentsTest extends TestCase
 {
-    public function testAUserCanPostCommentsOnAnExistingMob()
+    public function testAUserCanPostCommentsOnAnExistingGrowthSession()
     {
         $user = User::factory()->create();
-        $socialMob = SocialMob::factory()->create();
+        $growthSession = GrowthSession::factory()->create();
 
         $this->actingAs($user)
-            ->postJson(route('social_mobs.comments.store', $socialMob), ['content' => 'Hello world'])
+            ->postJson(route('growth_sessions.comments.store', $growthSession), ['content' => 'Hello world'])
             ->assertSuccessful();
 
-        $this->assertNotEmpty($socialMob->fresh()->comments);
+        $this->assertNotEmpty($growthSession->fresh()->comments);
     }
 
     public function testItDoesNotAllowGuestsToPostComments()
     {
-        $socialMob = SocialMob::factory()->create();
+        $growthSession = GrowthSession::factory()->create();
 
-        $this->postJson(route('social_mobs.comments.store', $socialMob), ['content' => 'Hello world'])
+        $this->postJson(route('growth_sessions.comments.store', $growthSession), ['content' => 'Hello world'])
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testAGuestCanGetAllCommentsOfAMob()
+    public function testAGuestCanGetAllCommentsOfAGrowthSession()
     {
-        $socialMob = SocialMob::factory()->create();
-        $comments = Comment::factory()->times(4)->create(['social_mob_id' => $socialMob->id]);
+        $growthSession = GrowthSession::factory()->create();
+        $comments = Comment::factory()->times(4)->create(['social_mob_id' => $growthSession->id]);
 
-        $this->getJson(route('social_mobs.comments.index', $socialMob))->assertJson($comments->toArray());
+        $this->getJson(route('growth_sessions.comments.index', $growthSession))->assertJson($comments->toArray());
     }
 
     public function testAUserCanDeleteTheirComment()
     {
         $comment = Comment::factory()->create();
-        $socialMob = $comment->socialMob;
+        $growthSession = $comment->growthSession;
         $commentOwner = $comment->user;
 
         $this->actingAs($commentOwner)
-            ->deleteJson(route('social_mobs.comments.destroy', [$socialMob, $comment]))
+            ->deleteJson(route('growth_sessions.comments.destroy', [$growthSession, $comment]))
             ->assertSuccessful();
 
         $this->assertEmpty($comment->fresh());
@@ -54,12 +54,12 @@ class CommentsTest extends TestCase
     public function testAUserCannotDeleteAnotherUsersComment()
     {
         $comment = Comment::factory()->create();
-        $socialMob = $comment->socialMob;
+        $growthSession = $comment->growthSession;
 
         $anotherUser = User::factory()->create();
 
         $this->actingAs($anotherUser)
-            ->deleteJson(route('social_mobs.comments.destroy', [$socialMob, $comment]))
+            ->deleteJson(route('growth_sessions.comments.destroy', [$growthSession, $comment]))
             ->assertForbidden();
     }
 }

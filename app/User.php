@@ -8,6 +8,8 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    protected $table = 'users';
+
     use Notifiable,
         HasFactory;
 
@@ -28,9 +30,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function socialMobs()
+    public function growthSessions()
     {
-        return $this->hasMany(SocialMob::class, 'owner_id');
+        return $this->hasMany(GrowthSession::class, 'owner_id');
     }
 
     public function comments()

@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Comment;
-use App\SocialMob;
+use App\GrowthSession;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
@@ -26,7 +26,7 @@ class CommentFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'social_mob_id' => SocialMob::factory(),
+            'social_mob_id' => GrowthSession::factory(),
             'content' => $this->faker->text
         ];
     }
