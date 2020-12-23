@@ -309,6 +309,7 @@ class SocialMobTest extends TestCase
 
     public function testItDoesNotProvideLocationOfASocialMobForAnonymousUser()
     {
+        $this->withoutExceptionHandling();
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
         $mob = SocialMob::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);

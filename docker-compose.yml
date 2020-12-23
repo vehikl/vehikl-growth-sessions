@@ -1,0 +1,99 @@
+version: '3'
+services:
+  app:
+    build:
+      args:
+        user: mogo
+        uid: 1000
+      context: ./
+      dockerfile: docker/app/Dockerfile
+    image: growth-app
+    container_name: growth-app-php
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - code:/var/www
+    networks:
+      - growth-app
+
+  yarn:
+    image: node:lts-alpine
+    volumes:
+      - code:/app
+    working_dir: /app
+    entrypoint: yarn
+
+  artisan:
+    image: growth-app
+    depends_on:
+      - app
+    user: root
+    volumes:
+      - code:/app
+    working_dir: /app
+    networks:
+      - growth-app
+    entrypoint: php artisan
+
+  composer:
+    image: growth-app
+    depends_on:
+      - app
+    environment:
+      - COMPOSER_CACHE_DIR=/app/var/cache/composer
+    restart: "no"
+    user: root
+    volumes:
+      - code:/app
+    working_dir: /app
+    entrypoint: composer
+
+  phpunit:
+    image: growth-app
+    depends_on:
+      - app
+    user: root
+    volumes:
+      - code:/var/www
+    entrypoint: vendor/bin/phpunit
+
+  db:
+    image: mysql:5.7
+    container_name: growth-app-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - growth-app
+
+  nginx:
+    image: nginx:alpine
+    container_name: growth-app-nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - code:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d/
+    networks:
+      - growth-app
+
+  files:
+    image: alpine:latest
+    container_name: growth-app-files
+    entrypoint: top
+    restart: unless-stopped
+    volumes:
+      - code:/project
+
+networks:
+  growth-app:
+    driver: bridge
+
+volumes:
+  code:
