@@ -4,9 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\GrowthSession;
 
 class Comment extends Model
 {
+    protected $table = 'comments';
+
     use HasFactory;
 
     protected $fillable = ['content'];
@@ -19,9 +22,9 @@ class Comment extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function socialMob()
+    public function growthSession()
     {
-        return $this->belongsTo(SocialMob::class);
+        return $this->belongsTo(GrowthSession::class, 'social_mob_id');
     }
 
     public function getTimeStampAttribute()

@@ -4,29 +4,29 @@ namespace App\Http\Controllers;
 
 use App\Comment;
 use App\Http\Requests\DeleteCommentRequest;
-use App\SocialMob;
+use App\GrowthSession;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
-    public function index(Request $request, SocialMob $socialMob)
+    public function index(Request $request, GrowthSession $growthSession)
     {
-        return $socialMob->comments()->orderByDesc('created_at')->get();
+        return $growthSession->comments()->orderByDesc('created_at')->get();
     }
 
-    public function store(Request $request, SocialMob $socialMob)
+    public function store(Request $request, GrowthSession $growthSession)
     {
         $comment = new Comment($request->all());
         $comment->user()->associate($request->user());
-        $comment->socialMob()->associate($socialMob);
+        $comment->growthSession()->associate($growthSession);
         $comment->save();
-        return $socialMob->fresh();
+        return $growthSession->fresh();
     }
 
-    public function destroy(DeleteCommentRequest $request, SocialMob $socialMob,Comment $comment)
+    public function destroy(DeleteCommentRequest $request, GrowthSession $growthSession,Comment $comment)
     {
         $comment->delete();
 
-        return $socialMob->fresh();
+        return $growthSession->fresh();
     }
 }

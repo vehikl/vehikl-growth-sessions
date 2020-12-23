@@ -1,13 +1,13 @@
 import {createLocalVue, mount, Wrapper} from '@vue/test-utils';
 import WeekView from './WeekView.vue';
 import flushPromises from 'flush-promises';
-import socialsThisWeekJson from '../../../tests/fixtures/WeekSocials.json';
+import growthSessionsThisWeekJson from '../../../tests/fixtures/WeekGrowthSessions.json';
 import {IUser} from '../types';
 import VModal from 'vue-js-modal';
-import {SocialMobApi} from '../services/SocialMobApi';
+import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
-import {WeekMobs} from '../classes/WeekMobs';
-import {SocialMob} from '../classes/SocialMob';
+import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
+import {GrowthSession} from '../classes/GrowthSession';
 import {Nothingator} from '../classes/Nothingator';
 
 const authUser: IUser = {
@@ -20,25 +20,25 @@ const authUser: IUser = {
 
 const localVue = createLocalVue();
 localVue.use(VModal);
-let socialsThisWeek: WeekMobs = new WeekMobs(socialsThisWeekJson);
+let growthSessionsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
 
-const metadataForSocialsFixture = {
+const metadataForGrowthSessionsFixture = {
     today: {date: '2020-01-15', weekday: 'Wednesday'},
-    dayWithNoMobs: {date: '2020-01-16', weekday: 'Tuesday'},
+    dayWithNoGrowthSessions: {date: '2020-01-16', weekday: 'Tuesday'},
     nextWeek: {date: '2020-01-22', weekday: 'Wednesday'}
 };
 
-const todayDate: string = metadataForSocialsFixture.today.date;
+const todayDate: string = metadataForGrowthSessionsFixture.today.date;
 
 describe('WeekView', () => {
     let wrapper: Wrapper<WeekView>;
 
     beforeEach(async () => {
         DateTime.setTestNow(todayDate);
-        SocialMobApi.getAllMobsOfTheWeek = jest.fn().mockResolvedValue(socialsThisWeek);
-        SocialMobApi.join = jest.fn().mockImplementation(mob => mob);
-        SocialMobApi.leave = jest.fn().mockImplementation(mob => mob);
-        SocialMobApi.delete = jest.fn().mockImplementation(mob => mob);
+        GrowthSessionApi.getAllGrowthSessionsOfTheWeek = jest.fn().mockResolvedValue(growthSessionsThisWeek);
+        GrowthSessionApi.join = jest.fn().mockImplementation(growthSession => growthSession);
+        GrowthSessionApi.leave = jest.fn().mockImplementation(growthSession => growthSession);
+        GrowthSessionApi.delete = jest.fn().mockImplementation(growthSession => growthSession);
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
     });
@@ -48,27 +48,27 @@ describe('WeekView', () => {
         jest.restoreAllMocks();
     });
 
-    it('loads with the current week socials in display', () => {
-        const topicsOfTheWeek = socialsThisWeek.allMobs.map((mob: SocialMob) => mob.topic);
+    it('loads with the current week growth sessions in display', () => {
+        const topicsOfTheWeek = growthSessionsThisWeek.allGrowthSessions.map((growthSession: GrowthSession) => growthSession.topic);
         for (let topic of topicsOfTheWeek) {
             expect(wrapper.text()).toContain(topic);
         }
     });
 
 
-    it('allows the user to view mobs of the previous week', async () => {
+    it('allows the user to view growth sessions of the previous week', async () => {
         wrapper.find('button.load-previous-week').trigger('click');
         await flushPromises();
         let sevenDaysInThePast = DateTime.parseByDate(todayDate).addDays(-7).toDateString();
-        expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInThePast);
+        expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(sevenDaysInThePast);
     });
 
-    it('allows the user to view mobs of the next week', async () => {
+    it('allows the user to view growth sessions of the next week', async () => {
         window.confirm = jest.fn();
         wrapper.find('button.load-next-week').trigger('click');
         await flushPromises();
         let sevenDaysInTheFuture = DateTime.parseByDate(todayDate).addDays(7).toDateString();
-        expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(sevenDaysInTheFuture);
+        expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(sevenDaysInTheFuture);
     });
 
     it('shows only the current day in mobile devices', () => {
@@ -81,17 +81,17 @@ describe('WeekView', () => {
     });
 
 
-    it('does not display the mob creation buttons for guests', async () => {
-        expect(wrapper.find('button.create-mob').exists()).toBe(false);
+    it('does not display the growth session creation buttons for guests', async () => {
+        expect(wrapper.find('button.create-growth-session').exists()).toBe(false);
     });
 
-    it('if no mobs are available on that day, display a variation of nothing in different languages', async () => {
+    it('if no growth sessions are available on that day, display a variation of nothing in different languages', async () => {
         const wordForNothing = 'A random nothing';
         Nothingator.random = jest.fn().mockReturnValue(wordForNothing);
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
 
-        expect(wrapper.find(`[weekDay=${metadataForSocialsFixture.dayWithNoMobs.weekday}`).text())
+        expect(wrapper.find(`[weekDay=${metadataForGrowthSessionsFixture.dayWithNoGrowthSessions.weekday}`).text())
             .toContain(wordForNothing);
     });
 
@@ -102,33 +102,33 @@ describe('WeekView', () => {
         });
 
         it('allows the user to create a growth session', async () => {
-            wrapper.find('button.create-mob').trigger('click');
+            wrapper.find('button.create-growth-session').trigger('click');
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.find('form.create-mob').exists()).toBe(true);
+            expect(wrapper.find('form.create-growth-session').exists()).toBe(true);
         });
 
-        it('does not display the mob creation buttons for days in the past', async () => {
+        it('does not display the growth session creation buttons for days in the past', async () => {
             const failPast = 'The create button was rendered in a past date';
             const failFuture = 'The create button was not rendered in a future date';
-            expect(wrapper.find('[weekday=Monday] button.create-mob').exists(), failPast).toBe(false);
-            expect(wrapper.find('[weekday=Tuesday] button.create-mob').exists(), failPast).toBe(false);
+            expect(wrapper.find('[weekday=Monday] button.create-growth-session').exists(), failPast).toBe(false);
+            expect(wrapper.find('[weekday=Tuesday] button.create-growth-session').exists(), failPast).toBe(false);
 
-            expect(wrapper.find('[weekday=Wednesday] button.create-mob').exists(), failFuture).toBe(true);
-            expect(wrapper.find('[weekday=Thursday] button.create-mob').exists(), failFuture).toBe(true);
-            expect(wrapper.find('[weekday=Friday] button.create-mob').exists(), failFuture).toBe(true);
+            expect(wrapper.find('[weekday=Wednesday] button.create-growth-session').exists(), failFuture).toBe(true);
+            expect(wrapper.find('[weekday=Thursday] button.create-growth-session').exists(), failFuture).toBe(true);
+            expect(wrapper.find('[weekday=Friday] button.create-growth-session').exists(), failFuture).toBe(true);
         });
     });
 
     describe('week persistence', () => {
         it('displays the current week of the day if no date value is provided in the url', () => {
-            expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.today.date);
+            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.today.date);
         });
 
-        it('displays the mobs of the week of the date provided in the query string if it exists', () => {
-            window.history.pushState({}, 'sometitle', `?date=${metadataForSocialsFixture.nextWeek.date}`)
+        it('displays the growth sessions of the week of the date provided in the query string if it exists', () => {
+            window.history.pushState({}, 'sometitle', `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`)
             wrapper = mount(WeekView, {localVue});
-            expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.nextWeek.date);
+            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
         });
 
         it('updates the query string for the date whenever the user navigates the weeks', async () => {
@@ -136,14 +136,14 @@ describe('WeekView', () => {
             await flushPromises();
 
             const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
-            expect(urlParameters.get('date')).toEqual(metadataForSocialsFixture.nextWeek.date);
+            expect(urlParameters.get('date')).toEqual(metadataForGrowthSessionsFixture.nextWeek.date);
         });
 
-        it('properly display the mobs of the day from the query string when the user navigates back in history', async () => {
-            window.history.pushState({}, 'sometitle', `?date=${metadataForSocialsFixture.nextWeek.date}`)
+        it('properly display the growth sessions of the day from the query string when the user navigates back in history', async () => {
+            window.history.pushState({}, 'sometitle', `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`)
             wrapper = mount(WeekView, {localVue});
             await flushPromises();
-            SocialMobApi.getAllMobsOfTheWeek = jest.fn();
+            GrowthSessionApi.getAllGrowthSessionsOfTheWeek = jest.fn();
 
             window.history.back =  () => {
                 console.error = jest.fn()
@@ -154,7 +154,7 @@ describe('WeekView', () => {
             window.history.back();
             await flushPromises();
 
-            expect(SocialMobApi.getAllMobsOfTheWeek).toHaveBeenCalledWith(metadataForSocialsFixture.nextWeek.date);
+            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
         });
     });
 });
