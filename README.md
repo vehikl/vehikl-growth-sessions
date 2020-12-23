@@ -67,24 +67,38 @@ OBS: For production, the initial migration and seeding can be done with the foll
 php artisan migrate --seed
 ```
 
-### Setup OAuth:
+## Docker Setup
+
+### Prerequisites
+
+ - Docker for Mac: https://www.docker.com/products/docker-desktop
+ - Mutagen: https://mutagen.io/
+
+### Setup
+
+#### Initial configuration
+
+```sh
+sh scripts/create.sh
+```
+
+#### Run
+
+The site should be available at http://localhost:8000
+
+
+## Optional
+
+#### Setup OAuth:
 
 1. Go to github, and open your settings page
 2. Open *Developer settings*
 3. Create a new *OAuth App*
-4. Set the homepage to `http://127.0.0.1:8000`
-5. Set the callback url to `http://127.0.0.1:8000/oauth/callback`
+4. Set the homepage to `http://localhost:8000`
+5. Set the callback url to `http://localhost:8000/oauth/callback`
 6. Save it
 7. Copy the *Client ID* to `./.env#GITHUB_CLIENT_ID` and *Client Secret* to `./.env#GITHUB_CLIENT_SECRET`
 
 For more information, see:
  - [Laravel socialite](https://laravel.com/docs/7.x/socialite#configuration)
 
-### Run the app
-
-```sh
-yarn dev
-php artisan serve
-```
-
-The site should be available at [http://127.0.0.1:8000](http://127.0.0.1:8000).
