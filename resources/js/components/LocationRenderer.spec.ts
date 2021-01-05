@@ -42,4 +42,9 @@ describe('LocationRenderer', () => {
             expect(anchorWrapper.element).toHaveAttribute('href', url);
         }
     });
+
+    it('displays a trailing parenthese in the location', () => {
+        wrapper = mount(LocationRenderer, {propsData: {locationString: 'Geralt (of Rivia)'}});
+        expect(wrapper.text()).toContain('Geralt (of Rivia)');
+    });
 })

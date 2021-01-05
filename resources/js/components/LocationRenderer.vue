@@ -18,11 +18,21 @@
             const partRegex = /\b[^\s]+\b/g;
             const parts = this.locationString.match(partRegex) ?? [];
             const gaps = this.locationString.split(partRegex);
-            return parts.map((part, i) => ({
+            const mappedParts = parts.map((part, i) => ({
                 content: part,
                 isURL: this.isURL(part),
                 gap: gaps[i]
             }));
+
+            if(gaps.length > mappedParts.length) {
+                mappedParts.push({
+                    content: gaps[gaps.length - 1],
+                    isURL: false,
+                    gap: '',
+                });
+            }
+
+            return mappedParts;
         }
 
         isURL(candidate: string): boolean {
