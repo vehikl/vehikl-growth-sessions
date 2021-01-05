@@ -47,7 +47,7 @@ class GrowthSessionTest extends TestCase
         $newTopic = 'A brand new topic!';
         $newTitle = 'A whole new title!';
 
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['social_mob' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['growth_session' => $growthSession->id]), [
             'topic' => $newTopic,
             'title' => $newTitle,
         ])->assertSuccessful();
@@ -61,7 +61,7 @@ class GrowthSessionTest extends TestCase
         $growthSession = GrowthSession::factory()->create(['attendee_limit' => 5]);
 
         $newAttendeeLimit = 10;
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['social_mob' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['growth_session' => $growthSession->id]), [
             'attendee_limit' => $newAttendeeLimit
         ])->assertSuccessful();
 
@@ -76,7 +76,7 @@ class GrowthSessionTest extends TestCase
 
         $newAttendeeLimit = 4;
         $this->assertTrue($newAttendeeLimit < $growthSession->attendees()->count());
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['social_mob' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['growth_session' => $growthSession->id]), [
             'attendee_limit' => $newAttendeeLimit
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 5.']);
@@ -87,7 +87,7 @@ class GrowthSessionTest extends TestCase
         $growthSession = GrowthSession::factory()->create(['attendee_limit' => 5]);
 
         $newAttendeeLimit = 'bananas';
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['social_mob' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['growth_session' => $growthSession->id]), [
             'attendee_limit' => $newAttendeeLimit
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be an integer.']);
@@ -97,7 +97,7 @@ class GrowthSessionTest extends TestCase
     {
         $growthSession = GrowthSession::factory()->create(['attendee_limit' => 5]);
 
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['social_mob' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['growth_session' => $growthSession->id]), [
             'attendee_limit' => null
         ])->assertSuccessful();
 
@@ -110,7 +110,7 @@ class GrowthSessionTest extends TestCase
         $growthSession = GrowthSession::factory()->create(['date' => "2020-01-02"]);
         $newDate = '2020-01-10';
 
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['social_mob' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['growth_session' => $growthSession->id]), [
             'date' => $newDate,
         ])->assertSuccessful();
 
@@ -123,7 +123,7 @@ class GrowthSessionTest extends TestCase
         $growthSession = GrowthSession::factory()->create(['date' => "2020-01-06"]);
         $newDate = '2020-01-03';
 
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['social_mob' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['growth_session' => $growthSession->id]), [
             'date' => $newDate,
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -134,7 +134,7 @@ class GrowthSessionTest extends TestCase
         $growthSession = GrowthSession::factory()->create(['date' => "2020-01-01"]);
         $newDate = '2020-01-10';
 
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['social_mob' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', ['growth_session' => $growthSession->id]), [
             'date' => $newDate,
         ])->assertStatus(Response::HTTP_FORBIDDEN);
     }
@@ -144,7 +144,7 @@ class GrowthSessionTest extends TestCase
         $growthSession = GrowthSession::factory()->create();
         $notTheOwner = User::factory()->create();
 
-        $this->actingAs($notTheOwner)->putJson(route('growth_sessions.update', ['social_mob' => $growthSession->id]), [
+        $this->actingAs($notTheOwner)->putJson(route('growth_sessions.update', ['growth_session' => $growthSession->id]), [
             'topic' => 'Anything',
         ])->assertForbidden();
     }
@@ -154,7 +154,7 @@ class GrowthSessionTest extends TestCase
         $this->withoutExceptionHandling();
         $growthSession = GrowthSession::factory()->create();
 
-        $this->actingAs($growthSession->owner)->deleteJson(route('growth_sessions.destroy', ['social_mob' => $growthSession->id]))
+        $this->actingAs($growthSession->owner)->deleteJson(route('growth_sessions.destroy', ['growth_session' => $growthSession->id]))
             ->assertSuccessful();
 
         $this->assertEmpty($growthSession->fresh());
@@ -165,7 +165,7 @@ class GrowthSessionTest extends TestCase
         $growthSession = GrowthSession::factory()->create();
         $notTheOwner = User::factory()->create();
 
-        $this->actingAs($notTheOwner)->deleteJson(route('growth_sessions.destroy', ['social_mob' => $growthSession->id]))
+        $this->actingAs($notTheOwner)->deleteJson(route('growth_sessions.destroy', ['growth_session' => $growthSession->id]))
             ->assertForbidden();
     }
 
@@ -175,7 +175,7 @@ class GrowthSessionTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->postJson(route('growth_sessions.join', ['social_mob' => $existingGrowthSession->id]))
+            ->postJson(route('growth_sessions.join', ['growth_session' => $existingGrowthSession->id]))
             ->assertSuccessful();
 
         $this->assertEquals($user->id, $existingGrowthSession->attendees->first()->id);
@@ -188,7 +188,7 @@ class GrowthSessionTest extends TestCase
         $existingGrowthSession->attendees()->attach($user);
 
         $this->actingAs($user)
-            ->postJson(route('growth_sessions.join', ['social_mob' => $existingGrowthSession->id]))
+            ->postJson(route('growth_sessions.join', ['growth_session' => $existingGrowthSession->id]))
             ->assertForbidden();
 
         $this->assertCount(1, $existingGrowthSession->attendees);
@@ -201,7 +201,7 @@ class GrowthSessionTest extends TestCase
         $existingGrowthSession->attendees()->attach($user);
 
         $this->actingAs($user)
-            ->postJson(route('growth_sessions.leave', ['social_mob' => $existingGrowthSession->id]))
+            ->postJson(route('growth_sessions.leave', ['growth_session' => $existingGrowthSession->id]))
             ->assertSuccessful();
 
         $this->assertEmpty($existingGrowthSession->attendees);
@@ -327,7 +327,7 @@ class GrowthSessionTest extends TestCase
         $monday = CarbonImmutable::parse('Last Monday');
         $growthSession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);
 
-        $response = $this->get(route('growth_sessions.show', ['social_mob' => $growthSession]));
+        $response = $this->get(route('growth_sessions.show', ['growth_session' => $growthSession]));
 
         $response->assertSuccessful();
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
@@ -404,7 +404,7 @@ class GrowthSessionTest extends TestCase
 
 
         $response = $this->actingAs($user)
-            ->postJson(route('growth_sessions.join', ['social_mob' => $growthSession->id]));
+            ->postJson(route('growth_sessions.join', ['growth_session' => $growthSession->id]));
 
         $response->assertStatus(Response::HTTP_BAD_REQUEST);
         $response->assertJson(['message' => 'The attendee limit has been reached.']);
