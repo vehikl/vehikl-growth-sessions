@@ -89,15 +89,28 @@ The site should be available at http://localhost:8000
 
 ## Optional
 
-#### Setup OAuth:
+#### Setup Github OAuth:
 
 1. Go to github, and open your settings page
 2. Open *Developer settings*
 3. Create a new *OAuth App*
 4. Set the homepage to `http://localhost:8000`
-5. Set the callback url to `http://localhost:8000/oauth/callback`
+5. Set the callback url to `http://localhost:8000/oauth/github/callback`
 6. Save it
 7. Copy the *Client ID* to `./.env#GITHUB_CLIENT_ID` and *Client Secret* to `./.env#GITHUB_CLIENT_SECRET`
+
+#### Setup Google OAuth:
+
+1. Go to your [Google Developer console](https://console.developers.google.com)
+2. Select a Project to add OAuth to (or create a new project)
+3. Configure your Oauth Consent Screen
+4. Create OAuth Credentials for the project
+    1. Select `Web Application` as the _Application Type_
+    2. Give your application a _Name_
+    3. Add `http://localhost:8000/oauth/google/callback` as a _Redirect URI_
+    4. Click _Create_
+5. Copy the *Client ID* to `./.env#GOOGLE_CLIENT_ID` and *Client Secret* to `./.env#GOOGLE_CLIENT_SECRET`
+6. Set `./.env#GOOGLE_REDIRECT_URL` to `http://localhost:8000/oauth/google/callback`
 
 For more information, see:
  - [Laravel socialite](https://laravel.com/docs/7.x/socialite#configuration)
