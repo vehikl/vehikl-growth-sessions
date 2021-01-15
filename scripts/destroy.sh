@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cd ../
+
 rm -rf node_modules
 rm -rf var
 rm -rf vendor
