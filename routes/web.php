@@ -5,8 +5,9 @@ use App\Http\Middleware\AuthenticateSlackApp;
 use Illuminate\Support\Facades\Route;
 
 Route::view('about','about')->name('about');
-Route::get('login/github', 'Auth\LoginController@redirectToProvider')->name('oauth.login.redirect');
-Route::get('oauth/callback', 'Auth\LoginController@handleProviderCallback')->name('oauth.login.callback');
+Route::get('login/{driver}', 'Auth\LoginController@redirectToProvider')->name('oauth.login.redirect');
+Route::get('oauth/callback', 'Auth\LoginController@handleProviderCallback');
+Route::get('oauth/{driver}/callback', 'Auth\LoginController@handleProviderCallback');
 Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
 Route::view('/', 'home')->name('home');

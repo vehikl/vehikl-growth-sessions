@@ -22,23 +22,23 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    public function redirectToProvider()
+    public function redirectToProvider($driver)
     {
-        return Socialite::driver('github')->redirect();
+        return Socialite::driver($driver)->redirect();
     }
 
-    public function handleProviderCallback()
+    public function handleProviderCallback($driver = 'github')
     {
-        $githubUser = Socialite::driver('github')->user();
-        $email = $githubUser->getEmail();
+        $socialUser = Socialite::driver($driver)->user();
+        $email = $socialUser->getEmail();
         $growthSessionUser = User::query()->where('email', $email)->first();
 
         if (! $growthSessionUser) {
             $growthSessionUser = User::query()->create([
-                'name' => $githubUser->getName() ?? Str::before($email, '@'),
-                'github_nickname' => $githubUser->getNickname(),
+                'name' => $socialUser->getName() ?? Str::before($email, '@'),
+                'github_nickname' => $socialUser->getNickname(),
                 'email' => $email,
-                'avatar' => $githubUser->getAvatar(),
+                'avatar' => $socialUser->getAvatar(),
                 'password' => Hash::make(Str::random()),
             ]);
         }
