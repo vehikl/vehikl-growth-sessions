@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cd ../
+
 cp .env.example .env
 
 # Set up mutagen.io file share
