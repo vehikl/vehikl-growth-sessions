@@ -23,9 +23,13 @@
             id="nav-links">
             <div class="text-xl justify-center items-center flex flex-col lg:flex-row">
                 @guest
-                    <a href="{{route('oauth.login.redirect')}}"
+                    <a href="{{route('oauth.login.redirect', ['driver' => 'github'])}}"
                        class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-200 ">
-                        <i class="fa fa-github text-3xl mr-4" aria-hidden="true"></i> Login
+                        <i class="fa fa-github text-3xl mr-4" aria-hidden="true"></i> Login with Github
+                    </a>
+                    <a href="{{route('oauth.login.redirect', ['driver' => 'google'])}}"
+                       class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-200 ">
+                        <i class="fa fa-google text-3xl mr-4" aria-hidden="true"></i> Login with Google
                     </a>
                 @endguest
                 @auth

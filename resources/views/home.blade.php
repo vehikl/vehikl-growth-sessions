@@ -3,7 +3,9 @@
 @section('content')
     @guest
         <p role="alert" class="block text-center text-orange-600 text-2xl my-10">To join/create growth session or see their location, you must
-            <strong><a href="{{route('oauth.login.redirect')}}" class="underline hover:text-orange-400">log in</a></strong>!
+            <strong><a href="{{route('oauth.login.redirect', ['driver' => 'github'])}}" class="underline hover:text-orange-400">log in with Github</a></strong>
+            or
+            <strong><a href="{{route('oauth.login.redirect', ['driver' => 'google'])}}" class="underline hover:text-orange-400">log in with Google</a></strong>!
         </p>
     @endguest
     <week-view class="mt-6" :user="{{ json_encode(auth()->user()) }}"></week-view>
