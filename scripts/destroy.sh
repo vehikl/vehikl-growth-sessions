@@ -10,15 +10,10 @@ PROJECT_PATH=$(dirname $DIR_PATH)
 
 cd $PROJECT_PATH
 
-rm -rf node_modules
-rm -rf var
-rm -rf vendor
-rm -rf .env
-
-sleep 5
-
 # Turn off file sharing
 mutagen sync terminate growth-app
 
 # Turn off docker
 docker-compose down
+
+docker volume rm growth-sessions_project
