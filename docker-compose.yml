@@ -12,21 +12,21 @@ services:
     restart: unless-stopped
     working_dir: /var/www/
     volumes:
-      - code:/var/www
+      - project:/var/www
     networks:
       - growth-app
 
   yarn:
     image: node:lts-alpine
     volumes:
-      - code:/app
+      - project:/app
     working_dir: /app
     entrypoint: yarn
 
   jest:
     image: node:lts-alpine
     volumes:
-      - code:/app
+      - project:/app
     working_dir: /app
     entrypoint: npm test
 
@@ -36,7 +36,7 @@ services:
       - app
     user: root
     volumes:
-      - code:/app
+      - project:/app
     working_dir: /app
     networks:
       - growth-app
@@ -51,7 +51,7 @@ services:
     restart: "no"
     user: root
     volumes:
-      - code:/app
+      - project:/app
     working_dir: /app
     entrypoint: composer
 
@@ -61,7 +61,7 @@ services:
       - app
     user: root
     volumes:
-      - code:/var/www
+      - project:/var/www
     entrypoint: vendor/bin/phpunit
 
   db:
@@ -85,7 +85,7 @@ services:
     ports:
       - 8000:80
     volumes:
-      - code:/var/www
+      - project:/var/www
       - ./docker/nginx:/etc/nginx/conf.d/
     networks:
       - growth-app
@@ -96,11 +96,11 @@ services:
     entrypoint: top
     restart: unless-stopped
     volumes:
-      - code:/project
+      - project:/project
 
 networks:
   growth-app:
     driver: bridge
 
 volumes:
-  code:
+  project:
