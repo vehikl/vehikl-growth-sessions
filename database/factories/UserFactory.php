@@ -25,7 +25,7 @@ class UserFactory extends Factory
         return [
             'name' => $this->faker->name,
             'github_nickname' => $this->faker->userName,
-            'avatar' => "https://api.adorable.io/avatars/100/{$this->faker->numberBetween()}",
+            'avatar' => "https://i.pravatar.cc/50?u={$this->faker->numberBetween()}",
             'email' => $this->faker->unique()->safeEmail,
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
