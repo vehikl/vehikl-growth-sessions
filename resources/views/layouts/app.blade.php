@@ -23,7 +23,7 @@
 <body>
     <div id="app">
         @include('partials.navigation')
-        <main class="mx-2 xl:container">
+        <main class="mx-2">
             @yield('content')
         </main>
     </div>
