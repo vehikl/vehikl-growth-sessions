@@ -37,7 +37,8 @@
         <div class="flex flex-col lg:flex-row flex-wrap">
             <div class="flex-1 mr-2 max-w-5xl">
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Topic</h3>
-                <pre class="font-sans m-5 break-words-fixed whitespace-pre-wrap" v-text="growthSession.topic"/>
+                <pre class="description font-sans m-5 break-words-fixed whitespace-pre-wrap" v-text="growthSession.topic"/>
+                <comment-list class="mt-24 max-w-xl" :growth-session="growthSession" :user="userJson"/>
             </div>
             <div class="flex-none max-w-md">
                 <div class="mb-3">
@@ -67,7 +68,6 @@
                 </ul>
             </div>
         </div>
-        <comment-list class="mt-24 max-w-xl" :growth-session="growthSession" :user="userJson"/>
     </div>
 </template>
 
@@ -109,4 +109,7 @@ import LocationRenderer from './LocationRenderer.vue';
 </script>
 
 <style lang="scss" scoped>
+    .description {
+        min-height: 10rem;
+    }
 </style>
