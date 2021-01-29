@@ -27,10 +27,12 @@
                        class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-200 ">
                         <i class="fa fa-github text-3xl mr-4" aria-hidden="true"></i> Login with Github
                     </a>
-                    <a href="{{route('oauth.login.redirect', ['driver' => 'google'])}}"
-                       class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-200 ">
-                        <i class="fa fa-google text-3xl mr-4" aria-hidden="true"></i> Login with Google
-                    </a>
+                    @if(config('services.google.client_id'))
+                        <a href="{{route('oauth.login.redirect', ['driver' => 'google'])}}"
+                           class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-200 ">
+                            <i class="fa fa-google text-3xl mr-4" aria-hidden="true"></i> Login with Google
+                        </a>
+                    @endif
                 @endguest
                 @auth
                     <a href="{{ route('logout') }}"
