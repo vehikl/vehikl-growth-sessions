@@ -22,6 +22,10 @@ describe('GrowthSessionView', () => {
         expect(ownerComponent.element).toHaveAttribute('href', new User(growthSessionJson.owner).githubURL)
     });
 
+    it('displays the host name', () => {
+        expect(wrapper.text()).toContain(growthSessionJson.owner.name);
+    });
+
     describe('attendees section', () => {
         it('redirects to the attendees GitHub page when clicked on the profile', async () => {
             const attendeeComponents = wrapper.findAllComponents({ref: 'attendee'})
@@ -30,18 +34,18 @@ describe('GrowthSessionView', () => {
                 expect(attendeeComponent.element).toHaveAttribute('href', new User(growthSessionJson.attendees[i]).githubURL)
             )
         })
-    });
 
-    it('can display the attendee limit', () => {
-        let growthSession = new GrowthSession({...dummyGrowthSession, attendee_limit: 42});
-        wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}});
-        expect(wrapper.text()).toContain('Attendee Limit');
-        expect(wrapper.find('.attendee_limit').text()).toContain(growthSession.attendee_limit);
-    });
+        it('can display the attendee limit', () => {
+            let growthSession = new GrowthSession({...dummyGrowthSession, attendee_limit: 42});
+            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}});
+            expect(wrapper.text()).toContain('Attendee Limit');
+            expect(wrapper.find('.attendee_limit').text()).toContain(growthSession.attendee_limit);
+        });
 
-    it('can hide the attendee limit', () => {
-        let growthSession = new GrowthSession({...dummyGrowthSession, attendee_limit: null});
-        wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}});
-        expect(wrapper.text()).not.toContain('Attendee Limit');
+        it('can hide the attendee limit', () => {
+            let growthSession = new GrowthSession({...dummyGrowthSession, attendee_limit: null});
+            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}});
+            expect(wrapper.text()).not.toContain('Attendee Limit');
+        });
     });
 });
