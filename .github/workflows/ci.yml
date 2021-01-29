@@ -32,3 +32,5 @@ jobs:
       run: chmod -R 777 storage bootstrap/cache
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       run: vendor/bin/phpunit
+    - name: Execute Frontend tests
+      run: npm run test
