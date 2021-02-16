@@ -3,7 +3,7 @@
     <p>In <strong>"The 7 Habits of Highly Effective People"</strong> Stephen Covey tells the story of a hiker who
         was walking through a forest when they came across a frustrated lumberjack.</p>
 
-    <p>The lumberjack was trying to cut down a tree with a saw and was swearing and cursing labouring in vain.</p>
+    <p>The lumberjack was trying to cut down a tree with a saw and was swearing and cursing, labouring in vain.</p>
 
     <div class="my-4 ml-4">
         <p>“What’s the problem?” The hiker asked.</p>
