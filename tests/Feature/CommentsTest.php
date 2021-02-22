@@ -22,6 +22,16 @@ class CommentsTest extends TestCase
         $this->assertNotEmpty($growthSession->fresh()->comments);
     }
 
+    public function testItReturnsTheGrowthSessionForThatContainsTheNewlyCreatedComment()
+    {
+        $user = User::factory()->create();
+        $limitlessSession = GrowthSession::factory()->create(['attendee_limit' => GrowthSession::NO_LIMIT]);
+
+        $this->actingAs($user)
+            ->postJson(route('growth_sessions.comments.store', $limitlessSession), ['content' => 'Hello world'])
+            ->assertJsonMissing(['attendee_limit' => GrowthSession::NO_LIMIT]);
+    }
+
     public function testItDoesNotAllowGuestsToPostComments()
     {
         $growthSession = GrowthSession::factory()->create();
