@@ -28,6 +28,6 @@ class CommentController extends Controller
     {
         $comment->delete();
 
-        return $growthSession->fresh();
+        return new GrowthSessionResource($growthSession->fresh());
     }
 }
