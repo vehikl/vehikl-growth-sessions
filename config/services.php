@@ -41,4 +41,8 @@ return [
         'redirect' => env('GOOGLE_REDIRECT')
     ],
 
+    'discord' => [
+        'guild_id' => env('DISCORD_GUILD_ID'),
+    ],
+
 ];

@@ -17,4 +17,11 @@ class DiscordService
     {
         return $this->http;
     }
+
+    public function getChannels()
+    {
+        return $this->http->get('https://discord.com/api/guilds/'
+            . config('services.discord.guild_id')
+            . '/channels');
+    }
 }
