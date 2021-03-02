@@ -5,6 +5,7 @@ import flushPromises from 'flush-promises';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import vSelect from 'vue-select';
 import {IDiscordChannel} from "../types/IDiscordChannel";
+import {DiscordChannelApi} from "../services/DiscordChannelApi";
 
 const localVue = createLocalVue();
 localVue.component('v-select', vSelect)
@@ -32,9 +33,10 @@ describe('CreateGrowthSession', () => {
     let wrapper: Wrapper<GrowthSessionForm>;
 
     beforeEach(() => {
-        wrapper = mount(GrowthSessionForm, {propsData: {owner: user, startDate, discordChannels}, localVue});
         GrowthSessionApi.store = jest.fn().mockImplementation(growthSession => growthSession);
         GrowthSessionApi.update = jest.fn().mockImplementation(growthSession => growthSession);
+        DiscordChannelApi.index = jest.fn().mockImplementation(() => discordChannels);
+        wrapper = mount(GrowthSessionForm, {propsData: {owner: user, startDate}, localVue});
     });
 
     const baseGrowthSessionRequest: IStoreGrowthSessionRequest = {
@@ -158,8 +160,24 @@ describe('CreateGrowthSession', () => {
     })
 
     it('displays a dropdown select with Discord channel names', async () => {
+        await flushPromises();
+        expect(DiscordChannelApi.index).toHaveBeenCalled();
+
         const selector = wrapper.find('#discord_channel');
         expect(selector.exists()).toBeTruthy();
-        expect(selector.vm.$props.options).toBe(discordChannels);
+        expect(selector.vm.$props.options).toStrictEqual(discordChannels.map(discordChannel => {
+            return {
+                label: discordChannel.name,
+                value: discordChannel.id,
+            }
+        }));
+    })
+
+    it('does not display the dropdown select with Discord channel names if no channels are returned', async () => {
+        await flushPromises();
+        wrapper.setData({discordChannels: []});
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('#discord_channel').exists()).toBeFalsy();
     })
 });

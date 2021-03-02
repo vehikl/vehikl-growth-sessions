@@ -102,7 +102,7 @@
                       v-model="topic"/>
         </div>
 
-        <div class="mb-4">
+        <div class="mb-4" v-if="(discordChannels.length > 0)">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="discord_channel">
                 Discord Channel
             </label>
@@ -131,14 +131,13 @@ import VueTimepicker from 'vue2-timepicker'
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
 import DatePicker from './DatePicker.vue';
-import {IDiscordChannel} from "../types/IDiscordChannel";
+import {DiscordChannelApi} from "../services/DiscordChannelApi";
 
 @Component({components: {DatePicker, VueTimepicker}})
     export default class GrowthSessionForm extends Vue {
         @Prop({required: true}) owner!: IUser;
         @Prop({required: false, default: null}) growthSession!: IGrowthSession;
         @Prop({required: false, default: ''}) startDate!: string;
-        @Prop({required: false, default: []}) discordChannels!: Array<IDiscordChannel>;
 
         startTime: string = '03:30 pm';
         endTime: string = '05:00 pm';
@@ -149,6 +148,7 @@ import {IDiscordChannel} from "../types/IDiscordChannel";
         date: string = '';
         validationErrors: IValidationError | null = null;
         isLimitless: boolean = false;
+        discordChannels: Array<Object> = [];
 
         mounted() {
             this.date = this.startDate;
@@ -156,6 +156,8 @@ import {IDiscordChannel} from "../types/IDiscordChannel";
             if (input) {
                 input.focus();
             }
+
+            this.getDiscordChannels();
 
             if (this.growthSession) {
                 this.date = this.growthSession.date;
@@ -202,6 +204,20 @@ import {IDiscordChannel} from "../types/IDiscordChannel";
             try {
                 let growthSession: IGrowthSession = await GrowthSessionApi.update(this.growthSession, this.storeOrUpdatePayload);
                 this.$emit('submitted', growthSession);
+            } catch (e) {
+                this.onRequestFailed(e);
+            }
+        }
+
+        async getDiscordChannels() {
+            try {
+                const discordChannels = await DiscordChannelApi.index();
+                this.discordChannels = discordChannels.map(discordChannel => {
+                    return {
+                        label: discordChannel.name,
+                        value: discordChannel.id
+                    };
+                });
             } catch (e) {
                 this.onRequestFailed(e);
             }
