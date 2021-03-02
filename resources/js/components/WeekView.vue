@@ -21,7 +21,7 @@
 
         <div class="flex justify-center flex-wrap">
             <modal :dynamic="true" :height="600" :width="500" name="growth-session-form">
-                <div class="flex w-full h-full">
+                <div class="flex w-full h-full overflow-y-scroll">
                     <growth-session-form :growth-session="growthSessionToUpdate"
                                          :owner="user"
                                          :start-date="newGrowthSessionDate"
