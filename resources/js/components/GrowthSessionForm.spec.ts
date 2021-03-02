@@ -28,6 +28,7 @@ describe('CreateGrowthSession', () => {
         title: 'Chosen title',
         date: '2020-10-01',
         start_time: '4:45 pm',
+        discord_channel: '1234567890'
     }
 
     describe('allows a growth session to be created', () => {
@@ -51,6 +52,14 @@ describe('CreateGrowthSession', () => {
                     ...baseGrowthSessionRequest,
                     end_time: '5:45 pm',
                 }
+            ],
+            [
+                'Can accept no Discord channel',
+                {...baseGrowthSessionRequest, discord_channel: undefined}
+            ],
+            [
+                'Can accept a Discord channel',
+                {...baseGrowthSessionRequest, discord_channel: '1234567890'}
             ]
         ]
 
