@@ -25,7 +25,6 @@
                     <growth-session-form :growth-session="growthSessionToUpdate"
                                          :owner="user"
                                          :start-date="newGrowthSessionDate"
-                                         :discord-channels="discordChannels"
                                          class="growth-session-form"
                                          @submitted="onFormSubmitted"/>
                 </div>
@@ -97,8 +96,7 @@ interface IGrowthSessionCardDragChange {
     components: {GrowthSessionForm, GrowthSessionCard, Draggable}
 })
 export default class WeekView extends Vue {
-    @Prop({required: false, default: null}) user!: IUser;
-    discordChannels: Array<IDiscordChannel> = [];
+    @Prop({required: false, default: null}) user!: IUser;\
     referenceDate: DateTime = DateTime.today();
     growthSessions: WeekGrowthSessions = WeekGrowthSessions.empty();
     newGrowthSessionDate: string = '';
