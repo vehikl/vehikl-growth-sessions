@@ -1,8 +1,13 @@
-import {mount, Wrapper} from '@vue/test-utils';
+import {createLocalVue, mount, Wrapper} from '@vue/test-utils';
 import GrowthSessionForm from './GrowthSessionForm.vue';
 import {IStoreGrowthSessionRequest, IUser} from '../types';
 import flushPromises from 'flush-promises';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
+import vSelect from 'vue-select';
+import {IDiscordChannel} from "../types/IDiscordChannel";
+
+const localVue = createLocalVue();
+localVue.component('v-select', vSelect)
 
 const user: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -11,13 +16,23 @@ const user: IUser = {
     id: 987,
     name: 'Jack Bauer'
 };
+const discordChannels: Array<IDiscordChannel> = [
+    {
+        name: 'Chat One',
+        id: '1234567890',
+    },
+    {
+        name: 'Chat Two',
+        id: '1234567891',
+    }
+];
 const startDate: string = "2020-06-25";
 
 describe('CreateGrowthSession', () => {
     let wrapper: Wrapper<GrowthSessionForm>;
 
     beforeEach(() => {
-        wrapper = mount(GrowthSessionForm, {propsData: {owner: user, startDate}});
+        wrapper = mount(GrowthSessionForm, {propsData: {owner: user, startDate, discordChannels}, localVue});
         GrowthSessionApi.store = jest.fn().mockImplementation(growthSession => growthSession);
         GrowthSessionApi.update = jest.fn().mockImplementation(growthSession => growthSession);
     });
@@ -140,5 +155,11 @@ describe('CreateGrowthSession', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.findComponent({ref: 'attendee-limit'}).exists()).toBeFalsy();
+    })
+
+    it('displays a dropdown select with Discord channel names', async () => {
+        const selector = wrapper.find('#discord_channel');
+        expect(selector.exists()).toBeTruthy();
+        expect(selector.vm.$props.options).toBe(discordChannels);
     })
 });

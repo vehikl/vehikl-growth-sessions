@@ -103,6 +103,13 @@
         </div>
 
         <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="discord_channel">
+                Discord Channel
+            </label>
+            <v-select id="discord_channel" name="discord_channel" :options="discordChannels"></v-select>
+        </div>
+
+        <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="location">
                 Location
             </label>
@@ -124,12 +131,14 @@ import VueTimepicker from 'vue2-timepicker'
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
 import DatePicker from './DatePicker.vue';
+import {IDiscordChannel} from "../types/IDiscordChannel";
 
 @Component({components: {DatePicker, VueTimepicker}})
     export default class GrowthSessionForm extends Vue {
         @Prop({required: true}) owner!: IUser;
         @Prop({required: false, default: null}) growthSession!: IGrowthSession;
         @Prop({required: false, default: ''}) startDate!: string;
+        @Prop({required: false, default: []}) discordChannels!: Array<IDiscordChannel>;
 
         startTime: string = '03:30 pm';
         endTime: string = '05:00 pm';
