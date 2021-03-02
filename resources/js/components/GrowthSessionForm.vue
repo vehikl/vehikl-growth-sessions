@@ -106,7 +106,10 @@
             <label class="block text-gray-700 text-sm font-bold mb-2" for="discord_channel">
                 Discord Channel
             </label>
-            <v-select id="discord_channel" name="discord_channel" :options="discordChannels"></v-select>
+            <v-select id="discord_channel"
+                      name="discord_channel"
+                      :options="discordChannels"
+                      v-model="discordChannel"></v-select>
         </div>
 
         <div class="mb-4">
@@ -148,6 +151,7 @@ import {DiscordChannelApi} from "../services/DiscordChannelApi";
         date: string = '';
         validationErrors: IValidationError | null = null;
         isLimitless: boolean = false;
+        discordChannel: Object = {value: '', label: ''};
         discordChannels: Array<Object> = [];
 
         mounted() {
