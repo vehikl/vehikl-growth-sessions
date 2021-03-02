@@ -3,6 +3,7 @@
 namespace Tests\Unit\Services\Discord;
 
 use App\Services\Discord\DiscordService;
+use App\Services\Discord\Models\Channel;
 use GuzzleHttp\Client;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -62,6 +63,9 @@ class DiscordServiceTest extends TestCase
         $this->assertEquals(sizeof($channelsFixture), $channels->count());
         collect($channelsFixture)->each(function ($channelFixture) use ($channels) {
             $this->assertTrue($channels->pluck('id')->contains($channelFixture->id));
+        });
+        $channels->each(function ($channel) {
+            $this->assertInstanceOf(Channel::class, $channel);
         });
     }
 }
