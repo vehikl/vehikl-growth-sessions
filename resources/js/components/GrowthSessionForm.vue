@@ -245,7 +245,7 @@ import {IDropdownOption} from "../types/IDropdownOption";
                 start_time: this.startTime,
                 end_time: this.endTime,
                 attendee_limit: this.isLimitless ? undefined : this.attendeeLimit,
-                discord_channel: this.discordChannel.value || undefined,
+                discord_channel_id: this.discordChannel.value || undefined,
             }
         }
     }

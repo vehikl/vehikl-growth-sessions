@@ -33,6 +33,7 @@ class GrowthSession extends Model
         'date',
         'owner_id',
         'attendee_limit',
+        'discord_channel_id',
     ];
 
     protected $attributes = [

@@ -6,5 +6,5 @@ export interface IStoreGrowthSessionRequest {
     start_time: string;
     end_time?: string;
     attendee_limit?: number | null;
-    discord_channel?: string | null;
+    discord_channel_id?: string | null;
 }

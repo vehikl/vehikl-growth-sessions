@@ -14,18 +14,31 @@ class GrowthSessionTest extends TestCase
     public function testAnAuthenticatedUserCanCreateAGrowthSession()
     {
         $user = User::factory()->create();
-        $topic = 'The fundamentals of foo';
-        $title = 'Foo';
+
+        $this->assertDatabaseMissing('social_mobs', [
+            'owner_id' => $user->id,
+            'topic' => 'The fundamentals of foo',
+            'title' => 'Foo',
+            'location' => 'At the central mobbing area',
+            'discord_channel_id' => '1234567890',
+        ]);
+
         $this->actingAs($user)->postJson(route('growth_sessions.store'), [
-            'topic' => $topic,
-            'title' => $title,
+            'topic' => 'The fundamentals of foo',
+            'title' => 'Foo',
             'location' => 'At the central mobbing area',
             'start_time' => now()->format('h:i a'),
             'date' => today(),
+            'discord_channel_id' => '1234567890',
         ])->assertSuccessful();
 
-        $this->assertEquals($topic, $user->growthSessions->first()->topic);
-        $this->assertEquals($title, $user->growthSessions->first()->title);
+        $this->assertDatabaseHas('social_mobs', [
+            'owner_id' => $user->id,
+            'topic' => 'The fundamentals of foo',
+            'title' => 'Foo',
+            'location' => 'At the central mobbing area',
+            'discord_channel_id' => '1234567890',
+        ]);
     }
 
     public function testTheOwnerOfAGrowthSessionCanEditIt()
@@ -409,6 +422,7 @@ class GrowthSessionTest extends TestCase
             'location' => 'At the central mobbing area',
             'start_time' => now()->format('h:i a'),
             'date' => today(),
+            'discord_channel' => null,
         ], $params);
     }
 }

@@ -45,7 +45,7 @@ describe('CreateGrowthSession', () => {
         title: 'Chosen title',
         date: '2020-10-01',
         start_time: '4:45 pm',
-        discord_channel: undefined
+        discord_channel_id: undefined
     }
 
     describe('allows a growth session to be created', () => {
@@ -72,11 +72,11 @@ describe('CreateGrowthSession', () => {
             ],
             [
                 'Can accept no Discord channel',
-                {...baseGrowthSessionRequest, discord_channel: undefined}
+                {...baseGrowthSessionRequest, discord_channel_id: undefined}
             ],
             [
                 'Can accept a Discord channel',
-                {...baseGrowthSessionRequest, discord_channel: '1234567890'}
+                {...baseGrowthSessionRequest, discord_channel_id: '1234567890'}
             ]
         ]
 
@@ -87,7 +87,7 @@ describe('CreateGrowthSession', () => {
                 location: chosenLocation,
                 start_time: chosenStartTime,
                 attendee_limit: chosenLimit,
-                discord_channel: discordChannelId,
+                discord_channel_id: discordChannelId,
             } = payload;
 
             const discordChannel = discordChannels.filter(channel => channel.id === discordChannelId)[0] || undefined;
@@ -124,7 +124,7 @@ describe('CreateGrowthSession', () => {
                 start_time: chosenStartTime,
                 end_time: '05:00 pm',
                 topic: chosenTopic,
-                discord_channel: discordChannelId
+                discord_channel_id: discordChannelId
             };
 
             if (!chosenLimit) {
