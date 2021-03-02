@@ -49,6 +49,10 @@
                 <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Location:</h3>
                     <location-renderer :location-string="growthSession.location"/>
+                    <a v-if="growthSession.discord_channel_id"
+                       :href="this.discordChannelUrl">
+                        {{ growthSession.discord_channel_id }}
+                    </a>
                 </div>
 
                 <div class="mb-3">
@@ -92,6 +96,7 @@ import LocationRenderer from './LocationRenderer.vue';
     export default class GrowthSessionView extends Vue {
         @Prop({required: false}) userJson!: IUser;
         @Prop({required: true}) growthSessionJson!: IGrowthSession;
+        @Prop({required: false}) discordGuildId!: string;
         growthSession: GrowthSession = new GrowthSession(this.growthSessionJson);
 
         get date(): string {
@@ -100,6 +105,10 @@ import LocationRenderer from './LocationRenderer.vue';
 
         get time(): string {
             return `${this.growthSession.startTime} - ${this.growthSession.endTime}`;
+        }
+
+        get discordChannelUrl(): string {
+            return `https://discordapp.com/channels/${this.discordGuildId}/${this.growthSession.discord_channel_id}`;
         }
 
         async deleteGrowthSession() {

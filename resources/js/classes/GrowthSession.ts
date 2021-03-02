@@ -15,6 +15,7 @@ export class GrowthSession implements IGrowthSession {
     attendees!: User[];
     comments!: IComment[];
     attendee_limit!: number | null;
+    discord_channel_id!: string | null;
 
     constructor(growthSession: IGrowthSession) {
         this.refresh(growthSession);
@@ -32,6 +33,7 @@ export class GrowthSession implements IGrowthSession {
         this.attendees = growthSession.attendees.map(attendee => new User(attendee));
         this.comments = growthSession.comments;
         this.attendee_limit = growthSession.attendee_limit;
+        this.discord_channel_id = growthSession.discord_channel_id;
     }
 
     get isLimitless(): boolean {
