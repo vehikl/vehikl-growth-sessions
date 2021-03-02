@@ -45,7 +45,7 @@ describe('CreateGrowthSession', () => {
         title: 'Chosen title',
         date: '2020-10-01',
         start_time: '4:45 pm',
-        discord_channel: '1234567890'
+        discord_channel: undefined
     }
 
     describe('allows a growth session to be created', () => {
@@ -87,7 +87,12 @@ describe('CreateGrowthSession', () => {
                 location: chosenLocation,
                 start_time: chosenStartTime,
                 attendee_limit: chosenLimit,
+                discord_channel: discordChannelId,
             } = payload;
+
+            const discordChannel = discordChannels.filter(channel => channel.id === discordChannelId)[0] || undefined;
+
+            await flushPromises();
 
             window.confirm = jest.fn();
             wrapper.vm.$data.startTime = chosenStartTime;
@@ -102,6 +107,11 @@ describe('CreateGrowthSession', () => {
             if (chosenLimit) {
                 wrapper.findComponent({ref: 'attendee-limit'}).setValue(chosenLimit);
             }
+
+            if(discordChannel) {
+                wrapper.findComponent(vSelect).vm.$emit('input', {label: discordChannel.name, value: discordChannel.id});
+            }
+
             await wrapper.vm.$nextTick();
             wrapper.find('button[type="submit"]').trigger('click');
             await flushPromises();
@@ -113,7 +123,8 @@ describe('CreateGrowthSession', () => {
                 date: startDate,
                 start_time: chosenStartTime,
                 end_time: '05:00 pm',
-                topic: chosenTopic
+                topic: chosenTopic,
+                discord_channel: discordChannelId
             };
 
             if (!chosenLimit) {

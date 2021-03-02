@@ -135,6 +135,7 @@ import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
 import DatePicker from './DatePicker.vue';
 import {DiscordChannelApi} from "../services/DiscordChannelApi";
+import {IDropdownOption} from "../types/IDropdownOption";
 
 @Component({components: {DatePicker, VueTimepicker}})
     export default class GrowthSessionForm extends Vue {
@@ -151,7 +152,7 @@ import {DiscordChannelApi} from "../services/DiscordChannelApi";
         date: string = '';
         validationErrors: IValidationError | null = null;
         isLimitless: boolean = false;
-        discordChannel: Object = {value: '', label: ''};
+        discordChannel: IDropdownOption = {value: '', label: ''};
         discordChannels: Array<Object> = [];
 
         mounted() {
@@ -243,7 +244,8 @@ import {DiscordChannelApi} from "../services/DiscordChannelApi";
                 date: this.date,
                 start_time: this.startTime,
                 end_time: this.endTime,
-                attendee_limit:  this.isLimitless ? undefined : this.attendeeLimit
+                attendee_limit: this.isLimitless ? undefined : this.attendeeLimit,
+                discord_channel: this.discordChannel.value || undefined,
             }
         }
     }
