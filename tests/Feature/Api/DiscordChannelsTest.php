@@ -34,17 +34,15 @@ class DiscordChannelsTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'id',
-                    'name',
-                ],
+            '*' => [
+                'id',
+                'name',
             ],
         ]);
         $responseContents = json_decode($response->getContent());
-        $this->assertCount(3, $responseContents->data);
+        $this->assertCount(3, $responseContents);
         $fakeChannels->each(function (Channel $channel) use ($responseContents) {
-            $this->assertContains($channel->id, collect($responseContents->data)->pluck('id')->toArray());
+            $this->assertContains($channel->id, collect($responseContents)->pluck('id')->toArray());
         });
     }
 

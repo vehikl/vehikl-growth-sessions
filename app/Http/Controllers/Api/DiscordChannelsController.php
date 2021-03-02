@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreGrowthSessionRequest;
 use App\Http\Requests\UpdateGrowthSessionRequest;
+use App\Http\Resources\DiscordChannelCollection;
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
 use App\GrowthSession;
@@ -20,12 +21,8 @@ use Illuminate\Http\Request;
 
 class DiscordChannelsController extends Controller
 {
-    public function index(DiscordService $discord)
+    public function index(DiscordService $discord): DiscordChannelCollection
     {
-        return [
-            'data' => $discord->getChannels()
-                ->map(fn(Channel $channel) => ['id' => $channel->id, 'name' => $channel->name])
-                ->toArray()
-        ];
+        return new DiscordChannelCollection($discord->getChannels());
     }
 }
