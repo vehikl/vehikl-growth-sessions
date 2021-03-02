@@ -20,8 +20,11 @@ class DiscordService
 
     public function getChannels()
     {
-        return $this->http->get('https://discord.com/api/guilds/'
-            . config('services.discord.guild_id')
-            . '/channels');
+        return collect(
+            json_decode($this->http->get(
+                'https://discord.com/api/guilds/' . config('services.discord.guild_id') . '/channels',
+                ['headers' => ['Authorization' => 'Bot ' . config('services.discord.bot_token')]]
+            )->getBody()->getContents())
+        );
     }
 }

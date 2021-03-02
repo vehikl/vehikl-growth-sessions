@@ -1,0 +1,67 @@
+[
+    {
+        "id": "1234567890",
+        "last_message_id": "816320670655971368",
+        "last_pin_timestamp": "2020-06-05T15:50:12.496000+00:00",
+        "type": 0,
+        "name": "General Text",
+        "position": 0,
+        "parent_id": null,
+        "topic": null,
+        "guild_id": "1234567890",
+        "permission_overwrites": [],
+        "nsfw": false,
+        "rate_limit_per_user": 0
+    },
+    {
+        "id": "1234567891",
+        "type": 2,
+        "name": "General Voice",
+        "position": 1,
+        "parent_id": null,
+        "bitrate": 64000,
+        "user_limit": 0,
+        "rtc_region": null,
+        "guild_id": "1234567890",
+        "permission_overwrites": [],
+        "nsfw": false
+    },
+    {
+        "id": "1234567892",
+        "type": 2,
+        "name": "Voice With Permission Overrides",
+        "position": 2,
+        "parent_id": null,
+        "bitrate": 64000,
+        "user_limit": 0,
+        "rtc_region": null,
+        "guild_id": "1234567890",
+        "permission_overwrites": [
+            {
+                "id": "1234567890",
+                "type": "role",
+                "allow": 0,
+                "deny": 0,
+                "allow_new": "0",
+                "deny_new": "0"
+            },
+            {
+                "id": "1234567891",
+                "type": "role",
+                "allow": 0,
+                "deny": 0,
+                "allow_new": "0",
+                "deny_new": "0"
+            },
+            {
+                "id": "1234567892",
+                "type": "role",
+                "allow": 871368465,
+                "deny": 0,
+                "allow_new": "871368465",
+                "deny_new": "0"
+            }
+        ],
+        "nsfw": false
+    }
+]

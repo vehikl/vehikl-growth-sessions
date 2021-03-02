@@ -43,6 +43,7 @@ return [
 
     'discord' => [
         'guild_id' => env('DISCORD_GUILD_ID'),
+        'bot_token' => env('DISCORD_BOT_TOKEN'),
     ],
 
 ];
