@@ -11,3 +11,4 @@ declare module '*.json' {
 declare module 'vue2-timepicker';
 declare module 'vuejs-datepicker';
 declare module 'vuedraggable';
+declare module 'vue-select';
