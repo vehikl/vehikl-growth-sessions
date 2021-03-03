@@ -98,7 +98,7 @@ import LocationRenderer from './LocationRenderer.vue';
     export default class GrowthSessionView extends Vue {
         @Prop({required: false}) userJson!: IUser;
         @Prop({required: true}) growthSessionJson!: IGrowthSession;
-        @Prop({required: true}) discordGuildId!: string;
+        @Prop({required: false}) discordGuildId!: string;
         growthSession: GrowthSession = new GrowthSession(this.growthSessionJson);
 
         get date(): string {
@@ -110,7 +110,6 @@ import LocationRenderer from './LocationRenderer.vue';
         }
 
         get discordChannelUrl(): string {
-            console.log('discord guild id', this.discordGuildId); console.log('discord channel id', this.growthSession.discord_channel_id);
             return `discord://discordapp.com/channels/${this.discordGuildId}/${this.growthSession.discord_channel_id}`;
         }
 
