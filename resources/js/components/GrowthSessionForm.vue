@@ -251,7 +251,7 @@ import {IDropdownOption} from "../types/IDropdownOption";
 
         @Watch('discordChannel')
         onDiscordChannelChanged(value: IDropdownOption) {
-            if(!this.location) {
+            if(!this.location || this.location.startsWith('Discord Channel: ')) {
                 this.location = `Discord Channel: ${value.label}`
             }
         }

@@ -205,4 +205,20 @@ describe('CreateGrowthSession', () => {
 
         expect(locationInput.value).toBe(`Discord Channel: ${discordChannels[0].name}`);
     })
+
+    it('changes the location when new Discord channel is selected if old location was a Discord channel', async () => {
+        await flushPromises();
+        const selector = wrapper.findComponent(vSelect);
+        const locationInput = wrapper.find('#location').element as HTMLInputElement;
+
+        selector.vm.$emit('input', {label: discordChannels[0].name, value: discordChannels[0].id});
+        await wrapper.vm.$nextTick();
+
+        expect(locationInput.value).toBe(`Discord Channel: ${discordChannels[0].name}`);
+
+        selector.vm.$emit('input', {label: discordChannels[1].name, value: discordChannels[1].id});
+        await wrapper.vm.$nextTick();
+
+        expect(locationInput.value).toBe(`Discord Channel: ${discordChannels[1].name}`);
+    })
 });
