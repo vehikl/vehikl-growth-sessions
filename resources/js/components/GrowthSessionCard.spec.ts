@@ -33,6 +33,7 @@ const growthSessionData: GrowthSession = new GrowthSession({
     id: 0,
     owner: ownerOfTheGrowthSession,
     location: 'Somewhere over the rainbow',
+    discord_channel_id: null,
     date: '2020-05-08',
     start_time: '03:30 pm',
     end_time: '05:00 pm',

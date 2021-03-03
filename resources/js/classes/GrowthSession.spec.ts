@@ -21,6 +21,7 @@ describe('GrowthSession', () => {
         end_time: "05:00 pm",
         id: 0,
         location: "Somewhere over the rainbow",
+        discord_channel_id: null,
         owner,
         title: "The growth session title",
         topic: "The growth session topic",

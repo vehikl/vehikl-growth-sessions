@@ -96,7 +96,7 @@ interface IGrowthSessionCardDragChange {
     components: {GrowthSessionForm, GrowthSessionCard, Draggable}
 })
 export default class WeekView extends Vue {
-    @Prop({required: false, default: null}) user!: IUser;\
+    @Prop({required: false, default: null}) user!: IUser;
     referenceDate: DateTime = DateTime.today();
     growthSessions: WeekGrowthSessions = WeekGrowthSessions.empty();
     newGrowthSessionDate: string = '';
