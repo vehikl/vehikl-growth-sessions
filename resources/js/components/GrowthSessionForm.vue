@@ -128,7 +128,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
 import {IGrowthSession, IStoreGrowthSessionRequest, IUser, IValidationError} from '../types';
 import VueTimepicker from 'vue2-timepicker'
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
@@ -246,6 +246,13 @@ import {IDropdownOption} from "../types/IDropdownOption";
                 end_time: this.endTime,
                 attendee_limit: this.isLimitless ? undefined : this.attendeeLimit,
                 discord_channel_id: this.discordChannel.value || undefined,
+            }
+        }
+
+        @Watch('discordChannel')
+        onDiscordChannelChanged(value: IDropdownOption) {
+            if(!this.location) {
+                this.location = `Discord Channel: ${value.label}`
             }
         }
     }

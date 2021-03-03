@@ -95,6 +95,7 @@ describe('CreateGrowthSession', () => {
             await flushPromises();
 
             window.confirm = jest.fn();
+
             wrapper.vm.$data.startTime = chosenStartTime;
             wrapper.find('#title').setValue(chosenTitle);
             wrapper.find('#topic').setValue(chosenTopic);
@@ -190,5 +191,18 @@ describe('CreateGrowthSession', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('#discord_channel').exists()).toBeFalsy();
+    })
+
+    it('autofills the location with the Discord channel when selected', async () => {
+        await flushPromises();
+        const selector = wrapper.findComponent(vSelect);
+        const locationInput = wrapper.find('#location').element as HTMLInputElement;
+
+        expect(locationInput.value).toBeFalsy();
+
+        selector.vm.$emit('input', {label: discordChannels[0].name, value: discordChannels[0].id});
+        await wrapper.vm.$nextTick();
+
+        expect(locationInput.value).toBe(`Discord Channel: ${discordChannels[0].name}`);
     })
 });
