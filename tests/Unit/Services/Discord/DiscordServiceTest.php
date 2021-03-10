@@ -5,8 +5,10 @@ namespace Tests\Unit\Services\Discord;
 use App\Services\Discord\DiscordService;
 use App\Services\Discord\Models\Channel;
 use GuzzleHttp\Client;
+use Illuminate\Http\Client\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 use Tests\Traits\MocksGuzzleHistory;
 
@@ -43,18 +45,24 @@ class DiscordServiceTest extends TestCase
 
     public function testItMakesAGetsRequestToDiscordForAllGuildVoiceChannels(): void
     {
-        $this->appendJsonResponse(Response::HTTP_OK, '{}');
+        Http::fake();
+
         $discord = new DiscordService($this->getGuzzleClient());
 
         $discord->getChannels();
 
-        $this->assertGuzzleHistoryContains("https://discord.com/api/guilds/$this->fakeDiscordGuildId/channels");
+        Http::assertSent(function(Request $request) {
+            return $request->url() === "https://discord.com/api/guilds/$this->fakeDiscordGuildId/channels";
+        });
     }
 
     public function testItReturnsACollectionOfAllDiscordGuildVoiceChannels(): void
     {
-        $channelsFixture = $this->loadJsonFixture('Discord/Channels');
-        $this->appendJsonResponse(Response::HTTP_OK, json_encode($channelsFixture));
+        $channelsFixture = $this->loadJsonFixture('Discord/Channels', true);
+        Http::fake([
+            '*' => Http::response($channelsFixture, Response::HTTP_OK)
+        ]);
+
         $discord = new DiscordService($this->getGuzzleClient());
 
         $channels = $discord->getChannels();
@@ -62,7 +70,7 @@ class DiscordServiceTest extends TestCase
         $this->assertInstanceOf(Collection::class, $channels);
         $this->assertEquals(sizeof($channelsFixture), $channels->count());
         collect($channelsFixture)->each(function ($channelFixture) use ($channels) {
-            $this->assertTrue($channels->pluck('id')->contains($channelFixture->id));
+            $this->assertTrue($channels->pluck('id')->contains($channelFixture['id']));
         });
         $channels->each(function ($channel) {
             $this->assertInstanceOf(Channel::class, $channel);
