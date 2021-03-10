@@ -1,8 +1,14 @@
-import {mount, Wrapper} from '@vue/test-utils';
+import {createLocalVue, mount, Wrapper} from '@vue/test-utils';
 import GrowthSessionForm from './GrowthSessionForm.vue';
 import {IStoreGrowthSessionRequest, IUser} from '../types';
 import flushPromises from 'flush-promises';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
+import vSelect from 'vue-select';
+import {IDiscordChannel} from "../types/IDiscordChannel";
+import {DiscordChannelApi} from "../services/DiscordChannelApi";
+
+const localVue = createLocalVue();
+localVue.component('v-select', vSelect)
 
 const user: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -11,15 +17,26 @@ const user: IUser = {
     id: 987,
     name: 'Jack Bauer'
 };
+const discordChannels: Array<IDiscordChannel> = [
+    {
+        name: 'Chat One',
+        id: '1234567890',
+    },
+    {
+        name: 'Chat Two',
+        id: '1234567891',
+    }
+];
 const startDate: string = "2020-06-25";
 
 describe('CreateGrowthSession', () => {
     let wrapper: Wrapper<GrowthSessionForm>;
 
     beforeEach(() => {
-        wrapper = mount(GrowthSessionForm, {propsData: {owner: user, startDate}});
         GrowthSessionApi.store = jest.fn().mockImplementation(growthSession => growthSession);
         GrowthSessionApi.update = jest.fn().mockImplementation(growthSession => growthSession);
+        DiscordChannelApi.index = jest.fn().mockImplementation(() => discordChannels);
+        wrapper = mount(GrowthSessionForm, {propsData: {owner: user, startDate}, localVue});
     });
 
     const baseGrowthSessionRequest: IStoreGrowthSessionRequest = {
@@ -28,6 +45,7 @@ describe('CreateGrowthSession', () => {
         title: 'Chosen title',
         date: '2020-10-01',
         start_time: '4:45 pm',
+        discord_channel_id: undefined
     }
 
     describe('allows a growth session to be created', () => {
@@ -51,6 +69,14 @@ describe('CreateGrowthSession', () => {
                     ...baseGrowthSessionRequest,
                     end_time: '5:45 pm',
                 }
+            ],
+            [
+                'Can accept no Discord channel',
+                {...baseGrowthSessionRequest, discord_channel_id: undefined}
+            ],
+            [
+                'Can accept a Discord channel',
+                {...baseGrowthSessionRequest, discord_channel_id: '1234567890'}
             ]
         ]
 
@@ -61,9 +87,15 @@ describe('CreateGrowthSession', () => {
                 location: chosenLocation,
                 start_time: chosenStartTime,
                 attendee_limit: chosenLimit,
+                discord_channel_id: discordChannelId,
             } = payload;
 
+            const discordChannel = discordChannels.filter(channel => channel.id === discordChannelId)[0] || undefined;
+
+            await flushPromises();
+
             window.confirm = jest.fn();
+
             wrapper.vm.$data.startTime = chosenStartTime;
             wrapper.find('#title').setValue(chosenTitle);
             wrapper.find('#topic').setValue(chosenTopic);
@@ -76,6 +108,11 @@ describe('CreateGrowthSession', () => {
             if (chosenLimit) {
                 wrapper.findComponent({ref: 'attendee-limit'}).setValue(chosenLimit);
             }
+
+            if(discordChannel) {
+                wrapper.findComponent(vSelect).vm.$emit('input', {label: discordChannel.name, value: discordChannel.id});
+            }
+
             await wrapper.vm.$nextTick();
             wrapper.find('button[type="submit"]').trigger('click');
             await flushPromises();
@@ -87,7 +124,8 @@ describe('CreateGrowthSession', () => {
                 date: startDate,
                 start_time: chosenStartTime,
                 end_time: '05:00 pm',
-                topic: chosenTopic
+                topic: chosenTopic,
+                discord_channel_id: discordChannelId
             };
 
             if (!chosenLimit) {
@@ -131,5 +169,56 @@ describe('CreateGrowthSession', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.findComponent({ref: 'attendee-limit'}).exists()).toBeFalsy();
+    })
+
+    it('displays a dropdown select with Discord channel names', async () => {
+        await flushPromises();
+        expect(DiscordChannelApi.index).toHaveBeenCalled();
+
+        const selector = wrapper.find('#discord_channel');
+        expect(selector.exists()).toBeTruthy();
+        expect(selector.vm.$props.options).toStrictEqual(discordChannels.map(discordChannel => {
+            return {
+                label: discordChannel.name,
+                value: discordChannel.id,
+            }
+        }));
+    })
+
+    it('does not display the dropdown select with Discord channel names if no channels are returned', async () => {
+        await flushPromises();
+        wrapper.setData({discordChannels: []});
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('#discord_channel').exists()).toBeFalsy();
+    })
+
+    it('autofills the location with the Discord channel when selected', async () => {
+        await flushPromises();
+        const selector = wrapper.findComponent(vSelect);
+        const locationInput = wrapper.find('#location').element as HTMLInputElement;
+
+        expect(locationInput.value).toBeFalsy();
+
+        selector.vm.$emit('input', {label: discordChannels[0].name, value: discordChannels[0].id});
+        await wrapper.vm.$nextTick();
+
+        expect(locationInput.value).toBe(`Discord Channel: ${discordChannels[0].name}`);
+    })
+
+    it('changes the location when new Discord channel is selected if old location was a Discord channel', async () => {
+        await flushPromises();
+        const selector = wrapper.findComponent(vSelect);
+        const locationInput = wrapper.find('#location').element as HTMLInputElement;
+
+        selector.vm.$emit('input', {label: discordChannels[0].name, value: discordChannels[0].id});
+        await wrapper.vm.$nextTick();
+
+        expect(locationInput.value).toBe(`Discord Channel: ${discordChannels[0].name}`);
+
+        selector.vm.$emit('input', {label: discordChannels[1].name, value: discordChannels[1].id});
+        await wrapper.vm.$nextTick();
+
+        expect(locationInput.value).toBe(`Discord Channel: ${discordChannels[1].name}`);
     })
 });

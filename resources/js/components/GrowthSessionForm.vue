@@ -102,6 +102,16 @@
                       v-model="topic"/>
         </div>
 
+        <div class="mb-4" v-if="(discordChannels.length > 0)">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="discord_channel">
+                Discord Channel
+            </label>
+            <v-select id="discord_channel"
+                      name="discord_channel"
+                      :options="discordChannels"
+                      v-model="discordChannel"></v-select>
+        </div>
+
         <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="location">
                 Location
@@ -118,12 +128,14 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
 import {IGrowthSession, IStoreGrowthSessionRequest, IUser, IValidationError} from '../types';
 import VueTimepicker from 'vue2-timepicker'
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
 import DatePicker from './DatePicker.vue';
+import {DiscordChannelApi} from "../services/DiscordChannelApi";
+import {IDropdownOption} from "../types/IDropdownOption";
 
 @Component({components: {DatePicker, VueTimepicker}})
     export default class GrowthSessionForm extends Vue {
@@ -140,6 +152,8 @@ import DatePicker from './DatePicker.vue';
         date: string = '';
         validationErrors: IValidationError | null = null;
         isLimitless: boolean = false;
+        discordChannel: IDropdownOption = {value: '', label: ''};
+        discordChannels: Array<Object> = [];
 
         mounted() {
             this.date = this.startDate;
@@ -147,6 +161,8 @@ import DatePicker from './DatePicker.vue';
             if (input) {
                 input.focus();
             }
+
+            this.getDiscordChannels();
 
             if (this.growthSession) {
                 this.date = this.growthSession.date;
@@ -198,6 +214,20 @@ import DatePicker from './DatePicker.vue';
             }
         }
 
+        async getDiscordChannels() {
+            try {
+                const discordChannels = await DiscordChannelApi.index();
+                this.discordChannels = discordChannels.map(discordChannel => {
+                    return {
+                        label: discordChannel.name,
+                        value: discordChannel.id
+                    };
+                });
+            } catch (e) {
+                this.onRequestFailed(e);
+            }
+        }
+
         get isCreating(): boolean {
             return !this.growthSession;
         }
@@ -214,7 +244,15 @@ import DatePicker from './DatePicker.vue';
                 date: this.date,
                 start_time: this.startTime,
                 end_time: this.endTime,
-                attendee_limit:  this.isLimitless ? undefined : this.attendeeLimit
+                attendee_limit: this.isLimitless ? undefined : this.attendeeLimit,
+                discord_channel_id: this.discordChannel.value || undefined,
+            }
+        }
+
+        @Watch('discordChannel')
+        onDiscordChannelChanged(value: IDropdownOption) {
+            if(!this.location || this.location.startsWith('Discord Channel: ')) {
+                this.location = `Discord Channel: ${value.label}`
             }
         }
     }

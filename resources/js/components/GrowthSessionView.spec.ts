@@ -47,5 +47,11 @@ describe('GrowthSessionView', () => {
             wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}});
             expect(wrapper.text()).not.toContain('Attendee Limit');
         });
+
+        it('renders a direct link to the Discord channel', () => {
+            let growthSession = new GrowthSession({...dummyGrowthSession, discord_channel_id: '1234567890'});
+            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession, discordGuildId: '1234567890'}});
+            expect(wrapper.find('a[href="discord://discordapp.com/channels/1234567890/1234567890"').exists()).toBeTruthy();
+        })
     });
 });

@@ -22,6 +22,7 @@ class StoreGrowthSessionRequest extends FormRequest
             'end_time' => 'sometimes|required|after:start_time|date_format:h:i a',
             'date' => 'required|date|after_or_equal:today',
             'attendee_limit' => 'sometimes|integer|min:4',
+            'discord_channel_id' => 'sometimes|string',
         ];
     }
 }

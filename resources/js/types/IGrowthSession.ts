@@ -9,6 +9,7 @@ export interface IGrowthSession {
     start_time: string;
     end_time: string;
     attendee_limit: number | null;
+    discord_channel_id: string | null;
     owner: IUser;
     attendees: IUser[];
     comments: IComment[];

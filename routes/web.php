@@ -34,3 +34,7 @@ Route::resource('social_mobs.comments', 'CommentController')->middleware('auth')
     'update' => 'growth_sessions.comments.update',
     'destroy' => 'growth_sessions.comments.destroy',
 ]);
+
+Route::prefix('api')->name('api.')->middleware('auth')->group(function () {
+    Route::get('discord-channels', 'Api\\DiscordChannelsController@index');
+});
