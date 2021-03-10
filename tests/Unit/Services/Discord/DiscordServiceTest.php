@@ -14,24 +14,12 @@ use Tests\Traits\MocksGuzzleHistory;
 
 class DiscordServiceTest extends TestCase
 {
-    use MocksGuzzleHistory;
-
     private string $fakeDiscordGuildId = 'geralt_of_rivia';
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->mockGuzzleHistory($this->guzzleHistory);
         config(['services.discord.guild_id' => $this->fakeDiscordGuildId]);
-    }
-
-    public function testItCanBeInstantiatedWithAGuzzleClient(): void
-    {
-        $guzzleClient = new Client();
-        $discord = new DiscordService($guzzleClient);
-
-        $this->assertInstanceOf(DiscordService::class, $discord);
-        $this->assertEquals($guzzleClient, $discord->getHttp());
     }
 
     public function testItCanBePulledFromTheApplicationContainer(): void
@@ -40,14 +28,13 @@ class DiscordServiceTest extends TestCase
         $discord = $this->app->get(DiscordService::class);
 
         $this->assertInstanceOf(DiscordService::class, $discord);
-        $this->assertInstanceOf(Client::class, $discord->getHttp());
     }
 
     public function testItMakesAGetsRequestToDiscordForAllGuildVoiceChannels(): void
     {
         Http::fake();
 
-        $discord = new DiscordService($this->getGuzzleClient());
+        $discord = new DiscordService();
 
         $discord->getChannels();
 
@@ -63,7 +50,7 @@ class DiscordServiceTest extends TestCase
             '*' => Http::response($channelsFixture, Response::HTTP_OK)
         ]);
 
-        $discord = new DiscordService($this->getGuzzleClient());
+        $discord = new DiscordService();
 
         $channels = $discord->getChannels();
 
