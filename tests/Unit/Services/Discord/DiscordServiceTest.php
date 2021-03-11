@@ -19,7 +19,7 @@ class DiscordServiceTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        //config(['services.discord.guild_id' => $this->fakeDiscordGuildId]);
+        config(['services.discord.guild_id' => $this->fakeDiscordGuildId]);
         config(['services.discord.vidya_id' => $this->fakeVidyaCategoryId]);
     }
 
@@ -33,7 +33,7 @@ class DiscordServiceTest extends TestCase
 
     public function testItMakesAGetsRequestToDiscordForAllGuildVoiceChannels(): void
     {
-        //Http::fake();
+        Http::fake();
 
         $discord = new DiscordService();
 
