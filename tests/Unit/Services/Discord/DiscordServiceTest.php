@@ -4,13 +4,11 @@ namespace Tests\Unit\Services\Discord;
 
 use App\Services\Discord\DiscordService;
 use App\Services\Discord\Models\Channel;
-use GuzzleHttp\Client;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
-use Tests\Traits\MocksGuzzleHistory;
 
 class DiscordServiceTest extends TestCase
 {
@@ -61,6 +59,24 @@ class DiscordServiceTest extends TestCase
         });
         $channels->each(function ($channel) {
             $this->assertInstanceOf(Channel::class, $channel);
+        });
+    }
+
+    public function testItFiltersOutChannelsThatAreChildrenOfVidyaId(): void
+    {
+        config(['services.discord.vidya_id' => '111222333']);
+        $channelsFixture = $this->loadJsonFixture('Discord/Channels', true);
+        $channelsFixture[2]['parent_id'] = '111222333';
+        Http::fake([
+            '*' => Http::response($channelsFixture, Response::HTTP_OK)
+        ]);
+
+        $discord = new DiscordService();
+
+        $channels = $discord->getChannels();
+        $this->assertEquals(2, $channels->count());
+        $channels->each(function (Channel $channel) use ($channelsFixture) {
+            $this->assertNotEquals($channelsFixture[2]['id'], $channel->id);
         });
     }
 }
