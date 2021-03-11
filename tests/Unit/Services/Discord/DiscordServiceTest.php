@@ -14,10 +14,13 @@ class DiscordServiceTest extends TestCase
 {
     private string $fakeDiscordGuildId = 'geralt_of_rivia';
 
+    private string $fakeVidyaCategoryId = '111222333';
+
     public function setUp(): void
     {
         parent::setUp();
-        config(['services.discord.guild_id' => $this->fakeDiscordGuildId]);
+        //config(['services.discord.guild_id' => $this->fakeDiscordGuildId]);
+        config(['services.discord.vidya_id' => $this->fakeVidyaCategoryId]);
     }
 
     public function testItCanBePulledFromTheApplicationContainer(): void
@@ -30,7 +33,7 @@ class DiscordServiceTest extends TestCase
 
     public function testItMakesAGetsRequestToDiscordForAllGuildVoiceChannels(): void
     {
-        Http::fake();
+        //Http::fake();
 
         $discord = new DiscordService();
 
@@ -64,9 +67,26 @@ class DiscordServiceTest extends TestCase
 
     public function testItFiltersOutChannelsThatAreChildrenOfVidyaId(): void
     {
-        config(['services.discord.vidya_id' => '111222333']);
         $channelsFixture = $this->loadJsonFixture('Discord/Channels', true);
-        $channelsFixture[2]['parent_id'] = '111222333';
+        $channelsFixture[1]['parent_id'] = '333222111';
+        $channelsFixture[2]['parent_id'] = $this->fakeVidyaCategoryId;
+        Http::fake([
+            '*' => Http::response($channelsFixture, Response::HTTP_OK)
+        ]);
+
+        $discord = new DiscordService();
+
+        $channels = $discord->getChannels();
+        $this->assertEquals(2, $channels->count());
+        $channels->each(function (Channel $channel) use ($channelsFixture) {
+            $this->assertNotEquals($channelsFixture[2]['id'], $channel->id);
+        });
+    }
+
+    public function testItFiltersOutVidyaCategory(): void
+    {
+        $channelsFixture = $this->loadJsonFixture('Discord/Channels', true);
+        $channelsFixture[2]['id'] = $this->fakeVidyaCategoryId;
         Http::fake([
             '*' => Http::response($channelsFixture, Response::HTTP_OK)
         ]);
