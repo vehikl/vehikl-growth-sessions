@@ -46,6 +46,39 @@ class DiscordChannelsTest extends TestCase
         });
     }
 
+    public function testItAlphabetizesDiscordChannels(): void
+    {
+        $fakeChannels = collect([
+            new Channel('1234567890', 'Alpha'),
+            new Channel('1234567891', 'Charlie'),
+            new Channel('1234567892', 'bravo'),
+            new Channel('1234567893', 'Delta'),
+        ]);
+
+        $this->mockedDiscord->method('getChannels')
+            ->willReturn($fakeChannels);
+
+        $response = $this->actingAs(User::factory()->create())->get('/api/discord-channels');
+        $response->assertExactJson([
+            [
+                'id' => '1234567890',
+                'name' => 'Alpha',
+            ],
+            [
+                'id' => '1234567892',
+                'name' => 'bravo',
+            ],
+            [
+                'id' => '1234567891',
+                'name' => 'Charlie',
+            ],
+            [
+                'id' => '1234567893',
+                'name' => 'Delta',
+            ],
+        ]);
+    }
+
     public function testItRedirectsIfUserIsNotLoggedIn(): void
     {
         $this->get('/api/discord-channels')->assertRedirect('/');

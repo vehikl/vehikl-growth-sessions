@@ -14,6 +14,11 @@ class DiscordService
             'https://discord.com/api/guilds/' . config('services.discord.guild_id') . '/channels'
         )->json();
 
-        return collect($channels)->map(fn($channel) => new Channel($channel['id'], $channel['name']));
+        return collect($channels)
+            ->filter(function (array $channel) {
+                return $channel['parent_id'] !== config('services.discord.vidya_id')
+                    && $channel['id'] !== config('services.discord.vidya_id');
+            })
+            ->map(fn(array $channel) => new Channel($channel['id'], $channel['name']));
     }
 }
