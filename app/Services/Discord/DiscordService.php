@@ -10,6 +10,10 @@ class DiscordService
 {
     public function getChannels(): Collection
     {
+        if(!config('services.discord.bot_token') || ! config('services.discord.guild_id')) {
+            return new Collection();
+        }
+
         $channels = Http::withHeaders(['Authorization' => 'Bot ' . config('services.discord.bot_token')])->get(
             'https://discord.com/api/guilds/' . config('services.discord.guild_id') . '/channels'
         )->json();
