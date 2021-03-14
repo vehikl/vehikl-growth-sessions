@@ -43,7 +43,7 @@ class CommentsTest extends TestCase
         $this->actingAs($targetComment->user)
             ->deleteJson(
                 route('growth_sessions.comments.destroy', [
-                        'social_mob' => $targetComment->growthSession,
+                        'growth_session' => $targetComment->growthSession,
                         'comment' => $targetComment
                     ]))
             ->assertJsonMissing(['attendee_limit' => GrowthSession::NO_LIMIT]);

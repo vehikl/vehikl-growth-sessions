@@ -33,7 +33,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-        Route::model('social_mob', GrowthSession::class);
+        Route::model('growth_session', GrowthSession::class);
     }
 
     /**
