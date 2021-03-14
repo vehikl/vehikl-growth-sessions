@@ -21,6 +21,7 @@ class DiscordServiceTest extends TestCase
         parent::setUp();
         config(['services.discord.guild_id' => $this->fakeDiscordGuildId]);
         config(['services.discord.vidya_id' => $this->fakeVidyaCategoryId]);
+        config(['services.discord.bot_token' => 'fake-bot-token']);
     }
 
     public function testItCanBePulledFromTheApplicationContainer(): void
@@ -98,5 +99,18 @@ class DiscordServiceTest extends TestCase
         $channels->each(function (Channel $channel) use ($channelsFixture) {
             $this->assertNotEquals($channelsFixture[2]['id'], $channel->id);
         });
+    }
+
+    public function testItReturnsEmptyIfTheDiscordCredentialsAreNotSet(): void
+    {
+        config(['services.discord.guild_id' => null]);
+        config(['services.discord.vidya_id' => null]);
+        config(['services.discord.bot_token' => null]);
+
+        $discord = new DiscordService();
+
+        $channels = $discord->getChannels();
+
+        $this->assertEmpty($channels);
     }
 }
