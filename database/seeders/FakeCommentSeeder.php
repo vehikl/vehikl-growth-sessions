@@ -12,7 +12,7 @@ class FakeCommentSeeder extends Seeder
     {
         GrowthSession::all()->each(fn($growthSession) => Comment::factory()
             ->times(random_int(0, 3))
-            ->create(['social_mob_id' => $growthSession->id])
+            ->create(['growth_session_id' => $growthSession->id])
         );
     }
 }

@@ -50,7 +50,7 @@ export class GrowthSessionApi extends BaseApi {
     }
 
     static async deleteComment(comment: IComment): Promise<GrowthSession> {
-        let response = await BaseApi.httpRequest.delete(`/${growthSessionResource}/${comment.social_mob_id}/comments/${comment.id}`);
+        let response = await BaseApi.httpRequest.delete(`/${growthSessionResource}/${comment.growth_session_id}/comments/${comment.id}`);
         return new GrowthSession(response.data);
     }
 

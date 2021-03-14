@@ -25,7 +25,7 @@
     "comments": [
         {
             "id": 7,
-            "social_mob_id": 1,
+            "growth_session_id": 1,
             "user_id": "6",
             "content": "A last comment",
             "created_at": "2020-06-13T17:53:57.000000Z",
@@ -44,7 +44,7 @@
         },
         {
             "id": 6,
-            "social_mob_id": 1,
+            "growth_session_id": 1,
             "user_id": "6",
             "content": "This comment\n\nIs very special",
             "created_at": "2020-06-13T17:50:27.000000Z",
@@ -63,7 +63,7 @@
         },
         {
             "id": 4,
-            "social_mob_id": 1,
+            "growth_session_id": 1,
             "user_id": "6",
             "content": "I like this",
             "created_at": "2020-06-13T17:42:30.000000Z",
@@ -82,7 +82,7 @@
         },
         {
             "id": 3,
-            "social_mob_id": 1,
+            "growth_session_id": 1,
             "user_id": "6",
             "content": "This is another comment",
             "created_at": "2020-06-13T17:26:18.000000Z",

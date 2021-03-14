@@ -15,7 +15,7 @@ class GrowthSessionTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->assertDatabaseMissing('social_mobs', [
+        $this->assertDatabaseMissing('growth_sessions', [
             'owner_id' => $user->id,
             'topic' => 'The fundamentals of foo',
             'title' => 'Foo',
@@ -32,7 +32,7 @@ class GrowthSessionTest extends TestCase
             'discord_channel_id' => '1234567890',
         ])->assertSuccessful();
 
-        $this->assertDatabaseHas('social_mobs', [
+        $this->assertDatabaseHas('growth_sessions', [
             'owner_id' => $user->id,
             'topic' => 'The fundamentals of foo',
             'title' => 'Foo',
