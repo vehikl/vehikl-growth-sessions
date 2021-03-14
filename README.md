@@ -59,12 +59,12 @@ Once that is set up:
 
 ```sh
 touch database/database.sqlite
-php artisan migrate && php artisan db:seed --class FakeDatabaseSeeder (To have some pre-made fake mobs in your calendar)
+php artisan migrate --seed (To have some pre-made fake mobs in your calendar)
 ```
 
-OBS: For production, the initial migration and seeding can be done with the following command
+OBS: For production, no seeding is needed, therefore you only need to run
 ```sh
-php artisan migrate --seed
+php artisan migrate
 ```
 
 ## Docker Setup
