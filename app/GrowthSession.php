@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class GrowthSession extends Model
 {
-    protected $table = 'social_mobs';
-
     use HasFactory;
 
     const NO_LIMIT = PHP_INT_MAX;
@@ -48,13 +46,12 @@ class GrowthSession extends Model
 
     public function attendees()
     {
-        return $this->belongsToMany(User::class, 'social_mob_user', 'social_mob_id');
+        return $this->belongsToMany(User::class);
     }
 
     public function comments()
     {
-        return $this->hasMany(Comment::class, 'social_mob_id')
-            ->orderByDesc('created_at');
+        return $this->hasMany(Comment::class)->orderByDesc('created_at');
     }
 
     public function setDateAttribute($value)

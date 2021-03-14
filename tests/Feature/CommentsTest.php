@@ -60,7 +60,7 @@ class CommentsTest extends TestCase
     public function testAGuestCanGetAllCommentsOfAGrowthSession()
     {
         $growthSession = GrowthSession::factory()->create();
-        $comments = Comment::factory()->times(4)->create(['social_mob_id' => $growthSession->id]);
+        $comments = Comment::factory()->times(4)->create(['growth_session_id' => $growthSession->id]);
 
         $this->getJson(route('growth_sessions.comments.index', $growthSession))->assertJson($comments->toArray());
     }

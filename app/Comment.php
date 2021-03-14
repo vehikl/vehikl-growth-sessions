@@ -4,7 +4,6 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\GrowthSession;
 
 class Comment extends Model
 {
@@ -15,7 +14,7 @@ class Comment extends Model
     protected $fillable = ['content'];
     protected $with = ['user'];
     protected $appends = ['time_stamp'];
-    protected $casts = ['social_mob_id' => 'int'];
+    protected $casts = ['growth_session_id' => 'int'];
 
     public function user()
     {
@@ -24,7 +23,7 @@ class Comment extends Model
 
     public function growthSession()
     {
-        return $this->belongsTo(GrowthSession::class, 'social_mob_id');
+        return $this->belongsTo(GrowthSession::class);
     }
 
     public function getTimeStampAttribute()
