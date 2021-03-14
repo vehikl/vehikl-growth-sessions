@@ -6,7 +6,7 @@ use App\Comment;
 use App\GrowthSession;
 use Illuminate\Database\Seeder;
 
-class FakeCommentSeeder extends Seeder
+class CommentSeeder extends Seeder
 {
     public function run()
     {
