@@ -51,8 +51,7 @@ class GrowthSession extends Model
 
     public function comments()
     {
-        return $this->hasMany(Comment::class, 'growth_session_id')
-            ->orderByDesc('created_at');
+        return $this->hasMany(Comment::class)->orderByDesc('created_at');
     }
 
     public function setDateAttribute($value)

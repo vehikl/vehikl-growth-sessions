@@ -23,7 +23,7 @@ class Comment extends Model
 
     public function growthSession()
     {
-        return $this->belongsTo(GrowthSession::class, 'growth_session_id');
+        return $this->belongsTo(GrowthSession::class);
     }
 
     public function getTimeStampAttribute()
