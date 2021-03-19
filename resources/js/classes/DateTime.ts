@@ -75,4 +75,8 @@ export class DateTime {
         const today: Moment = moment(DateTime.today().toDateString());
         return current.isBefore(today);
     }
+
+    isEvenDate() {
+        return this.weekDayNumber() % 2 === 0
+    }
 }

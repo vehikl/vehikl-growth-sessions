@@ -19,7 +19,7 @@
             </button>
         </div>
 
-        <div class="flex justify-center flex-wrap">
+        <div class="flex flex-col md:flex-row justify-center flex-wrap">
             <modal :dynamic="true" :height="600" :width="500" name="growth-session-form">
                 <div class="flex w-full h-full overflow-y-scroll">
                     <growth-session-form :growth-session="growthSessionToUpdate"
@@ -32,13 +32,19 @@
             <div v-for="date in growthSessions.weekDates"
                  :key="date.toDateString()"
                  :class="{
-                 'bg-blue-100': date.weekDayNumber() % 2 === 0,
-                 'bg-blue-200': date.weekDayNumber() % 2 !== 0,
-                 'hidden': !date.isToday()
+                 'bg-blue-100 border-blue-200': date.isEvenDate(),
+                 'bg-blue-200 border-blue-300': !date.isEvenDate(),
                  }"
                  :weekDay="date.weekDayString()"
-                 class="day text-center mx-1 mb-2 px-2 md:block">
-                <h3 class="text-lg text-blue-700 font-bold mt-6 mb-3" v-text="date.weekDayString()"></h3>
+                 class="day text-center mx-1 mb-2 relative rounded border">
+                <h3
+                    class="text-lg text-blue-700 font-bold p-3 md:pt-6 sticky top-0 w-full z-20 border-b md:border-b-0 rounded-t md:rounded-none mb-2 md:mb-0"
+                    v-text="date.weekDayString()"
+                    :class="{
+                     'bg-blue-100 border-blue-200': date.isEvenDate(),
+                     'bg-blue-200 border-blue-300': !date.isEvenDate(),
+                     }"
+                ></h3>
                 <div v-show="growthSessions.getSessionByDate(date).length === 0" class="text-blue-600 text-lg my-4">
                     <p v-text="`${Nothingator.random()}...`"/>
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
@@ -46,7 +52,7 @@
 
                 <draggable :date="date"
                            :list="growthSessions.getSessionByDate(date)"
-                           class="h-full w-full"
+                           class="h-full w-full px-2"
                            group="growth-sessions"
                            handle=".handle"
                            @change="onChange"
@@ -173,7 +179,11 @@ export default class WeekView extends Vue {
 
 <style lang="scss" scoped>
 .day {
-    width: 20rem;
-    min-height: 35rem;
+
+    min-height: 10rem;
+    @media (min-width: 768px) {
+        min-height: 35rem;
+        width: 20rem;
+    }
 }
 </style>
