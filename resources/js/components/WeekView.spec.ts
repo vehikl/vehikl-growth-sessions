@@ -69,17 +69,7 @@ describe('WeekView', () => {
         await flushPromises();
         let sevenDaysInTheFuture = DateTime.parseByDate(todayDate).addDays(7).toDateString();
         expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(sevenDaysInTheFuture);
-    });
-
-    it('shows only the current day in mobile devices', () => {
-        window = Object.assign(window, {innerWidth: 300, open: () => null});
-
-        let today = DateTime.today();
-        let tomorrow = DateTime.today().addDays(1);
-        expect(wrapper.find(`[weekDay=${today.weekDayString()}`).element).not.toHaveClass('hidden');
-        expect(wrapper.find(`[weekDay=${tomorrow.weekDayString()}`).element).toHaveClass('hidden');
-    });
-
+    })
 
     it('does not display the growth session creation buttons for guests', async () => {
         expect(wrapper.find('button.create-growth-session').exists()).toBe(false);
