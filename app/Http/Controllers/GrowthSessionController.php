@@ -24,7 +24,8 @@ class GrowthSessionController extends Controller
 
     public function week(Request $request)
     {
-        return new GrowthSessionWeek(GrowthSession::allInTheWeekOf($request->input('date')));
+        $sessions = $request->user() ? GrowthSession::allInTheWeekOf($request->input('date')) : [];
+        return new GrowthSessionWeek($sessions);
     }
 
     public function day()

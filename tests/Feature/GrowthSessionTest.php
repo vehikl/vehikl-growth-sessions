@@ -320,6 +320,28 @@ class GrowthSessionTest extends TestCase
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
     }
 
+    public function testItDoesNotShowGrowthSessionsOfASpecifiedWeekForAnonymousUser()
+    {
+        $this->setTestNow('2020-01-15');
+        $monday = CarbonImmutable::parse('Last Monday');
+        GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(2), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(8), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
+
+        $response = $this->getJson(route('growth_sessions.week'));
+
+        $response->assertSuccessful()
+            ->assertExactJson([
+                $monday->toDateString() => [],
+                $monday->addDays(1)->toDateString() => [],
+                $monday->addDays(2)->toDateString() => [],
+                $monday->addDays(3)->toDateString() => [],
+                $monday->addDays(4)->toDateString() => [],
+            ]);
+    }
+
     public function testItDoesNotProvideLocationOfAGrowthSessionForAnonymousUser()
     {
         $this->withoutExceptionHandling();

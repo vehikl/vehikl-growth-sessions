@@ -18,6 +18,7 @@ class GrowthSessionWeek extends ResourceCollection
      */
     public function toArray($request)
     {
+
         $requestedDate = $request->input('date', now()->toDateString());
         return $this->emptyWeek($requestedDate)->merge(collect(parent::toArray($request))->groupBy('date'))->toArray();
     }
