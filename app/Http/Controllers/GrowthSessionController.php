@@ -13,6 +13,7 @@ use App\Http\Requests\UpdateGrowthSessionRequest;
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
 use App\GrowthSession;
+use App\Policies\GrowthSessionPolicy;
 use Illuminate\Http\Request;
 
 class GrowthSessionController extends Controller
@@ -24,7 +25,10 @@ class GrowthSessionController extends Controller
 
     public function week(Request $request)
     {
-        $sessions = $request->user() ? GrowthSession::allInTheWeekOf($request->input('date')) : [];
+        $user = $request->user();
+        $sessions = GrowthSession::allInTheWeekOf($request->input('date'))->filter(function (GrowthSession $session) use ($user) {
+            return (new GrowthSessionPolicy())->view($user, $session);
+        });
         return new GrowthSessionWeek($sessions);
     }
 

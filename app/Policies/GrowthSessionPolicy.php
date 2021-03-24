@@ -20,8 +20,13 @@ class GrowthSessionPolicy
         return true;
     }
 
-    public function view(User $user, GrowthSession $growthSession)
+    public function view(?User $user, GrowthSession $growthSession)
     {
+        if ($user == null)
+        {
+            return false;
+        }
+
         return true;
     }
 
