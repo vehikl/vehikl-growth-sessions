@@ -22,7 +22,9 @@ class WebHooksTest extends TestCase
 
     public function testItHitsTheGrowthSessionDeletedTodayWebHookWheneverAGrowthSessionIsDeletedToday()
     {
-        $growthSession = GrowthSession::factory()->create(['date' => today()]);
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type' => User::OWNER], 'owners')
+            ->create(['date' => today()]);
         $user = $growthSession->owner;
         $this->actingAs($user)->deleteJson(route('growth_sessions.destroy', $growthSession))->assertSuccessful();
 
@@ -33,7 +35,9 @@ class WebHooksTest extends TestCase
 
     public function testItDoesNotHitTheGrowthSessionDeletedTodayWebHookIfTheGrowthSessionWasDeletedAtAnyOtherDay()
     {
-        $growthSession = GrowthSession::factory()->create(['date' => today()->addDay()]);
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type' => User::OWNER], 'owners')
+            ->create(['date' => today()->addDay()]);
         $user = $growthSession->owner;
         $this->actingAs($user)->deleteJson(route('growth_sessions.destroy', $growthSession))->assertSuccessful();
 
@@ -43,7 +47,9 @@ class WebHooksTest extends TestCase
     public function testItDoesNotHitTheWebHookIfTheHookIsNotDefined()
     {
         $this->disableHooks();
-        $growthSession = GrowthSession::factory()->create();
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type' => User::OWNER], 'owners')
+            ->create();
         $user = $growthSession->owner;
         $this->actingAs($user)->deleteJson(route('growth_sessions.destroy', $growthSession))->assertSuccessful();
 
@@ -55,7 +61,9 @@ class WebHooksTest extends TestCase
         Http::fake(function () {
             return Http::response('Oh no, the webhook failed! :(', Response::HTTP_INTERNAL_SERVER_ERROR);
         });
-        $growthSession = GrowthSession::factory()->create();
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type' => User::OWNER], 'owners')
+            ->create();
         $user = $growthSession->owner;
 
         $this->actingAs($user)
@@ -64,7 +72,9 @@ class WebHooksTest extends TestCase
 
     public function testItHitsTheGrowthSessionUpdatedTodayWebHookWheneverAGrowthSessionIsUpdatedToday()
     {
-        $growthSession = GrowthSession::factory()->create(['date' => today()]);
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type' => User::OWNER], 'owners')
+            ->create(['date' => today()]);
         $user = $growthSession->owner;
         $this->actingAs($user)->putJson(route('growth_sessions.update', $growthSession), ['topic' => 'new topic'])->assertSuccessful();
 
@@ -75,7 +85,9 @@ class WebHooksTest extends TestCase
 
     public function testItHitsTheUpdatedTodayWebHookIfAGrowthSessionChangedItsDateToToday()
     {
-        $growthSession = GrowthSession::factory()->create(['date' => today()->addDay()]);
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type' => User::OWNER], 'owners')
+            ->create(['date' => today()->addDay()]);
         $user = $growthSession->owner;
         $this->actingAs($user)->putJson(route('growth_sessions.update', $growthSession), ['date' => today()])->assertSuccessful();
 

@@ -34,4 +34,18 @@ class GrowthSessionFactory extends Factory
             'is_public' => true
         ];
     }
+
+//    public function configure()
+//    {
+//        return $this->afterCreating(function (GrowthSession $growthSession) {
+//            if ($growthSession->owner_id) {
+//                return;
+//            }
+//            // create a new user
+//            $user = User::factory()->create();
+//
+//            // attach it to the growth session
+//            $growthSession->owners()->attach($user);
+//        });
+//    }
 }

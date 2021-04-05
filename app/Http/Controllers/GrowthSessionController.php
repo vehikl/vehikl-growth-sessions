@@ -14,6 +14,7 @@ use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
 use App\GrowthSession;
 use App\Policies\GrowthSessionPolicy;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -43,11 +44,15 @@ class GrowthSessionController extends Controller
 
     public function store(StoreGrowthSessionRequest $request)
     {
-        $growthSession = $request->user()->growthSessions()->save(new GrowthSession ($request->validated()));
-        $growthSession->load(['owner', 'attendees', 'comments']);
-        event(new GrowthSessionCreated($growthSession));
+        $newGrowthSession = new GrowthSession ($request->validated());
+        $newGrowthSession->owner_id = $request->user()->id;
+        $newGrowthSession->save();
+        $request->user()->growthSessions()->attach($newGrowthSession, ['user_type' => User::OWNER]);
 
-        return $growthSession;
+        $newGrowthSession->fresh()->load(['attendees', 'comments']);
+        event(new GrowthSessionCreated($newGrowthSession));
+
+        return $newGrowthSession;
     }
 
     public function join(GrowthSession $growthSession, Request $request)

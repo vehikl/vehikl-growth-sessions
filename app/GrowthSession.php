@@ -12,7 +12,9 @@ class GrowthSession extends Model
     use HasFactory;
 
     const NO_LIMIT = PHP_INT_MAX;
-    protected $with = ['owner', 'attendees', 'comments'];
+    protected $with = ['attendees', 'comments'];
+
+    protected $appends = ['owner'];
 
     protected $casts = [
         'owner_id' => 'int',
@@ -41,14 +43,19 @@ class GrowthSession extends Model
         'attendee_limit' => self::NO_LIMIT,
     ];
 
-    public function owner()
+    public function getOwnerAttribute()
     {
-        return $this->belongsTo(User::class, 'owner_id');
+        return $this->owners()->first();
+    }
+
+    public function owners()
+    {
+        return $this->belongsToMany(User::class)->wherePivot('user_type', User::OWNER);
     }
 
     public function attendees()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->wherePivot('user_type', User::ATTENDEE);
     }
 
     public function comments()
