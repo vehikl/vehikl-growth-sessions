@@ -307,11 +307,11 @@ class GrowthSessionTest extends TestCase
     {
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
-        GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_vehikl_only' => true]);
-        GrowthSession::factory()->create(['date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4, 'is_vehikl_only' => true]);
-        GrowthSession::factory()->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_vehikl_only' => true]);
-        GrowthSession::factory()->create(['date' => $monday->addDays(3), 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_vehikl_only' => true]);
-        GrowthSession::factory()->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_vehikl_only' => true]);
+        GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_public' => false]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4, 'is_public' => false]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_public' => false]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(3), 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_public' => false]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_public' => false]);
 
         $response = $this->getJson(route('growth_sessions.week'));
 
@@ -330,7 +330,7 @@ class GrowthSessionTest extends TestCase
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
         GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
-        $isPublic = GrowthSession::factory()->create(['is_vehikl_only' => false, 'date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
+        $isPublic = GrowthSession::factory()->create(['is_public'=>true, 'date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
 
         $response = $this->getJson(route('growth_sessions.week'));
 
@@ -434,8 +434,8 @@ class GrowthSessionTest extends TestCase
 
         $user = User::factory()->create(['is_vehikl_member' => true]);
         $monday = CarbonImmutable::parse('Last Monday');
-        $vehiklOnlySession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_vehikl_only' => true]);
-        GrowthSession::factory()->create(['is_vehikl_only' => false, 'date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
+        $vehiklOnlySession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_public' => false]);
+        GrowthSession::factory()->create(['is_public'=>true, 'date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
 
         $response = $this->actingAs($user)->getJson(route('growth_sessions.week'));
 
@@ -448,10 +448,10 @@ class GrowthSessionTest extends TestCase
         // Create a session
         $user = User::factory()->create(['is_vehikl_member' => true]);
         $this->actingAs($user)->postJson(
-            route('growth_sessions.store'), $this->defaultParameters(['is_vehikl_only' => false]));
+            route('growth_sessions.store'), $this->defaultParameters(['is_public'=>true]));
 
         // check if the session is public
-        $this->assertFalse(GrowthSession::find(1)->is_vehikl_only);
+        $this->assertTrue(GrowthSession::find(1)->is_public);
     }
 
     /**

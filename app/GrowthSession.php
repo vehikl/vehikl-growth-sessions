@@ -20,7 +20,7 @@ class GrowthSession extends Model
         'end_time' => 'datetime:h:i a',
         'date' => 'datetime:Y-m-d',
         'attendee_limit' => 'int',
-        'is_vehikl_only' => 'bool'
+        'is_public' => 'bool'
     ];
 
     protected $fillable = [
@@ -33,7 +33,7 @@ class GrowthSession extends Model
         'owner_id',
         'attendee_limit',
         'discord_channel_id',
-        'is_vehikl_only',
+        'is_public',
     ];
 
     protected $attributes = [
@@ -69,11 +69,6 @@ class GrowthSession extends Model
     public function setEndTimeAttribute($value)
     {
         $this->attributes['end_time'] = Carbon::parse($value)->format('H:i');
-    }
-
-    public function getIsPubliclyAvailableAttribute(): bool
-    {
-        return ! $this->is_vehikl_only;
     }
 
     public static function allInTheWeekOf(?string $referenceDate)
