@@ -24,7 +24,7 @@ class GrowthSessionPolicy
     {
         if ($user == null)
         {
-            return false;
+            return !$growthSession->is_private;
         }
 
         return true;
