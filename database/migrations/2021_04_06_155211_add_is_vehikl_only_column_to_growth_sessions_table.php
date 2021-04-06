@@ -4,19 +4,19 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIsPrivateColumnToGrowthSessionsTable extends Migration
+class AddIsVehiklOnlyColumnToGrowthSessionsTable extends Migration
 {
     public function up()
     {
         Schema::table('growth_sessions', function (Blueprint $table) {
-            $table->boolean('is_private')->nullable()->default(true)->after('end_time');
+            $table->boolean('is_vehikl_only')->nullable()->default(true)->after('end_time');
         });
     }
 
     public function down()
     {
         Schema::table('growth_sessions', function (Blueprint $table) {
-            $table->dropColumn('is_private');
+            $table->dropColumn('is_vehikl_only');
         });
     }
 }

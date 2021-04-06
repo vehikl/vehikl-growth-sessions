@@ -209,7 +209,6 @@ class GrowthSessionTest extends TestCase
 
     public function testItCanProvideAllGrowthSessionsOfTheCurrentWeekForAuthenticatedUser()
     {
-        $this->withoutExceptionHandling();
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
 
@@ -304,15 +303,15 @@ class GrowthSessionTest extends TestCase
         $response->assertJson($expectedResponse);
     }
 
-    public function testItDoesNotShowPrivateGrowthSessionsOfASpecifiedWeekForAnonymousUser()
+    public function testItDoesNotShowVehiklOnlyGrowthSessionsOfASpecifiedWeekForAnonymousUser()
     {
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
-        GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
-        GrowthSession::factory()->create(['date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
-        GrowthSession::factory()->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
-        GrowthSession::factory()->create(['date' => $monday->addDays(3), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
-        GrowthSession::factory()->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
+        GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_vehikl_only' => true]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4, 'is_vehikl_only' => true]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_vehikl_only' => true]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(3), 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_vehikl_only' => true]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_vehikl_only' => true]);
 
         $response = $this->getJson(route('growth_sessions.week'));
 
@@ -331,7 +330,7 @@ class GrowthSessionTest extends TestCase
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
         GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
-        $isPublic = GrowthSession::factory()->create(['is_private' => false, 'date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
+        $isPublic = GrowthSession::factory()->create(['is_vehikl_only' => false, 'date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
 
         $response = $this->getJson(route('growth_sessions.week'));
 
