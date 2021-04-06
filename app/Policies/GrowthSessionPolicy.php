@@ -22,12 +22,7 @@ class GrowthSessionPolicy
 
     public function view(?User $user, GrowthSession $growthSession)
     {
-//        if ($user == null)
-//        {
-            return !$growthSession->is_vehikl_only;
-//        }
-
-//        return true;
+        return $growthSession->isPubliclyAvailable || optional($user)->is_vehikl_member;
     }
 
     public function create(User $user)

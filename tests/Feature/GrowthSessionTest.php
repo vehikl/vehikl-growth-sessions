@@ -428,6 +428,21 @@ class GrowthSessionTest extends TestCase
         $response->assertJson(['message' => 'The attendee limit has been reached.']);
     }
 
+    public function testVehiklUsersCanViewPrivateGrowthSessions()
+    {
+        $this->setTestNow('2020-01-15');
+
+        $user = User::factory()->create(['is_vehikl_member' => true]);
+        $monday = CarbonImmutable::parse('Last Monday');
+        $vehiklOnlySession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_vehikl_only' => true]);
+        GrowthSession::factory()->create(['is_vehikl_only' => false, 'date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
+
+        $response = $this->actingAs($user)->getJson(route('growth_sessions.week'));
+
+        $response->assertSuccessful()
+            ->assertJsonFragment(['id' => $vehiklOnlySession->id]);
+    }
+
     /**
      * @param int $expectedAttendeeLimit
      * @return array

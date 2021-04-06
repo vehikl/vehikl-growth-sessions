@@ -69,6 +69,11 @@ class GrowthSession extends Model
         $this->attributes['end_time'] = Carbon::parse($value)->format('H:i');
     }
 
+    public function getIsPubliclyAvailableAttribute(): bool
+    {
+        return ! $this->is_vehikl_only;
+    }
+
     public static function allInTheWeekOf(?string $referenceDate)
     {
         $referenceDate = CarbonImmutable::parse($referenceDate);
