@@ -443,6 +443,17 @@ class GrowthSessionTest extends TestCase
             ->assertJsonFragment(['id' => $vehiklOnlySession->id]);
     }
 
+    public function testAUserCanCreateAPubliclyAvailableGrowthSession()
+    {
+        // Create a session
+        $user = User::factory()->create(['is_vehikl_member' => true]);
+        $this->actingAs($user)->postJson(
+            route('growth_sessions.store'), $this->defaultParameters(['is_vehikl_only' => false]));
+
+        // check if the session is public
+        $this->assertFalse(GrowthSession::find(1)->is_vehikl_only);
+    }
+
     /**
      * @param int $expectedAttendeeLimit
      * @return array

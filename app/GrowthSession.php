@@ -19,7 +19,8 @@ class GrowthSession extends Model
         'start_time' => 'datetime:h:i a',
         'end_time' => 'datetime:h:i a',
         'date' => 'datetime:Y-m-d',
-        'attendee_limit' => 'int'
+        'attendee_limit' => 'int',
+        'is_vehikl_only' => 'bool'
     ];
 
     protected $fillable = [
@@ -32,6 +33,7 @@ class GrowthSession extends Model
         'owner_id',
         'attendee_limit',
         'discord_channel_id',
+        'is_vehikl_only',
     ];
 
     protected $attributes = [
