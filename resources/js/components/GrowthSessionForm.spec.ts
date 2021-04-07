@@ -101,7 +101,7 @@ describe('CreateGrowthSession', () => {
             wrapper.find('#topic').setValue(chosenTopic);
             wrapper.find('#location').setValue(chosenLocation);
 
-            if (! chosenLimit) {
+            if (!chosenLimit) {
                 wrapper.findComponent({ref: 'no-limit'}).trigger('click');
             }
 
@@ -109,8 +109,11 @@ describe('CreateGrowthSession', () => {
                 wrapper.findComponent({ref: 'attendee-limit'}).setValue(chosenLimit);
             }
 
-            if(discordChannel) {
-                wrapper.findComponent(vSelect).vm.$emit('input', {label: discordChannel.name, value: discordChannel.id});
+            if (discordChannel) {
+                wrapper.findComponent(vSelect).vm.$emit('input', {
+                    label: discordChannel.name,
+                    value: discordChannel.id
+                });
             }
 
             await wrapper.vm.$nextTick();
@@ -132,7 +135,7 @@ describe('CreateGrowthSession', () => {
                 delete expectedPayload.attendee_limit;
             }
 
-            expect(GrowthSessionApi.store).toHaveBeenCalledWith(expectedPayload);
+            expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining(expectedPayload));
         });
     });
 
@@ -220,5 +223,28 @@ describe('CreateGrowthSession', () => {
         await wrapper.vm.$nextTick();
 
         expect(locationInput.value).toBe(`Discord Channel: ${discordChannels[1].name}`);
+    })
+
+    it('allows users to create a public growth session', async () => {
+        const growthSessionInformation: IStoreGrowthSessionRequest = {
+            location: 'The growth session location',
+            topic: 'Chosen topic',
+            title: 'Chosen title',
+            date: startDate,
+            start_time: '4:45 pm',
+            is_public: true
+        };
+
+        wrapper.find('#title').setValue(growthSessionInformation.title);
+        wrapper.find('#topic').setValue(growthSessionInformation.topic);
+        wrapper.find('#location').setValue(growthSessionInformation.location);
+        wrapper.vm.$data.startTime = growthSessionInformation.start_time;
+        wrapper.findComponent({ref: 'is-public'}).trigger('click')
+
+        await wrapper.vm.$nextTick();
+
+        wrapper.findComponent({ref: 'submit-button'}).trigger('click')
+
+        expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining({is_public: true}));
     })
 });
