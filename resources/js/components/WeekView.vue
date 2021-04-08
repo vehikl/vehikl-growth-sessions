@@ -38,7 +38,7 @@
                  :weekDay="date.weekDayString()"
                  class="day text-center mx-1 mb-2 relative rounded border">
                 <h3
-                    class="text-lg text-blue-700 font-bold p-3 md:pt-6 sticky top-0 w-full z-20 border-b md:border-b-0 rounded-t md:rounded-none mb-2 md:mb-0"
+                    class="text-lg text-blue-700 font-bold p-3 md:pt-6 sticky sm:relative top-0 w-full z-20 border-b md:border-b-0 rounded-t md:rounded-none mb-2 md:mb-0"
                     v-text="date.weekDayString()"
                     :class="{
                      'bg-blue-100 border-blue-200': date.isEvenDate(),
