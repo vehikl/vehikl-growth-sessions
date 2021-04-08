@@ -18,6 +18,7 @@
                 class="mt-6 w-48 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 tabindex="6"
                 type="submit"
+                ref="submit-button"
                 v-text="isCreating? 'Create' : 'Update'">
             </button>
         </div>
@@ -68,7 +69,11 @@
         </div>
 
         <div class="mb-4 mt-6 flex items-center justify-between">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="title" @click="isLimitless = !isLimitless">
+            <label class="block text-gray-700 text-sm font-bold mb-2" v-if="isCreating">
+                <input ref="is-public" v-model="isPublic" type="checkbox"> Is Public
+            </label>
+
+            <label class="block text-gray-700 text-sm font-bold mb-2" @click="isLimitless = !isLimitless">
                 <input ref="no-limit" v-model="isLimitless" type="checkbox"> No Limit
             </label>
 
@@ -150,6 +155,7 @@ import {IDropdownOption} from "../types/IDropdownOption";
         attendeeLimit: number = 4;
         topic: string = '';
         date: string = '';
+        isPublic: boolean = false;
         validationErrors: IValidationError | null = null;
         isLimitless: boolean = false;
         discordChannel: IDropdownOption = {value: '', label: ''};
@@ -244,6 +250,7 @@ import {IDropdownOption} from "../types/IDropdownOption";
                 date: this.date,
                 start_time: this.startTime,
                 end_time: this.endTime,
+                is_public: this.isPublic,
                 attendee_limit: this.isLimitless ? undefined : this.attendeeLimit,
                 discord_channel_id: this.discordChannel.value || undefined,
             }

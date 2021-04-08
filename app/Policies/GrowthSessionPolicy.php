@@ -20,9 +20,9 @@ class GrowthSessionPolicy
         return true;
     }
 
-    public function view(User $user, GrowthSession $growthSession)
+    public function view(?User $user, GrowthSession $growthSession)
     {
-        return true;
+        return $growthSession->is_public || optional($user)->is_vehikl_member;
     }
 
     public function create(User $user)

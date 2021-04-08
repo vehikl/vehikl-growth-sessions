@@ -9,6 +9,7 @@ import {DateTime} from '../classes/DateTime';
 import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 import {GrowthSession} from '../classes/GrowthSession';
 import {Nothingator} from '../classes/Nothingator';
+import {DiscordChannelApi} from "../services/DiscordChannelApi";
 
 const authUser: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -39,6 +40,7 @@ describe('WeekView', () => {
         GrowthSessionApi.join = jest.fn().mockImplementation(growthSession => growthSession);
         GrowthSessionApi.leave = jest.fn().mockImplementation(growthSession => growthSession);
         GrowthSessionApi.delete = jest.fn().mockImplementation(growthSession => growthSession);
+        DiscordChannelApi.index = jest.fn();
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
     });

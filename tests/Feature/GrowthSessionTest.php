@@ -209,7 +209,6 @@ class GrowthSessionTest extends TestCase
 
     public function testItCanProvideAllGrowthSessionsOfTheCurrentWeekForAuthenticatedUser()
     {
-        $this->withoutExceptionHandling();
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
 
@@ -304,20 +303,39 @@ class GrowthSessionTest extends TestCase
         $response->assertJson($expectedResponse);
     }
 
-    public function testItDoesNotProvideLocationOfAllGrowthSessionsOfASpecifiedWeekForAnonymousUser()
+    public function testItDoesNotShowVehiklOnlyGrowthSessionsOfASpecifiedWeekForAnonymousUser()
+    {
+        $this->setTestNow('2020-01-15');
+        $monday = CarbonImmutable::parse('Last Monday');
+        GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_public' => false]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4, 'is_public' => false]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_public' => false]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(3), 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_public' => false]);
+        GrowthSession::factory()->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_public' => false]);
+
+        $response = $this->getJson(route('growth_sessions.week'));
+
+        $response->assertSuccessful()
+            ->assertExactJson([
+                $monday->toDateString() => [],
+                $monday->addDays(1)->toDateString() => [],
+                $monday->addDays(2)->toDateString() => [],
+                $monday->addDays(3)->toDateString() => [],
+                $monday->addDays(4)->toDateString() => [],
+            ]);
+    }
+
+    public function testItShowsPublicGrowthSessionsToAnonymousUsers()
     {
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
         GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
-        GrowthSession::factory()->create(['date' => $monday->addDays(2), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
-        GrowthSession::factory()->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
-        GrowthSession::factory()->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
-        GrowthSession::factory()->create(['date' => $monday->addDays(8), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
+        $isPublic = GrowthSession::factory()->create(['is_public'=>true, 'date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
 
         $response = $this->getJson(route('growth_sessions.week'));
 
-        $response->assertSuccessful();
-        $response->assertDontSee('At AnyDesk XYZ - abcdefg');
+        $response->assertSuccessful()
+            ->assertJsonFragment(['id' => $isPublic->id]);
     }
 
     public function testItDoesNotProvideLocationOfAGrowthSessionForAnonymousUser()
@@ -408,6 +426,32 @@ class GrowthSessionTest extends TestCase
 
         $response->assertStatus(Response::HTTP_BAD_REQUEST);
         $response->assertJson(['message' => 'The attendee limit has been reached.']);
+    }
+
+    public function testVehiklUsersCanViewPrivateGrowthSessions()
+    {
+        $this->setTestNow('2020-01-15');
+
+        $user = User::factory()->create(['is_vehikl_member' => true]);
+        $monday = CarbonImmutable::parse('Last Monday');
+        $vehiklOnlySession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4, 'is_public' => false]);
+        GrowthSession::factory()->create(['is_public'=>true, 'date' => $monday->addDays(1), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
+
+        $response = $this->actingAs($user)->getJson(route('growth_sessions.week'));
+
+        $response->assertSuccessful()
+            ->assertJsonFragment(['id' => $vehiklOnlySession->id]);
+    }
+
+    public function testAUserCanCreateAPubliclyAvailableGrowthSession()
+    {
+        // Create a session
+        $user = User::factory()->create(['is_vehikl_member' => true]);
+        $this->actingAs($user)->postJson(
+            route('growth_sessions.store'), $this->defaultParameters(['is_public'=>true]));
+
+        // check if the session is public
+        $this->assertTrue(GrowthSession::find(1)->is_public);
     }
 
     /**
