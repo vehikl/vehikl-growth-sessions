@@ -9,7 +9,7 @@ class AddIsVehiklOnlyColumnToGrowthSessionsTable extends Migration
     public function up()
     {
         Schema::table('growth_sessions', function (Blueprint $table) {
-            $table->boolean('is_public')->nullable()->default(false)->after('end_time');
+            $table->boolean('is_public')->default(false)->after('end_time');
         });
     }
 
