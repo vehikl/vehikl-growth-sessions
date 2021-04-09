@@ -21,6 +21,8 @@ class GrowthSession extends JsonResource
         for ($i = 0; $i < count($attributes['attendees'] ?? []); $i++) {
             if (! $attributes['attendees'][$i]['is_vehikl_member']) {
                 $attributes['attendees'][$i]['name'] = 'Guest';
+                $attributes['attendees'][$i]['avatar'] = asset('images/guest-avatar.webp');
+                $attributes['attendees'][$i]['github_nickname'] = '';
             }
         }
 
