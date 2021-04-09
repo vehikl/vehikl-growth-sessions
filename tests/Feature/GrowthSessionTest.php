@@ -357,7 +357,7 @@ class GrowthSessionTest extends TestCase
         $monday = CarbonImmutable::parse('Last Monday');
         $growthSession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);
 
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_vehikl_member' => false]);
         $response = $this->actingAs($user)->get(route('growth_sessions.show', $growthSession));
 
         $response->assertSuccessful();
@@ -473,6 +473,19 @@ class GrowthSessionTest extends TestCase
 
         $this->get(route('growth_sessions.show', $growthSession))
             ->assertNotFound();
+    }
+
+    public function testAMemberCanAccessAPrivateGrowthSession()
+    {
+        // Create a session
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+
+        $user = User::factory()->create(['is_vehikl_member' => true]);
+
+        $this->actingAs($user)
+            ->get(route('growth_sessions.show', $growthSession))
+            ->assertSuccessful()
+            ->assertSee($growthSession->title);
     }
 
     /**
