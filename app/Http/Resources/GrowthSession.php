@@ -18,6 +18,12 @@ class GrowthSession extends JsonResource
             $attributes['attendee_limit'] = null;
         }
 
+        for ($i = 0; $i < count($attributes['attendees'] ?? []); $i++) {
+            if (! $attributes['attendees'][$i]['is_vehikl_member']) {
+                $attributes['attendees'][$i]['name'] = 'Guest';
+            }
+        }
+
         return $attributes;
     }
 

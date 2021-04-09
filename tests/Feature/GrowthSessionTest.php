@@ -503,4 +503,18 @@ class GrowthSessionTest extends TestCase
             'discord_channel' => null,
         ], $params);
     }
+
+    /** @test */
+    public function itCanShowGuestForNonVehiklUsers()
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->create();
+
+        $this->actingAs($vehiklMember)->get(route('growth_sessions.show', $growthSession))
+            ->assertSee('Guest');
+    }
+
 }

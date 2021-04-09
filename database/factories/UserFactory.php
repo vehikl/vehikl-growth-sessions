@@ -15,6 +15,13 @@ class UserFactory extends Factory
      */
     protected $model = User::class;
 
+    public function vehiklMember(bool $vehiklMember = true)
+    {
+        return $this->state([
+            'is_vehikl_member' => $vehiklMember
+        ]);
+    }
+
     /**
      * Define the model's default state.
      *
