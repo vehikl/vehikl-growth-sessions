@@ -15,11 +15,15 @@ use App\Http\Resources\GrowthSessionWeek;
 use App\GrowthSession;
 use App\Policies\GrowthSessionPolicy;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class GrowthSessionController extends Controller
 {
     public function show(GrowthSession $growthSession)
     {
+        // if the user is not allowed to view the growth session then return 404
+        abort_unless((new GrowthSessionPolicy())->view(request()->user(), $growthSession), Response::HTTP_NOT_FOUND);
+
         return view('growth-session', ['growthSession' => new GrowthSessionResource($growthSession)]);
     }
 

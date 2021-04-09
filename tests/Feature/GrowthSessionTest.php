@@ -454,6 +454,27 @@ class GrowthSessionTest extends TestCase
         $this->assertTrue(GrowthSession::find(1)->is_public);
     }
 
+    public function testANonMemberUserCannotAccessAPrivateGrowthSession()
+    {
+        // Create a session
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+
+        $user = User::factory()->create(['is_vehikl_member' => false]);
+
+        $this->actingAs($user)
+            ->get(route('growth_sessions.show', $growthSession))
+            ->assertNotFound();
+    }
+
+    public function testAGuestCannotAccessAPrivateGrowthSession()
+    {
+        // Create a session
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+
+        $this->get(route('growth_sessions.show', $growthSession))
+            ->assertNotFound();
+    }
+
     /**
      * @param int $expectedAttendeeLimit
      * @return array
