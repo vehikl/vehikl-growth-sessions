@@ -3,5 +3,5 @@ export interface IUser {
     github_nickname: string;
     name: string;
     avatar: string;
-    is_vehikl_member?: boolean;
+    is_vehikl_member: boolean;
 }
