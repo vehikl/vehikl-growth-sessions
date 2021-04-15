@@ -87,7 +87,7 @@ class WebHooksTest extends TestCase
     public function testItHitsTheCreatedTodayWebHookIfAGrowthSessionWasCreatedForToday()
     {
         $this->setTestNow('2020-01-01T10:30:00.000');
-        $user = User::factory()->create();
+        $user = User::factory()->vehiklMember()->create();
         $growthSessionData = GrowthSession::factory()->make(['date' => today()])->toArray();
         $this->actingAs($user)->postJson(route('growth_sessions.store'), $growthSessionData)->assertSuccessful();
 
@@ -137,7 +137,7 @@ class WebHooksTest extends TestCase
         $this->setTestNow("2020-01-01 {$requestTime}");
         Config::set('webhooks.start_time', $startTime);
         Config::set('webhooks.end_time', $endTime);
-        $user = User::factory()->create();
+        $user = User::factory()->vehiklMember()->create();
         $growthSessionData = GrowthSession::factory()->make(['date' => today()])->toArray();
 
         $growthSession = $this->actingAs($user)
@@ -162,7 +162,7 @@ class WebHooksTest extends TestCase
 
     public function testItIncludesTheOwnerInformationOnThePayload()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->vehiklMember()->create();
         $growthSessionData = GrowthSession::factory()->make(['date' => today()])->toArray();
         $this->actingAs($user)->postJson(route('growth_sessions.store'), $growthSessionData)->assertSuccessful();
 

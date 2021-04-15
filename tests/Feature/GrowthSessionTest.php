@@ -11,36 +11,6 @@ use Tests\TestCase;
 
 class GrowthSessionTest extends TestCase
 {
-    public function testAnAuthenticatedUserCanCreateAGrowthSession()
-    {
-        $user = User::factory()->create();
-
-        $this->assertDatabaseMissing('growth_sessions', [
-            'owner_id' => $user->id,
-            'topic' => 'The fundamentals of foo',
-            'title' => 'Foo',
-            'location' => 'At the central mobbing area',
-            'discord_channel_id' => '1234567890',
-        ]);
-
-        $this->actingAs($user)->postJson(route('growth_sessions.store'), [
-            'topic' => 'The fundamentals of foo',
-            'title' => 'Foo',
-            'location' => 'At the central mobbing area',
-            'start_time' => now()->format('h:i a'),
-            'date' => today(),
-            'discord_channel_id' => '1234567890',
-        ])->assertSuccessful();
-
-        $this->assertDatabaseHas('growth_sessions', [
-            'owner_id' => $user->id,
-            'topic' => 'The fundamentals of foo',
-            'title' => 'Foo',
-            'location' => 'At the central mobbing area',
-            'discord_channel_id' => '1234567890',
-        ]);
-    }
-
     public function testTheOwnerOfAGrowthSessionCanEditIt()
     {
         $growthSession = GrowthSession::factory()->create();
@@ -450,7 +420,7 @@ class GrowthSessionTest extends TestCase
 
     public function testAnAttendeeLimitCanBeSetWhenCreatingAtGrowthSession()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->vehiklMember()->create();
 
         $expectedAttendeeLimit = 420;
         $this->actingAs($user)->postJson(
@@ -463,10 +433,10 @@ class GrowthSessionTest extends TestCase
 
     public function testAnAttendeeLimitCannotBeLessThanFour()
     {
-        $user = User::factory()->create();
+        $vehiklMember = User::factory()->vehiklMember()->create();
 
         $expectedAttendeeLimit = 3;
-        $this->actingAs($user)->postJson(
+        $this->actingAs($vehiklMember)->postJson(
             route('growth_sessions.store'),
             $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
         )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
@@ -493,7 +463,7 @@ class GrowthSessionTest extends TestCase
     {
         $this->setTestNow('2020-01-15');
 
-        $user = User::factory()->create(['is_vehikl_member' => true]);
+        $vehiklMember = User::factory()->vehiklMember()->create();
         $monday = CarbonImmutable::parse('Last Monday');
         $vehiklOnlySession = GrowthSession::factory()->create([
             'date' => $monday,
@@ -508,7 +478,7 @@ class GrowthSessionTest extends TestCase
             'attendee_limit' => 4
         ]);
 
-        $response = $this->actingAs($user)->getJson(route('growth_sessions.week'));
+        $response = $this->actingAs($vehiklMember)->getJson(route('growth_sessions.week'));
 
         $response->assertSuccessful()
             ->assertJsonFragment(['id' => $vehiklOnlySession->id]);
@@ -594,4 +564,29 @@ class GrowthSessionTest extends TestCase
             ->assertDontSee($guestMember->github_nickname);
     }
 
+    /** @test */
+    public function vehiklMembersCanCreateAGrowthSession(): void
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+        $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
+
+        $this->actingAs($vehiklMember)
+            ->post(route('growth_sessions.store'), $growthSessionsAttributes)
+            ->assertSuccessful();
+
+        $this->assertNotEmpty(GrowthSession::query()->where('title', $growthSessionsAttributes['title'])->first());
+    }
+
+    /** @test */
+    public function nonVehiklMembersCannotCreateAGrowthSession(): void
+    {
+        $vehiklMember = User::factory()->create();
+        $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
+
+        $this->actingAs($vehiklMember)
+            ->post(route('growth_sessions.store'), $growthSessionsAttributes)
+            ->assertForbidden();
+
+        $this->assertEmpty(GrowthSession::query()->where('title', $growthSessionsAttributes['title'])->first());
+    }
 }

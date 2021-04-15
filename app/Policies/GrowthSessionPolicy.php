@@ -27,7 +27,7 @@ class GrowthSessionPolicy
 
     public function create(User $user)
     {
-        return true;
+        return $user->is_vehikl_member;
     }
 
     public function update(User $user, GrowthSession $growthSession)
