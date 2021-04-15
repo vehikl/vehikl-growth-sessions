@@ -8,7 +8,6 @@ describe('GrowthSession', () => {
     const owner: IUser = {
         id: 0,
         avatar: "",
-        email: "john@doe.test",
         name: "John Doe",
         github_nickname: "johnjohn"
     };
@@ -49,16 +48,16 @@ describe('GrowthSession', () => {
     describe('canJoin', () => {
         it('prevents joining when limit reached', () => {
             const growthSession: GrowthSession = new GrowthSession({...growthSessionJson, attendees: [], date: '2099-01-01', attendee_limit: 1 })
-            growthSession.attendees.push(new User({id: 2, name: "John Doe", email: "j.doe@example.com", github_nickname: 'jdoe', avatar: "http://example.com/jdoe"}));
-            const someUser: IUser = {id: 3, name: "Jane Doe", github_nickname: 'jdoe', email: "jane.doe@example.com", avatar: "http://example.com/janedoe"}
+            growthSession.attendees.push(new User({id: 2, name: "John Doe", github_nickname: 'jdoe', avatar: "http://example.com/jdoe"}));
+            const someUser: IUser = {id: 3, name: "Jane Doe", github_nickname: 'jdoe', avatar: "http://example.com/janedoe"}
 
             expect(growthSession.canJoin(someUser)).toBe(false);
         });
 
         it('allows joining when limit has not been reached', () => {
             const growthSession: GrowthSession = new GrowthSession({...growthSessionJson, attendees: [], date: '2099-01-01', attendee_limit: 2 })
-            growthSession.attendees.push(new User({id: 2, name: "John Doe", email: "j.doe@example.com",  github_nickname: 'jdoe', avatar: "http://example.com/jdoe"}));
-            const someUser: IUser = {id: 3, name: "Jane Doe", github_nickname: 'jdoe', email: "jane.doe@example.com", avatar: "http://example.com/janedoe"}
+            growthSession.attendees.push(new User({id: 2, name: "John Doe",  github_nickname: 'jdoe', avatar: "http://example.com/jdoe"}));
+            const someUser: IUser = {id: 3, name: "Jane Doe", github_nickname: 'jdoe', avatar: "http://example.com/janedoe"}
 
             expect(growthSession.canJoin(someUser)).toBe(true);
         });
