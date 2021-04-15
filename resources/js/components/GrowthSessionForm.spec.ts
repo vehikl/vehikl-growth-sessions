@@ -14,7 +14,8 @@ const user: IUser = {
     avatar: 'lastAirBender.jpg',
     github_nickname: 'jackjack',
     id: 987,
-    name: 'Jack Bauer'
+    name: 'Jack Bauer',
+    is_vehikl_member: true,
 };
 const discordChannels: Array<IDiscordChannel> = [
     {

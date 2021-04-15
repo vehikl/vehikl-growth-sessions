@@ -9,7 +9,8 @@ describe('GrowthSession', () => {
         id: 0,
         avatar: "",
         name: "John Doe",
-        github_nickname: "johnjohn"
+        github_nickname: "johnjohn",
+        is_vehikl_member: true
     };
 
     const growthSessionJson: IGrowthSession = {
@@ -48,16 +49,16 @@ describe('GrowthSession', () => {
     describe('canJoin', () => {
         it('prevents joining when limit reached', () => {
             const growthSession: GrowthSession = new GrowthSession({...growthSessionJson, attendees: [], date: '2099-01-01', attendee_limit: 1 })
-            growthSession.attendees.push(new User({id: 2, name: "John Doe", github_nickname: 'jdoe', avatar: "http://example.com/jdoe"}));
-            const someUser: IUser = {id: 3, name: "Jane Doe", github_nickname: 'jdoe', avatar: "http://example.com/janedoe"}
+            growthSession.attendees.push(new User({id: 2, name: "John Doe", github_nickname: 'jdoe', is_vehikl_member: true, avatar: "http://example.com/jdoe"}));
+            const someUser: IUser = {id: 3, name: "Jane Doe", is_vehikl_member:true, github_nickname: 'jdoe', avatar: "http://example.com/janedoe"}
 
             expect(growthSession.canJoin(someUser)).toBe(false);
         });
 
         it('allows joining when limit has not been reached', () => {
             const growthSession: GrowthSession = new GrowthSession({...growthSessionJson, attendees: [], date: '2099-01-01', attendee_limit: 2 })
-            growthSession.attendees.push(new User({id: 2, name: "John Doe",  github_nickname: 'jdoe', avatar: "http://example.com/jdoe"}));
-            const someUser: IUser = {id: 3, name: "Jane Doe", github_nickname: 'jdoe', avatar: "http://example.com/janedoe"}
+            growthSession.attendees.push(new User({id: 2, name: "John Doe",  github_nickname: 'jdoe', avatar: "http://example.com/jdoe", is_vehikl_member: true}));
+            const someUser: IUser = {id: 3, name: "Jane Doe", github_nickname: 'jdoe', is_vehikl_member: true, avatar: "http://example.com/janedoe"}
 
             expect(growthSession.canJoin(someUser)).toBe(true);
         });

@@ -9,21 +9,24 @@ const ownerOfTheGrowthSession: IUser = {
     name: 'Jack Bauer',
     github_nickname: 'jackjack',
     id: 1,
-    avatar: 'theLastAirBender.jpg'
+    avatar: 'theLastAirBender.jpg',
+    is_vehikl_member: true,
 };
 
 const attendee: IUser = {
     name: 'Alice',
     github_nickname: 'alisss',
     id: 2,
-    avatar: 'avatar.jpg'
+    avatar: 'avatar.jpg',
+    is_vehikl_member: true,
 };
 
 const outsider: IUser = {
     name: 'Rudolf',
     github_nickname: 'deer123',
     id: 3,
-    avatar: 'avatar.jpg'
+    avatar: 'avatar.jpg',
+    is_vehikl_member: true,
 };
 
 const growthSessionData: GrowthSession = new GrowthSession({

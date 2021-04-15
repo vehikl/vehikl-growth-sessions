@@ -13,4 +13,11 @@ class UserTest extends TestCase
 
         $this->assertEmpty($user->toArray()['email'] ?? null);
     }
+
+    public function testItCastsIsVehiklMemberToBool()
+    {
+        $user = User::factory()->create();
+
+        $this->assertIsBool($user->is_vehikl_member);
+    }
 }

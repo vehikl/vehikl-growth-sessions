@@ -19,7 +19,8 @@
         "email": "boyer.grace@example.com",
         "email_verified_at": "2020-06-13T15:46:28.000000Z",
         "created_at": "2020-06-13T15:46:28.000000Z",
-        "updated_at": "2020-06-13T15:46:28.000000Z"
+        "updated_at": "2020-06-13T15:46:28.000000Z",
+        "is_vehikl_member": true
     },
     "attendees": [],
     "comments": [
@@ -37,6 +38,7 @@
                 "github_nickname": "commenter6",
                 "avatar": "https://avatarurl.test/pic.jpeg",
                 "email": "commenter@email.com",
+                "is_vehikl_member": true,
                 "email_verified_at": null,
                 "created_at": "2020-06-13T15:46:39.000000Z",
                 "updated_at": "2020-06-13T15:46:39.000000Z"
@@ -56,6 +58,7 @@
                 "github_nickname": "commenter6",
                 "avatar": "https://avatarurl.test/pic.jpeg",
                 "email": "commenter@email.com",
+                "is_vehikl_member": true,
                 "email_verified_at": null,
                 "created_at": "2020-06-13T15:46:39.000000Z",
                 "updated_at": "2020-06-13T15:46:39.000000Z"
@@ -75,6 +78,7 @@
                 "github_nickname": "commenter6",
                 "avatar": "https://avatarurl.test/pic.jpeg",
                 "email": "commenter@email.com",
+                "is_vehikl_member": true,
                 "email_verified_at": null,
                 "created_at": "2020-06-13T15:46:39.000000Z",
                 "updated_at": "2020-06-13T15:46:39.000000Z"
@@ -94,6 +98,7 @@
                 "github_nickname": "commenter6",
                 "avatar": "https://avatarurl.test/pic.jpeg",
                 "email": "commenter@email.com",
+                "is_vehikl_member": true,
                 "email_verified_at": null,
                 "created_at": "2020-06-13T15:46:39.000000Z",
                 "updated_at": "2020-06-13T15:46:39.000000Z"

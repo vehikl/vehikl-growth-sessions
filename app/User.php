@@ -29,6 +29,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+//        'is_vehikl_member' => 'boolean',
     ];
 
     public function growthSessions()
