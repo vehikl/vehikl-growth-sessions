@@ -69,7 +69,7 @@
                     </div>
 
                     <button
-                        v-if="user && ! date.isInAPastDate()"
+                        v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
                         class="create-growth-session text-5xl h-20 w-20 text-blue-600 hover:text-blue-700 focus:text-blue-700 font-bold my-3"
                         @click="onCreateNewGrowthSessionClicked(date)">
                         <i aria-hidden="true" class="fa fa-plus-circle"></i>

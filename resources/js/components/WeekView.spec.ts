@@ -11,12 +11,20 @@ import {GrowthSession} from '../classes/GrowthSession';
 import {Nothingator} from '../classes/Nothingator';
 import {DiscordChannelApi} from "../services/DiscordChannelApi";
 
-const authUser: IUser = {
+const authVehiklUser: IUser = {
     avatar: 'lastAirBender.jpg',
-    email: 'jack@bauer.com',
     github_nickname: 'jackjack',
     id: 987,
-    name: 'Jack Bauer'
+    name: 'Jack Bauer',
+    is_vehikl_member: true,
+};
+
+const authNonVehiklUser: IUser = {
+    avatar: 'yennefer.jpg',
+    github_nickname: 'geraltofrivia',
+    id: 1337,
+    name: 'Geralt of Rivia',
+    is_vehikl_member: false
 };
 
 const localVue = createLocalVue();
@@ -87,13 +95,24 @@ describe('WeekView', () => {
             .toContain(wordForNothing);
     });
 
-    describe('for an authenticated user', () => {
+    describe('for an authenticated non-vehikl user', () => {
         beforeEach(async () => {
-            wrapper = mount(WeekView, {localVue, propsData: {user: authUser}});
+            wrapper = mount(WeekView, {localVue, propsData: {user: authNonVehiklUser}});
             await flushPromises();
         });
 
-        it('allows the user to create a growth session', async () => {
+        it('does not display the growth session creation buttons for authed non-vehikl users', async () => {
+            expect(wrapper.find('button.create-growth-session').exists()).toBe(false);
+        });
+    });
+
+    describe('for an authenticated vehikl user', () => {
+        beforeEach(async () => {
+            wrapper = mount(WeekView, {localVue, propsData: {user: authVehiklUser}});
+            await flushPromises();
+        });
+
+        it('allows an authed vehikl user to create a growth session', async () => {
             wrapper.find('button.create-growth-session').trigger('click');
             await wrapper.vm.$nextTick();
 

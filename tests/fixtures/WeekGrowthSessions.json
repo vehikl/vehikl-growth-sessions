@@ -20,6 +20,7 @@
                 "avatar": "https:\/\/api.adorable.io\/avatars\/100\/1475344512",
                 "email": "kub.jayne@example.com",
                 "email_verified_at": "2020-01-15T05:00:00.000000Z",
+                "is_vehikl_member": true,
                 "created_at": "2020-01-15T05:00:00.000000Z",
                 "updated_at": "2020-01-15T05:00:00.000000Z"
             },
@@ -44,6 +45,7 @@
             "attendee_limit":  null,
             "owner": {
                 "id": 3,
+                "is_vehikl_member": true,
                 "github_nickname": "owner3",
                 "name": "Melody Considine",
                 "avatar": "https:\/\/api.adorable.io\/avatars\/100\/37827441",
@@ -70,6 +72,7 @@
             "attendee_limit":  null,
             "owner": {
                 "id": 2,
+                "is_vehikl_member": true,
                 "github_nickname": "owner2",
                 "name": "Prof. Katheryn Emard MD",
                 "avatar": "https:\/\/api.adorable.io\/avatars\/100\/569245729",
@@ -99,6 +102,7 @@
             "attendee_limit":  null,
             "owner": {
                 "id": 4,
+                "is_vehikl_member": true,
                 "github_nickname": "owner4",
                 "name": "Tamia Thompson",
                 "avatar": "https:\/\/api.adorable.io\/avatars\/100\/2117643461",

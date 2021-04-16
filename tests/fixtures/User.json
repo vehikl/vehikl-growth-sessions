@@ -6,5 +6,6 @@
     "email": "romaguera.judy@example.net",
     "email_verified_at": "2020-06-13T18:54:41.000000Z",
     "created_at": "2020-06-13T18:54:41.000000Z",
-    "updated_at": "2020-06-13T18:54:41.000000Z"
+    "updated_at": "2020-06-13T18:54:41.000000Z",
+    "is_vehikl_member": true
 }
