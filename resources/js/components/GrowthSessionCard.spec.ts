@@ -96,7 +96,7 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.find('.join-button').element).not.toBeVisible();
     });
 
-    xit('does display the join button if you are authenticated and not part of the growth session', () => {
+    it('does display the join button if you are authenticated and not part of the growth session', () => {
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: outsider}});
         expect(wrapper.find('.join-button').element).toBeVisible();
     });
