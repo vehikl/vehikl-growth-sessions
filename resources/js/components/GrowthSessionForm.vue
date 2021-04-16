@@ -69,7 +69,7 @@
         </div>
 
         <div class="mb-4 mt-6 flex items-center justify-between">
-            <label class="block text-gray-700 text-sm font-bold mb-2" v-if="isCreating">
+            <label class="block text-gray-700 text-sm font-bold mb-2" v-if="isCreating" @click="isPublic = !isPublic">
                 <input ref="is-public" v-model="isPublic" type="checkbox"> Is Public
             </label>
 

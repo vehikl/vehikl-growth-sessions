@@ -225,7 +225,7 @@ describe('CreateGrowthSession', () => {
         expect(locationInput.value).toBe(`Discord Channel: ${discordChannels[1].name}`);
     })
 
-    xit('allows users to create a public growth session', async () => {
+    it('allows users to create a public growth session', async () => {
         const growthSessionInformation: IStoreGrowthSessionRequest = {
             location: 'The growth session location',
             topic: 'Chosen topic',
