@@ -23,7 +23,6 @@ class GrowthSessionFactory extends Factory
     public function definition()
     {
         return [
-            'owner_id' => User::factory()->vehiklMember(),
             'title' => $this->faker->sentence(2),
             'topic' => $this->faker->sentence,
             'location' => 'At AnyDesk XYZ - abcdefg',
@@ -34,18 +33,4 @@ class GrowthSessionFactory extends Factory
             'is_public' => true
         ];
     }
-
-//    public function configure()
-//    {
-//        return $this->afterCreating(function (GrowthSession $growthSession) {
-//            if ($growthSession->owner_id) {
-//                return;
-//            }
-//            // create a new user
-//            $user = User::factory()->create();
-//
-//            // attach it to the growth session
-//            $growthSession->owners()->attach($user);
-//        });
-//    }
 }

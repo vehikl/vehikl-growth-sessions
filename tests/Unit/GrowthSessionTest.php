@@ -14,7 +14,6 @@ class GrowthSessionTest extends TestCase
     public function testItSetsEndTimeTo5PMByDefault()
     {
         $growthSession = new GrowthSession([
-            'owner_id' => User::factory()->create()->id,
             'start_time' => '15:30:00',
             'date' => '2020-01-01',
             'topic' => 'does not matter',
@@ -36,7 +35,6 @@ class GrowthSessionTest extends TestCase
     public function testItHasTheAttendeeLimitToMaxIntByDefault()
     {
         $growthSession = new GrowthSession([
-            'owner_id' => User::factory()->create()->id,
             'start_time' => '15:30:00',
             'date' => '2020-01-01',
             'topic' => 'does not matter',

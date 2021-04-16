@@ -17,7 +17,6 @@ class GrowthSession extends Model
     protected $appends = ['owner'];
 
     protected $casts = [
-        'owner_id' => 'int',
         'start_time' => 'datetime:h:i a',
         'end_time' => 'datetime:h:i a',
         'date' => 'datetime:Y-m-d',

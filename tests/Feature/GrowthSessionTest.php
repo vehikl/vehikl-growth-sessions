@@ -438,7 +438,6 @@ class GrowthSessionTest extends TestCase
 
     public function testAnAttendeeLimitCanBeSetWhenCreatingAtGrowthSession()
     {
-        $this->withoutExceptionHandling();
         $user = User::factory()->vehiklMember()->create();
 
         $expectedAttendeeLimit = 420;
