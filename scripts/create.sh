@@ -36,5 +36,4 @@ docker-compose run --rm yarn
 docker-compose run --rm yarn dev
 
 # Database stuff
-docker-compose run --rm artisan migrate
-docker-compose run --rm artisan db:seed --class FakeDatabaseSeeder
+docker-compose run --rm artisan migrate --seed
