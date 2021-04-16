@@ -14,7 +14,6 @@ class GrowthSessionTest extends TestCase
     public function testItSetsEndTimeTo5PMByDefault()
     {
         $growthSession = new GrowthSession([
-            'owner_id' => User::factory()->create()->id,
             'start_time' => '15:30:00',
             'date' => '2020-01-01',
             'topic' => 'does not matter',
@@ -36,7 +35,6 @@ class GrowthSessionTest extends TestCase
     public function testItHasTheAttendeeLimitToMaxIntByDefault()
     {
         $growthSession = new GrowthSession([
-            'owner_id' => User::factory()->create()->id,
             'start_time' => '15:30:00',
             'date' => '2020-01-01',
             'topic' => 'does not matter',
@@ -46,4 +44,25 @@ class GrowthSessionTest extends TestCase
 
         $this->assertEquals(GrowthSession::NO_LIMIT, $growthSession->fresh()->attendee_limit);
     }
+
+    public function testItCanGetAttendees()
+    {
+        $attendeeCount = 3;
+
+        $growthSession = GrowthSession::factory()
+            ->has(User::factory()->count($attendeeCount), 'attendees')
+            ->create();
+
+        $this->assertEquals($growthSession->attendees()->count(), $attendeeCount);
+    }
+
+    public function testItCanGetOwner()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type' => 'owner'], 'owners')
+            ->create();
+
+        $this->assertNotEmpty($growthSession->owner);
+    }
 }
+

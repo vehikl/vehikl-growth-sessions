@@ -23,7 +23,6 @@ class GrowthSessionFactory extends Factory
     public function definition()
     {
         return [
-            'owner_id' => User::factory()->vehiklMember(),
             'title' => $this->faker->sentence(2),
             'topic' => $this->faker->sentence,
             'location' => 'At AnyDesk XYZ - abcdefg',
