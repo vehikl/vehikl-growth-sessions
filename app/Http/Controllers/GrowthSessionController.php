@@ -7,12 +7,12 @@ use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionUpdated;
 use App\Exceptions\AttendeeLimitReached;
+use App\GrowthSession;
 use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreGrowthSessionRequest;
 use App\Http\Requests\UpdateGrowthSessionRequest;
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
-use App\GrowthSession;
 use App\Policies\GrowthSessionPolicy;
 use App\User;
 use Illuminate\Http\Request;
@@ -75,7 +75,9 @@ class GrowthSessionController extends Controller
 
     public function leave(GrowthSession $growthSession, Request $request)
     {
+        $growthSession->watchers()->detach($request->user());
         $growthSession->attendees()->detach($request->user());
+
         event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
 
         return $growthSession;

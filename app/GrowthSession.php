@@ -106,8 +106,13 @@ class GrowthSession extends Model
         return $query->whereDate('date', today()->toDateString());
     }
 
-    public function hasUser(User $user): bool
+    public function hasAttendee(User $attendee): bool
     {
-        return ! ! $this->attendees->find($user);
+        return ! ! $this->attendees->find($attendee);
+    }
+
+    public function hasWatcher(User $watcher): bool
+    {
+        return ! ! $this->watchers->find($watcher);
     }
 }

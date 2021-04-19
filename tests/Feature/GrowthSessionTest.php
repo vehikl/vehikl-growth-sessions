@@ -633,4 +633,21 @@ class GrowthSessionTest extends TestCase
 
         $this->assertTrue($growthSession->watchers()->first()->is($vehiklMember));
     }
+
+
+    /** @test */
+    public function allowsAUserToUnwatchAGrowthSession(): void
+    {
+        $watcher = User::factory()->vehiklMember()->create();
+        $growthSession = GrowthSession::factory()->create();
+        $growthSession->watchers()->attach($watcher, ['user_type' => User::WATCHER]);
+
+        $watcher = $growthSession->watchers()->first();
+
+        $this->actingAs($watcher)
+            ->post(route('growth_sessions.leave', $growthSession))
+            ->assertSuccessful();
+
+        $this->assertEmpty($growthSession->watchers);
+    }
 }
