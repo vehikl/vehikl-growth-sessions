@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Make sure mutagen is installed, or install it
+brew list mutagen || brew install mutagen-io/mutagen/mutagen
+
 realpath() {
     [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
