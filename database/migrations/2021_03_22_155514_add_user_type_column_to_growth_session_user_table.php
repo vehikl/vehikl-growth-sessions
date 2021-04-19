@@ -11,7 +11,7 @@ class AddUserTypeColumnToGrowthSessionUserTable extends Migration
     public function up()
     {
         Schema::table('growth_session_user', function (Blueprint $table) {
-            $table->enum('user_type', [User::OWNER, User::ATTENDEE])->default(User::ATTENDEE);
+            $table->enum('user_type', [User::OWNER, User::ATTENDEE, User::WATCHER])->default(User::ATTENDEE);
         });
     }
 

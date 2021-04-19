@@ -66,6 +66,13 @@ class GrowthSessionController extends Controller
         return $growthSession;
     }
 
+    public function watch(GrowthSession $growthSession, Request $request)
+    {
+        $growthSession->watchers()->attach($request->user(), ['user_type' => User::WATCHER]);
+
+        return $growthSession;
+    }
+
     public function leave(GrowthSession $growthSession, Request $request)
     {
         $growthSession->attendees()->detach($request->user());

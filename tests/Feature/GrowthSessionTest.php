@@ -620,4 +620,17 @@ class GrowthSessionTest extends TestCase
                 'attendees' => []
             ]);
     }
+
+    /** @test */
+    public function allowsAUserToWatchAGrowthSession(): void
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+        $growthSession = GrowthSession::factory()->create();
+
+        $this->actingAs($vehiklMember)
+            ->post(route('growth_sessions.watch', $growthSession))
+            ->assertSuccessful();
+
+        $this->assertTrue($growthSession->watchers()->first()->is($vehiklMember));
+    }
 }

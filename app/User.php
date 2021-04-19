@@ -10,6 +10,7 @@ class User extends Authenticatable
 {
     const OWNER = 'owner';
     const ATTENDEE = 'attendee';
+    const WATCHER = 'watcher';
 
     protected $table = 'users';
 
