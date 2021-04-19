@@ -598,13 +598,26 @@ class GrowthSessionTest extends TestCase
     /** @test */
     public function nonVehiklMembersCannotCreateAGrowthSession(): void
     {
-        $vehiklMember = User::factory()->create();
+        $nonVehiklMember = User::factory()->create();
         $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
 
-        $this->actingAs($vehiklMember)
+        $this->actingAs($nonVehiklMember)
             ->post(route('growth_sessions.store'), $growthSessionsAttributes)
             ->assertForbidden();
 
         $this->assertEmpty(GrowthSession::query()->where('title', $growthSessionsAttributes['title'])->first());
+    }
+
+    /** @test */
+    public function includesAttendeesInformationEvenForANewlyCreatedGrowthSession(): void
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+        $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
+
+        $this->actingAs($vehiklMember)
+            ->post(route('growth_sessions.store'), $growthSessionsAttributes)
+            ->assertJsonFragment([
+                'attendees' => []
+            ]);
     }
 }
