@@ -48,10 +48,10 @@ class GrowthSessionController extends Controller
         $newGrowthSession->save();
         $request->user()->growthSessions()->attach($newGrowthSession, ['user_type' => User::OWNER]);
 
-        $newGrowthSession->fresh()->load(['attendees', 'comments']);
+        $newGrowthSession->fresh();
         event(new GrowthSessionCreated($newGrowthSession));
 
-        return $newGrowthSession;
+        return new GrowthSessionResource($newGrowthSession);
     }
 
     public function join(GrowthSession $growthSession, Request $request)
