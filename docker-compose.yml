@@ -68,6 +68,8 @@ services:
     image: mysql:5.7
     container_name: growth-app-db
     restart: unless-stopped
+    ports:
+      - 13306:3306
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
