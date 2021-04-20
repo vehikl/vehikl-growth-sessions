@@ -53,3 +53,7 @@ docker-compose run --rm yarn dev
 
 # Database stuff
 docker-compose run --rm artisan migrate --seed
+
+# Run the tests
+docker compose run --rm phpunit
+docker compose run --rm jest
