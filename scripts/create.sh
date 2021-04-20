@@ -21,6 +21,7 @@ cd $PROJECT_PATH
 
 cp .env.example .env
 
+# Add github credentials
 GITHUB_CLIENT_ID=$(vault kv get -field=GITHUB_CLIENT_ID kv/growth-sessions)
 GITHUB_CLIENT_SECRET=$(vault kv get -field=GITHUB_CLIENT_SECRET kv/growth-sessions)
 
