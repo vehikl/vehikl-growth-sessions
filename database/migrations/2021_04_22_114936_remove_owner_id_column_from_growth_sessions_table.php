@@ -1,20 +1,19 @@
 <?php
 
+use App\UserType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class RemoveOwnerIdColumnFromGrowthSessionsTable extends Migration
-{
+class RemoveOwnerIdColumnFromGrowthSessionsTable extends Migration{
     public function up()
     {
-        // create users of type owner in the pivot table
         \App\GrowthSession::all()->each(function($growthsession) {
             DB::table('growth_session_user')->insert([
                 'growth_session_id' => $growthsession->id,
                 'user_id' => $growthsession->owner_id,
-                'user_type' => \App\User::OWNER
+                'user_type_id' => UserType::OWNER_ID
             ]);
         });
 
@@ -40,6 +39,6 @@ class RemoveOwnerIdColumnFromGrowthSessionsTable extends Migration
             $table->foreignId('owner_id')->nullable(false)->change();
         });
 
-        DB::table('growth_session_user')->where('user_type', \App\User::OWNER)->delete();
+        DB::table('growth_session_user')->where('user_type_id', UserType::OWNER_ID)->delete();
     }
 }

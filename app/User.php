@@ -8,9 +8,6 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    const OWNER = 'owner';
-    const ATTENDEE = 'attendee';
-
     protected $table = 'users';
 
     use Notifiable,
@@ -37,7 +34,7 @@ class User extends Authenticatable
 
     public function growthSessions()
     {
-        return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type', User::OWNER);
+        return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', UserType::OWNER_ID);
     }
 
     public function comments()

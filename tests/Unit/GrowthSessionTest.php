@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\GrowthSession;
 use App\User;
+use App\UserType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -59,7 +60,7 @@ class GrowthSessionTest extends TestCase
     public function testItCanGetOwner()
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type' => 'owner'], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
             ->create();
 
         $this->assertNotEmpty($growthSession->owner);

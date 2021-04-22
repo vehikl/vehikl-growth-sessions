@@ -52,11 +52,11 @@ class GrowthSessionPolicy
 
     public function join(User $user, GrowthSession $growthSession)
     {
-        return ! $growthSession->hasUser($user) && $this->isInTheFuture($growthSession);
+        return ! $growthSession->hasAttendee($user) && $this->isInTheFuture($growthSession);
     }
 
     public function leave(User $user, GrowthSession $growthSession)
     {
-        return $growthSession->hasUser($user) && $this->isInTheFuture($growthSession);
+        return ($growthSession->hasWatcher($user) || $growthSession->hasAttendee($user)) && $this->isInTheFuture($growthSession);
     }
 }

@@ -49,12 +49,17 @@ class GrowthSession extends Model
 
     public function owners()
     {
-        return $this->belongsToMany(User::class)->wherePivot('user_type', User::OWNER);
+        return $this->belongsToMany(User::class)->wherePivot('user_type_id', UserType::OWNER_ID);
     }
 
     public function attendees()
     {
-        return $this->belongsToMany(User::class)->wherePivot('user_type', User::ATTENDEE);
+        return $this->belongsToMany(User::class)->wherePivot('user_type_id', UserType::ATTENDEE_ID);
+    }
+
+    public function watchers()
+    {
+        return $this->belongsToMany(User::class)->wherePivot('user_type_id', UserType::WATCHER_ID);
     }
 
     public function comments()
@@ -101,8 +106,13 @@ class GrowthSession extends Model
         return $query->whereDate('date', today()->toDateString());
     }
 
-    public function hasUser(User $user): bool
+    public function hasAttendee(User $attendee): bool
     {
-        return ! ! $this->attendees->find($user);
+        return ! ! $this->attendees->find($attendee);
+    }
+
+    public function hasWatcher(User $watcher): bool
+    {
+        return ! ! $this->watchers->find($watcher);
     }
 }
