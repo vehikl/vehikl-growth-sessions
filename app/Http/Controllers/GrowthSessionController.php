@@ -15,6 +15,7 @@ use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
 use App\Policies\GrowthSessionPolicy;
 use App\User;
+use App\UserType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -46,7 +47,7 @@ class GrowthSessionController extends Controller
     {
         $newGrowthSession = new GrowthSession ($request->validated());
         $newGrowthSession->save();
-        $request->user()->growthSessions()->attach($newGrowthSession, ['user_type' => User::OWNER]);
+        $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::OWNER_ID]);
 
         $newGrowthSession->fresh();
         event(new GrowthSessionCreated($newGrowthSession));
@@ -60,7 +61,7 @@ class GrowthSessionController extends Controller
             throw new AttendeeLimitReached;
         }
 
-        $growthSession->attendees()->attach($request->user());
+        $growthSession->attendees()->attach($request->user(), ['user_type_id' => UserType::ATTENDEE_ID]);
         event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
 
         return $growthSession;
@@ -68,7 +69,7 @@ class GrowthSessionController extends Controller
 
     public function watch(GrowthSession $growthSession, Request $request)
     {
-        $growthSession->watchers()->attach($request->user(), ['user_type' => User::WATCHER]);
+        $growthSession->watchers()->attach($request->user(), ['user_type_id' => UserType::WATCHER_ID]);
 
         return $growthSession;
     }
