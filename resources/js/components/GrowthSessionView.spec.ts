@@ -2,9 +2,9 @@ import {mount, Wrapper} from "@vue/test-utils";
 import GrowthSessionView from "./GrowthSessionView.vue";
 import userJson from '../../../tests/fixtures/User.json';
 import growthSessionJson from '../../../tests/fixtures/GrowthSessionWithComments.json'
+import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json'
 import {User} from "../classes/User";
 import {IGrowthSession} from '../types';
-import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
 import {GrowthSession} from "../classes/GrowthSession";
 
 const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
@@ -53,5 +53,14 @@ describe('GrowthSessionView', () => {
             wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession, discordGuildId: '1234567890'}});
             expect(wrapper.find('a[href="discord://discordapp.com/channels/1234567890/1234567890"').exists()).toBeTruthy();
         })
+    });
+
+    it('prompts for confirmation when the owner clicks on the delete button', ()=> {
+        const owner = growthSessionJson.owner;
+        wrapper = mount(GrowthSessionView, {propsData: {userJson: owner, growthSessionJson}});
+        window.confirm = jest.fn();
+        wrapper.find('.delete-button').trigger('click');
+
+        expect(window.confirm).toHaveBeenCalled();
     });
 });
