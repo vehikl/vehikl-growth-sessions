@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent class="create-growth-session bg-white w-full p-4 text-left">
+    <form @submit.prevent class="create-growth-session edit-growth-session-form bg-white w-full p-4 text-left">
         <div class="mb-4 flex justify-between">
             <div>
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="date">

@@ -1,6 +1,15 @@
 <template>
     <div class="max-w-5xl text-blue-600">
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
+            <modal :dynamic="true" :height="600" :width="500" name="growth-session-form">
+                <div class="flex w-full h-full overflow-y-scroll">
+                    <growth-session-form :growth-session="growthSession"
+                                         :owner="growthSession.owner"
+                                         :start-date="growthSession.date"
+                                         class="growth-session-form"
+                                         @submitted="onGrowthSessionUpdated"/>
+                </div>
+            </modal>
             <h2 class="text-2xl lg:text-3xl font-sans font-light flex items-center text-blue-700">
                 <a :href="growthSession.owner.githubURL" ref="owner-avatar-link">
                     <v-avatar class="mr-4" :src="growthSession.owner.avatar"
@@ -23,7 +32,7 @@
                 </button>
                 <button
                     class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="editGrowthSession"
+                    @click.stop="$modal.show('growth-session-form')"
                     v-if="growthSession.canEditOrDelete(userJson)">
                     Edit
                 </button>
@@ -100,12 +109,12 @@ import {DateTime} from '../classes/DateTime';
 import {GrowthSession} from '../classes/GrowthSession';
 import VueTimepicker from 'vue2-timepicker';
 import Datepicker from 'vuejs-datepicker';
-import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import CommentList from './CommentList.vue';
 import VAvatar from './VAvatar.vue';
 import LocationRenderer from './LocationRenderer.vue';
+import GrowthSessionForm from "./GrowthSessionForm.vue";
 
-@Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker}})
+@Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker, GrowthSessionForm}})
 export default class GrowthSessionView extends Vue {
     @Prop({required: false}) userJson!: IUser;
     @Prop({required: true}) growthSessionJson!: IGrowthSession;
@@ -131,8 +140,9 @@ export default class GrowthSessionView extends Vue {
         }
     }
 
-    async editGrowthSession() {
-        window.location.assign(GrowthSessionApi.editUrl(this.growthSession));
+    async onGrowthSessionUpdated(growthSession: GrowthSession) {
+        this.growthSession.refresh(growthSession)
+        this.$modal.hide('growth-session-form')
     }
 }
 </script>

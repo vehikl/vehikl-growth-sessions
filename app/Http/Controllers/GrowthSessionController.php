@@ -14,7 +14,6 @@ use App\Http\Requests\UpdateGrowthSessionRequest;
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
 use App\Policies\GrowthSessionPolicy;
-use App\User;
 use App\UserType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -82,11 +81,6 @@ class GrowthSessionController extends Controller
         event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
 
         return $growthSession;
-    }
-
-    public function edit(GrowthSession $growthSession)
-    {
-        return view('growth-session-edit', compact('growthSession'));
     }
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
