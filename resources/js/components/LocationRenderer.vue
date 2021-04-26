@@ -1,7 +1,7 @@
 <template>
     <span>
         <template v-for="part in parts">
-            <template v-if="part.isURL">{{part.gap}}<a :href="part.content" class="underline">{{part.content}}</a></template>
+            <template v-if="part.isURL">{{part.gap}}<a :href="part.content" target="_blank" class="underline">{{part.content}}</a></template>
             <template v-else>{{part.gap + part.content}}</template>
         </template>
     </span>

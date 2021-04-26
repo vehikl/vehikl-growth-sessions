@@ -91,7 +91,6 @@ import Draggable from 'vuedraggable';
 import {GrowthSession} from '../classes/GrowthSession';
 import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 import {Nothingator} from '../classes/Nothingator';
-import {IDiscordChannel} from "../types/IDiscordChannel";
 
 interface IGrowthSessionCardDragChange {
     added?: { element: GrowthSession, index: number }
