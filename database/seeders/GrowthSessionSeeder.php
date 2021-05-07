@@ -24,5 +24,13 @@ class GrowthSessionSeeder extends Seeder
             $owner = User::factory()->vehiklMember()->create();
             $owner->growthSessions()->attach($growthSession, ['user_type_id' => UserType::OWNER_ID]);
         }
+
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->create([
+                'title' => 'This one has guests',
+                'date' => $monday,
+            ]);
+        User::find(1)->growthSessions()->attach($growthSession, ['user_type_id' => UserType::OWNER_ID]);
     }
 }
