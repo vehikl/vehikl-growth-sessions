@@ -19,9 +19,14 @@ class GrowthSession extends JsonResource
         }
 
         $attributes['attendees']  = $attributes['attendees'] ?? [];
+        $isPersonNotAVehiklMember = auth()->guest() || !auth()->user()->is_vehikl_member;
 
         for ($i = 0; $i < count($attributes['attendees']); $i++) {
-            if (! $attributes['attendees'][$i]['is_vehikl_member']) {
+            $isThisAttendeeAGuest = !$attributes['attendees'][$i]['is_vehikl_member'];
+
+            $shouldHideGuestsInformation = $isThisAttendeeAGuest && $isPersonNotAVehiklMember;
+
+            if ($shouldHideGuestsInformation) {
                 $attributes['attendees'][$i]['name'] = 'Guest';
                 $attributes['attendees'][$i]['avatar'] = asset('images/guest-avatar.webp');
                 $attributes['attendees'][$i]['github_nickname'] = '';
