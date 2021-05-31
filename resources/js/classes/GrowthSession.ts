@@ -35,6 +35,7 @@ export class GrowthSession implements IGrowthSession {
         this.comments = growthSession.comments;
         this.attendee_limit = growthSession.attendee_limit;
         this.discord_channel_id = growthSession.discord_channel_id;
+        this.zoom_meeting_id = growthSession.zoom_meeting_id;
     }
 
     get isLimitless(): boolean {
