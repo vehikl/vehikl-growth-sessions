@@ -3,6 +3,7 @@
 namespace App\Services\Zoom;
 
 use App\GrowthSession;
+use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Http;
 
 class ZoomService
@@ -19,10 +20,12 @@ class ZoomService
     }
 
     private function generateJwt(): string {
-        /* TODO: Generate JWT using firebase/php-jwt.
-         * See https://marketplace.zoom.us/docs/guides/auth/jwt
-        */
-        return '';
+        return JWT::encode([
+            'alg' => 'HS256',
+            'typ' => 'JWT',
+            'iss' => $this->api_key,
+            'exp' => time() + 10,
+        ], $this->api_secret);
     }
 
     private function isConfigSet(): bool {
