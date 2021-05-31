@@ -16,6 +16,7 @@ export class GrowthSession implements IGrowthSession {
     comments!: IComment[];
     attendee_limit!: number | null;
     discord_channel_id!: string | null;
+    zoom_meeting_id!: string | null;
 
     constructor(growthSession: IGrowthSession) {
         this.refresh(growthSession);
