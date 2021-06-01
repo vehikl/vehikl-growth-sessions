@@ -78,7 +78,7 @@
             </label>
 
             <div v-if="!isLimitless" class="flex items-center">
-                <label class="block text-gray-700 text-sm font-bold mr-4" for="title">
+                <label class="block text-gray-700 text-sm font-bold mr-4" for="limit">
                     Limit
                 </label>
                 <input
