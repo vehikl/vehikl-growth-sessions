@@ -69,11 +69,11 @@
         </div>
 
         <div class="mb-4 mt-6 flex items-center justify-between">
-            <label class="block text-gray-700 text-sm font-bold mb-2" v-if="isCreating" @click="isPublic = !isPublic">
+            <label class="block text-gray-700 text-sm font-bold mb-2" v-if="isCreating">
                 <input ref="is-public" v-model="isPublic" type="checkbox"> Is Public
             </label>
 
-            <label class="block text-gray-700 text-sm font-bold mb-2" @click="isLimitless = !isLimitless">
+            <label class="block text-gray-700 text-sm font-bold mb-2">
                 <input ref="no-limit" v-model="isLimitless" type="checkbox"> No Limit
             </label>
 
