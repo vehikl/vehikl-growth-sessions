@@ -78,6 +78,11 @@
                 </div>
 
                 <div class="mb-3">
+                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">MobTime:</h3>
+                    <a :href="mobtimeUrl" target="_blank">{{ mobtimeUrl }}</a>
+                </div>
+
+                <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Time:</h3>
                     <span class="mr-2">{{ date }}</span>
                     <span class="whitespace-no-wrap">( {{ time }} )</span>
@@ -127,6 +132,10 @@ export default class GrowthSessionView extends Vue {
 
     get time(): string {
         return `${this.growthSession.startTime} - ${this.growthSession.endTime}`;
+    }
+
+    get mobtimeUrl(): string {
+        return `https://mobti.me/vgs-${this.growthSessionJson.id}`;
     }
 
     get discordChannelUrl(): string {

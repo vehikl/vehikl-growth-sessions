@@ -32,6 +32,12 @@ describe('GrowthSessionView', () => {
         expect(wrapper.text()).toContain(growthSessionJson.owner.name);
     });
 
+    it('displays the mobtime link', () => {
+        const mobTimeUrl = 'https://mobti.me/vgs-' + growthSessionJson.id
+        expect(wrapper.html()).toContain(mobTimeUrl);
+        expect(wrapper.find(`a[href="${mobTimeUrl}"]`).element).toHaveAttribute('target', '_blank');
+    });
+
     describe('attendees section', () => {
         it('redirects to the attendees GitHub page when clicked on the profile', async () => {
             const attendeeComponents = wrapper.findAllComponents({ref: 'attendee'})
