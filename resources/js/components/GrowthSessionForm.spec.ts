@@ -168,7 +168,7 @@ describe('CreateGrowthSession', () => {
     })
 
     it('hides the attendee limit input, if no limit checkbox is checked', async () => {
-        wrapper.findComponent({ref: 'no-limit'}).trigger('click')
+        wrapper.findComponent({ref: 'no-limit'}).setChecked(true)
         await wrapper.vm.$nextTick();
 
         expect(wrapper.findComponent({ref: 'attendee-limit'}).exists()).toBeFalsy();
@@ -239,7 +239,7 @@ describe('CreateGrowthSession', () => {
         wrapper.find('#topic').setValue(growthSessionInformation.topic);
         wrapper.find('#location').setValue(growthSessionInformation.location);
         wrapper.vm.$data.startTime = growthSessionInformation.start_time;
-        wrapper.findComponent({ref: 'is-public'}).trigger('click')
+        wrapper.findComponent({ref: 'is-public'}).setChecked(true)
 
         await wrapper.vm.$nextTick();
 
