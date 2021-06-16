@@ -38,25 +38,25 @@
 
         <button
             class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            @click.stop="joinGrowthSession"
+            @click.prevent="joinGrowthSession"
             v-show="growthSession.canJoin(user)">
             Join
         </button>
         <button
             class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
-            @click.stop="leaveGrowthSession"
+            @click.prevent="leaveGrowthSession"
             v-show="growthSession.canLeave(user)">
             Leave
         </button>
         <div v-show="growthSession.canEditOrDelete(user)">
             <button
                 class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                @click.stop="$emit('edit-requested', growthSession)">
+                @click.prevent="$emit('edit-requested', growthSession)">
                 Edit
             </button>
             <button
                 class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                @click.stop="onDeleteClicked">
+                @click.prevent="onDeleteClicked">
                 <i class="fa fa-trash" aria-hidden="true"></i>
             </button>
         </div>
@@ -64,46 +64,46 @@
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {GrowthSessionApi} from '../services/GrowthSessionApi';
-    import {GrowthSession} from '../classes/GrowthSession';
-    import {IUser} from '../types';
-    import VAvatar from './VAvatar.vue';
-    import IconDraggable from '../svgs/IconDraggable.vue';
-    import LocationRenderer from './LocationRenderer.vue';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import {GrowthSessionApi} from '../services/GrowthSessionApi';
+import {GrowthSession} from '../classes/GrowthSession';
+import {IUser} from '../types';
+import VAvatar from './VAvatar.vue';
+import IconDraggable from '../svgs/IconDraggable.vue';
+import LocationRenderer from './LocationRenderer.vue';
 
-    @Component({
-        components: {VAvatar, IconDraggable, LocationRenderer}
-    })
-    export default class GrowthSessionCard extends Vue {
-        @Prop({required: true}) growthSession!: GrowthSession;
-        @Prop({required: false, default: null}) user!: IUser;
+@Component({
+    components: {VAvatar, IconDraggable, LocationRenderer}
+})
+export default class GrowthSessionCard extends Vue {
+    @Prop({required: true}) growthSession!: GrowthSession;
+    @Prop({required: false, default: null}) user!: IUser;
 
-        async joinGrowthSession() {
-            await this.growthSession.join();
-            this.$emit('growth-session-updated');
-        }
+    get isDraggable(): boolean {
+        return this.growthSession.canEditOrDelete(this.user);
+    }
 
-        async leaveGrowthSession() {
-            await this.growthSession.leave();
-            this.$emit('growth-session-updated');
-        }
+    get growthSessionUrl() {
+        return GrowthSessionApi.showUrl(this.growthSession);
+    }
 
-        get isDraggable(): boolean {
-            return this.growthSession.canEditOrDelete(this.user);
-        }
+    async joinGrowthSession() {
+        await this.growthSession.join();
+        this.$emit('growth-session-updated');
+    }
 
-        get growthSessionUrl() {
-            return GrowthSessionApi.showUrl(this.growthSession);
-        }
+    async leaveGrowthSession() {
+        await this.growthSession.leave();
+        this.$emit('growth-session-updated');
+    }
 
-        async onDeleteClicked() {
-            if (confirm('Are you sure you want to delete?')) {
-                await this.growthSession.delete();
-                this.$emit('delete-requested', this.growthSession);
-            }
+    async onDeleteClicked() {
+        if (confirm('Are you sure you want to delete?')) {
+            await this.growthSession.delete();
+            this.$emit('delete-requested', this.growthSession);
         }
     }
+}
 </script>
 
 <style lang="scss" scoped>
