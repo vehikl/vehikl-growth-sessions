@@ -1,6 +1,6 @@
 <template>
-    <div class="bg-gray-100 border border-blue-300 p-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
-         @click="goToGrowthSession">
+    <a class="block bg-gray-100 border border-blue-300 p-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
+         :href="growthSessionUrl">
         <div class="flex" :class="{'mb-4': growthSession.title}" v-if="growthSession.title || isDraggable">
             <h3 class="flex-1 font-light text-lg text-blue-700 text-left mb-3"
                 :class="{'pr-4': isDraggable}"
@@ -60,7 +60,7 @@
                 <i class="fa fa-trash" aria-hidden="true"></i>
             </button>
         </div>
-    </div>
+    </a>
 </template>
 
 <script lang="ts">
@@ -79,10 +79,6 @@
         @Prop({required: true}) growthSession!: GrowthSession;
         @Prop({required: false, default: null}) user!: IUser;
 
-        goToGrowthSession() {
-            window.location.assign(GrowthSessionApi.showUrl(this.growthSession));
-        }
-
         async joinGrowthSession() {
             await this.growthSession.join();
             this.$emit('growth-session-updated');
@@ -95,6 +91,10 @@
 
         get isDraggable(): boolean {
             return this.growthSession.canEditOrDelete(this.user);
+        }
+
+        get growthSessionUrl() {
+            return GrowthSessionApi.showUrl(this.growthSession);
         }
 
         async onDeleteClicked() {
