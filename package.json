@@ -32,7 +32,7 @@
         "ts-jest": "^26.0.0",
         "ts-loader": "^7.0.4",
         "typescript": "^3.9.2",
-        "vue": "^2.5.17",
+        "vue": "^2.6.11",
         "vue-jest": "^3.0.5",
         "vue-js-modal": "^2.0.0-rc.3",
         "vue-property-decorator": "^8.4.2",
@@ -42,6 +42,7 @@
         "vuejs-datepicker": "^1.6.2"
     },
     "dependencies": {
+        "vue-loader": "^15.9.7",
         "vue-select": "^3.11.2"
     }
 }
