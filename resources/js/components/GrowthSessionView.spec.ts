@@ -33,7 +33,7 @@ describe('GrowthSessionView', () => {
     });
 
     it('displays the mobtime link', () => {
-        const mobTimeUrl = 'https://mobti.me/vgs-' + growthSessionJson.id
+        const mobTimeUrl = 'https://mobtime.vehikl.com/vgs-' + growthSessionJson.id
         expect(wrapper.html()).toContain(mobTimeUrl);
         expect(wrapper.find(`a[href="${mobTimeUrl}"]`).element).toHaveAttribute('target', '_blank');
     });

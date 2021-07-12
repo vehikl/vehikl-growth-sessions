@@ -135,7 +135,7 @@ export default class GrowthSessionView extends Vue {
     }
 
     get mobtimeUrl(): string {
-        return `https://mobti.me/vgs-${this.growthSessionJson.id}`;
+        return `https://mobtime.vehikl.com/vgs-${this.growthSessionJson.id}`;
     }
 
     get discordChannelUrl(): string {
