@@ -235,7 +235,7 @@ import {IDropdownOption} from "../types/IDropdownOption";
         }
 
         get isCreating(): boolean {
-            return !this.growthSession;
+            return !this.growthSession?.id;
         }
 
         get isReadyToSubmit(): boolean {

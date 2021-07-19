@@ -129,6 +129,19 @@ describe('WeekView', () => {
             expect(wrapper.find('[weekday=Thursday] button.create-growth-session').exists(), failFuture).toBe(true);
             expect(wrapper.find('[weekday=Friday] button.create-growth-session').exists(), failFuture).toBe(true);
         });
+
+        it('shows a creation form pre-populated with data from some growth session when I click in some copy button', async () => {
+            expect(wrapper.find('button.copy-button').exists()).toBe(true);
+            wrapper.find('button.copy-button').trigger('click');
+            await wrapper.vm.$nextTick();
+            expect(wrapper.find('form.create-growth-session').exists()).toBe(true);
+
+            let targetedGrowthSession = growthSessionsThisWeekJson["2020-01-13"][0];
+
+            expect((wrapper.find('input#title').element as HTMLInputElement).value).toBe(targetedGrowthSession.title);
+            expect((wrapper.find('textarea#topic').element as HTMLInputElement).value).toBe(targetedGrowthSession.topic);
+            expect((wrapper.find('textarea#location').element as HTMLInputElement).value).toBe(targetedGrowthSession.location);
+        });
     });
 
     describe('week persistence', () => {

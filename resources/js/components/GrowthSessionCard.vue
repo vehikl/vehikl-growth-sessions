@@ -55,6 +55,11 @@
                 Edit
             </button>
             <button
+                class="copy-button w-16 bg-green-500 hover:bg-green-700 focus:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                @click.prevent="$emit('copy-requested', growthSession)">
+                <i aria-hidden="true" class="fa fa-copy"></i>
+            </button>
+            <button
                 class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
                 @click.prevent="onDeleteClicked">
                 <i class="fa fa-trash" aria-hidden="true"></i>

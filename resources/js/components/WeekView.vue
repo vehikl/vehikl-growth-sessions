@@ -64,6 +64,7 @@
                             :user="user"
                             class="mb-3 transform transition-transform duration-150"
                             @growth-session-updated="getAllGrowthSessionsOfTheWeek"
+                            @copy-requested="onGrowthSessionCopyRequested"
                             @edit-requested="onGrowthSessionEditRequested"
                             @delete-requested="getAllGrowthSessionsOfTheWeek"/>
                     </div>
@@ -163,6 +164,13 @@ export default class WeekView extends Vue {
     }
 
     onGrowthSessionEditRequested(growthSession: GrowthSession) {
+        this.growthSessionToUpdate = growthSession;
+        this.newGrowthSessionDate = '';
+        this.$modal.show('growth-session-form');
+    }
+
+    onGrowthSessionCopyRequested(growthSession: GrowthSession) {
+        growthSession.id = 0;
         this.growthSessionToUpdate = growthSession;
         this.newGrowthSessionDate = '';
         this.$modal.show('growth-session-form');
