@@ -10,6 +10,7 @@ import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 import {GrowthSession} from '../classes/GrowthSession';
 import {Nothingator} from '../classes/Nothingator';
 import {DiscordChannelApi} from "../services/DiscordChannelApi";
+import GrowthSessionCard from "./GrowthSessionCard.vue";
 
 const authVehiklUser: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -131,16 +132,21 @@ describe('WeekView', () => {
         });
 
         it('shows a creation form pre-populated with data from some growth session when I click in some copy button', async () => {
-            expect(wrapper.find('button.copy-button').exists()).toBe(true);
-            wrapper.find('button.copy-button').trigger('click');
+            const targetedGrowthSession = wrapper.findComponent(GrowthSessionCard);
+
+            const title = targetedGrowthSession.findComponent({ref: 'growth-session-title'}).text();
+            const topic = targetedGrowthSession.findComponent({ref: 'growth-session-topic'}).text();
+
+
+            expect(targetedGrowthSession.find('button.copy-button').exists()).toBe(true);
+            targetedGrowthSession.find('button.copy-button').trigger('click');
             await wrapper.vm.$nextTick();
             expect(wrapper.find('form.create-growth-session').exists()).toBe(true);
 
-            let targetedGrowthSession = growthSessionsThisWeekJson["2020-01-13"][0];
 
-            expect((wrapper.find('input#title').element as HTMLInputElement).value).toBe(targetedGrowthSession.title);
-            expect((wrapper.find('textarea#topic').element as HTMLInputElement).value).toBe(targetedGrowthSession.topic);
-            expect((wrapper.find('textarea#location').element as HTMLInputElement).value).toBe(targetedGrowthSession.location);
+            expect((wrapper.find('input#title').element as HTMLInputElement).value).toBe(title);
+            expect((wrapper.find('textarea#topic').element as HTMLInputElement).value).toBe(topic);
+            // expect((targetedGrowthSession.find('textarea#location').element as HTMLInputElement).value).toBe(targetedGrowthSession.location);
         });
     });
 

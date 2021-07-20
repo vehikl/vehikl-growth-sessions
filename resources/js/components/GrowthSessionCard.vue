@@ -4,6 +4,7 @@
         <div class="flex" :class="{'mb-4': growthSession.title}" v-if="growthSession.title || isDraggable">
             <h3 class="flex-1 font-light text-lg text-blue-700 text-left mb-3"
                 :class="{'pr-4': isDraggable}"
+                ref="growth-session-title"
                 v-text="growthSession.title"/>
             <div v-if="isDraggable"
                  @click.stop
@@ -13,6 +14,7 @@
         </div>
         <pre
             class="mb-4 inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
+            ref="growth-session-topic"
             v-text="growthSession.topic"/>
         <div class="flex items-center flex-1 mb-4 text-blue-700">
             <p class="mr-3">Host:</p>
