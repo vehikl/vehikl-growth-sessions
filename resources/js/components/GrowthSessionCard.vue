@@ -1,35 +1,36 @@
 <template>
-    <a class="block bg-gray-100 border border-blue-300 p-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
+    <a class="block bg-gray-100 border border-blue-300 pt-2 pb-6 pr-6 pl-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
          :href="growthSessionUrl">
-        <div class="flex" :class="{'mb-4': growthSession.title}" v-if="growthSession.title || isDraggable">
+        <div class="flex justify-between items-center" :class="{'mb-4': growthSession.title}" v-if="growthSession.title || isDraggable">
             <div v-if="isDraggable"
                  @click.stop
-                 class="z-10 handle cursor-grab">
-                <icon-draggable class="h-6 text-blue-600 hover:text-blue-800"/>
+                 class="z-10 cursor-grab">
+                <icon-draggable class="h-4 text-blue-600 hover:text-blue-800"/>
             </div>
-            <h3 class="flex-1 font-light text-lg text-blue-700 text-left mb-3"
-                :class="{'pr-4': isDraggable}"
-                ref="growth-session-title"
-                v-text="growthSession.title"/>
+
             <div v-show="growthSession.canEditOrDelete(user)">
                 <button
-                    class="update-button text-blue-700 font-bold rounded"
+                    class="update-button text-blue-700 leading-none p-2"
                     @click.prevent="$emit('edit-requested', growthSession)">
                     <i aria-hidden="true" class="fa fa-edit"></i>
                 </button>
                 <button
-                    class="copy-button text-blue-700 font-bold rounded"
+                    class="copy-button text-blue-700 leading-none p-2"
                     @click.prevent="$emit('copy-requested', growthSession)">
                     <i aria-hidden="true" class="fa fa-copy"></i>
                 </button>
                 <button
-                    class="delete-button text-blue-700 font-bold rounded"
+                    class="delete-button text-blue-700 leading-none p-2"
                     @click.prevent="onDeleteClicked">
                     <i class="fa fa-trash" aria-hidden="true"></i>
                 </button>
             </div>
 
         </div>
+        <h3 class="font-light text-lg text-blue-700 text-left mb-3"
+            :class="{'pr-4': isDraggable}"
+            ref="growth-session-title"
+            v-text="growthSession.title"/>
         <pre
             class="mb-4 inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
             ref="growth-session-topic"
@@ -115,10 +116,6 @@ export default class GrowthSessionCard extends Vue {
 </script>
 
 <style lang="scss" scoped>
-    .handle {
-        margin: -0.7rem;
-    }
-
     .cursor-grab {
         cursor: grab;
 
