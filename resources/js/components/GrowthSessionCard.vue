@@ -1,7 +1,7 @@
 <template>
-    <a class="block bg-gray-100 border border-blue-300 pt-2 pb-6 pr-6 pl-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
+    <a class="block bg-gray-100 border border-blue-300 py-4 px-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
          :href="growthSessionUrl">
-        <div class="flex justify-between items-center" :class="{'mb-4': growthSession.title}" v-if="growthSession.title || isDraggable">
+        <div class="flex justify-between items-center" :class="{'mb-2': growthSession.title}" v-if="growthSession.title || isDraggable">
             <div v-if="isDraggable"
                  @click.stop
                  class="z-10 cursor-grab">
@@ -10,17 +10,17 @@
 
             <div v-show="growthSession.canEditOrDelete(user)">
                 <button
-                    class="update-button text-blue-700 leading-none p-2"
+                    class="update-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-8 w-8 inline-flex justify-center items-center"
                     @click.prevent="$emit('edit-requested', growthSession)">
                     <i aria-hidden="true" class="fa fa-edit"></i>
                 </button>
                 <button
-                    class="copy-button text-blue-700 leading-none p-2"
+                    class="copy-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-8 w-8 inline-flex justify-center items-center"
                     @click.prevent="$emit('copy-requested', growthSession)">
                     <i aria-hidden="true" class="fa fa-copy"></i>
                 </button>
                 <button
-                    class="delete-button text-blue-700 leading-none p-2"
+                    class="delete-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-8 w-8 inline-flex justify-center items-center"
                     @click.prevent="onDeleteClicked">
                     <i class="fa fa-trash" aria-hidden="true"></i>
                 </button>
