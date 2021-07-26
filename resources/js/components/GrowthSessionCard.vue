@@ -2,15 +2,33 @@
     <a class="block bg-gray-100 border border-blue-300 p-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
          :href="growthSessionUrl">
         <div class="flex" :class="{'mb-4': growthSession.title}" v-if="growthSession.title || isDraggable">
-            <h3 class="flex-1 font-light text-lg text-blue-700 text-left mb-3"
-                :class="{'pr-4': isDraggable}"
-                ref="growth-session-title"
-                v-text="growthSession.title"/>
             <div v-if="isDraggable"
                  @click.stop
                  class="z-10 handle cursor-grab">
                 <icon-draggable class="h-6 text-blue-600 hover:text-blue-800"/>
             </div>
+            <h3 class="flex-1 font-light text-lg text-blue-700 text-left mb-3"
+                :class="{'pr-4': isDraggable}"
+                ref="growth-session-title"
+                v-text="growthSession.title"/>
+            <div v-show="growthSession.canEditOrDelete(user)">
+                <button
+                    class="update-button text-blue-700 font-bold rounded"
+                    @click.prevent="$emit('edit-requested', growthSession)">
+                    <i aria-hidden="true" class="fa fa-edit"></i>
+                </button>
+                <button
+                    class="copy-button text-blue-700 font-bold rounded"
+                    @click.prevent="$emit('copy-requested', growthSession)">
+                    <i aria-hidden="true" class="fa fa-copy"></i>
+                </button>
+                <button
+                    class="delete-button text-blue-700 font-bold rounded"
+                    @click.prevent="onDeleteClicked">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
+            </div>
+
         </div>
         <pre
             class="mb-4 inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
@@ -50,23 +68,6 @@
             v-show="growthSession.canLeave(user)">
             Leave
         </button>
-        <div v-show="growthSession.canEditOrDelete(user)">
-            <button
-                class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                @click.prevent="$emit('edit-requested', growthSession)">
-                Edit
-            </button>
-            <button
-                class="copy-button w-16 bg-green-500 hover:bg-green-700 focus:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                @click.prevent="$emit('copy-requested', growthSession)">
-                <i aria-hidden="true" class="fa fa-copy"></i>
-            </button>
-            <button
-                class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                @click.prevent="onDeleteClicked">
-                <i class="fa fa-trash" aria-hidden="true"></i>
-            </button>
-        </div>
     </a>
 </template>
 
