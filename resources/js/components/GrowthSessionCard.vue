@@ -22,7 +22,7 @@
 
             <div v-if="isDraggable"
                  @click.stop
-                 class="z-10 cursor-grab h-10 w-10 hover:bg-blue-200 rounded-full inline-flex justify-center items-center">
+                 class="z-10 handle cursor-grab h-10 w-10 hover:bg-blue-200 rounded-full inline-flex justify-center items-center">
                 <icon-draggable class="h-4 text-blue-600 hover:text-blue-800"/>
             </div>
 
