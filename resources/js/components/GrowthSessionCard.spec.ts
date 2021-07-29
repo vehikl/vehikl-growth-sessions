@@ -29,6 +29,14 @@ const outsider: IUser = {
     is_vehikl_member: true,
 };
 
+const nonVehiklMember: IUser = {
+    name: 'James Bond',
+    github_nickname: 'bond',
+    id: 4,
+    avatar: 'avatar.jpg',
+    is_vehikl_member: false,
+};
+
 const growthSessionData: GrowthSession = new GrowthSession({
     id: 0,
     owner: ownerOfTheGrowthSession,
@@ -161,6 +169,11 @@ describe('GrowthSessionCard', () => {
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: attendee}});
 
         expect(wrapper.find('.leave-button').element).not.toBeVisible()
+    });
+
+    it('does not display the copy button if the user is not a vehikl member', () => {
+        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: nonVehiklMember}});
+        expect(wrapper.find('.copy-button').element).not.toBeVisible();
     });
 
     it('Emits a copy-requested event when the copy button is clicked', () => {
