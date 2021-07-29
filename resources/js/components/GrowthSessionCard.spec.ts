@@ -162,4 +162,10 @@ describe('GrowthSessionCard', () => {
 
         expect(wrapper.find('.leave-button').element).not.toBeVisible()
     });
+
+    it('Emits a copy-requested event when the copy button is clicked', () => {
+        wrapper.find('.copy-button').trigger('click');
+
+        expect(wrapper.emitted('copy-requested')).toBeTruthy();
+    });
 });

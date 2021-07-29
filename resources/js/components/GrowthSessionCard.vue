@@ -1,18 +1,39 @@
 <template>
-    <a class="block bg-gray-100 border border-blue-300 p-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
+    <a class="block bg-gray-100 border border-blue-300 py-4 px-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
          :href="growthSessionUrl">
-        <div class="flex" :class="{'mb-4': growthSession.title}" v-if="growthSession.title || isDraggable">
-            <h3 class="flex-1 font-light text-lg text-blue-700 text-left mb-3"
-                :class="{'pr-4': isDraggable}"
-                v-text="growthSession.title"/>
+        <div class="flex justify-end items-center" :class="{'mb-2': growthSession.title}" v-if="growthSession.title || isDraggable">
+            <button
+                v-show="growthSession.canEditOrDelete(user)"
+                class="update-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
+                @click.prevent="$emit('edit-requested', growthSession)">
+                <i aria-hidden="true" class="fa fa-edit"></i>
+            </button>
+            <button
+                class="copy-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
+                @click.prevent="$emit('copy-requested', growthSession)">
+                <i aria-hidden="true" class="fa fa-copy"></i>
+            </button>
+            <button
+                v-show="growthSession.canEditOrDelete(user)"
+                class="delete-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
+                @click.prevent="onDeleteClicked">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+            </button>
+
             <div v-if="isDraggable"
                  @click.stop
-                 class="z-10 handle cursor-grab">
-                <icon-draggable class="h-6 text-blue-600 hover:text-blue-800"/>
+                 class="z-10 handle h-10 w-10 hover:bg-blue-200 rounded-full inline-flex justify-center items-center cursor-move">
+                <icon-draggable class="h-4 text-blue-600 hover:text-blue-800"/>
             </div>
+
         </div>
+        <h3 class="font-light text-lg text-blue-700 text-left mb-3"
+            :class="{'pr-4': isDraggable}"
+            ref="growth-session-title"
+            v-text="growthSession.title"/>
         <pre
             class="mb-4 inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
+            ref="growth-session-topic"
             v-text="growthSession.topic"/>
         <div class="flex items-center flex-1 mb-4 text-blue-700">
             <p class="mr-3">Host:</p>
@@ -48,18 +69,6 @@
             v-show="growthSession.canLeave(user)">
             Leave
         </button>
-        <div v-show="growthSession.canEditOrDelete(user)">
-            <button
-                class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                @click.prevent="$emit('edit-requested', growthSession)">
-                Edit
-            </button>
-            <button
-                class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                @click.prevent="onDeleteClicked">
-                <i class="fa fa-trash" aria-hidden="true"></i>
-            </button>
-        </div>
     </a>
 </template>
 
@@ -106,16 +115,3 @@ export default class GrowthSessionCard extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
-    .handle {
-        margin: -0.7rem;
-    }
-
-    .cursor-grab {
-        cursor: grab;
-
-        &:active {
-            cursor: grabbing;
-        }
-    }
-</style>

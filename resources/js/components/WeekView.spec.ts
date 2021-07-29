@@ -10,6 +10,7 @@ import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 import {GrowthSession} from '../classes/GrowthSession';
 import {Nothingator} from '../classes/Nothingator';
 import {DiscordChannelApi} from "../services/DiscordChannelApi";
+import GrowthSessionCard from "./GrowthSessionCard.vue";
 
 const authVehiklUser: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -128,6 +129,24 @@ describe('WeekView', () => {
             expect(wrapper.find('[weekday=Wednesday] button.create-growth-session').exists(), failFuture).toBe(true);
             expect(wrapper.find('[weekday=Thursday] button.create-growth-session').exists(), failFuture).toBe(true);
             expect(wrapper.find('[weekday=Friday] button.create-growth-session').exists(), failFuture).toBe(true);
+        });
+
+        it('shows a creation form pre-populated with data from some growth session when I click in some copy button', async () => {
+            const targetedGrowthSession = wrapper.findComponent(GrowthSessionCard);
+
+            const title = targetedGrowthSession.findComponent({ref: 'growth-session-title'}).text();
+            const topic = targetedGrowthSession.findComponent({ref: 'growth-session-topic'}).text();
+
+
+            expect(targetedGrowthSession.find('button.copy-button').exists()).toBe(true);
+            targetedGrowthSession.find('button.copy-button').trigger('click');
+            await wrapper.vm.$nextTick();
+            expect(wrapper.find('form.create-growth-session').exists()).toBe(true);
+
+
+            expect((wrapper.find('input#title').element as HTMLInputElement).value).toBe(title);
+            expect((wrapper.find('textarea#topic').element as HTMLInputElement).value).toBe(topic);
+            // expect((targetedGrowthSession.find('textarea#location').element as HTMLInputElement).value).toBe(targetedGrowthSession.location);
         });
     });
 
