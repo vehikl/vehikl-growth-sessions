@@ -9,6 +9,7 @@
                 <i aria-hidden="true" class="fa fa-edit"></i>
             </button>
             <button
+                v-show="user && user.is_vehikl_member"
                 class="copy-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
                 @click.prevent="$emit('copy-requested', growthSession)">
                 <i aria-hidden="true" class="fa fa-copy"></i>
