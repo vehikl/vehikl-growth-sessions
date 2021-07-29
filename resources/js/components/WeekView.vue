@@ -135,7 +135,7 @@ export default class WeekView extends Vue {
     async onDragEnd(location: any) {
         let targetDate = location.to.__vue__.$attrs.date;
         try {
-            await GrowthSessionApi.update(this.draggedGrowthSession, {date: targetDate.toDateString()});
+            await GrowthSessionApi.update(this.draggedGrowthSession, {date: targetDate.toDateString(), attendee_limit: this.draggedGrowthSession.attendee_limit});
         } catch (e) {
         }
 
