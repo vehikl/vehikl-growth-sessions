@@ -4,5 +4,5 @@ export interface IUpdateGrowthSessionRequest {
     start_time?: string;
     end_time?: string;
     date?: string;
-    attendee_limit?: number;
+    attendee_limit?: number | null;
 }
