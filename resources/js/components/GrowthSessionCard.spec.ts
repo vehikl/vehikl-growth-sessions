@@ -182,9 +182,15 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.emitted('copy-requested')).toBeTruthy();
     });
 
-    describe('Add to Calendar',() => {
-        it('Displays a calendar icon', () => {
-            expect(wrapper.findComponent({ref: 'add-to-calendar'}).element).toBeVisible()
+    describe('\"Add to Calendar\" link',() => {
+        it('is visible', () => {
+            expect(wrapper.findComponent({ref: 'add-to-calendar'}).element).toBeVisible();
+        })
+
+        it('has Google Calendar URI', () => {
+            const addToCalendarLink = wrapper.findComponent({ref: 'add-to-calendar'}).element as HTMLAnchorElement;
+
+            expect(addToCalendarLink.href).toContain("google.com/calendar");
         })
     })
 });
