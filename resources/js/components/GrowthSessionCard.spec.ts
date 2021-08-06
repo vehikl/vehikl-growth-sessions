@@ -181,4 +181,10 @@ describe('GrowthSessionCard', () => {
 
         expect(wrapper.emitted('copy-requested')).toBeTruthy();
     });
+
+    describe('Add to Calendar',() => {
+        it('Displays a calendar icon', () => {
+            expect(wrapper.findComponent({ref: 'add-to-calendar'}).element).toBeVisible()
+        })
+    })
 });

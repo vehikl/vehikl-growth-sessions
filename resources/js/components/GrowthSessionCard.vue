@@ -3,6 +3,12 @@
          :href="growthSessionUrl">
         <div class="flex justify-end items-center" :class="{'mb-2': growthSession.title}" v-if="growthSession.title || isDraggable">
             <button
+                ref="add-to-calendar"
+                class="update-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
+            >
+                <i aria-hidden="true" class="fa fa-calendar"></i>
+            </button>
+            <button
                 v-show="growthSession.canEditOrDelete(user)"
                 class="update-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
                 @click.prevent="$emit('edit-requested', growthSession)">
