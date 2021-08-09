@@ -32,7 +32,6 @@ class GrowthSession extends JsonResource
                 $attributes['attendees'][$i]['github_nickname'] = '';
             }
         }
-
         return $attributes;
     }
 

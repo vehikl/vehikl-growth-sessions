@@ -548,6 +548,18 @@ class GrowthSessionTest extends TestCase
             ->assertSee($growthSession->title);
     }
 
+    public function testItProvidesTheGrowthSessionVisibilityInThePayload()
+    {
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+
+        $user = User::factory()->create(['is_vehikl_member' => true]);
+
+        $response = $this->actingAs($user)
+            ->get(route('growth_sessions.week', $growthSession));
+
+        $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
+    }
+
     /**
      * @param int $expectedAttendeeLimit
      * @return array
@@ -618,6 +630,7 @@ class GrowthSessionTest extends TestCase
             ->assertDontSee($growthSession->avatar)
             ->assertDontSee($guestMember->github_nickname);
     }
+
     /** @test */
     public function vehiklMembersCanCreateAGrowthSession(): void
     {
