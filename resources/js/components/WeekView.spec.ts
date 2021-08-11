@@ -131,7 +131,7 @@ describe('WeekView', () => {
             expect(wrapper.find('[weekday=Friday] button.create-growth-session').exists(), failFuture).toBe(true);
         });
 
-        it.skip('shows a creation form pre-populated with data from some growth session when I click in some copy button', async () => {
+        it('shows a creation form pre-populated with data from some growth session when I click in some copy button', async () => {
             const targetedGrowthSession = wrapper.findComponent(GrowthSessionCard);
 
             const title = targetedGrowthSession.findComponent({ref: 'growth-session-title'}).text();

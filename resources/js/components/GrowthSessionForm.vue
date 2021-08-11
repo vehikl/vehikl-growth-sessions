@@ -179,6 +179,7 @@ import {IDropdownOption} from "../types/IDropdownOption";
                 this.topic = this.growthSession.topic;
                 this.isLimitless = ! this.growthSession.attendee_limit;
                 this.attendeeLimit = this.growthSession.attendee_limit || 4;
+                this.isPublic = this.growthSession.is_public;
             }
         }
 
