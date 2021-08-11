@@ -8,6 +8,7 @@ export interface IGrowthSession {
     date: string;
     start_time: string;
     end_time: string;
+    is_public: boolean;
     attendee_limit: number | null;
     discord_channel_id: string | null;
     owner: IUser;

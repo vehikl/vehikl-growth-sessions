@@ -14,15 +14,16 @@ describe('GrowthSession', () => {
     };
 
     const growthSessionJson: IGrowthSession = {
-        attendees: [],
-        comments: [],
+        id: 0,
+        is_public: true,
         date: "2020-01-01",
         start_time: "03:00 pm",
         end_time: "05:00 pm",
-        id: 0,
         location: "Somewhere over the rainbow",
         discord_channel_id: null,
         owner,
+        attendees: [],
+        comments: [],
         title: "The growth session title",
         topic: "The growth session topic",
         attendee_limit: null
