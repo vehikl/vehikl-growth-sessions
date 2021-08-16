@@ -11,6 +11,12 @@ module.exports = {
     },
     theme: {
         extend: {
+            colors: {
+                vehikl: {
+                    DEFAULT: '#dd5f13',
+                    orange: '#dd5f13'
+                }
+            },
             spacing: {
                 '72': '18rem',
                 '84': '21rem',

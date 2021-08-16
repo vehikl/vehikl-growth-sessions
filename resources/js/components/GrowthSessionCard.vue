@@ -1,5 +1,6 @@
 <template>
-    <a class="block bg-gray-100 border border-blue-300 py-4 px-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
+    <a class="block bg-gray-100 border py-4 px-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
+       :class="growthSession.is_public ? 'border-blue-300' : 'border-vehikl-orange'"
          :href="growthSessionUrl">
         <div class="flex justify-end items-center" :class="{'mb-2': growthSession.title}" v-if="growthSession.title || isDraggable">
             <a
