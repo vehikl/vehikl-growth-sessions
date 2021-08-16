@@ -3,6 +3,7 @@
         {
             "id": 1,
             "owner_id": 1,
+            "is_public": true,
             "topic": "Ex eius sint dicta vel.",
             "location": "At AnyDesk XYZ - abcdefg",
             "discord_channel_id": null,
@@ -33,6 +34,7 @@
         {
             "id": 3,
             "owner_id": 3,
+            "is_public": true,
             "topic": "Consequatur deserunt maiores consectetur quia et ab sit.",
             "location": "At AnyDesk XYZ - abcdefg",
             "discord_channel_id": null,
@@ -42,7 +44,7 @@
             "created_at": "2020-01-15T05:00:00.000000Z",
             "updated_at": "2020-01-15T05:00:00.000000Z",
             "title": "Maxime voluptas suscipit voluptatibus et debitis et vero.",
-            "attendee_limit":  null,
+            "attendee_limit": null,
             "owner": {
                 "id": 3,
                 "is_vehikl_member": true,
@@ -60,6 +62,7 @@
         {
             "id": 2,
             "owner_id": 2,
+            "is_public": true,
             "topic": "Et ut laborum dolore ut et earum rem animi.",
             "location": "At AnyDesk XYZ - abcdefg",
             "discord_channel_id": null,
@@ -69,7 +72,7 @@
             "created_at": "2020-01-15T05:00:00.000000Z",
             "updated_at": "2020-01-15T05:00:00.000000Z",
             "title": "Quia minima laboriosam quibusdam sit sunt labore.",
-            "attendee_limit":  null,
+            "attendee_limit": null,
             "owner": {
                 "id": 2,
                 "is_vehikl_member": true,
@@ -90,6 +93,7 @@
         {
             "id": 4,
             "owner_id": 4,
+            "is_public": true,
             "topic": "Voluptatum fugit et illo.",
             "location": "At AnyDesk XYZ - abcdefg",
             "discord_channel_id": null,
@@ -99,7 +103,7 @@
             "created_at": "2020-01-15T05:00:00.000000Z",
             "updated_at": "2020-01-15T05:00:00.000000Z",
             "title": "Dolorem architecto occaecati beatae odit quis velit corporis.",
-            "attendee_limit":  null,
+            "attendee_limit": null,
             "owner": {
                 "id": 4,
                 "is_vehikl_member": true,

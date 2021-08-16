@@ -16,18 +16,23 @@ class GrowthSessionTest extends TestCase
     {
         $growthSession = GrowthSession::factory()
             ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
-            ->create();
+            ->create([
+                'is_public' => false
+            ]);
         $newTopic = 'A brand new topic!';
         $newTitle = 'A whole new title!';
+        $isPublic = true;
 
         $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update',
             ['growth_session' => $growthSession->id]), [
             'topic' => $newTopic,
             'title' => $newTitle,
+            'is_public' => $isPublic
         ])->assertSuccessful();
 
         $this->assertEquals($newTopic, $growthSession->fresh()->topic);
         $this->assertEquals($newTitle, $growthSession->fresh()->title);
+        $this->assertEquals($isPublic, $growthSession->fresh()->is_public);
     }
 
     public function testTheOwnerOfAGrowthSessionCanChangeTheAttendeeLimit()
@@ -548,6 +553,18 @@ class GrowthSessionTest extends TestCase
             ->assertSee($growthSession->title);
     }
 
+    public function testItProvidesTheGrowthSessionVisibilityInThePayload()
+    {
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+
+        $user = User::factory()->create(['is_vehikl_member' => true]);
+
+        $response = $this->actingAs($user)
+            ->get(route('growth_sessions.week', $growthSession));
+
+        $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
+    }
+
     /**
      * @param int $expectedAttendeeLimit
      * @return array
@@ -618,6 +635,7 @@ class GrowthSessionTest extends TestCase
             ->assertDontSee($growthSession->avatar)
             ->assertDontSee($guestMember->github_nickname);
     }
+
     /** @test */
     public function vehiklMembersCanCreateAGrowthSession(): void
     {

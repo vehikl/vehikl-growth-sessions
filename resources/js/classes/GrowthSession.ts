@@ -9,6 +9,7 @@ export class GrowthSession implements IGrowthSession {
     topic!: string;
     location!: string;
     date!: string;
+    is_public!: boolean;
     start_time!: string;
     end_time!: string;
     owner!: User;
@@ -27,6 +28,7 @@ export class GrowthSession implements IGrowthSession {
         this.topic = growthSession.topic;
         this.location = growthSession.location;
         this.date = growthSession.date;
+        this.is_public = growthSession.is_public;
         this.start_time = growthSession.start_time;
         this.end_time = growthSession.end_time;
         this.owner = new User(growthSession.owner);

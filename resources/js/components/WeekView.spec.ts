@@ -141,8 +141,10 @@ describe('WeekView', () => {
             expect(targetedGrowthSession.find('button.copy-button').exists()).toBe(true);
             targetedGrowthSession.find('button.copy-button').trigger('click');
             await wrapper.vm.$nextTick();
-            expect(wrapper.find('form.create-growth-session').exists()).toBe(true);
+            let createForm = wrapper.find('form.create-growth-session');
+            expect(createForm.exists()).toBe(true);
 
+            expect(createForm.findComponent({ref: 'is-public'}).element).toBeChecked();
 
             expect((wrapper.find('input#title').element as HTMLInputElement).value).toBe(title);
             expect((wrapper.find('textarea#topic').element as HTMLInputElement).value).toBe(topic);

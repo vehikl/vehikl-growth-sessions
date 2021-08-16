@@ -1,7 +1,16 @@
 <template>
-    <a class="block bg-gray-100 border border-blue-300 py-4 px-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
+    <a class="block bg-gray-100 border py-4 px-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer"
+       :class="growthSession.is_public ? 'border-blue-300' : 'border-vehikl-orange'"
          :href="growthSessionUrl">
         <div class="flex justify-end items-center" :class="{'mb-2': growthSession.title}" v-if="growthSession.title || isDraggable">
+            <a
+                :href="growthSession.calendarUrl"
+                target="_blank"
+                ref="add-to-calendar"
+                class="text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
+            >
+                <i aria-hidden="true" class="fa fa-calendar"></i>
+            </a>
             <button
                 v-show="growthSession.canEditOrDelete(user)"
                 class="update-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
