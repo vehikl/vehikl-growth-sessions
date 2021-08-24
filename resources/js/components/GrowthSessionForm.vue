@@ -152,7 +152,7 @@ import {IDropdownOption} from "../types/IDropdownOption";
         endTime: string = '05:00 pm';
         location: string = '';
         title: string = '';
-        attendeeLimit: number = 4;
+        attendeeLimit: number = 5;
         topic: string = '';
         date: string = '';
         isPublic: boolean = false;
