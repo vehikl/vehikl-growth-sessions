@@ -84,7 +84,7 @@
 <script lang="ts">
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import {IUser} from '../types';
-import GrowthSessionCard from './GrowthSessionCard.vue';
+import GrowthSessionCard from './GrowthSessionCardNew.vue';
 import GrowthSessionForm from './GrowthSessionForm.vue';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {DateTime} from '../classes/DateTime';
