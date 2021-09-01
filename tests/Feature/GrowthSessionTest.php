@@ -12,6 +12,21 @@ use Tests\TestCase;
 
 class GrowthSessionTest extends TestCase
 {
+
+    public function testTheGetGrowthSessionEndpointReturnsAViewIfTheRequestIsNotExpectingJson()
+    {
+        $growthSession = GrowthSession::factory()->create();
+        $this->get(route('growth_sessions.show', $growthSession))
+            ->assertViewHas(['growthSession.id' => $growthSession->id]);
+    }
+
+    public function testTheGetGrowthSessionEndpointReturnsAJsonPayloadIfTheRequestIsExpectingJson()
+    {
+        $growthSession = GrowthSession::factory()->create();
+        $this->getJson(route('growth_sessions.show', $growthSession))
+            ->assertJsonFragment(['id' => $growthSession->id]);
+    }
+
     public function testTheOwnerOfAGrowthSessionCanEditIt()
     {
         $growthSession = GrowthSession::factory()

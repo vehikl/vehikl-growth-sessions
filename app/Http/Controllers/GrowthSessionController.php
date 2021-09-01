@@ -20,10 +20,14 @@ use Illuminate\Http\Response;
 
 class GrowthSessionController extends Controller
 {
-    public function show(GrowthSession $growthSession)
+    public function show(Request $request, GrowthSession $growthSession)
     {
         // if the user is not allowed to view the growth session then return 404
         abort_unless((new GrowthSessionPolicy())->view(request()->user(), $growthSession), Response::HTTP_NOT_FOUND);
+
+        if ($request->expectsJson()) {
+            return response()->json(new GrowthSessionResource($growthSession));
+        }
 
         return view('growth-session', ['growthSession' => new GrowthSessionResource($growthSession)]);
     }
