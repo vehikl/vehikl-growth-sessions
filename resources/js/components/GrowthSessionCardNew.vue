@@ -7,10 +7,11 @@
             </div>
             <div class="ml-2 text-left">
                 <h2 class="font-semibold text-lg mb-2">Finishing Off our multi-group drop down menu</h2>
-                <span class="flex">
-                       <p class="text-gray-600 mb-2 mr-2">Darren Galway</p>
-                        <v-avatar src="https://avatars.githubusercontent.com/u/6425636?s=200&v=4" alt="Someone's Avatar" size="6"/>
-                </span>
+                <div class="flex">
+                    <p class="text-gray-600 mb-2 mr-2">Darren Galway</p>
+                    <v-avatar src="https://avatars.githubusercontent.com/u/6425636?s=200&v=4" alt="Someone's Avatar"
+                              size="6"/>
+                </div>
 
                 <span class="bg-gray-300 rounded-full px-3 py-1 text-gray-600 text-sm"><i :class="[isPublic ? 'fa-unlock' : 'fa-lock' ,'fa', 'mr-1']" aria-hidden="true"></i>{{isPublic? 'Public' : 'Private'}}</span>
 
@@ -26,10 +27,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import {GrowthSessionApi} from '../services/GrowthSessionApi';
-import {GrowthSession} from '../classes/GrowthSession';
-import {IUser} from '../types';
+import {Component, Vue} from 'vue-property-decorator';
 import VAvatar from './VAvatar.vue';
 import IconDraggable from '../svgs/IconDraggable.vue';
 import LocationRenderer from './LocationRenderer.vue';
