@@ -12,7 +12,7 @@
                         <v-avatar src="https://avatars.githubusercontent.com/u/6425636?s=200&v=4" alt="Someone's Avatar" size="6"/>
                 </span>
 
-                <span class="bg-gray-300 rounded-full px-3 py-1 text-gray-600 text-sm"><i class="fa fa-lock mr-1" aria-hidden="true"></i>Private</span>
+                <span class="bg-gray-300 rounded-full px-3 py-1 text-gray-600 text-sm"><i :class="`fa ${ isPublic ? 'fa-unlock' : 'fa-lock'} mr-1`" aria-hidden="true"></i>{{isPublic? 'Public' : 'Private'}}</span>
 
                 <span class="bg-gray-300 rounded-full px-3 py-1 text-gray-600 text-sm"><i class="fa fa-clock-o mr-1" aria-hidden="true"></i>1 hour</span>
                 <div class="flex items-center mt-5">
@@ -37,34 +37,9 @@ import LocationRenderer from './LocationRenderer.vue';
 @Component({
     components: {VAvatar, IconDraggable, LocationRenderer}
 })
-export default class GrowthSessionCard extends Vue {
-    @Prop({required: true}) growthSession!: GrowthSession;
-    @Prop({required: false, default: null}) user!: IUser;
+export default class GrowthSessionCardNew extends Vue {
+    isPublic: boolean = false;
 
-    get isDraggable(): boolean {
-        return this.growthSession.canEditOrDelete(this.user);
-    }
-
-    get growthSessionUrl() {
-        return GrowthSessionApi.showUrl(this.growthSession);
-    }
-
-    async joinGrowthSession() {
-        await this.growthSession.join();
-        this.$emit('growth-session-updated');
-    }
-
-    async leaveGrowthSession() {
-        await this.growthSession.leave();
-        this.$emit('growth-session-updated');
-    }
-
-    async onDeleteClicked() {
-        if (confirm('Are you sure you want to delete?')) {
-            await this.growthSession.delete();
-            this.$emit('delete-requested', this.growthSession);
-        }
-    }
 }
 </script>
 
