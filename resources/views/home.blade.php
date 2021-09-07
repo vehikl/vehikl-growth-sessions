@@ -14,6 +14,7 @@
             !
         </p>
     @endguest
+    <growth-session-card-new></growth-session-card-new>
     <week-view class="mt-6" :user="{{ json_encode(auth()->user()) }}"></week-view>
 
     <p class="text-lg mx-2 text-blue-700 font-bold mt-4">Have suggestions for this app? </p>
@@ -25,3 +26,4 @@
 
     @include('partials.about')
 @endsection
+
