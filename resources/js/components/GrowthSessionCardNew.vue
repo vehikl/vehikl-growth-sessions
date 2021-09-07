@@ -12,13 +12,13 @@
                         <v-avatar src="https://avatars.githubusercontent.com/u/6425636?s=200&v=4" alt="Someone's Avatar" size="6"/>
                 </span>
 
-                <span class="bg-gray-300 rounded-full px-3 py-1 text-gray-600 text-sm"><i :class="`fa ${ isPublic ? 'fa-unlock' : 'fa-lock'} mr-1`" aria-hidden="true"></i>{{isPublic? 'Public' : 'Private'}}</span>
+                <span class="bg-gray-300 rounded-full px-3 py-1 text-gray-600 text-sm"><i :class="[isPublic ? 'fa-unlock' : 'fa-lock' ,'fa', 'mr-1']" aria-hidden="true"></i>{{isPublic? 'Public' : 'Private'}}</span>
 
                 <span class="bg-gray-300 rounded-full px-3 py-1 text-gray-600 text-sm"><i class="fa fa-clock-o mr-1" aria-hidden="true"></i>1 hour</span>
                 <div class="flex items-center mt-5">
                     <i class="fa fa-users mr-2 text-gray-600" aria-hidden="true"></i>
                     <p class="text-gray-700">4 spots remaining</p>
-                    <button class="ml-auto text-blue-500 font-bold text">Join</button>
+                    <button class="hover:bg-indigo-200 p-2 rounded ml-auto text-indigo-500 font-bold text">Join</button>
                 </div>
             </div>
         </div>
