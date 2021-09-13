@@ -20,10 +20,14 @@ use Illuminate\Http\Response;
 
 class GrowthSessionController extends Controller
 {
-    public function show(GrowthSession $growthSession)
+    public function show(Request $request, GrowthSession $growthSession)
     {
         // if the user is not allowed to view the growth session then return 404
         abort_unless((new GrowthSessionPolicy())->view(request()->user(), $growthSession), Response::HTTP_NOT_FOUND);
+
+        if ($request->expectsJson()) {
+            return response()->json(new GrowthSessionResource($growthSession));
+        }
 
         return view('growth-session', ['growthSession' => new GrowthSessionResource($growthSession)]);
     }
@@ -63,14 +67,14 @@ class GrowthSessionController extends Controller
         $growthSession->attendees()->attach($request->user(), ['user_type_id' => UserType::ATTENDEE_ID]);
         event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
 
-        return $growthSession;
+        return new GrowthSessionResource($growthSession);
     }
 
     public function watch(GrowthSession $growthSession, Request $request)
     {
         $growthSession->watchers()->attach($request->user(), ['user_type_id' => UserType::WATCHER_ID]);
 
-        return $growthSession;
+        return new GrowthSessionResource($growthSession);
     }
 
     public function leave(GrowthSession $growthSession, Request $request)
@@ -80,7 +84,7 @@ class GrowthSessionController extends Controller
 
         event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
 
-        return $growthSession;
+        return new GrowthSessionResource($growthSession);
     }
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
@@ -89,7 +93,7 @@ class GrowthSessionController extends Controller
         $growthSession->update($request->validated());
         event(new GrowthSessionUpdated($originalValues, $growthSession->toArray()));
 
-        return $growthSession;
+        return new GrowthSessionResource($growthSession);
     }
 
     public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $growthSession)
