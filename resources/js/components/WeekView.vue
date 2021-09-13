@@ -20,14 +20,17 @@
         </div>
 
         <div class="flex flex-col md:flex-row justify-center flex-wrap">
-            <modal :dynamic="true" :height="600" :width="500" name="growth-session-form">
-                <div class="flex w-full h-full overflow-y-scroll">
-                    <growth-session-form :growth-session="growthSessionToUpdate"
-                                         :owner="user"
-                                         :start-date="newGrowthSessionDate"
-                                         class="growth-session-form"
-                                         @submitted="onFormSubmitted"/>
-                </div>
+            <modal :clickToClose="false" :dynamic="true" :height="650" :width="500" name="growth-session-form">
+               <div class="flex flex-wrap flex-row-reverse w-full h-full overflow-y-scroll">
+                   <button class="p-4 pb-0" @click="$modal.hide('growth-session-form')">
+                       <i class="fa fa-times text-xl" aria-hidden="true"></i>
+                   </button>
+                   <growth-session-form :growth-session="growthSessionToUpdate"
+                                        :owner="user"
+                                        :start-date="newGrowthSessionDate"
+                                        class="growth-session-form"
+                                        @submitted="onFormSubmitted"/>
+               </div>
             </modal>
             <div v-for="date in growthSessions.weekDates"
                  :key="date.toDateString()"
