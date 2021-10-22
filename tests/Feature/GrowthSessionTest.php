@@ -720,4 +720,41 @@ class GrowthSessionTest extends TestCase
 
         $this->assertEmpty($growthSession->watchers);
     }
+
+    public function testTheOwnerIsIncludedAsAnAttendee()
+    {
+        $payload = [
+            "end_time"=>"05:00 pm",
+            "attendee_limit"=>4,
+            "title"=>"Shubadubba",
+            "topic"=>"wubbadubba",
+            "location"=>"shhhh",
+            "start_time"=>"03:30 pm",
+            "date"=>"2021-10-22",
+            "is_public"=>false,
+            "updated_at"=>"2021-10-22T19:49:38.000000Z",
+            "created_at"=>"2021-10-22T19:49:38.000000Z",
+            "id"=>9,
+            "owner"=>[
+               "id"=>21,
+               "name"=>"Ian",
+               "avatar"=>"https=>//avatars.githubusercontent.com/u/19676786?v=4",
+               "email_verified_at"=>null,
+               "created_at"=>"2021-10-20T14:16;16.000000Z",
+               "updated_at"=>"2021-10-20T14:29:59.000000Z",
+               "github_nickname"=>"iaewing",
+               "is_vehikl_member"=>true,
+               "pivot"=>[
+                  "growth_session_id"=>"9",
+                  "user_id"=>"21"
+               ]
+            ],
+            "attendees"=>[
+               
+            ]
+            ];
+        $host = User::factory()->vehiklMember()->create();
+        $response = $this->actingAs($host)->post(route('growth_sessions.store', $payload))->assertSuccessful();
+        $this->assertCount(1, GrowthSession::all()->first()->attendees);
+    }
 }
