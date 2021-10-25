@@ -22,6 +22,10 @@
        href="https://github.com/FRFlor/social-mob/issues">
         Please, share them here!
     </a>
+    <p class="text-lg mx-2 text-blue-700 font-bold mt-4">Have feedback on our growth sessions? </p>
+    <p class="inline-block bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2 mt-2">
+       <a href="mailto:gsfeedback@vehikl.com">Send us an email!</a>
+</p>
 
     @include('partials.about')
 @endsection
