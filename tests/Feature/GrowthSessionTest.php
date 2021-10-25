@@ -38,8 +38,10 @@ class GrowthSessionTest extends TestCase
         $newTitle = 'A whole new title!';
         $isPublic = true;
 
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update',
-            ['growth_session' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
             'topic' => $newTopic,
             'title' => $newTitle,
             'is_public' => $isPublic
@@ -57,8 +59,10 @@ class GrowthSessionTest extends TestCase
             ->create(['attendee_limit' => 5]);
 
         $newAttendeeLimit = 10;
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update',
-            ['growth_session' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
             'attendee_limit' => $newAttendeeLimit
         ])->assertSuccessful();
 
@@ -75,8 +79,10 @@ class GrowthSessionTest extends TestCase
 
         $newAttendeeLimit = 4;
         $this->assertTrue($newAttendeeLimit < $growthSession->attendees()->count());
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update',
-            ['growth_session' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
             'attendee_limit' => $newAttendeeLimit
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 5.']);
@@ -89,8 +95,10 @@ class GrowthSessionTest extends TestCase
             ->create(['attendee_limit' => 5]);
 
         $newAttendeeLimit = 'bananas';
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update',
-            ['growth_session' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
             'attendee_limit' => $newAttendeeLimit
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be an integer.']);
@@ -102,8 +110,10 @@ class GrowthSessionTest extends TestCase
             ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
             ->create(['attendee_limit' => 5]);
 
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update',
-            ['growth_session' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
             'attendee_limit' => null
         ])->assertSuccessful();
 
@@ -118,8 +128,10 @@ class GrowthSessionTest extends TestCase
             ->create(['date' => "2020-01-02"]);
         $newDate = '2020-01-10';
 
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update',
-            ['growth_session' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
             'date' => $newDate,
         ])->assertSuccessful();
 
@@ -134,8 +146,10 @@ class GrowthSessionTest extends TestCase
             ->create(['date' => "2020-01-06"]);
         $newDate = '2020-01-03';
 
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update',
-            ['growth_session' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
             'date' => $newDate,
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -148,8 +162,10 @@ class GrowthSessionTest extends TestCase
             ->create(['date' => "2020-01-01"]);
         $newDate = '2020-01-10';
 
-        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update',
-            ['growth_session' => $growthSession->id]), [
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
             'date' => $newDate,
         ])->assertStatus(Response::HTTP_FORBIDDEN);
     }
@@ -159,8 +175,10 @@ class GrowthSessionTest extends TestCase
         $growthSession = GrowthSession::factory()->create();
         $notTheOwner = User::factory()->create();
 
-        $this->actingAs($notTheOwner)->putJson(route('growth_sessions.update',
-            ['growth_session' => $growthSession->id]), [
+        $this->actingAs($notTheOwner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
             'topic' => 'Anything',
         ])->assertForbidden();
     }
@@ -172,8 +190,10 @@ class GrowthSessionTest extends TestCase
             ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
             ->create();
 
-        $this->actingAs($growthSession->owner)->deleteJson(route('growth_sessions.destroy',
-            ['growth_session' => $growthSession->id]))
+        $this->actingAs($growthSession->owner)->deleteJson(route(
+            'growth_sessions.destroy',
+            ['growth_session' => $growthSession->id]
+        ))
             ->assertSuccessful();
 
         $this->assertEmpty($growthSession->fresh());
@@ -184,8 +204,10 @@ class GrowthSessionTest extends TestCase
         $growthSession = GrowthSession::factory()->create();
         $notTheOwner = User::factory()->create();
 
-        $this->actingAs($notTheOwner)->deleteJson(route('growth_sessions.destroy',
-            ['growth_session' => $growthSession->id]))
+        $this->actingAs($notTheOwner)->deleteJson(route(
+            'growth_sessions.destroy',
+            ['growth_session' => $growthSession->id]
+        ))
             ->assertForbidden();
     }
 
@@ -337,8 +359,10 @@ class GrowthSessionTest extends TestCase
 
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->getJson(route('growth_sessions.week',
-            ['date' => $weekThatHasTheGrowthSessions]));
+        $response = $this->actingAs($user)->getJson(route(
+            'growth_sessions.week',
+            ['date' => $weekThatHasTheGrowthSessions]
+        ));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
@@ -528,7 +552,9 @@ class GrowthSessionTest extends TestCase
         // Create a session
         $user = User::factory()->create(['is_vehikl_member' => true]);
         $this->actingAs($user)->postJson(
-            route('growth_sessions.store'), $this->defaultParameters(['is_public' => true]));
+            route('growth_sessions.store'),
+            $this->defaultParameters(['is_public' => true])
+        );
 
         // check if the session is public
         $this->assertTrue(GrowthSession::find(1)->is_public);
@@ -723,38 +749,9 @@ class GrowthSessionTest extends TestCase
 
     public function testTheOwnerIsIncludedAsAnAttendee()
     {
-        $payload = [
-            "end_time"=>"05:00 pm",
-            "attendee_limit"=>4,
-            "title"=>"Shubadubba",
-            "topic"=>"wubbadubba",
-            "location"=>"shhhh",
-            "start_time"=>"03:30 pm",
-            "date"=>"2021-10-22",
-            "is_public"=>false,
-            "updated_at"=>"2021-10-22T19:49:38.000000Z",
-            "created_at"=>"2021-10-22T19:49:38.000000Z",
-            "id"=>9,
-            "owner"=>[
-               "id"=>21,
-               "name"=>"Ian",
-               "avatar"=>"https=>//avatars.githubusercontent.com/u/19676786?v=4",
-               "email_verified_at"=>null,
-               "created_at"=>"2021-10-20T14:16;16.000000Z",
-               "updated_at"=>"2021-10-20T14:29:59.000000Z",
-               "github_nickname"=>"iaewing",
-               "is_vehikl_member"=>true,
-               "pivot"=>[
-                  "growth_session_id"=>"9",
-                  "user_id"=>"21"
-               ]
-            ],
-            "attendees"=>[
-               
-            ]
-            ];
+        $newGrowthSession = GrowthSession::factory()->make()->toArray();
         $host = User::factory()->vehiklMember()->create();
-        $response = $this->actingAs($host)->post(route('growth_sessions.store', $payload))->assertSuccessful();
+        $response = $this->actingAs($host)->post(route('growth_sessions.store', $newGrowthSession))->assertSuccessful();
         $this->assertCount(1, GrowthSession::all()->first()->attendees);
     }
 }
