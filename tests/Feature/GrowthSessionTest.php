@@ -746,12 +746,4 @@ class GrowthSessionTest extends TestCase
 
         $this->assertEmpty($growthSession->watchers);
     }
-
-    public function testTheOwnerIsIncludedAsAnAttendee()
-    {
-        $newGrowthSession = GrowthSession::factory()->make()->toArray();
-        $host = User::factory()->vehiklMember()->create();
-        $response = $this->actingAs($host)->post(route('growth_sessions.store', $newGrowthSession))->assertSuccessful();
-        $this->assertCount(1, GrowthSession::all()->first()->attendees);
-    }
 }
