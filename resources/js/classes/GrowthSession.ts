@@ -99,14 +99,9 @@ export class GrowthSession implements IGrowthSession {
         try {
             const updated = await GrowthSessionApi.join(this);
             this.refresh(updated);
-            if (window.confirm("Would you like to add it to your calendar?")) {
-                window.open(this.calendarUrl, '_blank');
-            }
         } catch (e) {
 
         }
-
-
     }
 
     canLeave(user: IUser): boolean {
