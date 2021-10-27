@@ -40,6 +40,10 @@ export class WeekGrowthSessions {
         return this.weekDates[this.weekDates.length - 1];
     }
 
+    get hasCurrentDate(): boolean {
+        return !!this.weekDates.find(date => date.isToday())
+    }
+
     static empty(): WeekGrowthSessions {
         return new WeekGrowthSessions({[DateTime.today().toDateString()] : []});
     }
