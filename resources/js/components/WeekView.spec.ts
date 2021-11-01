@@ -189,4 +189,39 @@ describe('WeekView', () => {
             expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
         });
     });
+
+    describe('Scroll to today', () => {
+        it('will show the scroll to today button', async () => {
+            DateTime.setTestNow(todayDate)
+            wrapper = mount(WeekView, {localVue});
+            await flushPromises();
+            expect(wrapper.findComponent({ ref: 'scroll-to-today' }).exists()).toBeTruthy()
+        })
+        it('will hide the scroll to today button when today is not available', async () => {
+            DateTime.setTestNow(metadataForGrowthSessionsFixture.nextWeek.date)
+            wrapper = mount(WeekView, {localVue});
+            await flushPromises();
+            expect(wrapper.findComponent({ ref: 'scroll-to-today' }).exists()).toBeFalsy()
+        })
+
+        it('it calls the scroll to method on the today date when the button is clicked', async () => {
+            let scrollIntoViewMock = jest.fn();
+
+            DateTime.setTestNow(todayDate)
+            const today = DateTime.today()
+            wrapper = mount(WeekView, {
+                localVue,
+                attachTo: document.body
+            });
+            await flushPromises();
+
+            const header = wrapper.find(`#${today.weekDayString()}`)
+
+            header.element.scrollIntoView = scrollIntoViewMock
+
+            wrapper.findComponent({ ref: 'scroll-to-today' }).trigger('click');
+
+            expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
+        })
+    })
 });
