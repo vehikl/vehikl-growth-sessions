@@ -24,7 +24,7 @@ export class WeekGrowthSessions {
     }
 
     getSessionByDate(date: DateTime): GrowthSession[] {
-        return this.weekGrowthSessions[date.toDateString()] as GrowthSession[];
+        return this.weekGrowthSessions[date.toDateString()] as GrowthSession[] ?? [];
     }
 
     get isReady(): boolean {
