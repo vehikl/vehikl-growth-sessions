@@ -37,16 +37,6 @@ describe('GrowthSession', () => {
         expect(growthSession.googleCalendarDate).toEqual('20200101T200000Z/20200101T220000Z');
     });
 
-    it('prompts the user to add the growth session to their calendar when they join', async () => {
-        const userAgreedToAddToCalendar = true;
-        window.confirm = jest.fn().mockReturnValue(userAgreedToAddToCalendar);
-        window.open = jest.fn();
-        GrowthSessionApi.join = jest.fn().mockImplementation(growthSession => growthSession);
-        await growthSession.join();
-
-        expect(window.open).toHaveBeenCalledWith(growthSession.calendarUrl, '_blank');
-    });
-
     describe('canJoin', () => {
         it('prevents joining when limit reached', () => {
             const growthSession: GrowthSession = new GrowthSession({...growthSessionJson, attendees: [], date: '2099-01-01', attendee_limit: 1 })
