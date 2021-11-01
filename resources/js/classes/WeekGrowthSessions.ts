@@ -24,7 +24,7 @@ export class WeekGrowthSessions {
     }
 
     getSessionByDate(date: DateTime): GrowthSession[] {
-        return this.weekGrowthSessions[date.toDateString()] as GrowthSession[];
+        return this.weekGrowthSessions[date.toDateString()] as GrowthSession[] ?? [];
     }
 
     get isReady(): boolean {
@@ -38,6 +38,10 @@ export class WeekGrowthSessions {
 
     get lastDay(): DateTime {
         return this.weekDates[this.weekDates.length - 1];
+    }
+
+    get hasCurrentDate(): boolean {
+        return !!this.weekDates.find(date => date.isToday())
     }
 
     static empty(): WeekGrowthSessions {

@@ -38,11 +38,13 @@
                  'bg-blue-100 border-blue-200': date.isEvenDate(),
                  'bg-blue-200 border-blue-300': !date.isEvenDate(),
                  }"
+
                  :weekDay="date.weekDayString()"
                  class="day flex flex-col text-center mx-1 mb-2 relative rounded border">
                 <h3
                     class="text-lg text-blue-700 font-bold p-3 md:pt-6 sticky sm:relative top-0 w-full z-20 border-b md:border-b-0 rounded-t md:rounded-none mb-2 md:mb-0"
                     v-text="date.weekDayString()"
+                    :id="date.weekDayString()"
                     :class="{
                      'bg-blue-100 border-blue-200': date.isEvenDate(),
                      'bg-blue-200 border-blue-300': !date.isEvenDate(),
@@ -79,6 +81,11 @@
                         <i aria-hidden="true" class="fa fa-plus-circle"></i>
                     </button>
                 </draggable>
+            </div>
+            <div class="block md:hidden fixed bottom-0 right-0 m-2 z-50" v-if="growthSessions.hasCurrentDate">
+                <button @click="scrollToDate(DateTime.today().weekDayString())" type="button" ref="scroll-to-today" class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Go to today <i aria-hidden="true" class="fa fa-calendar ml-2"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -183,6 +190,10 @@ export default class WeekView extends Vue {
         this.referenceDate.addDays(deltaDays);
         window.history.pushState({}, document.title, `?date=${this.referenceDate.toDateString()}`);
         await this.getAllGrowthSessionsOfTheWeek();
+    }
+
+    scrollToDate(id: string) {
+        window.document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
     }
 }
 </script>
