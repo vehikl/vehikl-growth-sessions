@@ -98,7 +98,8 @@
                     <li v-for="attendee in growthSession.attendees">
                         <a ref="attendee" :href="attendee.githubURL" class="flex items-center ml-6 my-4">
                             <v-avatar size="12" class="mr-3" :src="attendee.avatar" :alt="`${attendee.name}'s Avatar`"/>
-                            {{ attendee.name }}
+                            <p v-if="attendee.is_vehikl_member == false" class="text-vehikl-orange">{{ attendee.name }}</p>
+                            <p v-else>{{ attendee.name }}</p>
                         </a>
                     </li>
                 </ul>
