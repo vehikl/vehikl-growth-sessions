@@ -100,6 +100,16 @@ services:
     volumes:
       - project:/project
 
+  grafana:
+    image: grafana/grafana
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+    #environment:
+      # GF_INSTALL_PLUGINS: percona-percona-app
+
+
 networks:
   growth-app:
     driver: bridge

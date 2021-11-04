@@ -1,0 +1,19 @@
+apiVersion: 1
+
+#deleteDatasources:
+#  - name: MYINFLUX
+#    orgId: 1
+
+
+
+datasources:
+    - name: growth
+      type: mysql
+      orgId: 1
+      url: db
+      password: taco
+      user: tuesday
+      database: growth
+      editable: true
+      isDefault: true
+

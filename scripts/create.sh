@@ -1,10 +1,10 @@
 #!/bin/sh
 
 # Login in vault
-brew list vault || brew install vault
-read -p 'This project relies on sensitive credentials, please enter the vault token:' token
-export VAULT_ADDR='http://159.203.15.136:8205'
-vault login $token || exit 1
+#brew list vault || brew install vault
+#read -p 'This project relies on sensitive credentials, please enter the vault token:' token
+#export VAULT_ADDR='http://159.203.15.136:8205'
+#vault login $token || exit 1
 
 # Make sure mutagen is installed, or install it
 brew list mutagen || brew install mutagen-io/mutagen/mutagen
@@ -22,8 +22,10 @@ cd $PROJECT_PATH
 cp .env.example .env
 
 # Add github credentials
-GITHUB_CLIENT_ID=$(vault kv get -field=GITHUB_CLIENT_ID kv/growth-sessions)
-GITHUB_CLIENT_SECRET=$(vault kv get -field=GITHUB_CLIENT_SECRET kv/growth-sessions)
+#GITHUB_CLIENT_ID=$(vault kv get -field=GITHUB_CLIENT_ID kv/growth-sessions)
+GITHUB_CLIENT_ID="some-random-gibberish"
+#GITHUB_CLIENT_SECRET=$(vault kv get -field=GITHUB_CLIENT_SECRET kv/growth-sessions)
+GITHUB_CLIENT_SECRET="some-more-random-gibberish"
 
 sed -i '' "s#GITHUB_CLIENT_ID=.*#GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID#"  ./.env
 sed -i '' "s#GITHUB_CLIENT_SECRET=.*#GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET#"  ./.env
