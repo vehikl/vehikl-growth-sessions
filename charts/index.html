@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<h1>Our beautiful chart</h1>
+<canvas id="ourChart"></canvas>
+<script>
+    let ourChart = document.getElementById('ourChart').getContext('2d');
+
+    const data = ['522,994', '159,249', '977,043', '781,024', '8,572,054', '14,723,497', '1,378,818', '1,179,618', '4,417,006', '5,142,404', '41,980', '545,201', '38,966', ].map(v => parseInt(v.replace(/,/g, '')))
+
+    let chart = new Chart(ourChart, {
+        type: 'radar',
+        data:{
+            labels: ['Newfoundland and Labrador', 'Prince Edward Island',' Nova Scotia', 'New Brunswick', 'Quebec', 'Ontario', 'Manitoba', 'Saskatchewan', 'Alberta', 'British Columbia', 'Yukon', 'Northwest Territories', 'Nunavut'],
+            datasets:[{
+                label: 'Super cool data',
+                data,
+                backgroundColor: [
+                    'rgb(238,181,26)',
+                    'rgb(43,94,139)',
+                    'rgb(130,39,39)'
+                ],
+            }]
+        },
+
+        options:{}
+    });
+</script>
+</body>
+</html>
+
+https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710000901
+

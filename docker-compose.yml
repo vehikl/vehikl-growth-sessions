@@ -108,6 +108,8 @@ services:
       - ./docker/grafana/provisioning:/etc/grafana/provisioning
     #environment:
       # GF_INSTALL_PLUGINS: percona-percona-app
+    networks:
+      - growth-app
 
 
 networks:
