@@ -54,15 +54,8 @@ class User extends Authenticatable
             ->pluck('social_mob_id'))
             ->orderBy('date');
 
-       //dd($attended->pluck('date')->map->toDateString());
+        $diffInDays = $attended->first()->date->diffInDays(now());
 
-        /** @var Carbon $minDate */
-        $minDate = $attended->first()->date;
-        $maxDate = now();
-
-        $diffInDays = $minDate->diffInDays($maxDate);
-
-        //dump($minDate->diffInDays($maxDate));
         return ($attended->count() / $diffInDays) * 7;
     }
 }

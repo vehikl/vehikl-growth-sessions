@@ -34,10 +34,10 @@ class UserTest extends TestCase
 
         $this->assertEquals(4, $this->user->attendedGrowthSessionsCount);
     }
+
     /** @test */
     public function it_returns_the_avg_number_of_growth_sessions_attended_by_the_user(): void
     {
-        Carbon::setTestNow();
         GrowthSession::factory()
             ->times(1)
             ->create()
@@ -53,6 +53,7 @@ class UserTest extends TestCase
             ->map(function (GrowthSession $session) {
                 $session->attendees()->attach($this->user);
             });
+
         GrowthSession::factory()
             ->count(1)
             ->create([
