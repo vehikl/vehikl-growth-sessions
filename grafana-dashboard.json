@@ -28,6 +28,172 @@
     "panels": [
         {
             "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "displayMode": "auto"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 0
+            },
+            "id": 21,
+            "options": {
+                "showHeader": true
+            },
+            "pluginVersion": "8.2.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT u1.name as 'name 1', COUNT(data.user_id1) count, u2.name as 'name 2'\nFROM (\n\tSELECT gsu1.user_id as user_id1, \n\t\t\tgsu2.user_id as user_id2 \n\tFROM growth_session_user gsu1\n\tJOIN growth_session_user gsu2\n\t\tON gsu1.growth_session_id = gsu2.growth_session_id AND\n\t\t\tgsu1.user_id <> gsu2.user_id) data\nJOIN users u1 ON u1.id = data.user_id1\nJOIN users u2 ON u2.id = data.user_id2\nGROUP BY data.user_id1, data.user_id2\nORDER BY count DESC;\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "comments",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Mobbed Together the Most",
+            "type": "table"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMin": 0,
+                        "fillOpacity": 80,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineWidth": 1
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 0
+            },
+            "id": 15,
+            "options": {
+                "barWidth": 0.97,
+                "groupWidth": 0.7,
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "orientation": "auto",
+                "showValue": "auto",
+                "stacking": "none",
+                "text": {},
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "Select u.name, count(growth_session_id) as total_gs from growth_session_user as gs\njoin users as u ON u.id = gs.user_id\nwhere gs.user_type_id = 2\ngroup by gs.user_id\nORDER BY total_gs DESC\nLIMIT 10",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "comments",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Top 10 users with most attended growth sessions",
+            "type": "barchart"
+        },
+        {
+            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -67,7 +233,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 0
+                "y": 8
             },
             "id": 14,
             "options": {
@@ -121,6 +287,246 @@
         },
         {
             "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 3,
+                "x": 12,
+                "y": 8
+            },
+            "id": 17,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.2.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "select\n\tAVG(length)\nfrom (\n\tSELECT (TIME_TO_SEC(end_time) - TIME_TO_SEC(start_time))/60 \n\tas length\n\tfrom growth_sessions\n) as gs_length;\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "comments",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "AVG Mins per Growth Session",
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 3,
+                "x": 15,
+                "y": 8
+            },
+            "id": 19,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.2.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT count(gsu.growth_session_id) as guest_attendee_count \nfrom growth_session_user gsu\njoin users on gsu.user_id = users.id\njoin growth_sessions on gsu.growth_session_id = growth_sessions.id\nwhere gsu.user_type_id = 2\nand growth_sessions.is_public = 1\nand users.is_vehikl_member = 0\ngroup by gsu.growth_session_id\norder by guest_attendee_count DESC\nLIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "comments",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Max Public Guests",
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 4,
+                "x": 12,
+                "y": 13
+            },
+            "id": 9,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.2.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT\n  MAX(attendee_count.count)\nFROM\n(\n  SELECT count(user_id) as count\n  FROM growth_session_user\n  GROUP BY growth_session_id\n) as attendee_count\n\n\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "users",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Max Number of Attendees",
+            "type": "stat"
+        },
+        {
+            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -144,7 +550,7 @@
                 "h": 5,
                 "w": 4,
                 "x": 0,
-                "y": 8
+                "y": 16
             },
             "id": 11,
             "options": {
@@ -224,7 +630,7 @@
                 "h": 5,
                 "w": 4,
                 "x": 4,
-                "y": 8
+                "y": 16
             },
             "id": 7,
             "options": {
@@ -304,7 +710,7 @@
                 "h": 5,
                 "w": 4,
                 "x": 8,
-                "y": 8
+                "y": 16
             },
             "id": 8,
             "options": {
@@ -380,7 +786,7 @@
                 "h": 5,
                 "w": 4,
                 "x": 0,
-                "y": 13
+                "y": 21
             },
             "id": 6,
             "options": {
@@ -456,7 +862,7 @@
                 "h": 5,
                 "w": 4,
                 "x": 4,
-                "y": 13
+                "y": 21
             },
             "id": 12,
             "options": {
@@ -536,7 +942,7 @@
                 "h": 5,
                 "w": 4,
                 "x": 8,
-                "y": 13
+                "y": 21
             },
             "id": 10,
             "options": {
@@ -610,7 +1016,7 @@
                 "h": 8,
                 "w": 4,
                 "x": 0,
-                "y": 18
+                "y": 26
             },
             "id": 4,
             "options": {
@@ -741,86 +1147,6 @@
             ],
             "title": "Private vs Public Growth Sessions",
             "type": "piechart"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 5,
-                "w": 4,
-                "x": 4,
-                "y": 18
-            },
-            "id": 9,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.2.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT\n  MAX(attendee_count.count)\nFROM\n(\n  SELECT count(user_id) as count\n  FROM growth_session_user\n  GROUP BY growth_session_id\n) as attendee_count\n\n\n",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "id"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "table": "users",
-                    "timeColumn": "created_at",
-                    "timeColumnType": "timestamp",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Max Number of Attendees",
-            "type": "stat"
         }
     ],
     "schemaVersion": 31,
@@ -837,5 +1163,5 @@
     "timezone": "",
     "title": "Vehikl Growth sessions",
     "uid": "pYe7wXF7k",
-    "version": 4
+    "version": 9
 }
