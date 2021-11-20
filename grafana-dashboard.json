@@ -31,6 +31,304 @@
             "fieldConfig": {
                 "defaults": {
                     "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        }
+                    },
+                    "mappings": []
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "gs_with_limit"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#dd5f13",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "gs_with_no_limit"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 0
+            },
+            "id": 27,
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "pieType": "pie",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT SUM(count) gs_with_limit\nFROM (\n\tSELECT COUNT(id) count\n\tFROM growth_sessions\n\tWHERE attendee_limit < 1000\n\tGROUP BY attendee_limit\n) data;",
+                    "refId": "with_limit",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "comments",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                },
+                {
+                    "format": "table",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT SUM(count) gs_with_no_limit\nFROM (\n\tSELECT COUNT(id) count\n\tFROM growth_sessions\n\tWHERE attendee_limit > 1000\n\tGROUP BY attendee_limit\n) data;",
+                    "refId": "with_no_limit",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "comments",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "gs_with_vs_without_limit",
+            "type": "piechart"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "total_gs"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#dd5f13",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "COUNT(growth_session_id)"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "SUM(user_count)"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#dd5f13",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "total_attendees"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 8
+            },
+            "id": 25,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT time, COUNT(growth_session_id) total_gs, SUM(user_count) total_attendees\nFROM (\n\tSELECT growth_session_id, COUNT(user_id) user_count, CAST(date as datetime) time\n\tFROM growth_session_user gsu\n\tJOIN growth_sessions gs ON gs.id = gsu.growth_session_id\n\tGROUP BY growth_session_id\n) data\nGROUP BY time;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "comments",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "gs_number_and_attendance_over_time",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
                         "mode": "thresholds"
                     },
                     "custom": {
@@ -51,11 +349,11 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#dd5f13",
                                 "value": null
                             },
                             {
-                                "color": "red",
+                                "color": "blue",
                                 "value": 80
                             }
                         ]
@@ -67,7 +365,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 0
+                "y": 16
             },
             "id": 22,
             "options": {
@@ -93,7 +391,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT gs_count.host_name, total_gs 'hosted growth sessions', count 'total number of guests'\nFROM (\n\tSELECT u.name host_name, COUNT(growth_session_id) total_gs\n\tFROM growth_session_user gs\n\tJOIN users u ON u.id = gs.user_id\n\tWHERE gs.user_type_id = 1\n\tGROUP BY gs.user_id\n) gs_count\nJOIN\n(\n\tSELECT COUNT(user_id) count, u.name host_name\n\tFROM (\n\t\tSELECT user_id, gsu.growth_session_id, gs_owners.owner_id\n\t\tFROM growth_session_user gsu\n\t\tJOIN (\n\t\t\tSELECT gsu.growth_session_id gs_id, user_id owner_id\n\t\t\tFROM growth_session_user gsu\n\t\t\tWHERE gsu.user_type_id = 1\n\t\t\t) gs_owners \n\t\t\tON gs_owners.gs_id = gsu.growth_session_id\n\t) data\n\tJOIN users u ON u.id = data.owner_id \n\tGROUP BY owner_id\n) user_count ON gs_count.host_name = user_count.host_name\nORDER BY total_gs DESC\nLIMIT 10;",
+                    "rawSql": "SELECT gs_count.host_name, total_gs hosted_growth_sessions, count total_number_of_attendees\nFROM (\n\tSELECT u.name host_name, COUNT(growth_session_id) total_gs\n\tFROM growth_session_user gs\n\tJOIN users u ON u.id = gs.user_id\n\tWHERE gs.user_type_id = 1\n\tGROUP BY gs.user_id\n) gs_count\nJOIN\n(\n\tSELECT COUNT(user_id) count, u.name host_name\n\tFROM (\n\t\tSELECT user_id, gsu.growth_session_id, gs_owners.owner_id\n\t\tFROM growth_session_user gsu\n\t\tJOIN (\n\t\t\tSELECT gsu.growth_session_id gs_id, user_id owner_id\n\t\t\tFROM growth_session_user gsu\n\t\t\tWHERE gsu.user_type_id = 1\n\t\t\t) gs_owners \n\t\t\tON gs_owners.gs_id = gsu.growth_session_id\n\t) data\n\tJOIN users u ON u.id = data.owner_id \n\tGROUP BY owner_id\n) user_count ON gs_count.host_name = user_count.host_name\nORDER BY total_gs DESC\nLIMIT 10;",
                     "refId": "A",
                     "select": [
                         [
@@ -117,7 +415,8 @@
                     ]
                 }
             ],
-            "title": "Users With Biggest Number Of Hosted Growth Sessions",
+            "title": "users_with_biggest_number_of_hosted_growth_sessions",
+            "transparent": true,
             "type": "barchart"
         },
         {
@@ -132,12 +431,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#dd5f13",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     }
@@ -146,9 +441,9 @@
             },
             "gridPos": {
                 "h": 3,
-                "w": 4,
+                "w": 5,
                 "x": 0,
-                "y": 8
+                "y": 24
             },
             "id": 9,
             "options": {
@@ -197,167 +492,8 @@
                     ]
                 }
             ],
-            "title": "MAX People In One Growth Session",
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 6,
-                "x": 4,
-                "y": 8
-            },
-            "id": 8,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.2.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT MAX(growth_sessions_count.count)\nFROM\n(\n  SELECT COUNT(id) count\n  FROM growth_sessions\n  GROUP BY growth_sessions.date\n) growth_sessions_count;\n\n\n",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "id"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "table": "users",
-                    "timeColumn": "created_at",
-                    "timeColumnType": "timestamp",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Max Number of Daily Growth Sessions",
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 5,
-                "x": 10,
-                "y": 8
-            },
-            "id": 17,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.2.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "select\n\tAVG(length)\nfrom (\n\tSELECT (TIME_TO_SEC(end_time) - TIME_TO_SEC(start_time))/60 \n\tas length\n\tfrom growth_sessions\n) as gs_length;\n",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "id"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "table": "comments",
-                    "timeColumn": "created_at",
-                    "timeColumnType": "timestamp",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Average Growth Session Duration (mins)",
+            "title": "max_gs_attendees",
+            "transparent": true,
             "type": "stat"
         },
         {
@@ -369,20 +505,21 @@
                         "mode": "thresholds"
                     },
                     "custom": {
-                        "align": "auto",
-                        "displayMode": "auto"
+                        "align": "center",
+                        "displayMode": "color-text",
+                        "filterable": true
                     },
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "text",
                                 "value": null
                             },
                             {
-                                "color": "red",
-                                "value": 80
+                                "color": "orange",
+                                "value": 0
                             }
                         ]
                     }
@@ -396,27 +533,46 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 129
+                                "value": 190
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "member2"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 329
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "member1"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 292
                             }
                         ]
                     }
                 ]
             },
             "gridPos": {
-                "h": 9,
-                "w": 9,
-                "x": 15,
-                "y": 8
+                "h": 15,
+                "w": 14,
+                "x": 5,
+                "y": 24
             },
             "id": 23,
             "options": {
                 "showHeader": true,
-                "sortBy": [
-                    {
-                        "desc": true,
-                        "displayName": "count"
-                    }
-                ]
+                "sortBy": []
             },
             "pluginVersion": "8.2.3",
             "targets": [
@@ -425,7 +581,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT u1.name member1, COUNT(data.user_id1) count, u2.name member2\nFROM (\n\tSELECT gsu1.user_id as user_id1, \n\t\t\tgsu2.user_id as user_id2 \n\tFROM growth_session_user gsu1\n\tJOIN growth_session_user gsu2\n\t\tON gsu1.growth_session_id = gsu2.growth_session_id AND\n\t\t\tgsu1.user_id <> gsu2.user_id) data\nJOIN users u1 ON u1.id = data.user_id1\nJOIN users u2 ON u2.id = data.user_id2\nWHERE STRCMP(u1.name, u2.name) = 1\nGROUP BY data.user_id1, data.user_id2\nORDER BY count DESC;",
+                    "rawSql": "SELECT u1.name user_1, COUNT(data.user_id1) times_mobbed_together, u2.name user_2\nFROM (\n\tSELECT gsu1.user_id as user_id1, \n\t\t\tgsu2.user_id as user_id2 \n\tFROM growth_session_user gsu1\n\tJOIN growth_session_user gsu2\n\t\tON gsu1.growth_session_id = gsu2.growth_session_id AND\n\t\t\tgsu1.user_id <> gsu2.user_id) data\nJOIN users u1 ON u1.id = data.user_id1\nJOIN users u2 ON u2.id = data.user_id2\nWHERE STRCMP(u1.name, u2.name) = 1\nGROUP BY data.user_id1, data.user_id2\nORDER BY times_mobbed_together DESC;",
                     "refId": "A",
                     "select": [
                         [
@@ -449,7 +605,8 @@
                     ]
                 }
             ],
-            "title": "Mobbed Together the Most",
+            "title": "times_users_participated_in_one_gs_together",
+            "transparent": true,
             "type": "table"
         },
         {
@@ -464,88 +621,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 6,
-                "x": 0,
-                "y": 11
-            },
-            "id": 7,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.2.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT AVG(growth_sessions_count.count)\nFROM\n(\n  SELECT COUNT(id) count\n  FROM growth_sessions\n  GROUP BY growth_sessions.date\n) growth_sessions_count;\n\n\n",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "id"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "table": "users",
-                    "timeColumn": "created_at",
-                    "timeColumnType": "timestamp",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Average Number of Daily Growth Sessions",
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
+                                "color": "#dd5f13",
                                 "value": null
                             }
                         ]
@@ -556,320 +632,8 @@
             "gridPos": {
                 "h": 3,
                 "w": 5,
-                "x": 6,
-                "y": 11
-            },
-            "id": 11,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.2.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT COUNT(id) count\nFROM growth_sessions;\n\n\n",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "id"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "table": "users",
-                    "timeColumn": "created_at",
-                    "timeColumnType": "timestamp",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Total Growth Sessions",
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 4,
-                "x": 11,
-                "y": 11
-            },
-            "id": 19,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.2.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT count(gsu.growth_session_id) as guest_attendee_count \nfrom growth_session_user gsu\njoin users on gsu.user_id = users.id\njoin growth_sessions on gsu.growth_session_id = growth_sessions.id\nwhere gsu.user_type_id = 2\nand growth_sessions.is_public = 1\nand users.is_vehikl_member = 0\ngroup by gsu.growth_session_id\norder by guest_attendee_count DESC\nLIMIT 1;",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "id"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "table": "comments",
-                    "timeColumn": "created_at",
-                    "timeColumnType": "timestamp",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Max Public Guests",
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 4,
-                "x": 0,
-                "y": 14
-            },
-            "id": 12,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.2.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT COUNT(DISTINCT github_nickname)\nFROM users;\n",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "id"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "table": "users",
-                    "timeColumn": "created_at",
-                    "timeColumnType": "timestamp",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "User Count",
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 5,
-                "x": 4,
-                "y": 14
-            },
-            "id": 6,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.2.3",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT COUNT(DISTINCT github_nickname)\nFROM users\nWHERE is_vehikl_member = 0;",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "id"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "table": "users",
-                    "timeColumn": "created_at",
-                    "timeColumnType": "timestamp",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Total Guests",
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 6,
-                "x": 9,
-                "y": 14
+                "x": 19,
+                "y": 24
             },
             "id": 10,
             "options": {
@@ -918,7 +682,8 @@
                     ]
                 }
             ],
-            "title": "Average Number of Attendees",
+            "title": "avg_attendees_per_gs",
+            "transparent": true,
             "type": "stat"
         },
         {
@@ -926,6 +691,547 @@
             "fieldConfig": {
                 "defaults": {
                     "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#dd5f13",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 5,
+                "x": 0,
+                "y": 27
+            },
+            "id": 8,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.2.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT MAX(growth_sessions_count.count)\nFROM\n(\n  SELECT COUNT(id) count\n  FROM growth_sessions\n  GROUP BY growth_sessions.date\n) growth_sessions_count;\n\n\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "users",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "max_number_of_gs_hosted_in_a_day",
+            "transparent": true,
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#dd5f13",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 5,
+                "x": 19,
+                "y": 27
+            },
+            "id": 17,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.2.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "select\n\tAVG(length)\nfrom (\n\tSELECT (TIME_TO_SEC(end_time) - TIME_TO_SEC(start_time))/60 \n\tas length\n\tfrom growth_sessions\n) as gs_length;\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "comments",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "avg_gs_duration",
+            "transparent": true,
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#dd5f13",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 5,
+                "x": 0,
+                "y": 30
+            },
+            "id": 7,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.2.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT AVG(growth_sessions_count.count)\nFROM\n(\n  SELECT COUNT(id) count\n  FROM growth_sessions\n  GROUP BY growth_sessions.date\n) growth_sessions_count;\n\n\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "users",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "avg_number_of_daily_gs",
+            "transparent": true,
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#dd5f13",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 5,
+                "x": 19,
+                "y": 30
+            },
+            "id": 11,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.2.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT COUNT(id) count\nFROM growth_sessions;\n\n\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "users",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "total_gs",
+            "transparent": true,
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#dd5f13",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 5,
+                "x": 0,
+                "y": 33
+            },
+            "id": 19,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.2.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT count(gsu.growth_session_id) as guest_attendee_count \nfrom growth_session_user gsu\njoin users on gsu.user_id = users.id\njoin growth_sessions on gsu.growth_session_id = growth_sessions.id\nwhere gsu.user_type_id = 2\nand growth_sessions.is_public = 1\nand users.is_vehikl_member = 0\ngroup by gsu.growth_session_id\norder by guest_attendee_count DESC\nLIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "comments",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "max_public_guests_in_a_gs",
+            "transparent": true,
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#dd5f13",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 5,
+                "x": 19,
+                "y": 33
+            },
+            "id": 6,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.2.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT COUNT(DISTINCT github_nickname)\nFROM users\nWHERE is_vehikl_member = 0;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "users",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "total_unique_guests",
+            "transparent": true,
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#dd5f13",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 5,
+                "x": 0,
+                "y": 36
+            },
+            "id": 12,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.2.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT COUNT(DISTINCT github_nickname)\nFROM users;\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "users",
+                    "timeColumn": "created_at",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "total_unique_participants",
+            "transparent": true,
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "#b877d9",
                         "mode": "palette-classic"
                     },
                     "custom": {
@@ -937,21 +1243,54 @@
                     },
                     "mappings": []
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "private"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "light-blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "public"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#f57c31",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 11,
                 "w": 5,
                 "x": 0,
-                "y": 17
+                "y": 39
             },
             "id": 4,
             "options": {
+                "displayLabels": [],
                 "legend": {
                     "displayMode": "list",
-                    "placement": "bottom"
+                    "placement": "bottom",
+                    "values": []
                 },
-                "pieType": "pie",
+                "pieType": "donut",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -1072,7 +1411,8 @@
                     ]
                 }
             ],
-            "title": "Private vs Public Growth Sessions",
+            "title": "private_vs_public_growth_sessions",
+            "transparent": true,
             "type": "piechart"
         },
         {
@@ -1100,23 +1440,44 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#dd5f13",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "__systemRef": "hideSeriesFrom",
+                        "matcher": {
+                            "id": "byNames",
+                            "options": {
+                                "mode": "exclude",
+                                "names": [
+                                    "total_gs"
+                                ],
+                                "prefix": "All except:",
+                                "readOnly": true
+                            }
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hideFrom",
+                                "value": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": true
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 11,
                 "w": 19,
                 "x": 5,
-                "y": 17
+                "y": 39
             },
             "id": 15,
             "options": {
@@ -1170,10 +1531,12 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Top 10 users with most attended growth sessions",
+            "title": "top_users_with_most_attended_gs",
+            "transparent": true,
             "type": "barchart"
         }
     ],
+    "refresh": false,
     "schemaVersion": 31,
     "style": "dark",
     "tags": [],
@@ -1181,12 +1544,12 @@
         "list": []
     },
     "time": {
-        "from": "now-6h",
+        "from": "2020-05-21T04:00:00.000Z",
         "to": "now"
     },
     "timepicker": {},
     "timezone": "",
     "title": "New dashboard",
     "uid": "jehkVscnz",
-    "version": 7
+    "version": 15
 }
