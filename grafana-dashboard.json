@@ -22,7 +22,7 @@
     "fiscalYearStartMonth": 0,
     "gnetId": null,
     "graphTooltip": 0,
-    "id": 1,
+    "id": null,
     "links": [],
     "liveNow": false,
     "panels": [
@@ -1536,7 +1536,6 @@
             "type": "barchart"
         }
     ],
-    "refresh": false,
     "schemaVersion": 31,
     "style": "dark",
     "tags": [],
@@ -1544,12 +1543,12 @@
         "list": []
     },
     "time": {
-        "from": "2020-05-21T04:00:00.000Z",
+        "from": "now-6h",
         "to": "now"
     },
     "timepicker": {},
     "timezone": "",
     "title": "New dashboard",
-    "uid": "jehkVscnz",
-    "version": 15
+    "uid": null,
+    "version": 0
 }
