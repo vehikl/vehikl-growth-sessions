@@ -12,6 +12,8 @@ Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
 Route::view('/', 'home')->name('home');
 
+Route::get('nodegraph', 'NodeGraphController@index')->name('nodegraph');
+
 Route::prefix('growth_sessions')->middleware(AuthenticateSlackApp::class)->name('growth_sessions.')->group(function() {
     Route::get('week', 'GrowthSessionController@week')->name('week');
     Route::get('day', 'GrowthSessionController@day')->name('day');
