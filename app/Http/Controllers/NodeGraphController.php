@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\NodeGraph;
+use http\Client\Curl\User;
 use Illuminate\Http\Request;
 
 class NodeGraphController extends Controller
@@ -10,11 +11,11 @@ class NodeGraphController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \App\User[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Http\Response
      */
     public function index()
     {
-//       return NodeGraph::getData();
+       return NodeGraph::getData();
     }
 
     /**
