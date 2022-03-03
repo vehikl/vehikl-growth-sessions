@@ -52,7 +52,12 @@ const growthSessionData: GrowthSession = new GrowthSession({
     attendees: [
         attendee
     ],
-    comments: []
+    anydesks_remote_desk_id: '123 456 789',
+    comments: [],
+    anydesk: {
+        name: 'TestoDesko',
+        remote_desk_id: '123 456 789',
+    }
 });
 
 describe('GrowthSessionCard', () => {
@@ -74,6 +79,25 @@ describe('GrowthSessionCard', () => {
     it('displays the growth session location', () => {
         expect(wrapper.text()).toContain(growthSessionData.location);
     });
+
+    it('displays the growth session anydesk name', () => {
+        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: outsider}});
+
+       expect(wrapper.text()).toContain(growthSessionData.anydesk?.name);
+    });
+
+    it('does not display the growth session anydesk name if there is none', () => {
+        const noAnyDeskGrowthSession = new GrowthSession({...growthSessionData, anydesk: null });
+        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: noAnyDeskGrowthSession}})
+
+        expect(wrapper.text()).not.toContain(growthSessionData.anydesk?.name);
+    })
+
+    it('does not display the growth session anydesk name to non-vehikl members', () => {
+        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: nonVehiklMember}});
+
+        expect(wrapper.text()).not.toContain(growthSessionData.anydesk?.name);
+    })
 
     it('displays the number of attendees', () => {
         expect(wrapper.find('.attendees-count').text()).toContain(growthSessionData.attendees.length);

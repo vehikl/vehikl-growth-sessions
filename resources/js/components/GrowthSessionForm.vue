@@ -94,6 +94,24 @@
             </div>
         </div>
 
+        <div class="flex">
+            <div class="flex-1">
+                <label class="block text-gray-700 text-sm font-bold mb-4">
+                    <input ref="anydesks-toggle" v-model="anydesksToggle" type="checkbox"> Plan to use an AnyDesk?
+                </label>
+            </div>
+            <div id="anydesks" class="flex-1" v-if="anydesksToggle && (anyDesks.length > 0)">
+                <v-select id="anydesk"
+                          ref="anydesk"
+                          name="anydesk"
+                          max-height="100px"
+                          :options="anyDesks"
+                          v-model="anyDesk"
+                          type="search"
+                ></v-select>
+            </div>
+        </div>
+
         <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="topic">
                 Topic
@@ -112,6 +130,7 @@
                 Discord Channel
             </label>
             <v-select id="discord_channel"
+                      ref="discord_channel"
                       name="discord_channel"
                       :options="discordChannels"
                       v-model="discordChannel"></v-select>
@@ -141,6 +160,7 @@ import {DateTime} from '../classes/DateTime';
 import DatePicker from './DatePicker.vue';
 import {DiscordChannelApi} from "../services/DiscordChannelApi";
 import {IDropdownOption} from "../types/IDropdownOption";
+import {AnydesksApi} from "../services/AnydesksApi";
 
 @Component({components: {DatePicker, VueTimepicker}})
     export default class GrowthSessionForm extends Vue {
@@ -160,6 +180,9 @@ import {IDropdownOption} from "../types/IDropdownOption";
         isLimitless: boolean = false;
         discordChannel: IDropdownOption = {value: '', label: ''};
         discordChannels: Array<Object> = [];
+        anyDesk: { label: string | undefined; value: string | undefined } | null = null;
+        anyDesks: Array<Object> = [];
+        anydesksToggle: boolean = !!this.growthSession?.anydesk;
 
         mounted() {
             this.date = this.startDate;
@@ -169,6 +192,8 @@ import {IDropdownOption} from "../types/IDropdownOption";
             }
 
             this.getDiscordChannels();
+
+            this.getAnyDesks();
 
             if (this.growthSession) {
                 this.date = this.growthSession.date;
@@ -180,6 +205,7 @@ import {IDropdownOption} from "../types/IDropdownOption";
                 this.isLimitless = ! this.growthSession.attendee_limit;
                 this.attendeeLimit = this.growthSession.attendee_limit || 4;
                 this.isPublic = this.growthSession.is_public;
+                this.anyDesk = this.growthSession.anydesk ? {value: this.growthSession.anydesk?.remote_desk_id, label: this.growthSession.anydesk?.name} : null;
             }
         }
 
@@ -235,6 +261,20 @@ import {IDropdownOption} from "../types/IDropdownOption";
             }
         }
 
+        async getAnyDesks() {
+            try {
+                const anyDesks = await AnydesksApi.getAllAnyDesks();
+                this.anyDesks = anyDesks.map(anyDesk => {
+                    return {
+                        label: anyDesk.name,
+                        value: anyDesk.remote_desk_id
+                    };
+                });
+            } catch (e) {
+                this.onRequestFailed(e);
+            }
+        }
+
         get isCreating(): boolean {
             return !this.growthSession?.id;
         }
@@ -254,6 +294,7 @@ import {IDropdownOption} from "../types/IDropdownOption";
                 is_public: this.isPublic,
                 attendee_limit: this.isLimitless ? undefined : this.attendeeLimit,
                 discord_channel_id: this.discordChannel.value || undefined,
+                anydesks_remote_desk_id: this.anyDesk?.value || undefined,
             }
         }
 
@@ -263,6 +304,11 @@ import {IDropdownOption} from "../types/IDropdownOption";
                 this.location = `Discord Channel: ${value.label}`
             }
         }
+
+        @Watch('anydesksToggle')
+        onAnydesksToggleChanged() {
+            this.anyDesk = {value: '', label: ''};
+        }
     }
 </script>
 
@@ -270,4 +316,10 @@ import {IDropdownOption} from "../types/IDropdownOption";
     .error-outline {
         outline: red solid 2px;
     }
+</style>
+
+<style>
+#anydesk .vs__dropdown-menu {
+    max-height: 150px;
+}
 </style>

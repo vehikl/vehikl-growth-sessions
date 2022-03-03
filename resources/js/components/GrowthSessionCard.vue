@@ -62,9 +62,14 @@
             </div>
         </div>
 
-        <div class="text-blue-700 text-left mb-4 break-all">
+        <div class="text-blue-700 text-left mb-2 break-all">
             <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
             <location-renderer :locationString="growthSession.location"/>
+        </div>
+
+        <div v-if="growthSession.anydesk && user && user.is_vehikl_member" class="text-blue-700 text-left mb-4 break-all">
+            <i class="fa fa-desktop text-lg mr-1"></i>
+            {{ growthSession.anydesk.name }}
         </div>
 
         <button

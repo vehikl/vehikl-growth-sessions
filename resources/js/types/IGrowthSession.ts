@@ -1,4 +1,5 @@
 import {IComment, IUser} from '.';
+import {IAnyDesk} from "./IAnyDesk";
 
 export interface IGrowthSession {
     id: number;
@@ -11,7 +12,9 @@ export interface IGrowthSession {
     is_public: boolean;
     attendee_limit: number | null;
     discord_channel_id: string | null;
+    anydesks_remote_desk_id: string | null;
     owner: IUser;
     attendees: IUser[];
     comments: IComment[];
+    anydesk: IAnyDesk | null;
 }

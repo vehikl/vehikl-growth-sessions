@@ -10,5 +10,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(GrowthSessionSeeder::class);
         $this->call(CommentSeeder::class);
+        $this->call(AnyDesksSeeder::class);
     }
 }

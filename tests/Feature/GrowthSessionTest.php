@@ -606,6 +606,19 @@ class GrowthSessionTest extends TestCase
         $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
     }
 
+    public function testAUserCanCreateAGrowthSessionWithAnAnyDesk()
+    {
+        $user = User::factory()->vehiklMember()->create();
+        $anydesksRemoteDeskID = '123 456 789';
+
+        $this->actingAs($user)->postJson(
+            route('growth_sessions.store'),
+            $this->defaultParameters(['anydesks_remote_desk_id' => $anydesksRemoteDeskID])
+        );
+
+        $this->assertEquals($anydesksRemoteDeskID, GrowthSession::find(1)->anydesks_remote_desk_id);
+    }
+
     /**
      * @param int $expectedAttendeeLimit
      * @return array

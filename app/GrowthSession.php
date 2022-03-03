@@ -12,7 +12,7 @@ class GrowthSession extends Model
     use HasFactory;
 
     const NO_LIMIT = PHP_INT_MAX;
-    protected $with = ['attendees', 'comments'];
+    protected $with = ['attendees', 'comments', 'anydesk'];
 
     protected $appends = ['owner'];
 
@@ -21,7 +21,8 @@ class GrowthSession extends Model
         'end_time' => 'datetime:h:i a',
         'date' => 'datetime:Y-m-d',
         'attendee_limit' => 'int',
-        'is_public' => 'bool'
+        'is_public' => 'bool',
+        'anydesks_remote_desk_id' => 'string'
     ];
 
     protected $fillable = [
@@ -34,6 +35,7 @@ class GrowthSession extends Model
         'owner_id',
         'attendee_limit',
         'discord_channel_id',
+        'anydesks_remote_desk_id',
         'is_public',
     ];
 
@@ -65,6 +67,11 @@ class GrowthSession extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class)->orderByDesc('created_at');
+    }
+
+    public function anydesk()
+    {
+        return $this->hasOne(AnyDesk::class, 'remote_desk_id', 'anydesks_remote_desk_id');
     }
 
     public function setDateAttribute($value)

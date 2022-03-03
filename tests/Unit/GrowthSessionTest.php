@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\AnyDesk;
 use App\GrowthSession;
 use App\User;
 use App\UserType;
@@ -73,5 +74,17 @@ class GrowthSessionTest extends TestCase
         $response = $this->actingAs($host)->post(route('growth_sessions.store', $newGrowthSession))->assertSuccessful();
         $this->assertCount(1, GrowthSession::all()->first()->attendees);
     }
+
+    public function testItCanGetAnydesk()
+    {
+        $anydesk = Anydesk::factory()->create();
+        $growthSession = GrowthSession::factory()->create([
+            'anydesks_remote_desk_id' => $anydesk->remote_desk_id
+        ]);
+
+        $this->assertInstanceOf(Anydesk::class, $growthSession->anydesk);
+    }
+
+
 }
 

@@ -1,6 +1,5 @@
 import {GrowthSession} from './GrowthSession';
 import {IGrowthSession, IUser} from '../types';
-import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {User} from './User';
 
 describe('GrowthSession', () => {
@@ -21,12 +20,14 @@ describe('GrowthSession', () => {
         end_time: "05:00 pm",
         location: "Somewhere over the rainbow",
         discord_channel_id: null,
+        anydesks_remote_desk_id: null,
         owner,
         attendees: [],
         comments: [],
         title: "The growth session title",
         topic: "The growth session topic",
-        attendee_limit: null
+        attendee_limit: null,
+        anydesk: null,
     };
 
     beforeEach(() => {

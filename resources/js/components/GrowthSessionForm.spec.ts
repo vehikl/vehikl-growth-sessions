@@ -5,8 +5,10 @@ import flushPromises from 'flush-promises';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import vSelect from 'vue-select';
 import {IDiscordChannel} from "../types/IDiscordChannel";
+import {IAnyDesk} from "../types";
 import {DiscordChannelApi} from "../services/DiscordChannelApi";
 import growthSessionWithCommentsJson from '../../../tests/fixtures/GrowthSessionWithComments.json';
+import {AnydesksApi} from "../services/AnydesksApi";
 
 const localVue = createLocalVue();
 localVue.component('v-select', vSelect)
@@ -28,6 +30,16 @@ const discordChannels: Array<IDiscordChannel> = [
         id: '1234567891',
     }
 ];
+const anyDesks: Array<IAnyDesk> = [
+    {
+        name: 'AnyDesk One',
+        remote_desk_id: '123 321 423',
+    },
+    {
+        name: 'AnyDesk Two',
+        remote_desk_id: '123 321 424'
+    }
+];
 const startDate: string = "2020-06-25";
 
 
@@ -38,6 +50,7 @@ describe('GrowthSessionForm', () => {
         GrowthSessionApi.store = jest.fn().mockImplementation(growthSession => growthSession);
         GrowthSessionApi.update = jest.fn().mockImplementation(growthSession => growthSession);
         DiscordChannelApi.index = jest.fn().mockImplementation(() => discordChannels);
+        AnydesksApi.getAllAnyDesks = jest.fn().mockImplementation(() => anyDesks);
         wrapper = mount(GrowthSessionForm, {propsData: {owner: user, startDate}, localVue});
     });
 
@@ -47,7 +60,8 @@ describe('GrowthSessionForm', () => {
         title: 'Chosen title',
         date: '2020-10-01',
         start_time: '4:45 pm',
-        discord_channel_id: undefined
+        discord_channel_id: undefined,
+        anydesks_remote_desk_id: undefined,
     }
     describe('used for creation', () => {
 
@@ -80,6 +94,14 @@ describe('GrowthSessionForm', () => {
                 [
                     'Can accept a Discord channel',
                     {...baseGrowthSessionRequest, discord_channel_id: '1234567890'}
+                ],
+                [
+                    'Can accept no AnyDesk',
+                    {...baseGrowthSessionRequest, anydesks_remote_desk_id: undefined}
+                ],
+                [
+                    'Can accept an AnyDesk',
+                    {...baseGrowthSessionRequest, anydesks_remote_desk_id: '123 321 423'}
                 ]
             ]
 
@@ -91,9 +113,11 @@ describe('GrowthSessionForm', () => {
                     start_time: chosenStartTime,
                     attendee_limit: chosenLimit,
                     discord_channel_id: discordChannelId,
+                    anydesks_remote_desk_id: anyDesksRemoteDeskId,
                 } = payload;
 
                 const discordChannel = discordChannels.filter(channel => channel.id === discordChannelId)[0] || undefined;
+                const anyDesk = anyDesks.filter(desk => desk.remote_desk_id === anyDesksRemoteDeskId)[0] || undefined;
 
                 await flushPromises();
 
@@ -113,10 +137,20 @@ describe('GrowthSessionForm', () => {
                 }
 
                 if (discordChannel) {
-                    wrapper.findComponent(vSelect).vm.$emit('input', {
+                    wrapper.findComponent({ref: 'discord_channel'}).vm.$emit('input', {
                         label: discordChannel.name,
                         value: discordChannel.id
                     });
+                }
+
+                if(anyDesk) {
+                    wrapper.vm.$data.anydesksToggle = true;
+                    await wrapper.vm.$nextTick();
+
+                    wrapper.findComponent({ref: 'anydesk'}).vm.$emit('input', {
+                        label: anyDesk.name,
+                        value: anyDesk.remote_desk_id
+                    })
                 }
 
                 await wrapper.vm.$nextTick();
@@ -131,7 +165,8 @@ describe('GrowthSessionForm', () => {
                     start_time: chosenStartTime,
                     end_time: '05:00 pm',
                     topic: chosenTopic,
-                    discord_channel_id: discordChannelId
+                    discord_channel_id: discordChannelId,
+                    anydesks_remote_desk_id: anyDesksRemoteDeskId,
                 };
 
                 if (!chosenLimit) {
@@ -201,7 +236,7 @@ describe('GrowthSessionForm', () => {
 
         it('autofills the location with the Discord channel when selected', async () => {
             await flushPromises();
-            const selector = wrapper.findComponent(vSelect);
+            const selector = wrapper.find('#discord_channel');
             const locationInput = wrapper.find('#location').element as HTMLInputElement;
 
             expect(locationInput.value).toBeFalsy();
@@ -214,7 +249,7 @@ describe('GrowthSessionForm', () => {
 
         it('changes the location when new Discord channel is selected if old location was a Discord channel', async () => {
             await flushPromises();
-            const selector = wrapper.findComponent(vSelect);
+            const selector = wrapper.find('#discord_channel');
             const locationInput = wrapper.find('#location').element as HTMLInputElement;
 
             selector.vm.$emit('input', {label: discordChannels[0].name, value: discordChannels[0].id});

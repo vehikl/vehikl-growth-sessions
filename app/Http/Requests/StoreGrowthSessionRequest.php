@@ -23,6 +23,7 @@ class StoreGrowthSessionRequest extends FormRequest
             'date' => 'required|date|after_or_equal:today',
             'attendee_limit' => 'sometimes|integer|min:4',
             'discord_channel_id' => 'sometimes|string',
+            'anydesks_remote_desk_id' => 'sometimes|string',
             'is_public' => 'sometimes|boolean',
         ];
     }

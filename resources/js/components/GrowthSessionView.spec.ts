@@ -38,6 +38,18 @@ describe('GrowthSessionView', () => {
         expect(wrapper.find(`a[href="${mobTimeUrl}"]`).element).toHaveAttribute('target', '_blank');
     });
 
+    it('displays the anydesk information for vehikl member user', () => {
+        expect(wrapper.html()).toContain(growthSessionJson.anydesk.name);
+        expect(wrapper.html()).toContain(growthSessionJson.anydesk.remote_desk_id);
+    });
+
+    it('does not display the anydesk information for non vehikl member user', () => {
+        wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson, userJson: userJson.is_vehikl_member = false}, localVue});
+
+        expect(wrapper.html()).not.toContain(growthSessionJson.anydesk.name);
+        expect(wrapper.html()).not.toContain(growthSessionJson.anydesk.remote_desk_id);
+    });
+
     describe('attendees section', () => {
         it('redirects to the attendees GitHub page when clicked on the profile', async () => {
             const attendeeComponents = wrapper.findAllComponents({ref: 'attendee'})

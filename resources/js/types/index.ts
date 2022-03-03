@@ -1,3 +1,4 @@
+export * from './IAnyDesk';
 export * from './IUser';
 export * from './IComment';
 export * from './IGrowthSession';

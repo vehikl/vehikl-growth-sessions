@@ -35,6 +35,7 @@ class UpdateGrowthSessionRequest extends FormRequest
             'date' => 'sometimes|required|date|after_or_equal:today',
             'attendee_limit' => 'sometimes|integer|min:' . max($minimumAttendees, $currentAttendees),
             'is_public' => 'sometimes|boolean',
+            'anydesks_remote_desk_id' => 'sometimes|string',
         ];
     }
 }
