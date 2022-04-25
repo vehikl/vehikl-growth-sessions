@@ -94,13 +94,13 @@
             </div>
         </div>
 
-        <div class="flex">
+        <div class="flex" v-if="anyDesks.length > 0">
             <div class="flex-1">
                 <label class="block text-gray-700 text-sm font-bold mb-4">
                     <input ref="anydesks-toggle" v-model="anydesksToggle" type="checkbox"> Plan to use an AnyDesk?
                 </label>
             </div>
-            <div id="anydesks" class="flex-1" v-if="anydesksToggle && (anyDesks.length > 0)">
+            <div id="anydesks" class="flex-1" v-if="anydesksToggle">
                 <v-select id="anydesk"
                           ref="anydesk"
                           name="anydesk"

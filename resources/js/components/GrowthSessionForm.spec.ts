@@ -234,6 +234,31 @@ describe('GrowthSessionForm', () => {
             expect(wrapper.find('#discord_channel').exists()).toBeFalsy();
         })
 
+        it('displays a checkbox and dropdown select with AnyDesks when AnyDesks given', async () => {
+            const useAnyDesksSelector = wrapper.findComponent({ref: 'anydesks-toggle'});
+            await useAnyDesksSelector.setChecked();
+
+            const anyDesksSelector = wrapper.findComponent({ ref: 'anydesk' });
+            expect(anyDesksSelector.exists()).toBe(true);
+            expect(anyDesksSelector.vm.$props.options).toStrictEqual(anyDesks.map(anyDesk => {
+                return {
+                    label: anyDesk.name,
+                    value: anyDesk.remote_desk_id,
+                }
+            }));
+        })
+
+        it('does not display a checkbox and dropdown select with AnyDesks when no AnyDesks given', async () => {
+            wrapper.setData({anyDesks: []});
+            await wrapper.vm.$nextTick();
+
+            const useAnyDesksSelector = wrapper.findComponent({ref: 'anydesks-toggle'});
+            expect(useAnyDesksSelector.exists()).toBe(false);
+
+            const anyDesksSelector = wrapper.findComponent({ ref: 'anydesk' });
+            expect(anyDesksSelector.exists()).toBe(false);
+        })
+
         it('autofills the location with the Discord channel when selected', async () => {
             await flushPromises();
             const selector = wrapper.find('#discord_channel');
