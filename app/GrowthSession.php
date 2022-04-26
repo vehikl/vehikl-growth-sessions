@@ -71,7 +71,7 @@ class GrowthSession extends Model
 
     public function anydesk()
     {
-        return $this->hasOne(AnyDesk::class, 'remote_desk_id', 'anydesks_remote_desk_id');
+        return $this->belongsTo(AnyDesk::class, 'anydesks_remote_desk_id', 'remote_desk_id');
     }
 
     public function setDateAttribute($value)

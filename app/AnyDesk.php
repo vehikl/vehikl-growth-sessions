@@ -12,4 +12,9 @@ class AnyDesk extends Model
     protected $table = 'anydesks';
 
     public $timestamps = false;
+
+    public function growthSession()
+    {
+        return $this->hasMany(GrowthSession::class, 'anydesks_remote_desk_id', 'remote_desk_id');
+    }
 }

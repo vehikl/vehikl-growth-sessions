@@ -94,9 +94,11 @@ class GrowthSessionController extends Controller
 
         if ($request->anydesks_remote_desk_id) {
             $anyDesk = AnyDesk::where('remote_desk_id', $request->anydesks_remote_desk_id)->first();
-            $growthSession->anydesk()->save($anyDesk);
+            $growthSession->anydesk()->associate($anyDesk);
         } else {
-            $growthSession->anydesk()->delete();
+            $growthSession->anydesk()->dissociate();
+
+            $growthSession->save();
         }
 
         $growthSession->refresh();
