@@ -67,8 +67,8 @@
             <location-renderer :locationString="growthSession.location"/>
         </div>
 
-        <div v-if="growthSession.anydesk && user && user.is_vehikl_member" class="text-blue-700 text-left mb-4 break-all">
-            <i class="fa fa-desktop text-lg mr-1"></i>
+        <div v-if="growthSession.anydesk && user" class="text-blue-700 text-left mb-4 break-all">
+            <i class="fa fa-desktop text-lg mr-1" aria-hidden="true"></i>
             {{ growthSession.anydesk.name }}
         </div>
 

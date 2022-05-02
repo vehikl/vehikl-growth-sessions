@@ -77,10 +77,9 @@ class GrowthSessionTest extends TestCase
 
     public function testItCanGetAnydesk()
     {
-        $anydesk = Anydesk::factory()->create();
-        $growthSession = GrowthSession::factory()->create([
-            'anydesks_remote_desk_id' => $anydesk->remote_desk_id
-        ]);
+        $growthSession = GrowthSession::factory()
+            ->for(AnyDesk::factory()->create())
+            ->create();
 
         $this->assertInstanceOf(Anydesk::class, $growthSession->anydesk);
     }

@@ -180,7 +180,7 @@ import {AnydesksApi} from "../services/AnydesksApi";
         isLimitless: boolean = false;
         discordChannel: IDropdownOption = {value: '', label: ''};
         discordChannels: Array<Object> = [];
-        anyDesk: { label: string | undefined; value: string | undefined } | null = null;
+        anyDesk: { label: string | undefined; value: number | undefined } | null = null;
         anyDesks: Array<Object> = [];
         anydesksToggle: boolean = !!this.growthSession?.anydesk;
 
@@ -205,7 +205,7 @@ import {AnydesksApi} from "../services/AnydesksApi";
                 this.isLimitless = ! this.growthSession.attendee_limit;
                 this.attendeeLimit = this.growthSession.attendee_limit || 4;
                 this.isPublic = this.growthSession.is_public;
-                this.anyDesk = this.growthSession.anydesk ? {value: this.growthSession.anydesk?.remote_desk_id, label: this.growthSession.anydesk?.name} : null;
+                this.anyDesk = this.growthSession.anydesk ? {value: this.growthSession.anydesk?.id, label: this.growthSession.anydesk?.name} : null;
             }
         }
 
@@ -267,7 +267,7 @@ import {AnydesksApi} from "../services/AnydesksApi";
                 this.anyDesks = anyDesks.map(anyDesk => {
                     return {
                         label: anyDesk.name,
-                        value: anyDesk.remote_desk_id
+                        value: anyDesk.id
                     };
                 });
             } catch (e) {
@@ -294,7 +294,7 @@ import {AnydesksApi} from "../services/AnydesksApi";
                 is_public: this.isPublic,
                 attendee_limit: this.isLimitless ? undefined : this.attendeeLimit,
                 discord_channel_id: this.discordChannel.value || undefined,
-                anydesks_remote_desk_id: this.anyDesk?.value || undefined,
+                anydesk_id: this.anyDesk?.value || undefined,
             }
         }
 
@@ -307,7 +307,7 @@ import {AnydesksApi} from "../services/AnydesksApi";
 
         @Watch('anydesksToggle')
         onAnydesksToggleChanged() {
-            this.anyDesk = {value: '', label: ''};
+            this.anyDesk = null;
         }
     }
 </script>

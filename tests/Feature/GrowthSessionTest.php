@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\AnyDesk;
 use App\GrowthSession;
 use App\User;
 use App\UserType;
@@ -609,14 +610,14 @@ class GrowthSessionTest extends TestCase
     public function testAUserCanCreateAGrowthSessionWithAnAnyDesk()
     {
         $user = User::factory()->vehiklMember()->create();
-        $anydesksRemoteDeskID = '123 456 789';
+        $anyDesk = AnyDesk::factory()->create();
 
         $this->actingAs($user)->postJson(
             route('growth_sessions.store'),
-            $this->defaultParameters(['anydesks_remote_desk_id' => $anydesksRemoteDeskID])
+            $this->defaultParameters(['anydesk_id' => $anyDesk->id])
         );
 
-        $this->assertEquals($anydesksRemoteDeskID, GrowthSession::find(1)->anydesks_remote_desk_id);
+        $this->assertEquals($anyDesk->id, GrowthSession::find(1)->anydesk_id);
     }
 
     /**

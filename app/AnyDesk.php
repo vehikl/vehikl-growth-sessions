@@ -15,6 +15,6 @@ class AnyDesk extends Model
 
     public function growthSession()
     {
-        return $this->hasMany(GrowthSession::class, 'anydesks_remote_desk_id', 'remote_desk_id');
+        return $this->hasMany(GrowthSession::class, 'anydesk_id', 'id');
     }
 }

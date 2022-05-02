@@ -32,10 +32,12 @@ const discordChannels: Array<IDiscordChannel> = [
 ];
 const anyDesks: Array<IAnyDesk> = [
     {
+        id: 1,
         name: 'AnyDesk One',
         remote_desk_id: '123 321 423',
     },
     {
+        id: 2,
         name: 'AnyDesk Two',
         remote_desk_id: '123 321 424'
     }
@@ -61,7 +63,7 @@ describe('GrowthSessionForm', () => {
         date: '2020-10-01',
         start_time: '4:45 pm',
         discord_channel_id: undefined,
-        anydesks_remote_desk_id: undefined,
+        anydesk_id: undefined,
     }
     describe('used for creation', () => {
 
@@ -97,11 +99,11 @@ describe('GrowthSessionForm', () => {
                 ],
                 [
                     'Can accept no AnyDesk',
-                    {...baseGrowthSessionRequest, anydesks_remote_desk_id: undefined}
+                    {...baseGrowthSessionRequest, anydesk_id: undefined}
                 ],
                 [
                     'Can accept an AnyDesk',
-                    {...baseGrowthSessionRequest, anydesks_remote_desk_id: '123 321 423'}
+                    {...baseGrowthSessionRequest, anydesk_id: 1}
                 ]
             ]
 
@@ -113,11 +115,11 @@ describe('GrowthSessionForm', () => {
                     start_time: chosenStartTime,
                     attendee_limit: chosenLimit,
                     discord_channel_id: discordChannelId,
-                    anydesks_remote_desk_id: anyDesksRemoteDeskId,
+                    anydesk_id: anyDeskId,
                 } = payload;
 
                 const discordChannel = discordChannels.filter(channel => channel.id === discordChannelId)[0] || undefined;
-                const anyDesk = anyDesks.filter(desk => desk.remote_desk_id === anyDesksRemoteDeskId)[0] || undefined;
+                const anyDesk = anyDesks.filter(desk => desk.id === anyDeskId)[0] || undefined;
 
                 await flushPromises();
 
@@ -149,7 +151,7 @@ describe('GrowthSessionForm', () => {
 
                     wrapper.findComponent({ref: 'anydesk'}).vm.$emit('input', {
                         label: anyDesk.name,
-                        value: anyDesk.remote_desk_id
+                        value: anyDesk.id
                     })
                 }
 
@@ -166,7 +168,7 @@ describe('GrowthSessionForm', () => {
                     end_time: '05:00 pm',
                     topic: chosenTopic,
                     discord_channel_id: discordChannelId,
-                    anydesks_remote_desk_id: anyDesksRemoteDeskId,
+                    anydesk_id: anyDeskId,
                 };
 
                 if (!chosenLimit) {
@@ -243,7 +245,7 @@ describe('GrowthSessionForm', () => {
             expect(anyDesksSelector.vm.$props.options).toStrictEqual(anyDesks.map(anyDesk => {
                 return {
                     label: anyDesk.name,
-                    value: anyDesk.remote_desk_id,
+                    value: anyDesk.id,
                 }
             }));
         })

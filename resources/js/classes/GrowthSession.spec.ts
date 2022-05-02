@@ -20,7 +20,6 @@ describe('GrowthSession', () => {
         end_time: "05:00 pm",
         location: "Somewhere over the rainbow",
         discord_channel_id: null,
-        anydesks_remote_desk_id: null,
         owner,
         attendees: [],
         comments: [],

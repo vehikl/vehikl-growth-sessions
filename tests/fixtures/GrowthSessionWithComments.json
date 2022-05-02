@@ -5,7 +5,6 @@
     "topic": "Et est dolores quod et sunt est.",
     "location": "At AnyDesk XYZ - abcdefg",
     "discord_channel_id": null,
-    "anydesks_remote_desk_id": "123 456 789",
     "date": "2030-06-11",
     "is_public": true,
     "start_time": "03:00 pm",
@@ -108,6 +107,7 @@
         }
     ],
     "anydesk": {
+        "id": 1,
         "name": "TestoDesko",
         "remote_desk_id": "123 456 789"
     }

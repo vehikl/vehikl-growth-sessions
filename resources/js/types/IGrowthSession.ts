@@ -12,7 +12,6 @@ export interface IGrowthSession {
     is_public: boolean;
     attendee_limit: number | null;
     discord_channel_id: string | null;
-    anydesks_remote_desk_id: string | null;
     owner: IUser;
     attendees: IUser[];
     comments: IComment[];

@@ -52,9 +52,9 @@ const growthSessionData: GrowthSession = new GrowthSession({
     attendees: [
         attendee
     ],
-    anydesks_remote_desk_id: '123 456 789',
     comments: [],
     anydesk: {
+        id: 1,
         name: 'TestoDesko',
         remote_desk_id: '123 456 789',
     }
@@ -89,12 +89,6 @@ describe('GrowthSessionCard', () => {
     it('does not display the growth session anydesk name if there is none', () => {
         const noAnyDeskGrowthSession = new GrowthSession({...growthSessionData, anydesk: null });
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: noAnyDeskGrowthSession}})
-
-        expect(wrapper.text()).not.toContain(growthSessionData.anydesk?.name);
-    })
-
-    it('does not display the growth session anydesk name to non-vehikl members', () => {
-        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: nonVehiklMember}});
 
         expect(wrapper.text()).not.toContain(growthSessionData.anydesk?.name);
     })

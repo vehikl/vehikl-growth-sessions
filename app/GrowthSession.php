@@ -22,7 +22,6 @@ class GrowthSession extends Model
         'date' => 'datetime:Y-m-d',
         'attendee_limit' => 'int',
         'is_public' => 'bool',
-        'anydesks_remote_desk_id' => 'string'
     ];
 
     protected $fillable = [
@@ -35,8 +34,8 @@ class GrowthSession extends Model
         'owner_id',
         'attendee_limit',
         'discord_channel_id',
-        'anydesks_remote_desk_id',
         'is_public',
+        'anydesk_id'
     ];
 
     protected $attributes = [
@@ -71,7 +70,7 @@ class GrowthSession extends Model
 
     public function anydesk()
     {
-        return $this->belongsTo(AnyDesk::class, 'anydesks_remote_desk_id', 'remote_desk_id');
+        return $this->belongsTo(AnyDesk::class, 'anydesk_id', 'id');
     }
 
     public function setDateAttribute($value)

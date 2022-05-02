@@ -14,7 +14,7 @@ class AddAnydeskTypeIdColumnToGrowthSessionsTable extends Migration
     public function up()
     {
         Schema::table('growth_sessions', function (Blueprint $table) {
-            $table->string('anydesks_remote_desk_id')->nullable(true)->after('discord_channel_id');
+            $table->foreignId('anydesk_id')->nullable(true)->after('discord_channel_id');
         });
     }
 
@@ -25,9 +25,9 @@ class AddAnydeskTypeIdColumnToGrowthSessionsTable extends Migration
      */
     public function down()
     {
-        if(Schema::hasColumn('growth_sessions', 'anydesks_remote_desk_id')) {
+        if(Schema::hasColumn('growth_sessions', 'anydesk_id')) {
             Schema::table('growth_sessions', function (Blueprint $table) {
-                $table->dropColumn('anydesks_remote_desk_id');
+                $table->dropColumn('anydesk_id');
             });
         }
     }

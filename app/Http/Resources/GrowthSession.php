@@ -21,6 +21,10 @@ class GrowthSession extends JsonResource
         $attributes['attendees']  = $attributes['attendees'] ?? [];
         $isPersonNotAVehiklMember = auth()->guest() || !auth()->user()->is_vehikl_member;
 
+        if($isPersonNotAVehiklMember) {
+            $attributes['anydesk'] = null;
+        }
+
         for ($i = 0; $i < count($attributes['attendees']); $i++) {
             $isThisAttendeeAGuest = !$attributes['attendees'][$i]['is_vehikl_member'];
 
