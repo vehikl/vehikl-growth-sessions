@@ -92,8 +92,8 @@ class GrowthSessionController extends Controller
         $originalValues = $growthSession->toArray();
         $growthSession->update($request->validated());
 
-        if ($request->anydesk_id) {
-            $anyDesk = AnyDesk::where('id', $request->anydesk_id)->first();
+        if ($request->input('anydesk_id')) {
+            $anyDesk = AnyDesk::query()->find($request->input('anydesk_id'));
             $growthSession->anydesk()->associate($anyDesk);
         } else {
             $growthSession->anydesk()->dissociate();
