@@ -14,7 +14,7 @@ class AddAnydeskTypeIdColumnToGrowthSessionsTable extends Migration
     public function up()
     {
         Schema::table('growth_sessions', function (Blueprint $table) {
-            $table->foreignId('anydesk_id')->nullable(true)->after('discord_channel_id');
+            $table->foreignId('anydesk_id')->nullable(true)->constrained('anydesks')->after('discord_channel_id');
         });
     }
 
