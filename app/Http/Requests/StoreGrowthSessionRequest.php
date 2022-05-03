@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\AnyDesk;
 use App\GrowthSession;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,7 +24,7 @@ class StoreGrowthSessionRequest extends FormRequest
             'date' => 'required|date|after_or_equal:today',
             'attendee_limit' => 'sometimes|integer|min:4',
             'discord_channel_id' => 'sometimes|string',
-            'anydesk_id' => 'sometimes|integer',
+            'anydesk_id' => 'sometimes|integer|exists:' . AnyDesk::class,
             'is_public' => 'sometimes|boolean',
         ];
     }

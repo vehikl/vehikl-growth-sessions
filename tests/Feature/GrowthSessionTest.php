@@ -89,6 +89,21 @@ class GrowthSessionTest extends TestCase
             ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 5.']);
     }
 
+    public function testAGrowthSessionCannotBeCreatedWithAnAnydeskIdThatDoesNotExist()
+    {
+        $growthSessionAttributes = GrowthSession::factory()->raw();
+        $user = User::factory()->vehiklMember()->create();
+
+
+        $growthSessionAttributes['anydesk_id'] = 999999;
+        $growthSessionAttributes['start_time'] = '09:00 am';
+        $growthSessionAttributes['end_time'] = '10:00 am';
+
+        $this->actingAs($user)->postJson(route('growth_sessions.store'), $growthSessionAttributes)
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(['anydesk_id' => 'The selected anydesk id is invalid.']);
+    }
+
     public function testTheNewAttendeeLimitHasToBeANumber()
     {
         $growthSession = GrowthSession::factory()
