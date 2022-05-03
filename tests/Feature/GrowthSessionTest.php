@@ -104,6 +104,19 @@ class GrowthSessionTest extends TestCase
             ->assertJsonValidationErrors(['anydesk_id' => 'The selected anydesk id is invalid.']);
     }
 
+    public function testAGrowthSessionCannotBeUpdatedWithAnAnydeskIdThatDoesNotExist()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->create();
+
+        $payload = ['anydesk_id' => 999999];
+
+        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', $growthSession), $payload)
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(['anydesk_id' => 'The selected anydesk id is invalid.']);
+    }
+
     public function testTheNewAttendeeLimitHasToBeANumber()
     {
         $growthSession = GrowthSession::factory()

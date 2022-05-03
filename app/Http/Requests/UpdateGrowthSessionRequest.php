@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\AnyDesk;
 use App\GrowthSession;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -35,7 +36,7 @@ class UpdateGrowthSessionRequest extends FormRequest
             'date' => 'sometimes|required|date|after_or_equal:today',
             'attendee_limit' => 'sometimes|integer|min:' . max($minimumAttendees, $currentAttendees),
             'is_public' => 'sometimes|boolean',
-            'anydesk_id' => 'sometimes|integer',
+            'anydesk_id' => 'sometimes|integer|exists:' . AnyDesk::class,
         ];
     }
 }
