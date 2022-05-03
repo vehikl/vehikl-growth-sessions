@@ -612,7 +612,6 @@ class GrowthSessionTest extends TestCase
 
     public function testAMemberCanAccessAPrivateGrowthSession()
     {
-        // Create a session
         $growthSession = GrowthSession::factory()->create(['is_public' => false]);
 
         $user = User::factory()->create(['is_vehikl_member' => true]);
@@ -640,12 +639,14 @@ class GrowthSessionTest extends TestCase
         $user = User::factory()->vehiklMember()->create();
         $anyDesk = AnyDesk::factory()->create();
 
-        $this->actingAs($user)->postJson(
+        $response = $this->actingAs($user)->postJson(
             route('growth_sessions.store'),
             $this->defaultParameters(['anydesk_id' => $anyDesk->id])
         );
 
-        $this->assertEquals($anyDesk->id, GrowthSession::find(1)->anydesk_id);
+        $response->assertSuccessful();
+        $growth = GrowthSession::find(1);
+        $this->assertEquals($anyDesk->id, $growth->anydesk_id);
     }
 
     /**

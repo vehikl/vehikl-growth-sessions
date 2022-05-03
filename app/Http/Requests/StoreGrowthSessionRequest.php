@@ -24,7 +24,7 @@ class StoreGrowthSessionRequest extends FormRequest
             'date' => 'required|date|after_or_equal:today',
             'attendee_limit' => 'sometimes|integer|min:4',
             'discord_channel_id' => 'sometimes|string',
-            'anydesk_id' => 'sometimes|integer|exists:' . AnyDesk::class,
+            'anydesk_id' => 'sometimes|integer|exists:' . AnyDesk::class . ',id',
             'is_public' => 'sometimes|boolean',
         ];
     }
