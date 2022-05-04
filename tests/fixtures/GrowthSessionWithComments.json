@@ -105,5 +105,10 @@
                 "updated_at": "2020-06-13T15:46:39.000000Z"
             }
         }
-    ]
+    ],
+    "anydesk": {
+        "id": 1,
+        "name": "TestoDesko",
+        "remote_desk_id": "123 456 789"
+    }
 }

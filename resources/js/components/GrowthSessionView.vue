@@ -76,7 +76,10 @@
                         </svg>
                     </a>
                 </div>
-
+                <div v-if="growthSession.anydesk" class="mb-3">
+                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">AnyDesk:</h3>
+                    <span>{{ growthSession.anydesk.name }}: {{ growthSession.anydesk.remote_desk_id }}</span>
+                </div>
                 <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">MobTime:</h3>
                     <a :href="mobtimeUrl" target="_blank">{{ mobtimeUrl }}</a>

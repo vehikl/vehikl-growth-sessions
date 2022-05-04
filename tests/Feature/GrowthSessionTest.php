@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\AnyDesk;
 use App\GrowthSession;
 use App\User;
 use App\UserType;
@@ -86,6 +87,34 @@ class GrowthSessionTest extends TestCase
             'attendee_limit' => $newAttendeeLimit
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 5.']);
+    }
+
+    public function testAGrowthSessionCannotBeCreatedWithAnAnydeskIdThatDoesNotExist()
+    {
+        $growthSessionAttributes = GrowthSession::factory()->raw();
+        $user = User::factory()->vehiklMember()->create();
+
+
+        $growthSessionAttributes['anydesk_id'] = 999999;
+        $growthSessionAttributes['start_time'] = '09:00 am';
+        $growthSessionAttributes['end_time'] = '10:00 am';
+
+        $this->actingAs($user)->postJson(route('growth_sessions.store'), $growthSessionAttributes)
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(['anydesk_id' => 'The selected anydesk id is invalid.']);
+    }
+
+    public function testAGrowthSessionCannotBeUpdatedWithAnAnydeskIdThatDoesNotExist()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->create();
+
+        $payload = ['anydesk_id' => 999999];
+
+        $this->actingAs($growthSession->owner)->putJson(route('growth_sessions.update', $growthSession), $payload)
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(['anydesk_id' => 'The selected anydesk id is invalid.']);
     }
 
     public function testTheNewAttendeeLimitHasToBeANumber()
@@ -583,7 +612,6 @@ class GrowthSessionTest extends TestCase
 
     public function testAMemberCanAccessAPrivateGrowthSession()
     {
-        // Create a session
         $growthSession = GrowthSession::factory()->create(['is_public' => false]);
 
         $user = User::factory()->create(['is_vehikl_member' => true]);
@@ -604,6 +632,21 @@ class GrowthSessionTest extends TestCase
             ->get(route('growth_sessions.week', $growthSession));
 
         $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
+    }
+
+    public function testAUserCanCreateAGrowthSessionWithAnAnyDesk()
+    {
+        $user = User::factory()->vehiklMember()->create();
+        $anyDesk = AnyDesk::factory()->create();
+
+        $response = $this->actingAs($user)->postJson(
+            route('growth_sessions.store'),
+            $this->defaultParameters(['anydesk_id' => $anyDesk->id])
+        );
+
+        $response->assertSuccessful();
+        $growth = GrowthSession::find(1);
+        $this->assertEquals($anyDesk->id, $growth->anydesk_id);
     }
 
     /**

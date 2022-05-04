@@ -38,6 +38,11 @@ describe('GrowthSessionView', () => {
         expect(wrapper.find(`a[href="${mobTimeUrl}"]`).element).toHaveAttribute('target', '_blank');
     });
 
+    it('displays the anydesk information for vehikl member user', () => {
+        expect(wrapper.html()).toContain(growthSessionJson.anydesk.name);
+        expect(wrapper.html()).toContain(growthSessionJson.anydesk.remote_desk_id);
+    });
+
     describe('attendees section', () => {
         it('redirects to the attendees GitHub page when clicked on the profile', async () => {
             const attendeeComponents = wrapper.findAllComponents({ref: 'attendee'})

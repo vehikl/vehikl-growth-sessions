@@ -5,8 +5,10 @@ import flushPromises from 'flush-promises';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import vSelect from 'vue-select';
 import {IDiscordChannel} from "../types/IDiscordChannel";
+import {IAnyDesk} from "../types";
 import {DiscordChannelApi} from "../services/DiscordChannelApi";
 import growthSessionWithCommentsJson from '../../../tests/fixtures/GrowthSessionWithComments.json';
+import {AnydesksApi} from "../services/AnydesksApi";
 
 const localVue = createLocalVue();
 localVue.component('v-select', vSelect)
@@ -28,6 +30,18 @@ const discordChannels: Array<IDiscordChannel> = [
         id: '1234567891',
     }
 ];
+const anyDesks: Array<IAnyDesk> = [
+    {
+        id: 1,
+        name: 'AnyDesk One',
+        remote_desk_id: '123 321 423',
+    },
+    {
+        id: 2,
+        name: 'AnyDesk Two',
+        remote_desk_id: '123 321 424'
+    }
+];
 const startDate: string = "2020-06-25";
 
 
@@ -38,6 +52,7 @@ describe('GrowthSessionForm', () => {
         GrowthSessionApi.store = jest.fn().mockImplementation(growthSession => growthSession);
         GrowthSessionApi.update = jest.fn().mockImplementation(growthSession => growthSession);
         DiscordChannelApi.index = jest.fn().mockImplementation(() => discordChannels);
+        AnydesksApi.getAllAnyDesks = jest.fn().mockImplementation(() => anyDesks);
         wrapper = mount(GrowthSessionForm, {propsData: {owner: user, startDate}, localVue});
     });
 
@@ -47,7 +62,8 @@ describe('GrowthSessionForm', () => {
         title: 'Chosen title',
         date: '2020-10-01',
         start_time: '4:45 pm',
-        discord_channel_id: undefined
+        discord_channel_id: undefined,
+        anydesk_id: undefined,
     }
     describe('used for creation', () => {
 
@@ -80,6 +96,14 @@ describe('GrowthSessionForm', () => {
                 [
                     'Can accept a Discord channel',
                     {...baseGrowthSessionRequest, discord_channel_id: '1234567890'}
+                ],
+                [
+                    'Can accept no AnyDesk',
+                    {...baseGrowthSessionRequest, anydesk_id: undefined}
+                ],
+                [
+                    'Can accept an AnyDesk',
+                    {...baseGrowthSessionRequest, anydesk_id: 1}
                 ]
             ]
 
@@ -91,9 +115,11 @@ describe('GrowthSessionForm', () => {
                     start_time: chosenStartTime,
                     attendee_limit: chosenLimit,
                     discord_channel_id: discordChannelId,
+                    anydesk_id: anyDeskId,
                 } = payload;
 
                 const discordChannel = discordChannels.filter(channel => channel.id === discordChannelId)[0] || undefined;
+                const anyDesk = anyDesks.filter(desk => desk.id === anyDeskId)[0] || undefined;
 
                 await flushPromises();
 
@@ -113,10 +139,20 @@ describe('GrowthSessionForm', () => {
                 }
 
                 if (discordChannel) {
-                    wrapper.findComponent(vSelect).vm.$emit('input', {
+                    wrapper.findComponent({ref: 'discord_channel'}).vm.$emit('input', {
                         label: discordChannel.name,
                         value: discordChannel.id
                     });
+                }
+
+                if(anyDesk) {
+                    wrapper.vm.$data.anydesksToggle = true;
+                    await wrapper.vm.$nextTick();
+
+                    wrapper.findComponent({ref: 'anydesk'}).vm.$emit('input', {
+                        label: anyDesk.name,
+                        value: anyDesk.id
+                    })
                 }
 
                 await wrapper.vm.$nextTick();
@@ -131,7 +167,8 @@ describe('GrowthSessionForm', () => {
                     start_time: chosenStartTime,
                     end_time: '05:00 pm',
                     topic: chosenTopic,
-                    discord_channel_id: discordChannelId
+                    discord_channel_id: discordChannelId,
+                    anydesk_id: anyDeskId,
                 };
 
                 if (!chosenLimit) {
@@ -199,9 +236,34 @@ describe('GrowthSessionForm', () => {
             expect(wrapper.find('#discord_channel').exists()).toBeFalsy();
         })
 
+        it('displays a checkbox and dropdown select with AnyDesks when AnyDesks given', async () => {
+            const useAnyDesksSelector = wrapper.findComponent({ref: 'anydesks-toggle'});
+            await useAnyDesksSelector.setChecked();
+
+            const anyDesksSelector = wrapper.findComponent({ ref: 'anydesk' });
+            expect(anyDesksSelector.exists()).toBe(true);
+            expect(anyDesksSelector.vm.$props.options).toStrictEqual(anyDesks.map(anyDesk => {
+                return {
+                    label: anyDesk.name,
+                    value: anyDesk.id,
+                }
+            }));
+        })
+
+        it('does not display a checkbox and dropdown select with AnyDesks when no AnyDesks given', async () => {
+            wrapper.setData({anyDesks: []});
+            await wrapper.vm.$nextTick();
+
+            const useAnyDesksSelector = wrapper.findComponent({ref: 'anydesks-toggle'});
+            expect(useAnyDesksSelector.exists()).toBe(false);
+
+            const anyDesksSelector = wrapper.findComponent({ ref: 'anydesk' });
+            expect(anyDesksSelector.exists()).toBe(false);
+        })
+
         it('autofills the location with the Discord channel when selected', async () => {
             await flushPromises();
-            const selector = wrapper.findComponent(vSelect);
+            const selector = wrapper.find('#discord_channel');
             const locationInput = wrapper.find('#location').element as HTMLInputElement;
 
             expect(locationInput.value).toBeFalsy();
@@ -214,7 +276,7 @@ describe('GrowthSessionForm', () => {
 
         it('changes the location when new Discord channel is selected if old location was a Discord channel', async () => {
             await flushPromises();
-            const selector = wrapper.findComponent(vSelect);
+            const selector = wrapper.find('#discord_channel');
             const locationInput = wrapper.find('#location').element as HTMLInputElement;
 
             selector.vm.$emit('input', {label: discordChannels[0].name, value: discordChannels[0].id});

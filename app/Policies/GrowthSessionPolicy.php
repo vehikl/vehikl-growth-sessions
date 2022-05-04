@@ -30,6 +30,11 @@ class GrowthSessionPolicy
         return $user->is_vehikl_member;
     }
 
+    public function viewAnyDesks(User $user)
+    {
+        return $user->is_vehikl_member;
+    }
+
     public function update(User $user, GrowthSession $growthSession)
     {
         return $user->is($growthSession->owner) && $this->isInTheFuture($growthSession);

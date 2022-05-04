@@ -1,4 +1,5 @@
 import {IComment, IUser} from '.';
+import {IAnyDesk} from "./IAnyDesk";
 
 export interface IGrowthSession {
     id: number;
@@ -14,4 +15,5 @@ export interface IGrowthSession {
     owner: IUser;
     attendees: IUser[];
     comments: IComment[];
+    anydesk: IAnyDesk | null;
 }

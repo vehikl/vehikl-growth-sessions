@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AnyDesk;
 use App\Events\GrowthSessionAttendeeChanged;
 use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionDeleted;
@@ -24,11 +25,9 @@ class GrowthSessionController extends Controller
     {
         // if the user is not allowed to view the growth session then return 404
         abort_unless((new GrowthSessionPolicy())->view(request()->user(), $growthSession), Response::HTTP_NOT_FOUND);
-
         if ($request->expectsJson()) {
             return response()->json(new GrowthSessionResource($growthSession));
         }
-
         return view('growth-session', ['growthSession' => new GrowthSessionResource($growthSession)]);
     }
 
@@ -92,6 +91,18 @@ class GrowthSessionController extends Controller
     {
         $originalValues = $growthSession->toArray();
         $growthSession->update($request->validated());
+
+        if ($request->input('anydesk_id')) {
+            $anyDesk = AnyDesk::query()->find($request->input('anydesk_id'));
+            $growthSession->anydesk()->associate($anyDesk);
+        } else {
+            $growthSession->anydesk()->dissociate();
+
+            $growthSession->save();
+        }
+
+        $growthSession->refresh();
+
         event(new GrowthSessionUpdated($originalValues, $growthSession->toArray()));
 
         return new GrowthSessionResource($growthSession);

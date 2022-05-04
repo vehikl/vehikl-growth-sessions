@@ -7,5 +7,6 @@ export interface IStoreGrowthSessionRequest {
     end_time?: string;
     attendee_limit?: number | null;
     discord_channel_id?: string | null;
+    anydesk_id?: number | null;
     is_public?: boolean;
 }

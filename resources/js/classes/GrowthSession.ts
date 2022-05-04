@@ -1,4 +1,4 @@
-import {IComment, IGrowthSession, IUser} from '../types';
+import {IComment, IGrowthSession, IUser, IAnyDesk} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {User} from './User';
@@ -17,6 +17,7 @@ export class GrowthSession implements IGrowthSession {
     comments!: IComment[];
     attendee_limit!: number | null;
     discord_channel_id!: string | null;
+    anydesk!: IAnyDesk | null;
 
     constructor(growthSession: IGrowthSession) {
         this.refresh(growthSession);
@@ -36,6 +37,7 @@ export class GrowthSession implements IGrowthSession {
         this.comments = growthSession.comments;
         this.attendee_limit = growthSession.attendee_limit;
         this.discord_channel_id = growthSession.discord_channel_id;
+        this.anydesk = growthSession.anydesk;
     }
 
     get isLimitless(): boolean {
