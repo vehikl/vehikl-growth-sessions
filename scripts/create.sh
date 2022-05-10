@@ -2,9 +2,16 @@
 
 # Login in vault
 brew list vault || brew install vault
-read -p 'This project relies on sensitive credentials, please enter the vault token:' token
+read -p 'This project relies on sensitive credentials, please enter the vault token (Just press ENTER to skip this
+step):' token
 export VAULT_ADDR='http://159.203.15.136:8205'
-vault login $token || exit 1
+
+if [ -z "$token" ]
+then
+    echo "Ignoring vault. Secrets will not be assigned."
+else
+    vault login $token || exit 1
+fi
 
 # Make sure mutagen is installed, or install it
 brew list mutagen || brew install mutagen-io/mutagen/mutagen
@@ -22,11 +29,16 @@ cd $PROJECT_PATH
 cp .env.example .env
 
 # Add github credentials
-GITHUB_CLIENT_ID=$(vault kv get -field=GITHUB_CLIENT_ID kv/growth-sessions)
-GITHUB_CLIENT_SECRET=$(vault kv get -field=GITHUB_CLIENT_SECRET kv/growth-sessions)
+if [ -z "$token" ]
+then
+    echo "Skipping Github Key assignment, due to Vault Token missing."
+else
+    GITHUB_CLIENT_ID=$(vault kv get -field=GITHUB_CLIENT_ID kv/growth-sessions)
+    GITHUB_CLIENT_SECRET=$(vault kv get -field=GITHUB_CLIENT_SECRET kv/growth-sessions)
 
-sed -i '' "s#GITHUB_CLIENT_ID=.*#GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID#"  ./.env
-sed -i '' "s#GITHUB_CLIENT_SECRET=.*#GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET#"  ./.env
+    sed -i '' "s#GITHUB_CLIENT_ID=.*#GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID#"  ./.env
+    sed -i '' "s#GITHUB_CLIENT_SECRET=.*#GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET#"  ./.env
+fi
 
 # Set up mutagen.io file share
 docker-compose up -d files
