@@ -177,7 +177,7 @@ describe('WeekView', () => {
             await flushPromises();
             GrowthSessionApi.getAllGrowthSessionsOfTheWeek = jest.fn();
 
-            window.history.back =  () => {
+            window.history.back = () => {
                 console.error = jest.fn()
                 const fakeMockEvent = {} as unknown as PopStateEvent;
                 window.onpopstate!(fakeMockEvent);
@@ -195,13 +195,13 @@ describe('WeekView', () => {
             DateTime.setTestNow(todayDate)
             wrapper = mount(WeekView, {localVue});
             await flushPromises();
-            expect(wrapper.findComponent({ ref: 'scroll-to-today' }).exists()).toBeTruthy()
+            expect(wrapper.findComponent({ref: 'scroll-to-today'}).exists()).toBeTruthy()
         })
         it('will hide the scroll to today button when today is not available', async () => {
             DateTime.setTestNow(metadataForGrowthSessionsFixture.nextWeek.date)
             wrapper = mount(WeekView, {localVue});
             await flushPromises();
-            expect(wrapper.findComponent({ ref: 'scroll-to-today' }).exists()).toBeFalsy()
+            expect(wrapper.findComponent({ref: 'scroll-to-today'}).exists()).toBeFalsy()
         })
 
         it('it calls the scroll to method on the today date when the button is clicked', async () => {
@@ -219,9 +219,19 @@ describe('WeekView', () => {
 
             header.element.scrollIntoView = scrollIntoViewMock
 
-            wrapper.findComponent({ ref: 'scroll-to-today' }).trigger('click');
+            wrapper.findComponent({ref: 'scroll-to-today'}).trigger('click');
 
             expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
+        })
+    })
+
+    describe('Visibility Filter', () => {
+        it('it loads with "ALL" radio button selected', async () => {
+            let radioButton =
+                wrapper.find('input[type=radio][name=filter-sessions]').element as HTMLInputElement;
+
+            expect(radioButton.value).toBe("all")
+            expect(radioButton).toBeChecked();
         })
     })
 });

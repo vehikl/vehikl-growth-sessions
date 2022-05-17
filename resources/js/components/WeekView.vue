@@ -1,5 +1,11 @@
 <template>
     <div v-if="growthSessions.isReady">
+        <label>
+            All
+            <input checked="checked" name="filter-sessions" type="radio" value="all">
+        </label>
+
+
         <div class="flex justify-center items-center text-xl text-blue-600 font-bold">
             <button aria-label="Load previous week"
                     class="load-previous-week mx-4 mb-2"
