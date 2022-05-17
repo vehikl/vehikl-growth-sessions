@@ -66,7 +66,6 @@ describe('WeekView', () => {
         }
     });
 
-
     it('allows the user to view growth sessions of the previous week', async () => {
         wrapper.find('button.load-previous-week').trigger('click');
         await flushPromises();
@@ -232,6 +231,12 @@ describe('WeekView', () => {
 
             expect(radioButton.value).toBe("all")
             expect(radioButton).toBeChecked();
+        })
+
+        it('shows both public and one private growth sessions on the page', async () => {
+            const allGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions;
+
+            // TODO: Make sure I can see the title of all the growth sessions this week
         })
     })
 });
