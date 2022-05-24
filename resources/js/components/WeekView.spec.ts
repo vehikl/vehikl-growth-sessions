@@ -236,7 +236,11 @@ describe('WeekView', () => {
         it('shows both public and one private growth sessions on the page', async () => {
             const allGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions;
 
-            // TODO: Make sure I can see the title of all the growth sessions this week
+            allGrowthSessionsThisWeek.forEach(growthSession => {
+                const isTitleBeingRendered = wrapper.findAllComponents(GrowthSessionCard).wrappers.some(card => card.text().includes(growthSession.title))
+
+                expect(isTitleBeingRendered).toEqual(true);
+            })
         })
     })
 });
