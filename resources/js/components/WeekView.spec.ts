@@ -237,7 +237,11 @@ describe('WeekView', () => {
             const allGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions;
 
             allGrowthSessionsThisWeek.forEach(growthSession => {
-                const isTitleBeingRendered = wrapper.findAllComponents(GrowthSessionCard).wrappers.some(card => card.text().includes(growthSession.title))
+                const isTitleBeingRendered = wrapper
+                    .findAllComponents(GrowthSessionCard)
+                    .wrappers
+                    .some(card =>
+                        card.text().includes(growthSession.title))
 
                 expect(isTitleBeingRendered).toEqual(true);
             })

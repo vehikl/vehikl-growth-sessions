@@ -32,5 +32,13 @@ class GrowthSessionSeeder extends Seeder
                 'date' => $monday,
             ]);
         User::find(1)->growthSessions()->attach($growthSession, ['user_type_id' => UserType::OWNER_ID]);
+
+        $privateSession = GrowthSession::factory()
+            ->create([
+                'title' => 'This one is private',
+                'date' => $monday->addDays(random_int(0, 4)),
+                'is_public' => false
+            ]);
+        User::find(1)->growthSessions()->attach($privateSession, ['user_type_id' => UserType::OWNER_ID]);
     }
 }
