@@ -246,5 +246,40 @@ describe('WeekView', () => {
                 expect(isTitleBeingRendered).toEqual(true);
             })
         })
+
+        xit('shows only private growth sessions if the private filter is enabled', async () => {
+
+            const privateGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions
+                .filter(function (growthSession) {
+                    return growthSession.is_public == false;
+                });
+            const publicGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions.filter(gs => gs.is_public);
+
+
+            let radioButton =
+                wrapper.find('input[type=radio][name=filter-sessions][id=private]').element as HTMLInputElement;
+
+            radioButton.click();
+
+            privateGrowthSessionsThisWeek.forEach(growthSession => {
+                const isTitleBeingRendered = wrapper
+                    .findAllComponents(GrowthSessionCard)
+                    .wrappers
+                    .some(card =>
+                        card.text().includes(growthSession.title))
+
+                expect(isTitleBeingRendered).toEqual(true);
+            })
+
+            publicGrowthSessionsThisWeek.forEach(growthSession => {
+                const isTitleBeingRendered = wrapper
+                    .findAllComponents(GrowthSessionCard)
+                    .wrappers
+                    .some(card =>
+                        card.text().includes(growthSession.title))
+
+                expect(isTitleBeingRendered).toEqual(false);
+            })
+        })
     })
 });

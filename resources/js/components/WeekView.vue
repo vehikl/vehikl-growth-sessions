@@ -2,7 +2,11 @@
     <div v-if="growthSessions.isReady">
         <label>
             All
-            <input checked="checked" name="filter-sessions" type="radio" value="all">
+            <input v-model="visibilityFilter" name="filter-sessions" type="radio" value="all">
+        </label>
+        <label>
+            Private Only
+            <input id="private" v-model="visibilityFilter" name="filter-sessions" type="radio" value="private">
         </label>
 
 
@@ -126,6 +130,7 @@ export default class WeekView extends Vue {
     DateTime = DateTime;
     Nothingator = Nothingator;
     draggedGrowthSession!: GrowthSession;
+    visibilityFilter: string = 'all'
 
     async created() {
         await this.refreshGrowthSessionsOfTheWeek()
@@ -163,6 +168,7 @@ export default class WeekView extends Vue {
             return this.draggedGrowthSession = change.added.element;
         }
     }
+
 
     async getAllGrowthSessionsOfTheWeek() {
         this.growthSessions = await GrowthSessionApi.getAllGrowthSessionsOfTheWeek(this.referenceDate.toDateString());
