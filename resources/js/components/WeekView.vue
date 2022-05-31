@@ -60,19 +60,19 @@
                      'bg-blue-200 border-blue-300': !date.isEvenDate(),
                      }"
                 ></h3>
-                <div v-show="growthSessions.getSessionByDate(date).length === 0" class="text-blue-600 text-lg my-4">
+                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-blue-600 text-lg my-4">
                     <p v-text="`${Nothingator.random()}...`"/>
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
                 </div>
 
                 <draggable :date="date"
-                           :list="growthSessions.getSessionByDate(date)"
+                           :list="growthSessionsVisibleInDate(date)"
                            class="h-full w-full px-2"
                            group="growth-sessions"
                            handle=".handle"
                            @change="onChange"
                            @end="onDragEnd">
-                    <div v-for="growthSession in growthSessions.getSessionByDate(date)"
+                    <div v-for="growthSession in growthSessionsVisibleInDate(date)"
                          :key="growthSession.id">
                         <growth-session-card
                             :growth-session="growthSession"
@@ -144,6 +144,17 @@ export default class WeekView extends Vue {
     async refreshGrowthSessionsOfTheWeek() {
         this.useDateFromUrlAsReference();
         await this.getAllGrowthSessionsOfTheWeek();
+    }
+
+    growthSessionsVisibleInDate(date: DateTime) {
+        debugger
+        let todaysGrowthSessions = this.growthSessions.getSessionByDate(date);
+        if (this.visibilityFilter == 'all')
+            return todaysGrowthSessions
+
+        return todaysGrowthSessions.filter((session) => {
+            return this.visibilityFilter === 'private' && !session.is_public
+        })
     }
 
     useDateFromUrlAsReference() {

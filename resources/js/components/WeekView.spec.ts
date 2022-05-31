@@ -247,19 +247,17 @@ describe('WeekView', () => {
             })
         })
 
-        xit('shows only private growth sessions if the private filter is enabled', async () => {
+        it('shows only private growth sessions if the private filter is enabled', async () => {
 
             const privateGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions
                 .filter(function (growthSession) {
-                    return growthSession.is_public == false;
+                    return !growthSession.is_public;
                 });
             const publicGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions.filter(gs => gs.is_public);
 
-
             let radioButton =
-                wrapper.find('input[type=radio][name=filter-sessions][id=private]').element as HTMLInputElement;
-
-            radioButton.click();
+                wrapper.find('input[type=radio][name=filter-sessions][id=private]');
+            await radioButton.setChecked();
 
             privateGrowthSessionsThisWeek.forEach(growthSession => {
                 const isTitleBeingRendered = wrapper
@@ -271,12 +269,12 @@ describe('WeekView', () => {
                 expect(isTitleBeingRendered).toEqual(true);
             })
 
-            publicGrowthSessionsThisWeek.forEach(growthSession => {
+            publicGrowthSessionsThisWeek.forEach(publicGrowthSession => {
                 const isTitleBeingRendered = wrapper
                     .findAllComponents(GrowthSessionCard)
                     .wrappers
                     .some(card =>
-                        card.text().includes(growthSession.title))
+                        card.text().includes(publicGrowthSession.title))
 
                 expect(isTitleBeingRendered).toEqual(false);
             })
