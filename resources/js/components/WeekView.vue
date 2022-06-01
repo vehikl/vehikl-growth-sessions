@@ -153,23 +153,20 @@ export default class WeekView extends Vue {
     }
 
     growthSessionsVisibleInDate(date: DateTime) {
-        debugger
-        let todaysGrowthSessions = this.growthSessions.getSessionByDate(date);
-        if (this.visibilityFilter == 'all')
-            return todaysGrowthSessions
+        let allGrowthSessionsOnDate = this.growthSessions.getSessionByDate(date);
+        return allGrowthSessionsOnDate.filter((session) => {
+            if (this.visibilityFilter == 'all') {
+                return true;
+            }
 
-        if (this.visibilityFilter === 'private') {
-            return todaysGrowthSessions.filter((session) => {
+            if (this.visibilityFilter === 'private') {
                 return !session.is_public
-            })
-        }
+            }
 
-        if (this.visibilityFilter === 'public') {
-            return todaysGrowthSessions.filter((session) => {
+            if (this.visibilityFilter === 'public') {
                 return session.is_public
-            })
-        }
-
+            }
+        })
     }
 
     useDateFromUrlAsReference() {
