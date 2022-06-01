@@ -106,7 +106,8 @@ describe('WeekView', () => {
         });
 
         it('does not render growth session filter for non vehikl users', async () => {
-            expect(wrapper.text()).not.toContain('Private Only');
+            let visibilityFilters = wrapper.find('#visibility-filters')
+            expect(visibilityFilters.exists()).toBeFalsy()
         });
     });
 
@@ -117,12 +118,8 @@ describe('WeekView', () => {
         });
 
         it('renders for authenticated vehikl users', async () => {
-            // acting as a vehikl user
-
-            // view the app
-            expect(wrapper.text()).toContain('Private Only');
-
-            // see the visibility filter
+            const visibilityFilters = wrapper.find('#visibility-filters')
+            expect(visibilityFilters.exists()).toBeTruthy();
         })
 
         it('allows an authed vehikl user to create a growth session', async () => {
