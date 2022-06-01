@@ -1,6 +1,6 @@
 <template>
     <div v-if="growthSessions.isReady">
-        <div v-if="user && user.is_vehikl_member">
+        <fieldset v-if="user && user.is_vehikl_member">
             <label>
                 All
                 <input v-model="visibilityFilter" name="filter-sessions" type="radio" value="all">
@@ -9,7 +9,7 @@
                 Private Only
                 <input id="private" v-model="visibilityFilter" name="filter-sessions" type="radio" value="private">
             </label>
-        </div>
+        </fieldset>
 
 
         <div class="flex justify-center items-center text-xl text-blue-600 font-bold">
