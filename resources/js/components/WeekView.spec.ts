@@ -95,6 +95,11 @@ describe('WeekView', () => {
             .toContain(wordForNothing);
     });
 
+    it('does not show visibility filter to unauthed user', () => {
+        const visibilityFilters = wrapper.find('#visibility-filters')
+        expect(visibilityFilters.exists()).toBeFalsy();
+    });
+
     describe('for an authenticated non-vehikl user', () => {
         beforeEach(async () => {
             wrapper = mount(WeekView, {localVue, propsData: {user: authNonVehiklUser}});
