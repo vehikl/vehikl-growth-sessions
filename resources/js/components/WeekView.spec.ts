@@ -221,6 +221,39 @@ describe('WeekView', () => {
                     expect(isTitleBeingRendered).toEqual(false);
                 })
             })
+
+            it('shows only public growth sessions if the public filter is enabled', async () => {
+
+                const privateGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions
+                    .filter(function (growthSession) {
+                        return !growthSession.is_public;
+                    });
+                const publicGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions.filter(gs => gs.is_public);
+
+                let radioButton =
+                    wrapper.find('#visibility-filters input[type=radio][name=filter-sessions][id=public]');
+                await radioButton.setChecked();
+
+                privateGrowthSessionsThisWeek.forEach(growthSession => {
+                    const isTitleBeingRendered = wrapper
+                        .findAllComponents(GrowthSessionCard)
+                        .wrappers
+                        .some(card =>
+                            card.text().includes(growthSession.title))
+
+                    expect(isTitleBeingRendered).toEqual(false);
+                })
+
+                publicGrowthSessionsThisWeek.forEach(publicGrowthSession => {
+                    const isTitleBeingRendered = wrapper
+                        .findAllComponents(GrowthSessionCard)
+                        .wrappers
+                        .some(card =>
+                            card.text().includes(publicGrowthSession.title))
+
+                    expect(isTitleBeingRendered).toEqual(true);
+                })
+            })
         })
     });
 

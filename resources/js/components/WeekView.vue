@@ -9,6 +9,10 @@
                 Private Only
                 <input id="private" v-model="visibilityFilter" name="filter-sessions" type="radio" value="private">
             </label>
+            <label>
+                Public Only
+                <input id="public" v-model="visibilityFilter" name="filter-sessions" type="radio" value="public">
+            </label>
         </fieldset>
 
 
@@ -154,9 +158,18 @@ export default class WeekView extends Vue {
         if (this.visibilityFilter == 'all')
             return todaysGrowthSessions
 
-        return todaysGrowthSessions.filter((session) => {
-            return this.visibilityFilter === 'private' && !session.is_public
-        })
+        if (this.visibilityFilter === 'private') {
+            return todaysGrowthSessions.filter((session) => {
+                return this.visibilityFilter === 'private' && !session.is_public
+            })
+        }
+
+        if (this.visibilityFilter === 'public') {
+            return todaysGrowthSessions.filter((session) => {
+                return this.visibilityFilter === 'public' && session.is_public
+            })
+        }
+
     }
 
     useDateFromUrlAsReference() {
