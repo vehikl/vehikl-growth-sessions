@@ -160,13 +160,13 @@ export default class WeekView extends Vue {
 
         if (this.visibilityFilter === 'private') {
             return todaysGrowthSessions.filter((session) => {
-                return this.visibilityFilter === 'private' && !session.is_public
+                return !session.is_public
             })
         }
 
         if (this.visibilityFilter === 'public') {
             return todaysGrowthSessions.filter((session) => {
-                return this.visibilityFilter === 'public' && session.is_public
+                return session.is_public
             })
         }
 
