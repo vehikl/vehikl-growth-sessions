@@ -164,7 +164,7 @@ describe('WeekView', () => {
 
             it('it loads with "ALL" radio button selected', async () => {
                 let radioButton =
-                    wrapper.find('input[type=radio][name=filter-sessions]').element as HTMLInputElement;
+                    wrapper.find('#visibility-filters input[type=radio][name=filter-sessions]').element as HTMLInputElement;
 
                 expect(radioButton.value).toBe("all")
                 expect(radioButton).toBeChecked();
@@ -193,7 +193,7 @@ describe('WeekView', () => {
                 const publicGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions.filter(gs => gs.is_public);
 
                 let radioButton =
-                    wrapper.find('input[type=radio][name=filter-sessions][id=private]');
+                    wrapper.find('#visibility-filters input[type=radio][name=filter-sessions][id=private]');
                 await radioButton.setChecked();
 
                 privateGrowthSessionsThisWeek.forEach(growthSession => {
