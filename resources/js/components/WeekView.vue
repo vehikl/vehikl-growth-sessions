@@ -155,10 +155,6 @@ export default class WeekView extends Vue {
     growthSessionsVisibleInDate(date: DateTime) {
         let allGrowthSessionsOnDate = this.growthSessions.getSessionByDate(date);
         return allGrowthSessionsOnDate.filter((session) => {
-            if (this.visibilityFilter == 'all') {
-                return true;
-            }
-
             if (this.visibilityFilter === 'private') {
                 return !session.is_public
             }
@@ -166,6 +162,8 @@ export default class WeekView extends Vue {
             if (this.visibilityFilter === 'public') {
                 return session.is_public
             }
+
+            return true;
         })
     }
 
