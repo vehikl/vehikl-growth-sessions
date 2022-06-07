@@ -1,6 +1,8 @@
 <template>
     <div v-if="growthSessions.isReady">
-        <fieldset v-if="user && user.is_vehikl_member" id="visibility-filters">
+
+        <fieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
+                  class="border inline-flex p-4 rounded border-blue-300 gap-5">
             <label>
                 All
                 <input v-model="visibilityFilter" name="filter-sessions" type="radio" value="all">
@@ -14,7 +16,6 @@
                 <input id="public" v-model="visibilityFilter" name="filter-sessions" type="radio" value="public">
             </label>
         </fieldset>
-
 
         <div class="flex justify-center items-center text-xl text-blue-600 font-bold">
             <button aria-label="Load previous week"
@@ -34,6 +35,7 @@
                 <i aria-hidden="true" class="fa fa-chevron-right"></i>
             </button>
         </div>
+
 
         <div class="flex flex-col md:flex-row justify-center flex-wrap">
             <modal :clickToClose="false" :dynamic="true" :height="650" :width="500" name="growth-session-form">
