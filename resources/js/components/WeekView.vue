@@ -1,39 +1,41 @@
 <template>
     <div v-if="growthSessions.isReady">
 
-        <fieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
-                  class="border inline-flex p-4 rounded border-blue-300 gap-5">
-            <label>
-                All
-                <input v-model="visibilityFilter" name="filter-sessions" type="radio" value="all">
-            </label>
-            <label>
-                Private Only
-                <input id="private" v-model="visibilityFilter" name="filter-sessions" type="radio" value="private">
-            </label>
-            <label>
-                Public Only
-                <input id="public" v-model="visibilityFilter" name="filter-sessions" type="radio" value="public">
-            </label>
-        </fieldset>
 
-        <div class="flex justify-center items-center text-xl text-blue-600 font-bold">
-            <button aria-label="Load previous week"
-                    class="load-previous-week mx-4 mb-2"
-                    @click="changeReferenceDate(-7)">
-                <i aria-hidden="true" class="fa fa-chevron-left"></i>
-            </button>
-            <h2 v-if="growthSessions.weekDates.length > 0" class="text-center mb-2 w-72">
-                Week of
-                {{ growthSessions.firstDay.format('MMM-DD') }} to
-                {{ growthSessions.lastDay.format('MMM-DD') }}
-            </h2>
-            <button ref="load-next-week-button"
-                    aria-label="Load next week"
-                    class="load-next-week mx-4 mb-2"
-                    @click="changeReferenceDate(+7)">
-                <i aria-hidden="true" class="fa fa-chevron-right"></i>
-            </button>
+        <div class="flex flex-col justify-center items-center text-xl text-blue-600 font-bold">
+            <div class="flex">
+                <button aria-label="Load previous week"
+                        class="load-previous-week mx-4 mb-2"
+                        @click="changeReferenceDate(-7)">
+                    <i aria-hidden="true" class="fa fa-chevron-left"></i>
+                </button>
+                <h2 v-if="growthSessions.weekDates.length > 0" class="text-center mb-2 w-72">
+                    Week of
+                    {{ growthSessions.firstDay.format('MMM-DD') }} to
+                    {{ growthSessions.lastDay.format('MMM-DD') }}
+                </h2>
+                <button ref="load-next-week-button"
+                        aria-label="Load next week"
+                        class="load-next-week mx-4 mb-2"
+                        @click="changeReferenceDate(+7)">
+                    <i aria-hidden="true" class="fa fa-chevron-right"></i>
+                </button>
+            </div>
+            <fieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
+                      class="border inline-flex p-4 rounded border-blue-300 gap-5">
+                <label>
+                    All
+                    <input v-model="visibilityFilter" name="filter-sessions" type="radio" value="all">
+                </label>
+                <label>
+                    Private Only
+                    <input id="private" v-model="visibilityFilter" name="filter-sessions" type="radio" value="private">
+                </label>
+                <label>
+                    Public Only
+                    <input id="public" v-model="visibilityFilter" name="filter-sessions" type="radio" value="public">
+                </label>
+            </fieldset>
         </div>
 
 
