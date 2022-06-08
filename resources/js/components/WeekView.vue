@@ -22,7 +22,7 @@
                 </button>
             </div>
             <fieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
-                      class="border inline-flex p-4 rounded border-blue-300 gap-5">
+                      class="border inline-flex p-4 rounded border-blue-300 gap-5 my-5">
                 <label>
                     All
                     <input v-model="visibilityFilter" name="filter-sessions" type="radio" value="all">
