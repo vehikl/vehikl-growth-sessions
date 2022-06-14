@@ -66,7 +66,6 @@ describe('WeekView', () => {
         }
     });
 
-
     it('allows the user to view growth sessions of the previous week', async () => {
         wrapper.find('button.load-previous-week').trigger('click');
         await flushPromises();
@@ -96,6 +95,11 @@ describe('WeekView', () => {
             .toContain(wordForNothing);
     });
 
+    it('does not show visibility filter to unauthed user', () => {
+        const visibilityFilters = wrapper.find('#visibility-filters')
+        expect(visibilityFilters.exists()).toBeFalsy();
+    });
+
     describe('for an authenticated non-vehikl user', () => {
         beforeEach(async () => {
             wrapper = mount(WeekView, {localVue, propsData: {user: authNonVehiklUser}});
@@ -105,6 +109,11 @@ describe('WeekView', () => {
         it('does not display the growth session creation buttons for authed non-vehikl users', async () => {
             expect(wrapper.find('button.create-growth-session').exists()).toBe(false);
         });
+
+        it('does not render growth session filter for non vehikl users', async () => {
+            let visibilityFilters = wrapper.find('#visibility-filters')
+            expect(visibilityFilters.exists()).toBeFalsy()
+        });
     });
 
     describe('for an authenticated vehikl user', () => {
@@ -112,6 +121,11 @@ describe('WeekView', () => {
             wrapper = mount(WeekView, {localVue, propsData: {user: authVehiklUser}});
             await flushPromises();
         });
+
+        it('renders for authenticated vehikl users', async () => {
+            const visibilityFilters = wrapper.find('#visibility-filters')
+            expect(visibilityFilters.exists()).toBeTruthy();
+        })
 
         it('allows an authed vehikl user to create a growth session', async () => {
             wrapper.find('button.create-growth-session').trigger('click');
@@ -150,6 +164,97 @@ describe('WeekView', () => {
             expect((wrapper.find('textarea#topic').element as HTMLInputElement).value).toBe(topic);
             // expect((targetedGrowthSession.find('textarea#location').element as HTMLInputElement).value).toBe(targetedGrowthSession.location);
         });
+
+        describe('Visibility Filter', () => {
+
+            it('it loads with "ALL" radio button selected', async () => {
+                let radioButton =
+                    wrapper.find('#visibility-filters input[type=radio][name=filter-sessions]').element as HTMLInputElement;
+
+                expect(radioButton.value).toBe("all")
+                expect(radioButton).toBeChecked();
+            })
+
+            it('shows both public and one private growth sessions on the page', async () => {
+                const allGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions;
+
+                allGrowthSessionsThisWeek.forEach(growthSession => {
+                    const isTitleBeingRendered = wrapper
+                        .findAllComponents(GrowthSessionCard)
+                        .wrappers
+                        .some(card =>
+                            card.text().includes(growthSession.title))
+
+                    expect(isTitleBeingRendered).toEqual(true);
+                })
+            })
+
+            it('shows only private growth sessions if the private filter is enabled', async () => {
+
+                const privateGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions
+                    .filter(function (growthSession) {
+                        return !growthSession.is_public;
+                    });
+                const publicGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions.filter(gs => gs.is_public);
+
+                let radioButton =
+                    wrapper.find('#visibility-filters input[type=radio][name=filter-sessions][id=private]');
+                await radioButton.setChecked();
+
+                privateGrowthSessionsThisWeek.forEach(growthSession => {
+                    const isTitleBeingRendered = wrapper
+                        .findAllComponents(GrowthSessionCard)
+                        .wrappers
+                        .some(card =>
+                            card.text().includes(growthSession.title))
+
+                    expect(isTitleBeingRendered).toEqual(true);
+                })
+
+                publicGrowthSessionsThisWeek.forEach(publicGrowthSession => {
+                    const isTitleBeingRendered = wrapper
+                        .findAllComponents(GrowthSessionCard)
+                        .wrappers
+                        .some(card =>
+                            card.text().includes(publicGrowthSession.title))
+
+                    expect(isTitleBeingRendered).toEqual(false);
+                })
+            })
+
+            it('shows only public growth sessions if the public filter is enabled', async () => {
+
+                const privateGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions
+                    .filter(function (growthSession) {
+                        return !growthSession.is_public;
+                    });
+                const publicGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions.filter(gs => gs.is_public);
+
+                let radioButton =
+                    wrapper.find('#visibility-filters input[type=radio][name=filter-sessions][id=public]');
+                await radioButton.setChecked();
+
+                privateGrowthSessionsThisWeek.forEach(growthSession => {
+                    const isTitleBeingRendered = wrapper
+                        .findAllComponents(GrowthSessionCard)
+                        .wrappers
+                        .some(card =>
+                            card.text().includes(growthSession.title))
+
+                    expect(isTitleBeingRendered).toEqual(false);
+                })
+
+                publicGrowthSessionsThisWeek.forEach(publicGrowthSession => {
+                    const isTitleBeingRendered = wrapper
+                        .findAllComponents(GrowthSessionCard)
+                        .wrappers
+                        .some(card =>
+                            card.text().includes(publicGrowthSession.title))
+
+                    expect(isTitleBeingRendered).toEqual(true);
+                })
+            })
+        })
     });
 
     describe('week persistence', () => {
@@ -177,7 +282,7 @@ describe('WeekView', () => {
             await flushPromises();
             GrowthSessionApi.getAllGrowthSessionsOfTheWeek = jest.fn();
 
-            window.history.back =  () => {
+            window.history.back = () => {
                 console.error = jest.fn()
                 const fakeMockEvent = {} as unknown as PopStateEvent;
                 window.onpopstate!(fakeMockEvent);
@@ -195,13 +300,13 @@ describe('WeekView', () => {
             DateTime.setTestNow(todayDate)
             wrapper = mount(WeekView, {localVue});
             await flushPromises();
-            expect(wrapper.findComponent({ ref: 'scroll-to-today' }).exists()).toBeTruthy()
+            expect(wrapper.findComponent({ref: 'scroll-to-today'}).exists()).toBeTruthy()
         })
         it('will hide the scroll to today button when today is not available', async () => {
             DateTime.setTestNow(metadataForGrowthSessionsFixture.nextWeek.date)
             wrapper = mount(WeekView, {localVue});
             await flushPromises();
-            expect(wrapper.findComponent({ ref: 'scroll-to-today' }).exists()).toBeFalsy()
+            expect(wrapper.findComponent({ref: 'scroll-to-today'}).exists()).toBeFalsy()
         })
 
         it('it calls the scroll to method on the today date when the button is clicked', async () => {
@@ -219,7 +324,7 @@ describe('WeekView', () => {
 
             header.element.scrollIntoView = scrollIntoViewMock
 
-            wrapper.findComponent({ ref: 'scroll-to-today' }).trigger('click');
+            wrapper.findComponent({ref: 'scroll-to-today'}).trigger('click');
 
             expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
         })

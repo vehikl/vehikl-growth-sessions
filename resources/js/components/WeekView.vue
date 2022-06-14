@@ -1,23 +1,42 @@
 <template>
     <div v-if="growthSessions.isReady">
-        <div class="flex justify-center items-center text-xl text-blue-600 font-bold">
-            <button aria-label="Load previous week"
-                    class="load-previous-week mx-4 mb-2"
-                    @click="changeReferenceDate(-7)">
-                <i aria-hidden="true" class="fa fa-chevron-left"></i>
-            </button>
-            <h2 v-if="growthSessions.weekDates.length > 0" class="text-center mb-2 w-72">
-                Week of
-                {{ growthSessions.firstDay.format('MMM-DD') }} to
-                {{ growthSessions.lastDay.format('MMM-DD') }}
-            </h2>
-            <button ref="load-next-week-button"
-                    aria-label="Load next week"
-                    class="load-next-week mx-4 mb-2"
-                    @click="changeReferenceDate(+7)">
-                <i aria-hidden="true" class="fa fa-chevron-right"></i>
-            </button>
+        <div class="flex flex-col justify-center items-center text-xl text-blue-600 font-bold">
+            <fieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
+                      class="border inline-flex p-4 rounded border-blue-300 gap-5 mt-5">
+                <label>
+                    All
+                    <input v-model="visibilityFilter" name="filter-sessions" type="radio" value="all">
+                </label>
+                <label>
+                    Private Only
+                    <input id="private" v-model="visibilityFilter" name="filter-sessions" type="radio" value="private">
+                </label>
+                <label>
+                    Public Only
+                    <input id="public" v-model="visibilityFilter" name="filter-sessions" type="radio" value="public">
+                </label>
+            </fieldset>
+
+            <div class="flex my-5">
+                <button aria-label="Load previous week"
+                        class="load-previous-week mx-4 mb-2"
+                        @click="changeReferenceDate(-7)">
+                    <i aria-hidden="true" class="fa fa-chevron-left"></i>
+                </button>
+                <h2 v-if="growthSessions.weekDates.length > 0" class="text-center mb-2 w-72">
+                    Week of
+                    {{ growthSessions.firstDay.format('MMM-DD') }} to
+                    {{ growthSessions.lastDay.format('MMM-DD') }}
+                </h2>
+                <button ref="load-next-week-button"
+                        aria-label="Load next week"
+                        class="load-next-week mx-4 mb-2"
+                        @click="changeReferenceDate(+7)">
+                    <i aria-hidden="true" class="fa fa-chevron-right"></i>
+                </button>
+            </div>
         </div>
+
 
         <div class="flex flex-col md:flex-row justify-center flex-wrap">
             <modal :clickToClose="false" :dynamic="true" :height="650" :width="500" name="growth-session-form">
@@ -50,19 +69,19 @@
                      'bg-blue-200 border-blue-300': !date.isEvenDate(),
                      }"
                 ></h3>
-                <div v-show="growthSessions.getSessionByDate(date).length === 0" class="text-blue-600 text-lg my-4">
+                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-blue-600 text-lg my-4">
                     <p v-text="`${Nothingator.random()}...`"/>
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
                 </div>
 
                 <draggable :date="date"
-                           :list="growthSessions.getSessionByDate(date)"
+                           :list="growthSessionsVisibleInDate(date)"
                            class="h-full w-full px-2"
                            group="growth-sessions"
                            handle=".handle"
                            @change="onChange"
                            @end="onDragEnd">
-                    <div v-for="growthSession in growthSessions.getSessionByDate(date)"
+                    <div v-for="growthSession in growthSessionsVisibleInDate(date)"
                          :key="growthSession.id">
                         <growth-session-card
                             :growth-session="growthSession"
@@ -120,6 +139,7 @@ export default class WeekView extends Vue {
     DateTime = DateTime;
     Nothingator = Nothingator;
     draggedGrowthSession!: GrowthSession;
+    visibilityFilter: string = 'all'
 
     async created() {
         await this.refreshGrowthSessionsOfTheWeek()
@@ -133,6 +153,21 @@ export default class WeekView extends Vue {
     async refreshGrowthSessionsOfTheWeek() {
         this.useDateFromUrlAsReference();
         await this.getAllGrowthSessionsOfTheWeek();
+    }
+
+    growthSessionsVisibleInDate(date: DateTime) {
+        let allGrowthSessionsOnDate = this.growthSessions.getSessionByDate(date);
+        return allGrowthSessionsOnDate.filter((session) => {
+            if (this.visibilityFilter === 'private') {
+                return !session.is_public
+            }
+
+            if (this.visibilityFilter === 'public') {
+                return session.is_public
+            }
+
+            return true;
+        })
     }
 
     useDateFromUrlAsReference() {
@@ -157,6 +192,7 @@ export default class WeekView extends Vue {
             return this.draggedGrowthSession = change.added.element;
         }
     }
+
 
     async getAllGrowthSessionsOfTheWeek() {
         this.growthSessions = await GrowthSessionApi.getAllGrowthSessionsOfTheWeek(this.referenceDate.toDateString());

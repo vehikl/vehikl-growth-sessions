@@ -11,6 +11,7 @@ describe('WeekGrowthSessions', () => {
             })
             expect(weekGrowthSessions.hasCurrentDate).toBeTruthy()
         })
+
         it('returns false if current date is not in the growthSessions array', () => {
             const today = '2020-01-02';
             const tomorrow = '2020-01-03';
