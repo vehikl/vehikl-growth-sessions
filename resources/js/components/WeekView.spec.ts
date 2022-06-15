@@ -11,6 +11,7 @@ import {GrowthSession} from '../classes/GrowthSession';
 import {Nothingator} from '../classes/Nothingator';
 import {DiscordChannelApi} from "../services/DiscordChannelApi";
 import GrowthSessionCard from "./GrowthSessionCard.vue";
+import {AnydesksApi} from "../services/AnydesksApi";
 
 const authVehiklUser: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -50,6 +51,7 @@ describe('WeekView', () => {
         GrowthSessionApi.leave = jest.fn().mockImplementation(growthSession => growthSession);
         GrowthSessionApi.delete = jest.fn().mockImplementation(growthSession => growthSession);
         DiscordChannelApi.index = jest.fn();
+        AnydesksApi.getAllAnyDesks = jest.fn();
         wrapper = mount(WeekView, {localVue});
         await flushPromises();
     });
