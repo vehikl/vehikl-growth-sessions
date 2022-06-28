@@ -13,7 +13,6 @@ use Tests\TestCase;
 
 class GrowthSessionTest extends TestCase
 {
-
     public function testTheGetGrowthSessionEndpointReturnsAViewIfTheRequestIsNotExpectingJson()
     {
         $growthSession = GrowthSession::factory()->create();
@@ -102,6 +101,21 @@ class GrowthSessionTest extends TestCase
         $this->actingAs($user)->postJson(route('growth_sessions.store'), $growthSessionAttributes)
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['anydesk_id' => 'The selected anydesk id is invalid.']);
+    }
+
+    public function testAGrowthSessionCannotBeCreatedDuringTheWeekend()
+    {
+        $this->setTestNow('2020-01-15');
+        $growthSessionAttributes = GrowthSession::factory()->raw();
+        $user = User::factory()->vehiklMember()->create();
+
+        $growthSessionAttributes['date'] = '2020-01-18';
+        $growthSessionAttributes['start_time'] = '09:00 am';
+        $growthSessionAttributes['end_time'] = '10:00 am';
+
+        $this->actingAs($user)->postJson(route('growth_sessions.store'), $growthSessionAttributes)
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(['date' => 'A growth session can not be hosted on weekends.']);
     }
 
     public function testAGrowthSessionCannotBeUpdatedWithAnAnydeskIdThatDoesNotExist()
