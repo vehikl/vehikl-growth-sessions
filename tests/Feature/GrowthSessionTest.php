@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\AnyDesk;
 use App\GrowthSession;
 use App\User;
 use App\UserType;
@@ -86,36 +85,6 @@ class GrowthSessionTest extends TestCase
             'attendee_limit' => $newAttendeeLimit
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 5.']);
-    }
-
-    public function testAGrowthSessionCannotBeCreatedWithAnAnydeskIdThatDoesNotExist()
-    {
-        $growthSessionAttributes = GrowthSession::factory()->raw();
-        $user = User::factory()->vehiklMember()->create();
-
-
-        $growthSessionAttributes['anydesk_id'] = 999999;
-        $growthSessionAttributes['start_time'] = '09:00 am';
-        $growthSessionAttributes['end_time'] = '10:00 am';
-
-        $this->actingAs($user)->postJson(route('growth_sessions.store'), $growthSessionAttributes)
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors(['anydesk_id' => 'The selected anydesk id is invalid.']);
-    }
-
-    public function testAGrowthSessionCannotBeCreatedDuringTheWeekend()
-    {
-        $this->setTestNow('2020-01-15');
-        $growthSessionAttributes = GrowthSession::factory()->raw();
-        $user = User::factory()->vehiklMember()->create();
-
-        $growthSessionAttributes['date'] = '2020-01-18';
-        $growthSessionAttributes['start_time'] = '09:00 am';
-        $growthSessionAttributes['end_time'] = '10:00 am';
-
-        $this->actingAs($user)->postJson(route('growth_sessions.store'), $growthSessionAttributes)
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors(['date' => 'A growth session can not be hosted on weekends.']);
     }
 
     public function testAGrowthSessionCannotBeUpdatedWithAnAnydeskIdThatDoesNotExist()
@@ -590,19 +559,6 @@ class GrowthSessionTest extends TestCase
             ->assertJsonFragment(['id' => $vehiklOnlySession->id]);
     }
 
-    public function testAUserCanCreateAPubliclyAvailableGrowthSession()
-    {
-        // Create a session
-        $user = User::factory()->create(['is_vehikl_member' => true]);
-        $this->actingAs($user)->postJson(
-            route('growth_sessions.store'),
-            $this->defaultParameters(['is_public' => true])
-        );
-
-        // check if the session is public
-        $this->assertTrue(GrowthSession::find(1)->is_public);
-    }
-
     public function testANonMemberUserCannotAccessAPrivateGrowthSession()
     {
         // Create a session
@@ -646,21 +602,6 @@ class GrowthSessionTest extends TestCase
             ->get(route('growth_sessions.week', $growthSession));
 
         $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
-    }
-
-    public function testAUserCanCreateAGrowthSessionWithAnAnyDesk()
-    {
-        $user = User::factory()->vehiklMember()->create();
-        $anyDesk = AnyDesk::factory()->create();
-
-        $response = $this->actingAs($user)->postJson(
-            route('growth_sessions.store'),
-            $this->defaultParameters(['anydesk_id' => $anyDesk->id])
-        );
-
-        $response->assertSuccessful();
-        $growth = GrowthSession::find(1);
-        $this->assertEquals($anyDesk->id, $growth->anydesk_id);
     }
 
     /**
@@ -735,32 +676,6 @@ class GrowthSessionTest extends TestCase
     }
 
     /** @test */
-    public function vehiklMembersCanCreateAGrowthSession(): void
-    {
-        $vehiklMember = User::factory()->vehiklMember()->create();
-        $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
-
-        $this->actingAs($vehiklMember)
-            ->post(route('growth_sessions.store'), $growthSessionsAttributes)
-            ->assertSuccessful();
-
-        $this->assertNotEmpty(GrowthSession::query()->where('title', $growthSessionsAttributes['title'])->first());
-    }
-
-    /** @test */
-    public function nonVehiklMembersCannotCreateAGrowthSession(): void
-    {
-        $nonVehiklMember = User::factory()->create();
-        $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
-
-        $this->actingAs($nonVehiklMember)
-            ->post(route('growth_sessions.store'), $growthSessionsAttributes)
-            ->assertForbidden();
-
-        $this->assertEmpty(GrowthSession::query()->where('title', $growthSessionsAttributes['title'])->first());
-    }
-
-    /** @test */
     public function includesAttendeesInformationEvenForANewlyCreatedGrowthSession(): void
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
@@ -786,7 +701,6 @@ class GrowthSessionTest extends TestCase
 
         $this->assertTrue($growthSession->watchers()->first()->is($vehiklMember));
     }
-
 
     /** @test */
     public function allowsAUserToUnwatchAGrowthSession(): void
