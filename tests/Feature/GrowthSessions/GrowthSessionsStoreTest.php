@@ -40,18 +40,6 @@ class GrowthSessionsStoreTest extends TestCase
         $this->assertEquals($anyDesk->id, $growth->anydesk_id);
     }
 
-    private function defaultParameters(array $params = []): array
-    {
-        return array_merge([
-            'topic' => 'The fundamentals of foo',
-            'title' => 'Foo',
-            'location' => 'At the central mobbing area',
-            'start_time' => now()->format('h:i a'),
-            'date' => today(),
-            'discord_channel' => null,
-        ], $params);
-    }
-
     public function testAGrowthSessionCannotBeCreatedDuringTheWeekend()
     {
         $this->setTestNow('2020-01-15');
@@ -102,5 +90,42 @@ class GrowthSessionsStoreTest extends TestCase
             ->assertForbidden();
 
         $this->assertEmpty(GrowthSession::query()->where('title', $growthSessionsAttributes['title'])->first());
+    }
+
+    public function testAnAttendeeLimitCanBeSetWhenCreatingAtGrowthSession()
+    {
+        $user = User::factory()->vehiklMember()->create();
+
+        $expectedAttendeeLimit = 420;
+        $this->actingAs($user)->postJson(
+            route('growth_sessions.store'),
+            $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
+        )->assertSuccessful();
+
+        $this->assertEquals($expectedAttendeeLimit, $user->growthSessions->first()->attendee_limit);
+    }
+
+    public function testAnAttendeeLimitCannotBeLessThanFour()
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+
+        $expectedAttendeeLimit = 3;
+        $this->actingAs($vehiklMember)->postJson(
+            route('growth_sessions.store'),
+            $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
+        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 4']);
+    }
+
+    private function defaultParameters(array $params = []): array
+    {
+        return array_merge([
+            'topic' => 'The fundamentals of foo',
+            'title' => 'Foo',
+            'location' => 'At the central mobbing area',
+            'start_time' => now()->format('h:i a'),
+            'date' => today(),
+            'discord_channel' => null,
+        ], $params);
     }
 }

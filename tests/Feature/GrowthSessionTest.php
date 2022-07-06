@@ -77,31 +77,6 @@ class GrowthSessionTest extends TestCase
         $this->assertEmpty($existingGrowthSession->attendees);
     }
 
-    public function testAnAttendeeLimitCanBeSetWhenCreatingAtGrowthSession()
-    {
-        $user = User::factory()->vehiklMember()->create();
-
-        $expectedAttendeeLimit = 420;
-        $this->actingAs($user)->postJson(
-            route('growth_sessions.store'),
-             $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
-        )->assertSuccessful();
-
-        $this->assertEquals($expectedAttendeeLimit, $user->growthSessions->first()->attendee_limit);
-    }
-
-    public function testAnAttendeeLimitCannotBeLessThanFour()
-    {
-        $vehiklMember = User::factory()->vehiklMember()->create();
-
-        $expectedAttendeeLimit = 3;
-        $this->actingAs($vehiklMember)->postJson(
-            route('growth_sessions.store'),
-            $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
-        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 4']);
-    }
-
     public function testAGrowthSessionCannotBeJoinedIfTheAttendeeLimitIsMet()
     {
         $user = User::factory()->create();
