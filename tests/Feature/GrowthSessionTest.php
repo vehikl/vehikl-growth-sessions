@@ -92,18 +92,6 @@ class GrowthSessionTest extends TestCase
         $response->assertJson(['message' => 'The attendee limit has been reached.']);
     }
 
-    private function defaultParameters(array $params = []): array
-    {
-        return array_merge([
-            'topic' => 'The fundamentals of foo',
-            'title' => 'Foo',
-            'location' => 'At the central mobbing area',
-            'start_time' => now()->format('h:i a'),
-            'date' => today(),
-            'discord_channel' => null,
-        ], $params);
-    }
-
     /** @test */
     public function itCanShowGuestForNonVehiklUsers()
     {
