@@ -41,10 +41,6 @@ class GrowthSessionsStoreTest extends TestCase
         $this->assertEquals($anyDesk->id, $growth->anydesk_id);
     }
 
-    /**
-     * @param int $expectedAttendeeLimit
-     * @return array
-     */
     private function defaultParameters(array $params = []): array
     {
         return array_merge([

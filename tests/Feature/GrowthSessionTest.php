@@ -500,7 +500,7 @@ class GrowthSessionTest extends TestCase
         $expectedAttendeeLimit = 420;
         $this->actingAs($user)->postJson(
             route('growth_sessions.store'),
-            $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
+             $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
         )->assertSuccessful();
 
         $this->assertEquals($expectedAttendeeLimit, $user->growthSessions->first()->attendee_limit);
@@ -604,10 +604,6 @@ class GrowthSessionTest extends TestCase
         $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
     }
 
-    /**
-     * @param int $expectedAttendeeLimit
-     * @return array
-     */
     private function defaultParameters(array $params = []): array
     {
         return array_merge([
