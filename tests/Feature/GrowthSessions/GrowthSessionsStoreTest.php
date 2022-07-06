@@ -10,7 +10,6 @@ use Tests\TestCase;
 
 class GrowthSessionsStoreTest extends TestCase
 {
-
     public function testAGrowthSessionCannotBeCreatedWithAnAnydeskIdThatDoesNotExist()
     {
         $growthSessionAttributes = GrowthSession::factory()->raw();
