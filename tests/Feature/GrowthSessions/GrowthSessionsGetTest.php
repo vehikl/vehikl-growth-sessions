@@ -255,4 +255,75 @@ class GrowthSessionsGetTest extends TestCase
         $this->getJson(route('growth_sessions.day'), ['Authorization' => 'Bearer ' . config('auth.slack_token')])
             ->assertJsonFragment(['location' => $growthSession->location]);
     }
+
+
+    public function testVehiklUsersCanViewPrivateGrowthSessions()
+    {
+        $this->setTestNow('2020-01-15');
+
+        $vehiklMember = User::factory()->vehiklMember()->create();
+        $monday = CarbonImmutable::parse('Last Monday');
+        $vehiklOnlySession = GrowthSession::factory()->create([
+            'date' => $monday,
+            'start_time' => '03:30 pm',
+            'attendee_limit' => 4,
+            'is_public' => false
+        ]);
+        GrowthSession::factory()->create([
+            'is_public' => true,
+            'date' => $monday->addDays(1),
+            'start_time' => '04:30 pm',
+            'attendee_limit' => 4
+        ]);
+
+        $response = $this->actingAs($vehiklMember)->getJson(route('growth_sessions.week'));
+
+        $response->assertSuccessful()
+            ->assertJsonFragment(['id' => $vehiklOnlySession->id]);
+    }
+
+    public function testANonMemberUserCannotAccessAPrivateGrowthSession()
+    {
+        // Create a session
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+
+        $user = User::factory()->create(['is_vehikl_member' => false]);
+
+        $this->actingAs($user)
+            ->get(route('growth_sessions.show', $growthSession))
+            ->assertNotFound();
+    }
+
+    public function testAGuestCannotAccessAPrivateGrowthSession()
+    {
+        // Create a session
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+
+        $this->get(route('growth_sessions.show', $growthSession))
+            ->assertNotFound();
+    }
+
+    public function testAMemberCanAccessAPrivateGrowthSession()
+    {
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+
+        $user = User::factory()->create(['is_vehikl_member' => true]);
+
+        $this->actingAs($user)
+            ->get(route('growth_sessions.show', $growthSession))
+            ->assertSuccessful()
+            ->assertSee($growthSession->title);
+    }
+
+    public function testItProvidesTheGrowthSessionVisibilityInThePayload()
+    {
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+
+        $user = User::factory()->create(['is_vehikl_member' => true]);
+
+        $response = $this->actingAs($user)
+            ->get(route('growth_sessions.week', $growthSession));
+
+        $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
+    }
 }
