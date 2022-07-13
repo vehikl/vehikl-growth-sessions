@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Tests\TestCase;
 
-class GrowthSessionsGetTest extends TestCase
+class GrowthSessionsShowTest extends TestCase
 {
     public function testTheGetGrowthSessionEndpointReturnsAViewIfTheRequestIsNotExpectingJson()
     {
