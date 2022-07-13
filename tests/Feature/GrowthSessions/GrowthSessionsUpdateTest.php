@@ -55,6 +55,7 @@ class GrowthSessionsUpdateTest extends TestCase
     public function testAUserThatIsNotAnOwnerOfAGrowthSessionCannotEditIt()
     {
         $growthSession = GrowthSession::factory()->create();
+        /** @var User $notTheOwner */
         $notTheOwner = User::factory()->create();
 
         $this->actingAs($notTheOwner)->putJson(route(
