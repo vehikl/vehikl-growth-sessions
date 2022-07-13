@@ -56,6 +56,7 @@ class GrowthSessionsGetTest extends TestCase
             $monday->addDays(4)->toDateString() => [$fridayGrowthSession],
         ];
 
+        /** @var User $user */
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->getJson(route('growth_sessions.week'));
@@ -82,6 +83,7 @@ class GrowthSessionsGetTest extends TestCase
             today()->toDateString() => [$fridayGrowthSession],
         ];
 
+        /** @var User $user */
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->getJson(route('growth_sessions.week'));
@@ -132,6 +134,7 @@ class GrowthSessionsGetTest extends TestCase
             $mondayOfWeekWithGrowthSessions->addDays(4)->toDateString() => [$fridayGrowthSession],
         ];
 
+        /** @var User $user */
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->getJson(route(
@@ -226,6 +229,7 @@ class GrowthSessionsGetTest extends TestCase
         $monday = CarbonImmutable::parse('Last Monday');
         $growthSession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);
 
+        /** @var User $user */
         $user = User::factory()->create(['is_vehikl_member' => false]);
         $response = $this->actingAs($user)->get(route('growth_sessions.show', $growthSession));
 
@@ -238,6 +242,7 @@ class GrowthSessionsGetTest extends TestCase
         $today = '2020-01-02';
         $tomorrow = '2020-01-03';
         $this->setTestNow($today);
+        /** @var User $user */
         $user = User::factory()->create();
 
         $todayGrowthSessions = GrowthSession::factory()->times(2)->create(['date' => $today, 'attendee_limit' => 4]);
@@ -284,9 +289,9 @@ class GrowthSessionsGetTest extends TestCase
 
     public function testANonMemberUserCannotAccessAPrivateGrowthSession()
     {
-        // Create a session
         $growthSession = GrowthSession::factory()->create(['is_public' => false]);
 
+        /** @var User $user */
         $user = User::factory()->create(['is_vehikl_member' => false]);
 
         $this->actingAs($user)
@@ -296,7 +301,6 @@ class GrowthSessionsGetTest extends TestCase
 
     public function testAGuestCannotAccessAPrivateGrowthSession()
     {
-        // Create a session
         $growthSession = GrowthSession::factory()->create(['is_public' => false]);
 
         $this->get(route('growth_sessions.show', $growthSession))
@@ -306,7 +310,7 @@ class GrowthSessionsGetTest extends TestCase
     public function testAMemberCanAccessAPrivateGrowthSession()
     {
         $growthSession = GrowthSession::factory()->create(['is_public' => false]);
-
+        /** @var User $user */
         $user = User::factory()->create(['is_vehikl_member' => true]);
 
         $this->actingAs($user)
@@ -318,12 +322,81 @@ class GrowthSessionsGetTest extends TestCase
     public function testItProvidesTheGrowthSessionVisibilityInThePayload()
     {
         $growthSession = GrowthSession::factory()->create(['is_public' => false]);
-
+        /** @var User $user */
         $user = User::factory()->create(['is_vehikl_member' => true]);
 
         $response = $this->actingAs($user)
             ->get(route('growth_sessions.week', $growthSession));
 
         $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
+    }
+
+    /** @test */
+    public function itCanShowGuestForNonVehiklUsers()
+    {
+        /** @var User $nonVehiklMember */
+        $nonVehiklMember = User::factory()->create();
+
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->create();
+
+        $guestMember = $growthSession->attendees()->first();
+
+        $this->actingAs($nonVehiklMember)->get(route('growth_sessions.show', $growthSession))
+            ->assertSee('Guest')
+            ->assertSee('images\\/guest-avatar.webp')
+            ->assertDontSee($guestMember->name)
+            ->assertDontSee($growthSession->avatar)
+            ->assertDontSee($guestMember->github_nickname);
+    }
+
+    /** @test */
+    public function itCanShowGuestDetailsForVehiklUsers()
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->create();
+
+        $guestMember = $growthSession->attendees()->first();
+
+        $this->actingAs($vehiklMember)->get(route('growth_sessions.show', $growthSession))
+            ->assertSee($guestMember->name)
+            ->assertSee($growthSession->avatar)
+            ->assertSee($guestMember->github_nickname)
+            ->assertDontSee('images\\/guest-avatar.webp')
+            ->assertDontSee('Guest');
+    }
+
+    /** @test */
+    public function itCannotShowGuestDetailsForUnauthenicatedUsers()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->create();
+
+        $guestMember = $growthSession->attendees()->first();
+
+        $this->get(route('growth_sessions.show', $growthSession))
+            ->assertSee('Guest')
+            ->assertSee('images\\/guest-avatar.webp')
+            ->assertDontSee($guestMember->name)
+            ->assertDontSee($growthSession->avatar)
+            ->assertDontSee($guestMember->github_nickname);
+    }
+
+    /** @test */
+    public function includesAttendeesInformationEvenForANewlyCreatedGrowthSession(): void
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+        $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
+
+        $this->actingAs($vehiklMember)
+            ->post(route('growth_sessions.store'), $growthSessionsAttributes)
+            ->assertJsonFragment([
+                'attendees' => []
+            ]);
     }
 }
