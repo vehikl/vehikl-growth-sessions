@@ -196,4 +196,45 @@ class GrowthSessionsIndexTest extends TestCase
         $response->assertSuccessful()
             ->assertJsonFragment(['id' => $isPublic->id]);
     }
+
+    public function testItProvidesASummaryOfTheGrowthSessionsOfTheDay()
+    {
+        $today = '2020-01-02';
+        $tomorrow = '2020-01-03';
+        $this->setTestNow($today);
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        $todayGrowthSessions = GrowthSession::factory()->times(2)->create(['date' => $today, 'attendee_limit' => 4]);
+        GrowthSession::factory()->times(2)->create(['date' => $tomorrow, 'attendee_limit' => 4]);
+
+        $response = $this->actingAs($user)->getJson(route('growth_sessions.day'));
+
+        $response->assertJson($todayGrowthSessions->toArray());
+    }
+
+    public function testVehiklUsersCanViewPrivateGrowthSessions()
+    {
+        $this->setTestNow('2020-01-15');
+
+        $vehiklMember = User::factory()->vehiklMember()->create();
+        $monday = CarbonImmutable::parse('Last Monday');
+        $vehiklOnlySession = GrowthSession::factory()->create([
+            'date' => $monday,
+            'start_time' => '03:30 pm',
+            'attendee_limit' => 4,
+            'is_public' => false
+        ]);
+        GrowthSession::factory()->create([
+            'is_public' => true,
+            'date' => $monday->addDays(1),
+            'start_time' => '04:30 pm',
+            'attendee_limit' => 4
+        ]);
+
+        $response = $this->actingAs($vehiklMember)->getJson(route('growth_sessions.week'));
+
+        $response->assertSuccessful()
+            ->assertJsonFragment(['id' => $vehiklOnlySession->id]);
+    }
 }

@@ -58,7 +58,9 @@ class GrowthSessionsStoreTest extends TestCase
     public function testAUserCanCreateAPubliclyAvailableGrowthSession()
     {
         // Create a session
+        /** @var User $user */
         $user = User::factory()->create(['is_vehikl_member' => true]);
+
         $this->actingAs($user)->postJson(
             route('growth_sessions.store'),
             $this->defaultParameters(['is_public' => true])
@@ -82,6 +84,7 @@ class GrowthSessionsStoreTest extends TestCase
 
     public function testNonVehiklMembersCannotCreateAGrowthSession(): void
     {
+        /** @var User $nonVehiklMember */
         $nonVehiklMember = User::factory()->create();
         $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
 
@@ -127,5 +130,17 @@ class GrowthSessionsStoreTest extends TestCase
             'date' => today(),
             'discord_channel' => null,
         ], $params);
+    }
+
+    public function testIncludesAttendeesInformationEvenForANewlyCreatedGrowthSession(): void
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+        $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
+
+        $this->actingAs($vehiklMember)
+            ->post(route('growth_sessions.store'), $growthSessionsAttributes)
+            ->assertJsonFragment([
+                'attendees' => []
+            ]);
     }
 }

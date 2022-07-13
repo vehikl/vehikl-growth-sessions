@@ -50,54 +50,12 @@ class GrowthSessionsShowTest extends TestCase
         $response->assertSee('At AnyDesk XYZ - abcdefg');
     }
 
-    public function testItProvidesASummaryOfTheGrowthSessionsOfTheDay()
-    {
-        $today = '2020-01-02';
-        $tomorrow = '2020-01-03';
-        $this->setTestNow($today);
-        /** @var User $user */
-        $user = User::factory()->create();
-
-        $todayGrowthSessions = GrowthSession::factory()->times(2)->create(['date' => $today, 'attendee_limit' => 4]);
-        GrowthSession::factory()->times(2)->create(['date' => $tomorrow, 'attendee_limit' => 4]);
-
-        $response = $this->actingAs($user)->getJson(route('growth_sessions.day'));
-
-        $response->assertJson($todayGrowthSessions->toArray());
-    }
-
     public function testTheSlackBotCanSeeTheGrowthSessionLocation()
     {
         $this->seed();
         $growthSession = GrowthSession::factory()->create(['date' => today()]);
         $this->getJson(route('growth_sessions.day'), ['Authorization' => 'Bearer ' . config('auth.slack_token')])
             ->assertJsonFragment(['location' => $growthSession->location]);
-    }
-
-
-    public function testVehiklUsersCanViewPrivateGrowthSessions()
-    {
-        $this->setTestNow('2020-01-15');
-
-        $vehiklMember = User::factory()->vehiklMember()->create();
-        $monday = CarbonImmutable::parse('Last Monday');
-        $vehiklOnlySession = GrowthSession::factory()->create([
-            'date' => $monday,
-            'start_time' => '03:30 pm',
-            'attendee_limit' => 4,
-            'is_public' => false
-        ]);
-        GrowthSession::factory()->create([
-            'is_public' => true,
-            'date' => $monday->addDays(1),
-            'start_time' => '04:30 pm',
-            'attendee_limit' => 4
-        ]);
-
-        $response = $this->actingAs($vehiklMember)->getJson(route('growth_sessions.week'));
-
-        $response->assertSuccessful()
-            ->assertJsonFragment(['id' => $vehiklOnlySession->id]);
     }
 
     public function testANonMemberUserCannotAccessAPrivateGrowthSession()
@@ -198,18 +156,5 @@ class GrowthSessionsShowTest extends TestCase
             ->assertDontSee($guestMember->name)
             ->assertDontSee($growthSession->avatar)
             ->assertDontSee($guestMember->github_nickname);
-    }
-
-    /** @test */
-    public function includesAttendeesInformationEvenForANewlyCreatedGrowthSession(): void
-    {
-        $vehiklMember = User::factory()->vehiklMember()->create();
-        $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
-
-        $this->actingAs($vehiklMember)
-            ->post(route('growth_sessions.store'), $growthSessionsAttributes)
-            ->assertJsonFragment([
-                'attendees' => []
-            ]);
     }
 }
