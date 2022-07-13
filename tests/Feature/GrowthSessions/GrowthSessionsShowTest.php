@@ -102,8 +102,7 @@ class GrowthSessionsShowTest extends TestCase
         $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
     }
 
-    /** @test */
-    public function itCanShowGuestForNonVehiklUsers()
+    public function testItCanShowGuestForNonVehiklUsers()
     {
         /** @var User $nonVehiklMember */
         $nonVehiklMember = User::factory()->create();
@@ -122,8 +121,7 @@ class GrowthSessionsShowTest extends TestCase
             ->assertDontSee($guestMember->github_nickname);
     }
 
-    /** @test */
-    public function itCanShowGuestDetailsForVehiklUsers()
+    public function testItCanShowGuestDetailsForVehiklUsers()
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
 
@@ -141,8 +139,7 @@ class GrowthSessionsShowTest extends TestCase
             ->assertDontSee('Guest');
     }
 
-    /** @test */
-    public function itCannotShowGuestDetailsForUnauthenicatedUsers()
+    public function testItCannotShowGuestDetailsForUnauthenicatedUsers()
     {
         $growthSession = GrowthSession::factory()
             ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
