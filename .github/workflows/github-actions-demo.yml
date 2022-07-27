@@ -1,5 +1,9 @@
 name: Growth Session Deployment v0.1
-on: [ push ]
+on:
+  push:
+    branches:
+      - master
+      - *
 jobs:
   build:
     name: BuildTaco
