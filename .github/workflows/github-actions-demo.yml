@@ -13,4 +13,4 @@ jobs:
           username: github
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          script: whoami && pwd
+          script: touch HelloWorld.txt && echo "sup world" > HelloWorld.txt && cat HelloWorld.txt
