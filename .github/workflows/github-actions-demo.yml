@@ -12,7 +12,7 @@ jobs:
         with:
           src: ./foobar/*
           host: ${{ secrets.SSH_HOST }}
-          remote: /home/github/test
+          remote: /home/github/test/
           port: 22
           user: github
           key: ${{ secrets.SSH_PRIVATE_KEY }}
