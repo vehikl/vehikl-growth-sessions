@@ -1,18 +1,16 @@
 name: GitHub Actions Demo
 on: [ push ]
 jobs:
-  Explore-GitHub-Actions:
+  build:
+    name: BuildTaco
     runs-on: ubuntu-latest
+
     steps:
-      - name: make something
-        run: mkdir foobar
-      - run: touch ./foobar/helloworld.txt
-      - name: Publish
-        uses: nogsantos/scp-deploy@master
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@master
         with:
-          src: ./foobar/*
           host: ${{ secrets.SSH_HOST }}
-          remote: /home/github/test/
-          port: 22
-          user: github
+          username: github
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: whoami && pwd
