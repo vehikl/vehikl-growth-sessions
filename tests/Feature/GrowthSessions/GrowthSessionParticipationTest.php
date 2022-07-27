@@ -8,6 +8,7 @@ use App\UserType;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
+//
 class GrowthSessionParticipationTest extends TestCase
 {
     public function testAGivenUserCanRSVPToAGrowthSession()
