@@ -9,7 +9,10 @@ jobs:
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
-      - run: cd /home/github
+      - run: pwd
+      - run: ls -al
+      - run: cd /
+      - run: pwd
       - run: touch helloWorld
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
