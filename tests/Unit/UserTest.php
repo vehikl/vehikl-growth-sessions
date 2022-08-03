@@ -9,6 +9,7 @@ class UserTest extends TestCase
 {
     public function testItDoesNotExposeUserEmails()
     {
+        $this->assertFalse(true);
         $user = User::factory()->create();
 
         $this->assertEmpty($user->toArray()['email'] ?? null);
