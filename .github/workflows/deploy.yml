@@ -1,12 +1,15 @@
-name: Growth Session Deployment v0.1
+name: deploy
 on:
   push:
     branches:
       - master
       - '**'
 jobs:
+  tests:
+    uses: './.github/workflows/test.yml'
   build:
-    name: BuildTaco
+    name: build
+    needs: [ tests ]
     runs-on: ubuntu-latest
 
     steps:

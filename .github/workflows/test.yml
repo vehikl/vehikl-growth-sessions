@@ -1,9 +1,6 @@
-name: CI
+name: tests
 
-on:
-  pull_request:
-    branches: [ master, develop ]
-
+on: [ workflow_call ]
 jobs:
   tests:
 
