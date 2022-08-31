@@ -5,8 +5,6 @@ on:
       - master
       - '**'
 jobs:
-#  tests:
-  #    uses: './.github/workflows/test.yml'
   build:
     name: build
     needs: [ tests ]
