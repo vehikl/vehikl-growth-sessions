@@ -14,4 +14,5 @@ cd ${pathToDeploy}
 sudo chgrp -R www-data storage bootstrap/cache
 sudo chmod -R ug+rwx storage bootstrap/cache
 
-sudo ln -sf ${pathToDeploy} /var/www/growth-sessions-current
+sudo rm /var/www/growth-sessions-current
+sudo ln -s ${pathToDeploy} /var/www/growth-sessions-current
