@@ -42,7 +42,7 @@ jobs:
           port: 22
           script: rm -rf /home/github/temp
       - name: SCP project into test folder on server
-        uses: appleboy/scp-action@mast
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: github
