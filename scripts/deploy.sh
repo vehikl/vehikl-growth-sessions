@@ -3,7 +3,7 @@ echo "${timestamp}"
 
 pathToDeploy="/var/www/growth-sessions/${timestamp}"
 
-sudo cp -r test ${pathToDeploy}
+sudo cp -r /home/github/temp ${pathToDeploy}
 sudo chown -R www-data:www-data ${pathToDeploy}
 
 sudo find ${pathToDeploy} -type f -exec chmod 644 {} \;
