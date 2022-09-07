@@ -16,16 +16,23 @@
     @endguest
     <week-view class="mt-6" :user="{{ json_encode(auth()->user()) }}"></week-view>
 
-    <p class="text-lg mx-2 text-blue-700 font-bold mt-4">Have suggestions for this app? </p>
-    <a class="inline-block bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2 mt-2"
-       target="_blank"
-       href="https://github.com/FRFlor/social-mob/issues">
-        Please, share them here!
-    </a>
-    <p class="text-lg mx-2 text-blue-700 font-bold mt-4">Have feedback on our growth sessions? </p>
-    <p class="inline-block bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2 mt-2">
-       <a href="mailto:gsfeedback@vehikl.com">Send us an email!</a>
-</p>
+    <section class="flex flex-col lg:flex-row justify-around">
+        <div class="flex">
+            <p class="text-lg mx-2 text-blue-700 font-bold mt-4">Have suggestions for this app? </p>
+            <a class="inline-block bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2 mt-2"
+               target="_blank"
+               href="https://github.com/FRFlor/social-mob/issues">
+                Please, share them here!
+            </a>
+        </div>
+
+        <div class="flex">
+            <p class="text-lg mx-2 text-blue-700 font-bold mt-4">Have feedback on our growth sessions? </p>
+            <p class="inline-block bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2 mt-2">
+                <a href="mailto:gsfeedback@vehikl.com">Send us an email!</a>
+        </div>
+    </section>
+    </p>
 
     @include('partials.about')
 @endsection
