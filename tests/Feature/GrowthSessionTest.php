@@ -750,6 +750,16 @@ class GrowthSessionTest extends TestCase
     /** @test */
     public function itDisplaysAModalWhenAUserJoinsTheirFirstEverGrowthSession() : void
         {
-            //do the test here
+            $firstTimeUser = User::factory()->create();
+            $growthSession = GrowthSession::factory()->create();
+
+
+            $response = $this
+                ->actingAs($firstTimeUser)
+                ->post(route('growth_sessions.join', ['growth_session' => $growthSession->id]));
+
+            $response->assertSessionHas('newUser');
+            // assert that a modal is shown
+            $response->assertSee('This is a new user');
         }
 }

@@ -69,6 +69,7 @@ class GrowthSessionController extends Controller
             //hey welcome to your first growth session; here's some resources
             //        do flash?
             //session::facade or session::flash
+            $request->session()->flash('newUser');
         };
 
         //Maybe add a flag into the GrowthSessionResource payload?
