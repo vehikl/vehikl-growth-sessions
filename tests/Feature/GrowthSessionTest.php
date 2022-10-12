@@ -746,4 +746,10 @@ class GrowthSessionTest extends TestCase
 
         $this->assertEmpty($growthSession->watchers);
     }
+
+    /** @test */
+    public function itDisplaysAModalWhenAUserJoinsTheirFirstEverGrowthSession() : void
+        {
+            //do the test here
+        }
 }
