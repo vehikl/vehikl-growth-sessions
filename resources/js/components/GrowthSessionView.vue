@@ -18,6 +18,9 @@
                 {{ growthSession.title }}
             </h2>
             <div>
+                <div v-if="true">
+                    Hey look, a 'modal'
+                </div>
                 <button
                     class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     @click.stop="growthSession.join()"
@@ -92,13 +95,16 @@
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Attendee Limit:</h3>
                     <span class="attendee_limit">{{ growthSession.attendee_limit }}</span>
                 </div>
+                <div>Butts</div>
 
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Attendees</h3>
                 <ul>
                     <li v-for="attendee in growthSession.attendees">
                         <a ref="attendee" :href="attendee.githubURL" class="flex items-center ml-6 my-4">
                             <v-avatar size="12" class="mr-3" :src="attendee.avatar" :alt="`${attendee.name}'s Avatar`"/>
-                            <p v-if="attendee.is_vehikl_member == false" class="text-vehikl-orange">{{ attendee.name }}</p>
+                            <p v-if="attendee.is_vehikl_member == false" class="text-vehikl-orange">{{
+                                    attendee.name
+                                }}</p>
                             <p v-else>{{ attendee.name }}</p>
                         </a>
                     </li>

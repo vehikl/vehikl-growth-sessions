@@ -72,8 +72,6 @@ class GrowthSessionController extends Controller
             $request->session()->flash('newUser');
         };
 
-        //Maybe add a flag into the GrowthSessionResource payload?
-
         $growthSession->attendees()->attach($request->user(), ['user_type_id' => UserType::ATTENDEE_ID]);
         event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
 

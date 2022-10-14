@@ -1,10 +1,10 @@
 #!/bin/sh
 
 # Login in vault
-brew list vault || brew install vault
-read -p 'This project relies on sensitive credentials, please enter the vault token:' token
-export VAULT_ADDR='http://159.203.15.136:8205'
-vault login $token || exit 1
+#brew list vault || brew install vault
+#read -p 'This project relies on sensitive credentials, please enter the vault token:' token
+#export VAULT_ADDR='http://159.203.15.136:8205'
+#vault login $token || exit 1
 
 # Make sure mutagen is installed, or install it
 brew list mutagen || brew install mutagen-io/mutagen/mutagen
