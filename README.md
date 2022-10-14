@@ -86,14 +86,8 @@ Run
 sh scripts/create.sh
 ```
 
-NOTE: The create script populates OAuth credentials through a secure vault. You can use your own OAuth by removing the following from `scripts/create.sh`
+NOTE: The create script populates OAuth credentials through a secure vault. You can skip this through pressing ENTER when prompted.
 
-```
--brew list vault || brew install vault
--read -p 'This project relies on sensitive credentials, please enter the vault token (Just press ENTER to skip this
-step):' token
--export VAULT_ADDR='http://159.203.15.136:8205'
-```
 
 #### Run
 
