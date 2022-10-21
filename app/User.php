@@ -41,4 +41,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class);
     }
+
+    public function isFirstTimeUser()
+    {
+        return $this->growthSessions()->count() <= 0;
+    }
 }

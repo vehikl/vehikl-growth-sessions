@@ -3,10 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="bc02f568-d81a-46a2-b914-cd40e9c8e4c2" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/GrowthSessionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/GrowthSessionController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/User.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/js/components/GrowthSessionView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/components/GrowthSessionView.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/components/WeekView.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/components/WeekView.spec.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/UserTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/UserTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +31,7 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP 8.0">
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="Default PHP">
     <include_path>
       <path value="$PROJECT_DIR$/vendor/composer" />
       <path value="$PROJECT_DIR$/vendor/psr/event-dispatcher" />
@@ -163,6 +163,12 @@
       <path value="$PROJECT_DIR$/vendor/yosymfony/resource-watcher" />
       <path value="$PROJECT_DIR$/vendor/spatie/phpunit-watcher" />
       <path value="$PROJECT_DIR$/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/vendor/dflydev/dot-access-data" />
+      <path value="$PROJECT_DIR$/vendor/nette/utils" />
+      <path value="$PROJECT_DIR$/vendor/nette/schema" />
+      <path value="$PROJECT_DIR$/vendor/laravel/serializable-closure" />
+      <path value="$PROJECT_DIR$/vendor/league/config" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-factory" />
     </include_path>
   </component>
   <component name="ProjectId" id="20BPBJ53Odg9yU33iucUbWJ5jiT" />
@@ -171,17 +177,44 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="vue.rearranger.settings.migration" value="true" />
-  </component>
-  <component name="RunManager" selected="PHPUnit.GrowthSessionTest.itDisplaysAModalWhenAUserJoinsTheirFirstEverGrowthSession">
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ts.external.directory.path": "/Users/vehikl/Code/vehikl-growth-sessions/node_modules/typescript/lib"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
+  }
+}]]></component>
+  <component name="RunManager" selected="PHPUnit.UserTest.testItWillReturnFalseForIsNewUserIfGrowthSessionExists">
+    <configuration default="true" type="ComposerRunConfigurationType" factoryName="Composer Script">
+      <option name="pathToComposerJson" value="$PROJECT_DIR$/composer.json" />
+      <method v="2" />
+    </configuration>
     <configuration name="GrowthSessionTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
       <TestRunner class="Tests\Feature\GrowthSessionTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Feature/GrowthSessionTest.php" scope="Class" />
       <method v="2" />
     </configuration>
     <configuration name="GrowthSessionTest.itDisplaysAModalWhenAUserJoinsTheirFirstEverGrowthSession" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
       <TestRunner class="Tests\Feature\GrowthSessionTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Feature/GrowthSessionTest.php" method="itDisplaysAModalWhenAUserJoinsTheirFirstEverGrowthSession" scope="Method" />
+      <method v="2" />
+    </configuration>
+    <configuration name="UserTest.testItCanGetIsNewUser" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <CommandLine>
+        <PhpTestInterpreterSettings>
+          <option name="interpreterName" value="Default PHP" />
+        </PhpTestInterpreterSettings>
+      </CommandLine>
+      <TestRunner class="Tests\Unit\UserTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Unit/UserTest.php" method="testItCanGetIsNewUser" scope="Method" />
+      <method v="2" />
+    </configuration>
+    <configuration name="UserTest.testItWillReturnFalsForIsNewUserIfGrowthSessionExists" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="Tests\Unit\UserTest" file="$PROJECT_DIR$/tests/Unit/UserTest.php" method="testItWillReturnFalsForIsNewUserIfGrowthSessionExists" scope="Method" />
+      <method v="2" />
+    </configuration>
+    <configuration name="UserTest.testItWillReturnFalseForIsNewUserIfGrowthSessionExists" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="Tests\Unit\UserTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Unit/UserTest.php" method="testItWillReturnFalseForIsNewUserIfGrowthSessionExists" scope="Method" />
       <method v="2" />
     </configuration>
     <configuration name="phpunit.xml" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
@@ -195,11 +228,17 @@
     </configuration>
     <list>
       <item itemvalue="PHPUnit.phpunit.xml" />
+      <item itemvalue="PHPUnit.UserTest.testItCanGetIsNewUser" />
+      <item itemvalue="PHPUnit.UserTest.testItWillReturnFalsForIsNewUserIfGrowthSessionExists" />
+      <item itemvalue="PHPUnit.UserTest.testItWillReturnFalseForIsNewUserIfGrowthSessionExists" />
       <item itemvalue="PHPUnit.GrowthSessionTest" />
       <item itemvalue="PHPUnit.GrowthSessionTest.itDisplaysAModalWhenAUserJoinsTheirFirstEverGrowthSession" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="PHPUnit.UserTest.testItWillReturnFalseForIsNewUserIfGrowthSessionExists" />
+        <item itemvalue="PHPUnit.UserTest.testItWillReturnFalsForIsNewUserIfGrowthSessionExists" />
+        <item itemvalue="PHPUnit.UserTest.testItCanGetIsNewUser" />
         <item itemvalue="PHPUnit.GrowthSessionTest" />
         <item itemvalue="PHPUnit.GrowthSessionTest.itDisplaysAModalWhenAUserJoinsTheirFirstEverGrowthSession" />
       </list>
@@ -225,5 +264,43 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="HEAD" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

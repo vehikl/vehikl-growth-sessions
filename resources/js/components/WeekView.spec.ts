@@ -224,4 +224,15 @@ describe('WeekView', () => {
             expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
         })
     })
+
+    describe('Displays modal when a new user joins the growth session app' , () => {
+        it('displays modal when a user joins for the very first time', () => {
+            const firstTimeUser = {
+                ...authVehiklUser
+            }
+            wrapper = mount(WeekView, {localVue, propsData: {user: authVehiklUser}});
+
+
+        })
+    })
 });
