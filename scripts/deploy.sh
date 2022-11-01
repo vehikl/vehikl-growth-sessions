@@ -1,3 +1,5 @@
+sudo cp /var/www/growth-sessions/.env /home/github/temp/.env
+
 timestamp=$(date +'%Y-%m-%d-%T')
 echo "${timestamp}"
 
@@ -14,4 +16,5 @@ cd ${pathToDeploy}
 sudo chgrp -R www-data storage bootstrap/cache
 sudo chmod -R ug+rwx storage bootstrap/cache
 
-sudo ln -sf ${pathToDeploy} /var/www/growth-sessions-current
+sudo rm /var/www/growth-sessions-current
+sudo ln -s ${pathToDeploy} /var/www/growth-sessions-current

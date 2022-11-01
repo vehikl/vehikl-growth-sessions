@@ -22,7 +22,7 @@
             <a class="inline-block bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2 mt-2"
                target="_blank"
                href="https://github.com/vehikl/vehikl-growth-sessions/issues">
-                Please, share them here!
+                Please, share them here
             </a>
         </div>
 

@@ -49,6 +49,8 @@ jobs:
           port: 22
           source: "./*"
           target: "/home/github/temp"
+      #- name: insert the real .env credentials
+      # Copy /var/www/growth-sesions/.env into the temp folder. Overwrite it.
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
         with:
