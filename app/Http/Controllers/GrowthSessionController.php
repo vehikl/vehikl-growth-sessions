@@ -47,7 +47,7 @@ class GrowthSessionController extends Controller
 
     public function store(StoreGrowthSessionRequest $request)
     {
-        $newGrowthSession = new GrowthSession ($request->validated());
+        $newGrowthSession = new GrowthSession($request->validated());
         $newGrowthSession->save();
         $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::OWNER_ID]);
         $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::ATTENDEE_ID]);
