@@ -11,7 +11,6 @@ class GrowthSessionDestroyTest extends TestCase
 {
     public function testTheOwnerCanDeleteAnExistingGrowthSession()
     {
-        $this->withoutExceptionHandling();
         $growthSession = GrowthSession::factory()
             ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
             ->create();
@@ -19,8 +18,7 @@ class GrowthSessionDestroyTest extends TestCase
         $this->actingAs($growthSession->owner)->deleteJson(route(
             'growth_sessions.destroy',
             ['growth_session' => $growthSession->id]
-        ))
-            ->assertSuccessful();
+        ))->assertSuccessful();
 
         $this->assertEmpty($growthSession->fresh());
     }
