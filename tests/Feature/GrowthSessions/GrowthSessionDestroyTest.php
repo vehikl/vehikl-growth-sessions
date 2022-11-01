@@ -19,7 +19,7 @@ class GrowthSessionDestroyTest extends TestCase
         $this->actingAs($growthSession->owner)->deleteJson(route(
             'growth_sessions.destroy',
             ['growth_session' => $growthSession->id]
-        ))
+        ))->assertInvalid()
             ->assertSuccessful();
 
         $this->assertEmpty($growthSession->fresh());

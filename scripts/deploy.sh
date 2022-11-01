@@ -1,3 +1,5 @@
+sudo cp /var/www/growth-sessions/.env /home/github/temp/.env
+
 timestamp=$(date +'%Y-%m-%d-%T')
 echo "${timestamp}"
 
