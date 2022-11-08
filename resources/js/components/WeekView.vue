@@ -1,21 +1,8 @@
 <template>
     <div v-if="growthSessions.isReady">
         <div class="flex flex-col justify-center items-center text-xl text-blue-600 font-bold">
-            <fieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
-                      class="border inline-flex p-4 rounded border-blue-300 gap-5 mt-5">
-                <label>
-                    All
-                    <input v-model="visibilityFilter" name="filter-sessions" type="radio" value="all">
-                </label>
-                <label>
-                    Private Only
-                    <input id="private" v-model="visibilityFilter" name="filter-sessions" type="radio" value="private">
-                </label>
-                <label>
-                    Public Only
-                    <input id="public" v-model="visibilityFilter" name="filter-sessions" type="radio" value="public">
-                </label>
-            </fieldset>
+            <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
+                                     v-model="visibilityFilter"/>
 
             <div class="flex my-5">
                 <button aria-label="Load previous week"
@@ -121,6 +108,7 @@ import Draggable from 'vuedraggable';
 import {GrowthSession} from '../classes/GrowthSession';
 import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 import {Nothingator} from '../classes/Nothingator';
+import VisibilityRadioFieldset from "./VisibilityRadioFieldset.vue";
 
 interface IGrowthSessionCardDragChange {
     added?: { element: GrowthSession, index: number }
@@ -128,7 +116,7 @@ interface IGrowthSessionCardDragChange {
 }
 
 @Component({
-    components: {GrowthSessionForm, GrowthSessionCard, Draggable}
+    components: {VisibilityRadioFieldset, GrowthSessionForm, GrowthSessionCard, Draggable}
 })
 export default class WeekView extends Vue {
     @Prop({required: false, default: null}) user!: IUser;
@@ -139,7 +127,7 @@ export default class WeekView extends Vue {
     DateTime = DateTime;
     Nothingator = Nothingator;
     draggedGrowthSession!: GrowthSession;
-    visibilityFilter: string = 'all'
+    visibilityFilter: string = 'all';
 
     async created() {
         await this.refreshGrowthSessionsOfTheWeek()

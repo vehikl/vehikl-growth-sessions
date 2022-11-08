@@ -141,7 +141,6 @@ describe('WeekView', () => {
             const failFuture = 'The create button was not rendered in a future date';
             expect(wrapper.find('[weekday=Monday] button.create-growth-session').exists(), failPast).toBe(false);
             expect(wrapper.find('[weekday=Tuesday] button.create-growth-session').exists(), failPast).toBe(false);
-
             expect(wrapper.find('[weekday=Wednesday] button.create-growth-session').exists(), failFuture).toBe(true);
             expect(wrapper.find('[weekday=Thursday] button.create-growth-session').exists(), failFuture).toBe(true);
             expect(wrapper.find('[weekday=Friday] button.create-growth-session').exists(), failFuture).toBe(true);
