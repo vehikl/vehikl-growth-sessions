@@ -139,18 +139,15 @@ class GrowthSessionsIndexTest extends TestCase
         $mondayOfThisWeek = $saturdayOfThisWeek->modify('last Monday');
         $mondayOfNextWeek = $mondayOfThisWeek->addWeek();
 
-
         $thisWeeksGrowthSession = GrowthSession::factory()
             ->create(['date' => $mondayOfThisWeek, 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
 
         $nextWeeksGrowthSession = GrowthSession::factory()
             ->create(['date' => $mondayOfNextWeek, 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
 
-        // Make the request
         /** @var User $user */
         $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->getJson(route(
+        $this->actingAs($user)->getJson(route(
             'growth_sessions.week',
             ['date' => $saturdayOfThisWeek->toDateString()]
         ))

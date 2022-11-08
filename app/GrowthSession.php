@@ -93,7 +93,7 @@ class GrowthSession extends Model
         $referenceDate = CarbonImmutable::parse($referenceDate);
 
         if ($referenceDate->isSaturday()) {
-            $referenceDate = $referenceDate->addDays(5);
+            $referenceDate = $referenceDate->modify('next Monday');
         }
 
         $startPoint = $referenceDate->isDayOfWeek(Carbon::MONDAY)
