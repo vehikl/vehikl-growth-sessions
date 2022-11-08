@@ -66,6 +66,10 @@ OBS: For production, no seeding is needed, therefore you only need to run
 ```sh
 php artisan migrate
 ```
+#### Serving the App
+
+Run
+`php artisan serve`
 
 ## Docker Setup
 
@@ -81,6 +85,9 @@ php artisan migrate
 ```sh
 sh scripts/create.sh
 ```
+
+NOTE: The create script populates OAuth credentials through a secure vault. You can skip this through pressing ENTER when prompted.
+
 
 #### Run
 
