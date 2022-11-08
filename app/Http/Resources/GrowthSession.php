@@ -24,6 +24,9 @@ class GrowthSession extends JsonResource
         for ($i = 0; $i < count($attributes['attendees']); $i++) {
             $isThisAttendeeAGuest = !$attributes['attendees'][$i]['is_vehikl_member'];
 
+            //Change this to every attendee instead of just auth user
+            $attributes['attendees'][$i]['growth_session_count'] = auth()->user()->growthSessions()->count();
+
             $shouldHideGuestsInformation = $isThisAttendeeAGuest && $isPersonNotAVehiklMember;
 
             if ($shouldHideGuestsInformation) {

@@ -65,13 +65,6 @@ class GrowthSessionController extends Controller
             throw new AttendeeLimitReached;
         }
 
-        if ($request->user()->growthSessions()->count() === 0) {
-            //hey welcome to your first growth session; here's some resources
-            //        do flash?
-            //session::facade or session::flash
-            $request->session()->flash('newUser');
-        };
-
         $growthSession->attendees()->attach($request->user(), ['user_type_id' => UserType::ATTENDEE_ID]);
         event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
 
