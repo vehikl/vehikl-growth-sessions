@@ -132,6 +132,29 @@ class GrowthSessionsIndexTest extends TestCase
         $response->assertJson($expectedResponse);
     }
 
+    public function testItShowsNextWeeksGrowthSessionsIfSpecifiedDateFallsOnWeekend()
+    {
+        CarbonImmutable::setTestNow('2020-01-08');
+        $saturdayOfThisWeek = CarbonImmutable::parse('next Saturday');
+        $mondayOfThisWeek = $saturdayOfThisWeek->modify('last Monday');
+        $mondayOfNextWeek = $mondayOfThisWeek->addWeek();
+
+        $thisWeeksGrowthSession = GrowthSession::factory()
+            ->create(['date' => $mondayOfThisWeek, 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
+
+        $nextWeeksGrowthSession = GrowthSession::factory()
+            ->create(['date' => $mondayOfNextWeek, 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
+
+        /** @var User $user */
+        $user = User::factory()->create();
+        $this->actingAs($user)->getJson(route(
+            'growth_sessions.week',
+            ['date' => $saturdayOfThisWeek->toDateString()]
+        ))
+            ->assertSee($nextWeeksGrowthSession->date->toDateString())
+            ->assertDontSee($thisWeeksGrowthSession->date->toDateString());
+    }
+
     public function testItDoesNotShowVehiklOnlyGrowthSessionsOfASpecifiedWeekForAnonymousUser()
     {
         $this->setTestNow('2020-01-15');

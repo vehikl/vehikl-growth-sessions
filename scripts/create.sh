@@ -26,7 +26,12 @@ PROJECT_PATH=$(dirname $DIR_PATH)
 
 cd $PROJECT_PATH
 
-cp .env.example .env
+# Create .env file from .env.example if it doesn't already exist
+if test -f ".env"; then
+    echo "The .env already exists. It won't be overwritten.\n"
+else
+    cp .env.example .env
+fi
 
 # Add github credentials
 if [ -z "$token" ]
