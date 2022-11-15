@@ -143,4 +143,18 @@ class GrowthSessionsStoreTest extends TestCase
                 'attendees' => []
             ]);
     }
+
+    public function testAUserCannotCreateTwoGrowthSessionsInTheSameTimeSlot()
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+        $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
+
+        $this->actingAs($vehiklMember)
+            ->postJson(route('growth_sessions.store'), $growthSessionsAttributes)
+            ->assertSuccessful();
+
+        $this->actingAs($vehiklMember)
+            ->postJson(route('growth_sessions.store'), $growthSessionsAttributes)
+            ->assertUnprocessable();
+    }
 }
