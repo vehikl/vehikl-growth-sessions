@@ -1,4 +1,4 @@
-import {IComment, IGrowthSession, IUser, IAnyDesk} from '../types';
+import {IAnyDesk, IComment, IGrowthSession, IUser} from '../types';
 import {DateTime} from '../classes/DateTime';
 import {GrowthSessionApi} from '../services/GrowthSessionApi';
 import {User} from './User';
@@ -100,6 +100,15 @@ export class GrowthSession implements IGrowthSession {
     async join() {
         try {
             const updated = await GrowthSessionApi.join(this);
+            this.refresh(updated);
+        } catch (e) {
+
+        }
+    }
+
+    async watch() {
+        try {
+            const updated = await GrowthSessionApi.watch(this);
             this.refresh(updated);
         } catch (e) {
 

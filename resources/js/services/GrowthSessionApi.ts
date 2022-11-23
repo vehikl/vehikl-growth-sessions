@@ -39,6 +39,11 @@ export class GrowthSessionApi extends BaseApi {
         return new GrowthSession(response.data);
     }
 
+    static async watch(target: IGrowthSession): Promise<GrowthSession> {
+        let response = await BaseApi.httpRequest.post(`/${growthSessionResource}/${target.id}/watch`);
+        return new GrowthSession(response.data);
+    }
+
     static async leave(target: IGrowthSession): Promise<GrowthSession> {
         let response = await BaseApi.httpRequest.post(`/${growthSessionResource}/${target.id}/leave`);
         return new GrowthSession(response.data);

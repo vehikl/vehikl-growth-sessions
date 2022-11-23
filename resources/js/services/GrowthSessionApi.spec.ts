@@ -77,6 +77,14 @@ describe('GrowthSessionApi', () => {
         expect(mockBackend.history.post[0].url).toBe(`/${growthSessionResource}/${dummyGrowthSession.id}/join`);
     });
 
+    it('joins an existing growth session as watcher', async () => {
+        mockBackend.onPost(`${growthSessionResource}/${dummyGrowthSession.id}/watch`).reply(200, dummyGrowthSession);
+
+        await GrowthSessionApi.watch(dummyGrowthSession);
+
+        expect(mockBackend.history.post[0].url).toBe(`/${growthSessionResource}/${dummyGrowthSession.id}/watch`);
+    });
+
     it('leaves an existing growth session', async () => {
         mockBackend.onPost(`${growthSessionResource}/${dummyGrowthSession.id}/leave`).reply(200, dummyGrowthSession);
 

@@ -136,6 +136,14 @@ describe('GrowthSessionCard', () => {
         expect(GrowthSessionApi.join).toHaveBeenCalledWith(growthSessionData);
     });
 
+    it('allows a user to join a growth session as a watcher', () => {
+        window.open = jest.fn();
+        GrowthSessionApi.watch = jest.fn().mockImplementation(growthSession => growthSession);
+        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: outsider}});
+        wrapper.find('.watch-button').trigger('click');
+        expect(GrowthSessionApi.watch).toHaveBeenCalledWith(growthSessionData);
+    });
+
     it('allows a user to leave a growth session', () => {
         GrowthSessionApi.leave = jest.fn().mockImplementation(growthSession => growthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: attendee}});
@@ -143,7 +151,7 @@ describe('GrowthSessionCard', () => {
         expect(GrowthSessionApi.leave).toHaveBeenCalledWith(growthSessionData);
     });
 
-    it('prompts for confirmation when the owner clicks on the delete button', ()=> {
+    it('prompts for confirmation when the owner clicks on the delete button', () => {
         window.confirm = jest.fn();
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: ownerOfTheGrowthSession}});
         wrapper.find('.delete-button').trigger('click');
