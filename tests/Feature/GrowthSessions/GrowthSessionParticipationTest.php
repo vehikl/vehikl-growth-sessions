@@ -73,7 +73,6 @@ class GrowthSessionParticipationTest extends TestCase
 
     public function testAllowsAUserToWatchAGrowthSession(): void
     {
-        $this->withoutExceptionHandling();
         $vehiklMember = User::factory()->vehiklMember()->create();
         $growthSession = GrowthSession::factory()->create();
 

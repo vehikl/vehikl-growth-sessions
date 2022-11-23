@@ -25,7 +25,6 @@ class GrowthSessionsShowTest extends TestCase
 
     public function testItDoesNotProvideLocationOfAGrowthSessionForAnonymousUser()
     {
-        $this->withoutExceptionHandling();
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
         $growthSession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);
