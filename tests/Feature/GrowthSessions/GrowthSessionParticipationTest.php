@@ -126,4 +126,19 @@ class GrowthSessionParticipationTest extends TestCase
             ->postJson(route('growth_sessions.watch', ['growth_session' => $existingGrowthSession->id]))
             ->assertForbidden();
     }
+
+    public function testUserCannotAttendGrowthSessionWhileAlsoWatcher(): void
+    {
+        $existingGrowthSession = GrowthSession::factory()->create();
+
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        // watcher
+        $existingGrowthSession->watchers()->attach($user, ['user_type_id' => UserType::WATCHER_ID]);
+
+        $this->actingAs($user)
+            ->postJson(route('growth_sessions.join', ['growth_session' => $existingGrowthSession->id]))
+            ->assertForbidden();
+    }
 }
