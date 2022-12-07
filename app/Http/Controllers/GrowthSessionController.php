@@ -64,10 +64,6 @@ class GrowthSessionController extends Controller
             throw new AttendeeLimitReached;
         }
 
-        if ($growthSession->hasWatcher($request->user())) {
-            abort(403);
-        }
-
         $growthSession->attendees()->attach($request->user(), ['user_type_id' => UserType::ATTENDEE_ID]);
         event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
 

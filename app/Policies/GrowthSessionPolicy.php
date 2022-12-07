@@ -57,7 +57,9 @@ class GrowthSessionPolicy
 
     public function join(User $user, GrowthSession $growthSession)
     {
-        return !$growthSession->hasAttendee($user) && $this->isInTheFuture($growthSession);
+        return !$growthSession->hasAttendee($user)
+            && !$growthSession->hasWatcher($user)
+            && $this->isInTheFuture($growthSession);
     }
 
     public function watch(User $user, GrowthSession $growthSession)
