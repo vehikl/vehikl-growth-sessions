@@ -74,7 +74,7 @@
 
         <button
             v-show="growthSession.canJoin(user)"
-            class="watch-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+            class="watch-button bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
             @click.prevent="watchGrowthSession">
             <i aria-hidden="true" class="fa fa-eye"></i>
         </button>
