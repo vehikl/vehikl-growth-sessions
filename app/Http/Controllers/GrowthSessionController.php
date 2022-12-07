@@ -72,6 +72,9 @@ class GrowthSessionController extends Controller
 
     public function watch(GrowthSession $growthSession, Request $request)
     {
+        if ($growthSession->hasAttendee($request->user())) {
+            abort(403);
+        }
         $growthSession->watchers()->attach($request->user(), ['user_type_id' => UserType::WATCHER_ID]);
 
         return new GrowthSessionResource($growthSession);

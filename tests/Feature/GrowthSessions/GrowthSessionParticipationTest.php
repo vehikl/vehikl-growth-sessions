@@ -112,4 +112,18 @@ class GrowthSessionParticipationTest extends TestCase
 
         $this->assertCount(1, $existingGrowthSession->watchers);
     }
+
+    public function testUserCannotWatchGrowthSessionWhileAlsoAttendee(): void
+    {
+        $existingGrowthSession = GrowthSession::factory()->create();
+
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        $existingGrowthSession->attendees()->attach($user, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->actingAs($user)
+            ->postJson(route('growth_sessions.watch', ['growth_session' => $existingGrowthSession->id]))
+            ->assertForbidden();
+    }
 }
