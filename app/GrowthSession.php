@@ -12,7 +12,7 @@ class GrowthSession extends Model
     use HasFactory;
 
     const NO_LIMIT = PHP_INT_MAX;
-    protected $with = ['attendees', 'comments', 'anydesk'];
+    protected $with = ['attendees', 'watchers', 'comments', 'anydesk'];
 
     protected $appends = ['owner'];
 

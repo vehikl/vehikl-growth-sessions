@@ -19,7 +19,7 @@ Route::prefix('growth_sessions')->middleware(AuthenticateSlackApp::class)->name(
     Route::post('{growth_session}/join', 'GrowthSessionController@join')->middleware(['auth', 'can:join,growth_session'])->name('join');
     Route::post('{growth_session}/leave', 'GrowthSessionController@leave')->middleware(['auth', 'can:leave,growth_session'])->name('leave');
 
-    Route::post('{growth_session}/watch', 'GrowthSessionController@watch')->middleware(['auth', 'can:join,growth_session'])->name('watch');
+    Route::post('{growth_session}/watch', 'GrowthSessionController@watch')->middleware(['auth', 'can:watch,growth_session'])->name('watch');
 });
 Route::resource('growth_sessions', 'GrowthSessionController')->middleware('auth')->only(['store', 'update', 'destroy']);
 
