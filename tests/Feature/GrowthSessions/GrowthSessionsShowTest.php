@@ -4,6 +4,7 @@ namespace Tests\Feature\GrowthSessions;
 
 use App\GrowthSession;
 use App\User;
+use App\UserType;
 use Carbon\CarbonImmutable;
 use Tests\TestCase;
 
@@ -152,5 +153,26 @@ class GrowthSessionsShowTest extends TestCase
             ->assertDontSee($guestMember->name)
             ->assertDontSee($growthSession->avatar)
             ->assertDontSee($guestMember->github_nickname);
+    }
+
+    public function testItProvidesTheListOfAttendeesAndWatchers()
+    {
+        $numberOfAttendees = 2;
+        $numberOfWatchers = 5;
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(
+                User::factory()->vehiklMember(true)->times($numberOfAttendees),
+                ['user_type_id' => UserType::ATTENDEE_ID],
+                'attendees'
+            )
+            ->hasAttached(User::factory()->vehiklMember(true)->times($numberOfWatchers),
+                ['user_type_id' => UserType::WATCHER_ID],
+                'watchers'
+            )
+            ->create();
+
+        $this->getJson(route('growth_sessions.show', $growthSession))
+            ->assertJsonCount($numberOfAttendees, 'attendees')
+            ->assertJsonCount($numberOfWatchers, 'watchers');
     }
 }
