@@ -83,6 +83,14 @@ export class GrowthSession implements IGrowthSession {
         return url.toString();
     }
 
+    canWatch(user: IUser): boolean {
+        if (!user) {
+            return false;
+        }
+
+        return !this.isOwner(user) && !this.isAttendeeOrWatcher(user) && !this.hasAlreadyHappened
+    }
+
     canJoin(user: IUser): boolean {
         if (!user) {
             return false;

@@ -158,6 +158,16 @@ describe('GrowthSessionCard', () => {
         expect(GrowthSessionApi.watch).toHaveBeenCalledWith(growthSessionData);
     });
 
+    it('displays the join as watcher button even when the growth session is full', () => {
+        window.open = jest.fn();
+        GrowthSessionApi.watch = jest.fn().mockImplementation(growthSession => growthSession);
+        growthSessionData.attendee_limit = 1;
+        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: outsider}});
+
+        expect(wrapper.find('.watch-button').element).toBeVisible();
+        expect(wrapper.find('.join-button').element).not.toBeVisible();
+    });
+
     it('allows a user to leave a growth session when they are a watcher', () => {
         GrowthSessionApi.leave = jest.fn().mockImplementation(growthSession => growthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: watcher}});
