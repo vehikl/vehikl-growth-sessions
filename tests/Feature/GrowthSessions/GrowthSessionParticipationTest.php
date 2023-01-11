@@ -8,7 +8,6 @@ use App\UserType;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
-//
 class GrowthSessionParticipationTest extends TestCase
 {
     public function testAGivenUserCanRSVPToAGrowthSession()
@@ -71,7 +70,7 @@ class GrowthSessionParticipationTest extends TestCase
         $response->assertJson(['message' => 'The attendee limit has been reached.']);
     }
 
-    public function testAllowsAUserToWatchAGrowthSession(): void
+    public function testAUserCanWatchAGrowthSession(): void
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
         $growthSession = GrowthSession::factory()->create();
@@ -83,7 +82,7 @@ class GrowthSessionParticipationTest extends TestCase
         $this->assertTrue($growthSession->watchers()->first()->is($vehiklMember));
     }
 
-    public function testAllowsAUserToUnwatchAGrowthSession(): void
+    public function testAUserCanUnwatchAGrowthSession(): void
     {
         $watcher = User::factory()->vehiklMember()->create();
         $growthSession = GrowthSession::factory()->create();
@@ -113,7 +112,7 @@ class GrowthSessionParticipationTest extends TestCase
         $this->assertCount(1, $existingGrowthSession->watchers);
     }
 
-    public function testUserCannotWatchGrowthSessionWhileAlsoAttendee(): void
+    public function testAUserCannotWatchAGrowthSessionWhileBeingAnAttendee(): void
     {
         $existingGrowthSession = GrowthSession::factory()->create();
 
@@ -127,7 +126,7 @@ class GrowthSessionParticipationTest extends TestCase
             ->assertForbidden();
     }
 
-    public function testUserCannotAttendGrowthSessionWhileAlsoWatcher(): void
+    public function testUserCannotAttendGrowthSessionWhileAlreadyBeingAWatcher(): void
     {
         $existingGrowthSession = GrowthSession::factory()->create();
 
