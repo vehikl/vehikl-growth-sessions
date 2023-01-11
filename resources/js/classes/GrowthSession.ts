@@ -53,7 +53,7 @@ export class GrowthSession implements IGrowthSession {
         this.end_time = growthSession.end_time;
         this.owner = new User(growthSession.owner);
         this.attendees = growthSession.attendees.map(attendee => new User(attendee));
-        this.watchers = growthSession.watchers.map(attendee => new User(attendee));
+        this.watchers = growthSession.watchers?.map(attendee => new User(attendee)) ?? [];
         this.comments = growthSession.comments;
         this.attendee_limit = growthSession.attendee_limit;
         this.discord_channel_id = growthSession.discord_channel_id;
