@@ -18,23 +18,15 @@ class GrowthSession extends JsonResource
             $attributes['attendee_limit'] = null;
         }
 
-        $attributes['attendees']  = $attributes['attendees'] ?? [];
+        $attributes['attendees'] = $attributes['attendees'] ?? [];
         $isPersonNotAVehiklMember = auth()->guest() || !auth()->user()->is_vehikl_member;
 
-        if($isPersonNotAVehiklMember) {
+        if ($isPersonNotAVehiklMember) {
             $attributes['anydesk'] = null;
         }
 
-        for ($i = 0; $i < count($attributes['attendees']); $i++) {
-            $isThisAttendeeAGuest = !$attributes['attendees'][$i]['is_vehikl_member'];
-
-            $shouldHideGuestsInformation = $isThisAttendeeAGuest && $isPersonNotAVehiklMember;
-
-            if ($shouldHideGuestsInformation) {
-                $attributes['attendees'][$i]['name'] = 'Guest';
-                $attributes['attendees'][$i]['avatar'] = asset('images/guest-avatar.webp');
-                $attributes['attendees'][$i]['github_nickname'] = '';
-            }
+        if ($isPersonNotAVehiklMember) {
+            $attributes = $this->hideGuestInformationFromPayload('attendees', $attributes);
         }
 
         for ($i = 0; $i < count($attributes['watchers']); $i++) {
@@ -49,6 +41,20 @@ class GrowthSession extends JsonResource
             }
         }
         return $attributes;
+    }
+
+    protected function hideGuestInformationFromPayload($key, $payload): array
+    {
+        for ($i = 0; $i < count($payload[$key]); $i++) {
+            $isThisAttendeeAGuest = !$payload[$key][$i]['is_vehikl_member'];
+
+            if ($isThisAttendeeAGuest) {
+                $payload[$key][$i]['name'] = 'Guest';
+                $payload[$key][$i]['avatar'] = asset('images/guest-avatar.webp');
+                $payload[$key][$i]['github_nickname'] = '';
+            }
+        }
+        return $payload;
     }
 
 }
