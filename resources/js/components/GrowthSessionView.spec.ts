@@ -5,10 +5,17 @@ import userJson from '../../../tests/fixtures/User.json';
 import growthSessionJson from '../../../tests/fixtures/GrowthSessionWithComments.json'
 import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json'
 import {User} from "../classes/User";
-import {IGrowthSession} from '../types';
+import {IGrowthSession, IUser} from '../types';
 import {GrowthSession} from "../classes/GrowthSession";
 import {DiscordChannelApi} from "../services/DiscordChannelApi";
 
+const user: IUser = {
+    name: 'Alice',
+    github_nickname: 'alisss',
+    id: 2,
+    avatar: 'avatar.jpg',
+    is_vehikl_member: true,
+};
 const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
 const localVue = createLocalVue();
 localVue.use(VModal);
@@ -67,8 +74,27 @@ describe('GrowthSessionView', () => {
 
         it('renders a direct link to the Discord channel', () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, discord_channel_id: '1234567890'});
-            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession, discordGuildId: '1234567890'}, localVue});
+            wrapper = mount(GrowthSessionView, {
+                propsData: {
+                    growthSessionJson: growthSession,
+                    discordGuildId: '1234567890'
+                }, localVue
+            });
             expect(wrapper.find('a[href="discord://discordapp.com/channels/1234567890/1234567890"').exists()).toBeTruthy();
+        })
+
+        it('display the list of attendees', () => {
+            let growthSession = new GrowthSession({...dummyGrowthSession, attendees: [user]});
+            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}, localVue});
+
+            expect(wrapper.text()).toContain(user.name);
+        })
+
+        it('displays the list of watchers', () => {
+            let growthSession = new GrowthSession({...dummyGrowthSession, watchers: [user]});
+            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}, localVue});
+
+            expect(wrapper.text()).toContain(user.name);
         })
     });
 
@@ -78,9 +104,10 @@ describe('GrowthSessionView', () => {
             DiscordChannelApi.index = jest.fn().mockResolvedValue([]);
             wrapper = mount(GrowthSessionView, {
                 propsData: {userJson: owner, growthSessionJson},
-                localVue});
+                localVue
+            });
         });
-        it('prompts for confirmation when the owner clicks on the delete button', ()=> {
+        it('prompts for confirmation when the owner clicks on the delete button', () => {
             window.confirm = jest.fn();
 
             wrapper.find('.delete-button').trigger('click');
@@ -88,10 +115,10 @@ describe('GrowthSessionView', () => {
             expect(window.confirm).toHaveBeenCalled();
         });
 
-        it('reviews the edit form when edit button is clicked', async() => {
-            async function awaitForElement(cssSelector: string){
-                while(! wrapper.find(cssSelector).exists()) {
-                  await new Promise(resolve => setTimeout(resolve, 25));
+        it('reviews the edit form when edit button is clicked', async () => {
+            async function awaitForElement(cssSelector: string) {
+                while (!wrapper.find(cssSelector).exists()) {
+                    await new Promise(resolve => setTimeout(resolve, 25));
                 }
             }
 
