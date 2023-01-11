@@ -19,7 +19,7 @@ class GrowthSession extends JsonResource
         $isSlackbot = $user && $user->email === config('auth.slack_app_email');
 
         if (!$isSlackbot && !$isParticipatingInGrowthSession) {
-            $attributes['location'] = '< Join Growth Session to see the location >';
+            $attributes['location'] = '< Join to see location >';
         }
 
         if ($attributes['attendee_limit'] === \App\GrowthSession::NO_LIMIT) {
