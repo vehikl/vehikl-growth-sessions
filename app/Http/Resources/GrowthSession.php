@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 class GrowthSession extends JsonResource
 {
@@ -35,6 +36,10 @@ class GrowthSession extends JsonResource
 
     protected function hideGuestInformationFromPayload($key, $payload): array
     {
+        if (!Arr::has($payload, $key)) {
+            return $payload;
+        }
+
         for ($i = 0; $i < count($payload[$key]); $i++) {
             $isThisAttendeeAGuest = !$payload[$key][$i]['is_vehikl_member'];
 
