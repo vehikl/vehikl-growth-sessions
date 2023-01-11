@@ -140,4 +140,26 @@ class GrowthSessionParticipationTest extends TestCase
             ->postJson(route('growth_sessions.join', ['growth_session' => $existingGrowthSession->id]))
             ->assertForbidden();
     }
+
+    public function testTheAttendeeLimitDoesNotApplyToWatchers()
+    {
+        $existingGrowthSession = GrowthSession::factory()->create(['attendee_limit' => 4, 'is_public' => true]);
+
+        $people = User::factory()->times(5)->create();
+
+        for ($i = 0; $i < $existingGrowthSession->attendee_limit; $i++) {
+            $this->actingAs($people[$i])
+                ->postJson(route('growth_sessions.join', ['growth_session' => $existingGrowthSession->id]))
+                ->assertSuccessful();
+        }
+
+        $slowpoke = $people[$existingGrowthSession->attendee_limit];
+        $this->actingAs($slowpoke)
+            ->postJson(route('growth_sessions.join', ['growth_session' => $existingGrowthSession->id]))
+            ->assertStatus(400);
+
+        $this->actingAs($slowpoke)
+            ->postJson(route('growth_sessions.watch', ['growth_session' => $existingGrowthSession->id]))
+            ->assertSuccessful();
+    }
 }
