@@ -14,6 +14,7 @@ export class GrowthSession implements IGrowthSession {
     end_time!: string;
     owner!: User;
     attendees!: User[];
+    watchers!: User[];
     comments!: IComment[];
     attendee_limit!: number | null;
     discord_channel_id!: string | null;
@@ -21,6 +22,24 @@ export class GrowthSession implements IGrowthSession {
 
     constructor(growthSession: IGrowthSession) {
         this.refresh(growthSession);
+    }
+
+    get isLimitless(): boolean {
+        const PHP_MAX_INT = 9223372036854776000;
+        return !this.attendee_limit || this.attendee_limit >= PHP_MAX_INT;
+    }
+
+    get googleCalendarDate(): string {
+        return DateTime.parseByDateTime(this.date, this.start_time).toGoogleCalendarStyle() +
+            '/' + DateTime.parseByDateTime(this.date, this.end_time).toGoogleCalendarStyle();
+    }
+
+    get startTime(): string {
+        return DateTime.parseByTime(this.start_time).toTimeString12Hours(false);
+    }
+
+    get endTime(): string {
+        return DateTime.parseByTime(this.end_time).toTimeString12Hours();
     }
 
     refresh(growthSession: IGrowthSession) {
@@ -34,28 +53,11 @@ export class GrowthSession implements IGrowthSession {
         this.end_time = growthSession.end_time;
         this.owner = new User(growthSession.owner);
         this.attendees = growthSession.attendees.map(attendee => new User(attendee));
+        this.watchers = growthSession.watchers.map(attendee => new User(attendee));
         this.comments = growthSession.comments;
         this.attendee_limit = growthSession.attendee_limit;
         this.discord_channel_id = growthSession.discord_channel_id;
         this.anydesk = growthSession.anydesk;
-    }
-
-    get isLimitless(): boolean {
-        const PHP_MAX_INT = 9223372036854776000;
-        return ! this.attendee_limit || this.attendee_limit >= PHP_MAX_INT;
-    }
-
-    get startTime(): string {
-        return DateTime.parseByTime(this.start_time).toTimeString12Hours(false);
-    }
-
-    get endTime(): string {
-        return DateTime.parseByTime(this.end_time).toTimeString12Hours();
-    }
-
-    get googleCalendarDate(): string {
-        return DateTime.parseByDateTime(this.date, this.start_time).toGoogleCalendarStyle() +
-            '/' +DateTime.parseByDateTime(this.date, this.end_time).toGoogleCalendarStyle();
     }
 
     get hasAlreadyHappened(): boolean {
@@ -90,7 +92,7 @@ export class GrowthSession implements IGrowthSession {
             return false;
         }
 
-        return !this.isOwner(user) && !this.isAttendee(user) && !this.hasAlreadyHappened
+        return !this.isOwner(user) && !this.isAttendeeOrWatcher(user) && !this.hasAlreadyHappened
     }
 
     private hasReachedAttendeeLimit() {
@@ -119,7 +121,7 @@ export class GrowthSession implements IGrowthSession {
         if (!user) {
             return false;
         }
-        return !this.isOwner(user) && this.isAttendee(user) && !this.hasAlreadyHappened
+        return !this.isOwner(user) && this.isAttendeeOrWatcher(user) && !this.hasAlreadyHappened
     }
 
     async leave() {
@@ -150,11 +152,12 @@ export class GrowthSession implements IGrowthSession {
         return await GrowthSessionApi.delete(this);
     }
 
-    isAttendee(user: IUser): boolean {
+    isAttendeeOrWatcher(user: IUser): boolean {
         if (!user) {
             return false;
         }
-        return this.attendees.filter(attendee => attendee.id === user?.id).length > 0;
+        return this.attendees.filter(attendee => attendee.id === user?.id).length > 0
+            || this.watchers.filter(watcher => watcher.id === user?.id).length > 0;
     }
 
     isOwner(user: IUser): boolean {

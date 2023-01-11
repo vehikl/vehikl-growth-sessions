@@ -26,6 +26,14 @@ const outsider: IUser = {
     github_nickname: 'deer123',
     id: 3,
     avatar: 'avatar.jpg',
+    is_vehikl_member: false,
+};
+
+const watcher: IUser = {
+    name: 'Uatu',
+    github_nickname: 'uatu',
+    id: 4,
+    avatar: 'avatar.jpg',
     is_vehikl_member: true,
 };
 
@@ -51,6 +59,9 @@ const growthSessionData: GrowthSession = new GrowthSession({
     attendee_limit: 41,
     attendees: [
         attendee
+    ],
+    watchers: [
+        watcher
     ],
     comments: [],
     anydesk: {
@@ -144,7 +155,17 @@ describe('GrowthSessionCard', () => {
         expect(GrowthSessionApi.watch).toHaveBeenCalledWith(growthSessionData);
     });
 
-    it('allows a user to leave a growth session', () => {
+    it('allows a user to leave a growth session when they are a watcher', () => {
+        GrowthSessionApi.leave = jest.fn().mockImplementation(growthSession => growthSession);
+        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: watcher}});
+
+        expect(wrapper.find('.leave-button').element).toBeVisible()
+        wrapper.find('.leave-button').trigger('click');
+
+        expect(GrowthSessionApi.leave).toHaveBeenCalledWith(growthSessionData);
+    })
+
+    it('allows a user to leave a growth session when they are an attendee', () => {
         GrowthSessionApi.leave = jest.fn().mockImplementation(growthSession => growthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: attendee}});
         wrapper.find('.leave-button').trigger('click');
