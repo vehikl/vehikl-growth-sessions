@@ -102,16 +102,19 @@ class GrowthSessionsShowTest extends TestCase
         $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
     }
 
-    public function testItCanShowGuestForNonVehiklUsers()
+    /**
+     * @dataProvider providesGrowthSessionGuests
+     */
+    public function testItDoesNotShowGuestDetailsToNonVehiklUsers($guestUserType, $guestRelationship)
     {
         /** @var User $nonVehiklMember */
         $nonVehiklMember = User::factory()->create();
 
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->hasAttached(User::factory()->vehiklMember(false), $guestUserType, $guestRelationship)
             ->create();
 
-        $guestMember = $growthSession->attendees()->first();
+        $guestMember = $growthSession->$guestRelationship()->first();
 
         $this->actingAs($nonVehiklMember)->get(route('growth_sessions.show', $growthSession))
             ->assertSee('Guest')
@@ -121,15 +124,18 @@ class GrowthSessionsShowTest extends TestCase
             ->assertDontSee($guestMember->github_nickname);
     }
 
-    public function testItCanShowGuestDetailsForVehiklUsers()
+    /**
+     * @dataProvider providesGrowthSessionGuests
+     */
+    public function testItCanShowGuestDetailsForVehiklUsers($guestUserType, $guestRelationship)
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
 
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->hasAttached(User::factory()->vehiklMember(false), $guestUserType, $guestRelationship)
             ->create();
 
-        $guestMember = $growthSession->attendees()->first();
+        $guestMember = $growthSession->$guestRelationship()->first();
 
         $this->actingAs($vehiklMember)->get(route('growth_sessions.show', $growthSession))
             ->assertSee($guestMember->name)
@@ -139,13 +145,16 @@ class GrowthSessionsShowTest extends TestCase
             ->assertDontSee('Guest');
     }
 
-    public function testItCannotShowGuestDetailsForUnauthenicatedUsers()
+    /**
+     * @dataProvider providesGrowthSessionGuests
+     */
+    public function testItCannotShowGuestDetailsForUnauthenicatedUsers($guestUserType, $guestRelationship)
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->hasAttached(User::factory()->vehiklMember(false), $guestUserType, $guestRelationship)
             ->create();
 
-        $guestMember = $growthSession->attendees()->first();
+        $guestMember = $growthSession->$guestRelationship()->first();
 
         $this->get(route('growth_sessions.show', $growthSession))
             ->assertSee('Guest')
@@ -174,5 +183,13 @@ class GrowthSessionsShowTest extends TestCase
         $this->getJson(route('growth_sessions.show', $growthSession))
             ->assertJsonCount($numberOfAttendees, 'attendees')
             ->assertJsonCount($numberOfWatchers, 'watchers');
+    }
+
+    public function providesGrowthSessionGuests()
+    {
+        return [
+            'The guest is an attendee' => [['user_type_id' => UserType::ATTENDEE_ID], 'attendees'],
+            'The guest is a watcher' => [['user_type_id' => UserType::WATCHER_ID], 'watchers'],
+        ];
     }
 }

@@ -36,6 +36,18 @@ class GrowthSession extends JsonResource
                 $attributes['attendees'][$i]['github_nickname'] = '';
             }
         }
+
+        for ($i = 0; $i < count($attributes['watchers']); $i++) {
+            $isThisAttendeeAGuest = !$attributes['watchers'][$i]['is_vehikl_member'];
+
+            $shouldHideGuestsInformation = $isThisAttendeeAGuest && $isPersonNotAVehiklMember;
+
+            if ($shouldHideGuestsInformation) {
+                $attributes['watchers'][$i]['name'] = 'Guest';
+                $attributes['watchers'][$i]['avatar'] = asset('images/guest-avatar.webp');
+                $attributes['watchers'][$i]['github_nickname'] = '';
+            }
+        }
         return $attributes;
     }
 
