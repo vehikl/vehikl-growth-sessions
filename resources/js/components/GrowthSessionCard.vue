@@ -73,6 +73,12 @@
         </div>
 
         <button
+            v-show="growthSession.canJoin(user)"
+            class="watch-button bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+            @click.prevent="watchGrowthSession">
+            <i aria-hidden="true" class="fa fa-eye"></i>
+        </button>
+        <button
             class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             @click.prevent="joinGrowthSession"
             v-show="growthSession.canJoin(user)">
@@ -109,6 +115,11 @@ export default class GrowthSessionCard extends Vue {
 
     get growthSessionUrl() {
         return GrowthSessionApi.showUrl(this.growthSession);
+    }
+
+    async watchGrowthSession() {
+        await this.growthSession.watch();
+        this.$emit('growth-session-updated');
     }
 
     async joinGrowthSession() {

@@ -111,7 +111,6 @@ class WebHooksTest extends TestCase
 
     public function testItHitsTheAttendeesWebHookIfSomeoneJoinsAGrowthSessionThatWillHappenToday()
     {
-        $this->withoutExceptionHandling();
         $growthSession = GrowthSession::factory()->create();
         $newMember = User::factory()->create();
 

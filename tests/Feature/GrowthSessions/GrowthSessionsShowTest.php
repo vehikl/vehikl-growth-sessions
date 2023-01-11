@@ -4,6 +4,7 @@ namespace Tests\Feature\GrowthSessions;
 
 use App\GrowthSession;
 use App\User;
+use App\UserType;
 use Carbon\CarbonImmutable;
 use Tests\TestCase;
 
@@ -25,7 +26,6 @@ class GrowthSessionsShowTest extends TestCase
 
     public function testItDoesNotProvideLocationOfAGrowthSessionForAnonymousUser()
     {
-        $this->withoutExceptionHandling();
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
         $growthSession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);
@@ -36,18 +36,50 @@ class GrowthSessionsShowTest extends TestCase
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
     }
 
-    public function testItCanProvideGrowthSessionLocationForAuthenticatedUser()
+    public function testItDoesNotProvideLocationOfAGrowthSessionToNonVehikaliensBeforeTheyJoinTheGrowthSession()
     {
         $this->setTestNow('2020-01-15');
-        $monday = CarbonImmutable::parse('Last Monday');
-        $growthSession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);
+        $growthSession = GrowthSession::factory()->create(['is_public' => true]);
 
         /** @var User $user */
         $user = User::factory()->create(['is_vehikl_member' => false]);
-        $response = $this->actingAs($user)->get(route('growth_sessions.show', $growthSession));
+
+        $response = $this->actingAs($user)->get(route('growth_sessions.show', ['growth_session' => $growthSession]));
 
         $response->assertSuccessful();
-        $response->assertSee('At AnyDesk XYZ - abcdefg');
+        $response->assertDontSee('At AnyDesk XYZ - abcdefg');
+    }
+
+    public function testItProvidesLocationOfAGrowthSessionToNonVehikaliensAfterTheyJoinTheGrowthSession()
+    {
+        $this->setTestNow('2020-01-15');
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->create(['is_public' => true]);
+
+        /** @var User $user */
+        $user = $growthSession->attendees()->first();
+
+        $this->actingAs($user)
+            ->get(route('growth_sessions.show', ['growth_session' => $growthSession]))
+            ->assertSuccessful()
+            ->assertSee('At AnyDesk XYZ - abcdefg');
+    }
+
+    public function testItProvidesLocationOfAGrowthSessionToVehikaliensAfterTheyJoinTheGrowthSession()
+    {
+        $this->setTestNow('2020-01-15');
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory()->vehiklMember(true), [], 'attendees')
+            ->create(['is_public' => true]);
+
+        /** @var User $user */
+        $user = $growthSession->attendees()->first();
+
+        $this->actingAs($user)
+            ->get(route('growth_sessions.show', ['growth_session' => $growthSession]))
+            ->assertSuccessful()
+            ->assertSee('At AnyDesk XYZ - abcdefg');
     }
 
     public function testTheSlackBotCanSeeTheGrowthSessionLocation()
@@ -102,16 +134,19 @@ class GrowthSessionsShowTest extends TestCase
         $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
     }
 
-    public function testItCanShowGuestForNonVehiklUsers()
+    /**
+     * @dataProvider providesGrowthSessionGuests
+     */
+    public function testItDoesNotShowGuestDetailsToNonVehiklUsers($guestUserType, $guestRelationship)
     {
         /** @var User $nonVehiklMember */
         $nonVehiklMember = User::factory()->create();
 
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->hasAttached(User::factory()->vehiklMember(false), $guestUserType, $guestRelationship)
             ->create();
 
-        $guestMember = $growthSession->attendees()->first();
+        $guestMember = $growthSession->$guestRelationship()->first();
 
         $this->actingAs($nonVehiklMember)->get(route('growth_sessions.show', $growthSession))
             ->assertSee('Guest')
@@ -121,15 +156,18 @@ class GrowthSessionsShowTest extends TestCase
             ->assertDontSee($guestMember->github_nickname);
     }
 
-    public function testItCanShowGuestDetailsForVehiklUsers()
+    /**
+     * @dataProvider providesGrowthSessionGuests
+     */
+    public function testItCanShowGuestDetailsForVehiklUsers($guestUserType, $guestRelationship)
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
 
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->hasAttached(User::factory()->vehiklMember(false), $guestUserType, $guestRelationship)
             ->create();
 
-        $guestMember = $growthSession->attendees()->first();
+        $guestMember = $growthSession->$guestRelationship()->first();
 
         $this->actingAs($vehiklMember)->get(route('growth_sessions.show', $growthSession))
             ->assertSee($guestMember->name)
@@ -139,13 +177,16 @@ class GrowthSessionsShowTest extends TestCase
             ->assertDontSee('Guest');
     }
 
-    public function testItCannotShowGuestDetailsForUnauthenicatedUsers()
+    /**
+     * @dataProvider providesGrowthSessionGuests
+     */
+    public function testItCannotShowGuestDetailsForUnauthenicatedUsers($guestUserType, $guestRelationship)
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->hasAttached(User::factory()->vehiklMember(false), $guestUserType, $guestRelationship)
             ->create();
 
-        $guestMember = $growthSession->attendees()->first();
+        $guestMember = $growthSession->$guestRelationship()->first();
 
         $this->get(route('growth_sessions.show', $growthSession))
             ->assertSee('Guest')
@@ -153,5 +194,34 @@ class GrowthSessionsShowTest extends TestCase
             ->assertDontSee($guestMember->name)
             ->assertDontSee($growthSession->avatar)
             ->assertDontSee($guestMember->github_nickname);
+    }
+
+    public function testItProvidesTheListOfAttendeesAndWatchers()
+    {
+        $numberOfAttendees = 2;
+        $numberOfWatchers = 5;
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(
+                User::factory()->vehiklMember(true)->times($numberOfAttendees),
+                ['user_type_id' => UserType::ATTENDEE_ID],
+                'attendees'
+            )
+            ->hasAttached(User::factory()->vehiklMember(true)->times($numberOfWatchers),
+                ['user_type_id' => UserType::WATCHER_ID],
+                'watchers'
+            )
+            ->create();
+
+        $this->getJson(route('growth_sessions.show', $growthSession))
+            ->assertJsonCount($numberOfAttendees, 'attendees')
+            ->assertJsonCount($numberOfWatchers, 'watchers');
+    }
+
+    public function providesGrowthSessionGuests()
+    {
+        return [
+            'The guest is an attendee' => [['user_type_id' => UserType::ATTENDEE_ID], 'attendees'],
+            'The guest is a watcher' => [['user_type_id' => UserType::WATCHER_ID], 'watchers'],
+        ];
     }
 }

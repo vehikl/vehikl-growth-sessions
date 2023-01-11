@@ -14,6 +14,7 @@ export interface IGrowthSession {
     discord_channel_id: string | null;
     owner: IUser;
     attendees: IUser[];
+    watchers: IUser[];
     comments: IComment[];
     anydesk: IAnyDesk | null;
 }

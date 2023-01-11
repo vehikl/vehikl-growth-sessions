@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:7.4.33-fpm
 
 # Arguments defined in docker-compose.yml
 ARG user
@@ -21,7 +21,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 # Install xdebug
-RUN pecl install xdebug
+# RUN pecl install xdebug  --PHP 7.4 is no longer supported
 
 # Get latest Composer
 COPY --from=composer:1 /usr/bin/composer /usr/bin/composer

@@ -22,6 +22,7 @@ describe('GrowthSession', () => {
         discord_channel_id: null,
         owner,
         attendees: [],
+        watchers: [],
         comments: [],
         title: "The growth session title",
         topic: "The growth session topic",

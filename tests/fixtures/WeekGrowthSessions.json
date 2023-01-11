@@ -26,6 +26,7 @@
                 "updated_at": "2020-01-15T05:00:00.000000Z"
             },
             "attendees": [],
+            "watchers": [],
             "comments": [],
             "anydesk": null
         }
@@ -58,6 +59,7 @@
                 "updated_at": "2020-01-15T05:00:00.000000Z"
             },
             "attendees": [],
+            "watchers": [],
             "comments": [],
             "anydesk": null
         },
@@ -87,6 +89,7 @@
                 "updated_at": "2020-01-15T05:00:00.000000Z"
             },
             "attendees": [],
+            "watchers": [],
             "comments": [],
             "anydesk": null
         }
@@ -119,6 +122,7 @@
                 "updated_at": "2020-01-15T05:00:00.000000Z"
             },
             "attendees": [],
+            "watchers": [],
             "comments": [],
             "anydesk": null
         },
@@ -148,6 +152,7 @@
                 "updated_at": "2020-01-15T05:00:00.000000Z"
             },
             "attendees": [],
+            "watchers": [],
             "comments": [],
             "anydesk": null
         }
