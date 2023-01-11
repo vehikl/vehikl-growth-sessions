@@ -11,8 +11,15 @@ class GrowthSession extends JsonResource
     {
         $attributes = parent::toArray($request);
 
-        if (! $request->user()) {
-            $attributes['location'] = '< Login to see the location >';
+        $user = $request->user();
+
+        $isParticipatingInGrowthSession = $user &&
+            ($this->resource->hasAttendee($user) || $this->resource->hasWatcher($user));
+
+        $isSlackbot = $user && $user->email === config('auth.slack_app_email');
+
+        if (!$isSlackbot && !$isParticipatingInGrowthSession) {
+            $attributes['location'] = '< Join Growth Session to see the location >';
         }
 
         if ($attributes['attendee_limit'] === \App\GrowthSession::NO_LIMIT) {

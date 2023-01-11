@@ -36,18 +36,50 @@ class GrowthSessionsShowTest extends TestCase
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
     }
 
-    public function testItCanProvideGrowthSessionLocationForAuthenticatedUser()
+    public function testItDoesNotProvideLocationOfAGrowthSessionToNonVehikaliensBeforeTheyJoinTheGrowthSession()
     {
         $this->setTestNow('2020-01-15');
-        $monday = CarbonImmutable::parse('Last Monday');
-        $growthSession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);
+        $growthSession = GrowthSession::factory()->create(['is_public' => true]);
 
         /** @var User $user */
         $user = User::factory()->create(['is_vehikl_member' => false]);
-        $response = $this->actingAs($user)->get(route('growth_sessions.show', $growthSession));
+
+        $response = $this->actingAs($user)->get(route('growth_sessions.show', ['growth_session' => $growthSession]));
 
         $response->assertSuccessful();
-        $response->assertSee('At AnyDesk XYZ - abcdefg');
+        $response->assertDontSee('At AnyDesk XYZ - abcdefg');
+    }
+
+    public function testItProvidesLocationOfAGrowthSessionToNonVehikaliensAfterTheyJoinTheGrowthSession()
+    {
+        $this->setTestNow('2020-01-15');
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory()->vehiklMember(false), [], 'attendees')
+            ->create(['is_public' => true]);
+
+        /** @var User $user */
+        $user = $growthSession->attendees()->first();
+
+        $this->actingAs($user)
+            ->get(route('growth_sessions.show', ['growth_session' => $growthSession]))
+            ->assertSuccessful()
+            ->assertSee('At AnyDesk XYZ - abcdefg');
+    }
+
+    public function testItProvidesLocationOfAGrowthSessionToVehikaliensAfterTheyJoinTheGrowthSession()
+    {
+        $this->setTestNow('2020-01-15');
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory()->vehiklMember(true), [], 'attendees')
+            ->create(['is_public' => true]);
+
+        /** @var User $user */
+        $user = $growthSession->attendees()->first();
+
+        $this->actingAs($user)
+            ->get(route('growth_sessions.show', ['growth_session' => $growthSession]))
+            ->assertSuccessful()
+            ->assertSee('At AnyDesk XYZ - abcdefg');
     }
 
     public function testTheSlackBotCanSeeTheGrowthSessionLocation()
