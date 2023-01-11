@@ -25,6 +25,12 @@
                     Join
                 </button>
                 <button
+                    v-show="growthSession.canWatch(userJson)"
+                    class="watch-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+                    @click.stop="growthSession.watch()">
+                    Watch
+                </button>
+                <button
                     class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
                     @click.stop="growthSession.leave()"
                     v-show="growthSession.canLeave(userJson)">
