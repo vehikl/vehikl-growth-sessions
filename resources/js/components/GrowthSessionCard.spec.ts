@@ -151,6 +151,9 @@ describe('GrowthSessionCard', () => {
         window.open = jest.fn();
         GrowthSessionApi.watch = jest.fn().mockImplementation(growthSession => growthSession);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: outsider}});
+
+        expect(wrapper.find('.watch-button').element).toBeVisible();
+
         wrapper.find('.watch-button').trigger('click');
         expect(GrowthSessionApi.watch).toHaveBeenCalledWith(growthSessionData);
     });
