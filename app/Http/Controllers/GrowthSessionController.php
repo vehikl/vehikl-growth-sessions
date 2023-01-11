@@ -74,7 +74,7 @@ class GrowthSessionController extends Controller
     {
         $growthSession->watchers()->attach($request->user(), ['user_type_id' => UserType::WATCHER_ID]);
 
-        return new GrowthSessionResource($growthSession);
+        return new GrowthSessionResource($growthSession->refresh());
     }
 
     public function leave(GrowthSession $growthSession, Request $request)

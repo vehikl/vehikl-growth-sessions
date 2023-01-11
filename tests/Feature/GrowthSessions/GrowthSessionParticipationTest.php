@@ -77,7 +77,8 @@ class GrowthSessionParticipationTest extends TestCase
 
         $this->actingAs($vehiklMember)
             ->post(route('growth_sessions.watch', $growthSession))
-            ->assertSuccessful();
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'watchers');
 
         $this->assertTrue($growthSession->watchers()->first()->is($vehiklMember));
     }
