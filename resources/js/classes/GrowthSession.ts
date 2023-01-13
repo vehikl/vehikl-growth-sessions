@@ -17,6 +17,7 @@ export class GrowthSession implements IGrowthSession {
     watchers!: User[];
     comments!: IComment[];
     attendee_limit!: number | null;
+    allow_watchers!: boolean;
     discord_channel_id!: string | null;
     anydesk!: IAnyDesk | null;
 
@@ -49,6 +50,7 @@ export class GrowthSession implements IGrowthSession {
         this.location = growthSession.location;
         this.date = growthSession.date;
         this.is_public = growthSession.is_public;
+        this.allow_watchers = growthSession.allow_watchers;
         this.start_time = growthSession.start_time;
         this.end_time = growthSession.end_time;
         this.owner = new User(growthSession.owner);

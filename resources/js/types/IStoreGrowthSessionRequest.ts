@@ -9,4 +9,5 @@ export interface IStoreGrowthSessionRequest {
     discord_channel_id?: string | null;
     anydesk_id?: number | null;
     is_public?: boolean;
+    allow_watchers?: boolean;
 }

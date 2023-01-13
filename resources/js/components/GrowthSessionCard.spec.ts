@@ -54,6 +54,7 @@ const growthSessionData: GrowthSession = new GrowthSession({
     date: '2020-05-08',
     start_time: '03:30 pm',
     end_time: '05:00 pm',
+    allow_watchers: true,
     title: 'Foobar',
     topic: 'The fundamentals of Foobar',
     attendee_limit: 41,

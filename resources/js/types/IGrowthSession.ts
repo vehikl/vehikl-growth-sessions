@@ -10,6 +10,7 @@ export interface IGrowthSession {
     start_time: string;
     end_time: string;
     is_public: boolean;
+    allow_watchers: boolean;
     attendee_limit: number | null;
     discord_channel_id: string | null;
     owner: IUser;
