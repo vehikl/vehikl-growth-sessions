@@ -45,7 +45,7 @@ const nonVehiklMember: IUser = {
     is_vehikl_member: false,
 };
 
-const growthSessionData: GrowthSession = new GrowthSession({
+const baseGrowthSessionDataAttributes = {
     id: 0,
     owner: ownerOfTheGrowthSession,
     is_public: true,
@@ -70,13 +70,18 @@ const growthSessionData: GrowthSession = new GrowthSession({
         name: 'TestoDesko',
         remote_desk_id: '123 456 789',
     }
-});
+};
+
+
 
 describe('GrowthSessionCard', () => {
     let wrapper: Wrapper<GrowthSessionCard>;
+    let growthSessionData: GrowthSession;
+
     beforeEach(() => {
         window.confirm = jest.fn();
         DateTime.setTestNow('2020-05-01 00:00:00.0000');
+        growthSessionData = new GrowthSession(baseGrowthSessionDataAttributes);
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData}})
     });
 
@@ -136,6 +141,12 @@ describe('GrowthSessionCard', () => {
     });
 
     it('does display the join button if you are authenticated and not part of the growth session', () => {
+        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: outsider}});
+        expect(wrapper.find('.join-button').element).toBeVisible();
+    });
+
+    it('does display the join button even if the growth session does not allow watchers', () => {
+        growthSessionData.allow_watchers = false;
         wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: outsider}});
         expect(wrapper.find('.join-button').element).toBeVisible();
     });
