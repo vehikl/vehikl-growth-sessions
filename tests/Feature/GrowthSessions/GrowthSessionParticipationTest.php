@@ -70,10 +70,10 @@ class GrowthSessionParticipationTest extends TestCase
         $response->assertJson(['message' => 'The attendee limit has been reached.']);
     }
 
-    public function testAUserCanWatchAGrowthSession(): void
+    public function testAUserCanWatchAGrowthSessionIfAllowWatchersIsTrue(): void
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
-        $growthSession = GrowthSession::factory()->create();
+        $growthSession = GrowthSession::factory()->create(['allow_watchers' => true]);
 
         $this->actingAs($vehiklMember)
             ->post(route('growth_sessions.watch', $growthSession))
@@ -81,6 +81,16 @@ class GrowthSessionParticipationTest extends TestCase
             ->assertJsonCount(1, 'watchers');
 
         $this->assertTrue($growthSession->watchers()->first()->is($vehiklMember));
+    }
+
+    public function testAUserCannotWatchAGrowthSessionIfAllowWatchersIsFalse(): void
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+        $growthSession = GrowthSession::factory()->create(['allow_watchers' => false]);
+
+        $this->actingAs($vehiklMember)
+            ->post(route('growth_sessions.watch', $growthSession))
+            ->assertForbidden();
     }
 
     public function testAUserCanUnwatchAGrowthSession(): void

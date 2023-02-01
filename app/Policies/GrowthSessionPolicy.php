@@ -64,7 +64,8 @@ class GrowthSessionPolicy
 
     public function watch(User $user, GrowthSession $growthSession)
     {
-        return !$growthSession->hasWatcher($user)
+        return $growthSession->allow_watchers
+            && !$growthSession->hasWatcher($user)
             && !$growthSession->hasAttendee($user)
             && $this->isInTheFuture($growthSession);
     }
