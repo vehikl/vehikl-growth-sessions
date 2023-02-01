@@ -1,13 +1,13 @@
-import {createLocalVue, mount, Wrapper} from '@vue/test-utils';
+import { createLocalVue, mount, Wrapper } from '@vue/test-utils';
 import GrowthSessionForm from './GrowthSessionForm.vue';
-import {IAnyDesk, IStoreGrowthSessionRequest, IUser} from '../types';
+import { IAnyDesk, IStoreGrowthSessionRequest, IUser } from '../types';
 import flushPromises from 'flush-promises';
-import {GrowthSessionApi} from '../services/GrowthSessionApi';
+import { GrowthSessionApi } from '../services/GrowthSessionApi';
 import vSelect from 'vue-select';
-import {IDiscordChannel} from "../types/IDiscordChannel";
-import {DiscordChannelApi} from "../services/DiscordChannelApi";
+import { IDiscordChannel } from "../types/IDiscordChannel";
+import { DiscordChannelApi } from "../services/DiscordChannelApi";
 import growthSessionWithCommentsJson from '../../../tests/fixtures/GrowthSessionWithComments.json';
-import {AnydesksApi} from "../services/AnydesksApi";
+import { AnydesksApi } from "../services/AnydesksApi";
 
 const localVue = createLocalVue();
 localVue.component('v-select', vSelect)
@@ -117,6 +117,10 @@ describe('GrowthSessionForm', () => {
                 [
                     'Can set the growth session to allow watchers',
                     {...baseGrowthSessionRequest, allow_watchers: true}
+                ],
+                [
+                    'Can set the growth session to not allow watchers',
+                    {...baseGrowthSessionRequest, allow_watchers: false}
                 ]
             ]
 
@@ -149,9 +153,8 @@ describe('GrowthSessionForm', () => {
                     wrapper.findComponent({ref: 'no-limit'}).trigger('click');
                 }
 
-                if (!allow_watchers) {
-                    wrapper.findComponent({ref: 'allow-watchers'}).trigger('click');
-                }
+                wrapper.findComponent({ref: 'allow-watchers'}).setChecked(allow_watchers);
+
 
                 if (chosenLimit) {
                     wrapper.findComponent({ref: 'attendee-limit'}).setValue(chosenLimit);
