@@ -44,6 +44,7 @@ class StoreGrowthSessionRequest extends FormRequest
             'discord_channel_id' => 'sometimes|string',
             'anydesk_id' => 'sometimes|integer|exists:' . AnyDesk::class . ',id',
             'is_public' => 'sometimes|boolean',
+            'allow_watchers' => 'sometimes|boolean',
         ];
     }
 }

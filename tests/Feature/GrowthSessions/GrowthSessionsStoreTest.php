@@ -40,17 +40,27 @@ class GrowthSessionsStoreTest extends TestCase
         $this->assertEquals($anyDesk->id, $growth->anydesk_id);
     }
 
-    public function testAGrowthSessionCanBeCreatedWithAllowWatchers()
+    public function provideWatcherPayload()
+    {
+        return [
+            'allows watchers' => [true],
+            'does not allow watchers' => [false],
+        ];
+    }
+
+    /** @dataProvider provideWatcherPayload */
+    public function testAGrowthSessionCanBeCreatedWithAllowWatchers($watcherFlag)
     {
         $user = User::factory()->vehiklMember()->create();
 
         $this->actingAs($user)->postJson(
             route('growth_sessions.store'),
-            $this->defaultParameters(['allow_watchers' => true])
+            $this->defaultParameters(['allow_watchers' => $watcherFlag])
         )->assertSuccessful();
 
-        $this->assertTrue($user->fresh()->growthSessions->first()->allow_watchers);
+        $this->assertEquals($watcherFlag, $user->fresh()->growthSessions->first()->allow_watchers);
     }
+
     public function testAGrowthSessionCannotBeCreatedDuringTheWeekend()
     {
         $this->setTestNow('2020-01-15');
