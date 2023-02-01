@@ -116,7 +116,7 @@
                 </ul>
 
 
-                <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Watchers</h3>
+                <h3 v-if="growthSession.watchers.length" class="text-2xl font-sans font-light mb-3 text-blue-700">Watchers</h3>
                 <ul>
                     <li v-for="watcher in growthSession.watchers">
                         <a ref="attendee" :href="watcher.githubURL" class="flex items-center ml-6 my-4">
