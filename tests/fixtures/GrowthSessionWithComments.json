@@ -7,6 +7,7 @@
     "discord_channel_id": null,
     "date": "2030-06-11",
     "is_public": true,
+    "allow_watchers": true,
     "start_time": "03:00 pm",
     "end_time": "05:00 pm",
     "attendee_limit": null,

@@ -28,7 +28,7 @@
                     v-show="growthSession.canWatch(userJson)"
                     class="watch-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
                     @click.stop="growthSession.watch()">
-                    Watch
+                    Spectate
                 </button>
                 <button
                     class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
@@ -134,10 +134,10 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import {IGrowthSession, IUser} from '../types';
-import {DateTime} from '../classes/DateTime';
-import {GrowthSession} from '../classes/GrowthSession';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { IGrowthSession, IUser } from '../types';
+import { DateTime } from '../classes/DateTime';
+import { GrowthSession } from '../classes/GrowthSession';
 import VueTimepicker from 'vue2-timepicker';
 import Datepicker from 'vuejs-datepicker';
 import CommentList from './CommentList.vue';

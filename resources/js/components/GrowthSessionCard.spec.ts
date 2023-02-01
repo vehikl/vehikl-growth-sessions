@@ -1,9 +1,9 @@
-import {mount, Wrapper} from '@vue/test-utils';
+import { mount, Wrapper } from '@vue/test-utils';
 import GrowthSessionCard from './GrowthSessionCard.vue';
-import {IUser} from '../types';
-import {GrowthSessionApi} from '../services/GrowthSessionApi';
-import {DateTime} from '../classes/DateTime';
-import {GrowthSession} from '../classes/GrowthSession';
+import { IUser } from '../types';
+import { GrowthSessionApi } from '../services/GrowthSessionApi';
+import { DateTime } from '../classes/DateTime';
+import { GrowthSession } from '../classes/GrowthSession';
 
 const ownerOfTheGrowthSession: IUser = {
     name: 'Jack Bauer',
@@ -54,6 +54,7 @@ const growthSessionData: GrowthSession = new GrowthSession({
     date: '2020-05-08',
     start_time: '03:30 pm',
     end_time: '05:00 pm',
+    allow_watchers: true,
     title: 'Foobar',
     topic: 'The fundamentals of Foobar',
     attendee_limit: 41,
@@ -177,6 +178,16 @@ describe('GrowthSessionCard', () => {
 
         expect(GrowthSessionApi.leave).toHaveBeenCalledWith(growthSessionData);
     })
+
+    it('does not display watcher button when watchers are not allowed for a growth session', () => {
+        window.open = jest.fn();
+        GrowthSessionApi.watch = jest.fn().mockImplementation(growthSession => growthSession);
+        growthSessionData.allow_watchers = false;
+
+        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: outsider}});
+
+        expect(wrapper.find('.watch-button').element).not.toBeVisible();
+    });
 
     it('allows a user to leave a growth session when they are an attendee', () => {
         GrowthSessionApi.leave = jest.fn().mockImplementation(growthSession => growthSession);

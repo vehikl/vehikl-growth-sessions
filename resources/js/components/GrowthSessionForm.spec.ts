@@ -1,14 +1,13 @@
-import {createLocalVue, mount, Wrapper} from '@vue/test-utils';
+import { createLocalVue, mount, Wrapper } from '@vue/test-utils';
 import GrowthSessionForm from './GrowthSessionForm.vue';
-import {IStoreGrowthSessionRequest, IUser} from '../types';
+import { IAnyDesk, IStoreGrowthSessionRequest, IUser } from '../types';
 import flushPromises from 'flush-promises';
-import {GrowthSessionApi} from '../services/GrowthSessionApi';
+import { GrowthSessionApi } from '../services/GrowthSessionApi';
 import vSelect from 'vue-select';
-import {IDiscordChannel} from "../types/IDiscordChannel";
-import {IAnyDesk} from "../types";
-import {DiscordChannelApi} from "../services/DiscordChannelApi";
+import { IDiscordChannel } from "../types/IDiscordChannel";
+import { DiscordChannelApi } from "../services/DiscordChannelApi";
 import growthSessionWithCommentsJson from '../../../tests/fixtures/GrowthSessionWithComments.json';
-import {AnydesksApi} from "../services/AnydesksApi";
+import { AnydesksApi } from "../services/AnydesksApi";
 
 const localVue = createLocalVue();
 localVue.component('v-select', vSelect)
@@ -64,6 +63,7 @@ describe('GrowthSessionForm', () => {
         start_time: '4:45 pm',
         discord_channel_id: undefined,
         anydesk_id: undefined,
+        allow_watchers: true
     }
     describe('used for creation', () => {
 
@@ -104,6 +104,14 @@ describe('GrowthSessionForm', () => {
                 [
                     'Can accept an AnyDesk',
                     {...baseGrowthSessionRequest, anydesk_id: 1}
+                ],
+                [
+                    'Can set the growth session to allow watchers',
+                    {...baseGrowthSessionRequest, allow_watchers: true}
+                ],
+                [
+                    'Can set the growth session to not allow watchers',
+                    {...baseGrowthSessionRequest, allow_watchers: false}
                 ]
             ]
 
@@ -116,6 +124,8 @@ describe('GrowthSessionForm', () => {
                     attendee_limit: chosenLimit,
                     discord_channel_id: discordChannelId,
                     anydesk_id: anyDeskId,
+                    allow_watchers,
+
                 } = payload;
 
                 const discordChannel = discordChannels.filter(channel => channel.id === discordChannelId)[0] || undefined;
@@ -133,6 +143,9 @@ describe('GrowthSessionForm', () => {
                 if (!chosenLimit) {
                     wrapper.findComponent({ref: 'no-limit'}).trigger('click');
                 }
+
+                wrapper.findComponent({ref: 'allow-watchers'}).setChecked(allow_watchers);
+
 
                 if (chosenLimit) {
                     wrapper.findComponent({ref: 'attendee-limit'}).setValue(chosenLimit);
@@ -169,6 +182,7 @@ describe('GrowthSessionForm', () => {
                     topic: chosenTopic,
                     discord_channel_id: discordChannelId,
                     anydesk_id: anyDeskId,
+                    allow_watchers,
                 };
 
                 if (!chosenLimit) {
@@ -206,6 +220,10 @@ describe('GrowthSessionForm', () => {
         it('has a no limit checkbox', () => {
             expect(wrapper.findComponent({ref: 'no-limit'}).exists()).toBeTruthy();
         })
+
+        it('starts with allow watchers checkbox enabled', () => {
+            expect(wrapper.findComponent({ref: 'allow-watchers'}).element).toBeChecked();
+        });
 
         it('hides the attendee limit input, if no limit checkbox is checked', async () => {
             wrapper.findComponent({ref: 'no-limit'}).setChecked(true)

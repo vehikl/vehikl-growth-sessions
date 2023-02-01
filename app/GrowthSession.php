@@ -22,6 +22,7 @@ class GrowthSession extends Model
         'date' => 'datetime:Y-m-d',
         'attendee_limit' => 'int',
         'is_public' => 'bool',
+        'allow_watchers' => 'bool'
     ];
 
     protected $fillable = [
@@ -35,7 +36,8 @@ class GrowthSession extends Model
         'attendee_limit',
         'discord_channel_id',
         'is_public',
-        'anydesk_id'
+        'anydesk_id',
+        'allow_watchers'
     ];
 
     protected $attributes = [
