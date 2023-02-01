@@ -1,7 +1,7 @@
-import {IAnyDesk, IComment, IGrowthSession, IUser} from '../types';
-import {DateTime} from '../classes/DateTime';
-import {GrowthSessionApi} from '../services/GrowthSessionApi';
-import {User} from './User';
+import { IAnyDesk, IComment, IGrowthSession, IUser } from '../types';
+import { DateTime } from '../classes/DateTime';
+import { GrowthSessionApi } from '../services/GrowthSessionApi';
+import { User } from './User';
 
 export class GrowthSession implements IGrowthSession {
     id!: number;
@@ -90,7 +90,10 @@ export class GrowthSession implements IGrowthSession {
             return false;
         }
 
-        return !this.isOwner(user) && !this.isAttendeeOrWatcher(user) && !this.hasAlreadyHappened
+        return this.allow_watchers
+            && !this.isOwner(user)
+            && !this.isAttendeeOrWatcher(user)
+            && !this.hasAlreadyHappened
     }
 
     canJoin(user: IUser): boolean {
