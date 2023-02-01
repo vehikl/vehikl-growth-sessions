@@ -180,4 +180,21 @@ class GrowthSessionsUpdateTest extends TestCase
         ])->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
+    public function testTheOwnerCanUpdateTheWatcherFlag()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->create(['allow_watchers' => true]);
+
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
+            'allow_watchers' => false,
+        ])->assertSuccessful();
+
+        $this->assertFalse($growthSession->fresh()->allow_watchers);
+    }
+
+
 }
