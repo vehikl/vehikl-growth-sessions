@@ -10,9 +10,22 @@ use Tests\TestCase;
 
 class GrowthSessionParticipationTest extends TestCase
 {
-    public function testAGivenUserCanRSVPToAGrowthSession()
+    public function testAGivenUserCanJoinAGrowthSessionAsAnAttendee()
     {
         $existingGrowthSession = GrowthSession::factory()->create();
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->postJson(route('growth_sessions.join', ['growth_session' => $existingGrowthSession->id]))
+            ->assertSuccessful();
+
+        $this->assertEquals($user->id, $existingGrowthSession->attendees->first()->id);
+    }
+
+    public function testAGivenUserCanJoinAGrowthSessionThatDoesNotAllowWatchersAsAnAttendee()
+    {
+        $existingGrowthSession = GrowthSession::factory()->create(['allow_watchers' => false]);
         /** @var User $user */
         $user = User::factory()->create();
 

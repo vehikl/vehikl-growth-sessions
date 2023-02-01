@@ -97,7 +97,14 @@ export class GrowthSession implements IGrowthSession {
     }
 
     canJoin(user: IUser): boolean {
-        return this.canWatch(user) && !this.hasReachedAttendeeLimit();
+        if (!user) {
+            return false;
+        }
+
+        return !this.isOwner(user)
+            && !this.isAttendeeOrWatcher(user)
+            && !this.hasAlreadyHappened
+            && !this.hasReachedAttendeeLimit();
     }
 
     private hasReachedAttendeeLimit() {
