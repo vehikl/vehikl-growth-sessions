@@ -73,16 +73,16 @@
         </div>
 
         <button
+            class="join-button bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            @click.prevent="joinGrowthSession"
+            v-show="growthSession.canJoin(user)">
+            Join Mob
+        </button>
+        <button
             v-show="growthSession.canWatch(user)"
             class="watch-button bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
             @click.prevent="watchGrowthSession">
-            <i aria-hidden="true" class="fa fa-eye"></i>
-        </button>
-        <button
-            class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            @click.prevent="joinGrowthSession"
-            v-show="growthSession.canJoin(user)">
-            Join
+            Spectate
         </button>
         <button
             class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
@@ -94,10 +94,10 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import {GrowthSessionApi} from '../services/GrowthSessionApi';
-import {GrowthSession} from '../classes/GrowthSession';
-import {IUser} from '../types';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { GrowthSessionApi } from '../services/GrowthSessionApi';
+import { GrowthSession } from '../classes/GrowthSession';
+import { IUser } from '../types';
 import VAvatar from './VAvatar.vue';
 import IconDraggable from '../svgs/IconDraggable.vue';
 import LocationRenderer from './LocationRenderer.vue';
