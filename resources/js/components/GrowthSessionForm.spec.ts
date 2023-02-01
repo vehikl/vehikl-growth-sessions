@@ -12,15 +12,6 @@ import { AnydesksApi } from "../services/AnydesksApi";
 const localVue = createLocalVue();
 localVue.component('v-select', vSelect)
 
-// TODO: Ensure that users can create a growth session that does not allow watchers
-// TODO: Implement the backend to support the allow_watchers flag.
-// TODO: - A person trying to watch a growth session with allow_watchers = false, should be rejected
-// TODO: - A person trying to watch a growth session with allow_watchers = true, should be accepted
-// TODO: - If a person disables watchers, all watchers get removed from the GrowthSession
-// TODO: For the frontend, make sure that the eye button disappears for growth sessions that don't allow watchers
-
-
-
 const user: IUser = {
     avatar: 'lastAirBender.jpg',
     github_nickname: 'jackjack',
