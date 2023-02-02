@@ -90,12 +90,23 @@ describe('GrowthSessionView', () => {
             expect(wrapper.text()).toContain(user.name);
         })
 
+    });
+
+    describe('watchers section', () => {
         it('displays the list of watchers', () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, watchers: [user]});
             wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}, localVue});
 
             expect(wrapper.text()).toContain(user.name);
+            expect(wrapper.text()).toContain('Watchers');
         })
+
+        it('does not display the watcher section if there are no watchers',  () => {
+            let growthSession = new GrowthSession({...dummyGrowthSession, watchers: []});
+            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}, localVue});
+
+            expect(wrapper.text()).not.toContain('Watchers');
+        });
     });
 
     describe('as the owner', () => {
