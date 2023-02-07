@@ -147,10 +147,10 @@ import GrowthSessionForm from "./GrowthSessionForm.vue";
 
 @Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker, GrowthSessionForm}})
 export default class GrowthSessionView extends Vue {
-    @Prop({required: false}) userJson!: IUser;
-    @Prop({required: true}) growthSessionJson!: IGrowthSession;
-    @Prop({required: false}) discordGuildId!: string;
-    growthSession: GrowthSession = new GrowthSession(this.growthSessionJson);
+    @Prop({required: false}) userJson!: IUser
+    @Prop({required: true}) growthSessionJson!: IGrowthSession
+    @Prop({required: false}) discordGuildId!: string
+    growthSession: GrowthSession
 
     get date(): string {
         return `${DateTime.parseByDate(this.growthSession.date).format('MMM-DD')}`
@@ -162,6 +162,10 @@ export default class GrowthSessionView extends Vue {
 
     get mobtimeUrl(): string {
         return `https://mobtime.vehikl.com/vgs-${this.growthSessionJson.id}`;
+    }
+
+    async created() {
+        this.growthSession = new GrowthSession(this.growthSessionJson);
     }
 
     get discordChannelUrl(): string {

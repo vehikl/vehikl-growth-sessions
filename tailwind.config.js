@@ -7,7 +7,7 @@ module.exports = {
             './resources/svgs/**/*.vue',
         ],
         options: {
-            whitelist: ['h-6', 'w-6', 'w-12', 'h-12'],
+            safelist: ['h-6', 'w-6', 'w-12', 'h-12'],
         }
     },
     theme: {
