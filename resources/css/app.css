@@ -1,8 +1,10 @@
+@import './VueTimepicker.css';
+@import './vue-select.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import '~vue2-timepicker/dist/VueTimepicker.css';
-@import '~vue-select/dist/vue-select.css';
+
 
 .break-words-fixed {
     word-break: break-word;

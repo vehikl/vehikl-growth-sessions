@@ -1,4 +1,5 @@
 module.exports = {
+    content: ["*"],
     purge: {
         content: [
             './resources/js/**/*.vue',
