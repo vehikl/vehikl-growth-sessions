@@ -10,9 +10,9 @@ To avoid the registration step, this application uses oauth.
 
 ### Prerequisites
 
- - PHP 7.4
+ - PHP 8.2
  - Composer
- - Node >= 12 LTS
+ - Node >= 18 LTS
  - Yarn
  - Mailtrap
 
