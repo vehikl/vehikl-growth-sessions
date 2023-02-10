@@ -14,12 +14,12 @@ jobs:
     steps:
       - uses: shivammathur/setup-php@b7d1d9c9a92d8d8463ce36d7f60da34d461724f8
         with:
-          php-version: '7.4'
+          php-version: '8.2'
       - uses: actions/checkout@v2
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.1.4
         with:
-          node-version: '14.15.5'
+          node-version: '18.13.0'
       - name: Install Javascript Dependencies
         run: yarn
       - name: Build Javascript
