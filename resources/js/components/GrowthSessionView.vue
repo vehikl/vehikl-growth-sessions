@@ -107,7 +107,7 @@
                     <li v-for="attendee in growthSession.attendees">
                         <a ref="attendee" :href="attendee.githubURL" class="flex items-center ml-6 my-4">
                             <v-avatar size="12" class="mr-3" :src="attendee.avatar" :alt="`${attendee.name}'s Avatar`"/>
-                            <p v-if="attendee.is_vehikl_member == false" class="text-vehikl-orange">{{
+                            <p v-if="!attendee.is_vehikl_member" class="text-vehikl-orange">{{
                                     attendee.name
                                 }}</p>
                             <p v-else>{{ attendee.name }}</p>
@@ -121,7 +121,7 @@
                     <li v-for="watcher in growthSession.watchers">
                         <a ref="attendee" :href="watcher.githubURL" class="flex items-center ml-6 my-4">
                             <v-avatar :alt="`${watcher.name}'s Avatar`" :src="watcher.avatar" class="mr-3" size="12"/>
-                            <p v-if="watcher.is_vehikl_member == false" class="text-vehikl-orange">{{
+                            <p v-if="!watcher.is_vehikl_member" class="text-vehikl-orange">{{
                                     watcher.name
                                 }}</p>
                             <p v-else>{{ watcher.name }}</p>
