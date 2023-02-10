@@ -1,15 +1,10 @@
 module.exports = {
-    content: ["*"],
-    purge: {
-        content: [
-            './resources/js/**/*.vue',
-            './resources/views/**/*.blade.php',
-            './resources/svgs/**/*.vue',
-        ],
-        options: {
-            safelist: ['h-6', 'w-6', 'w-12', 'h-12'],
-        }
-    },
+    content: [
+        './resources/js/**/*.vue',
+        './resources/views/**/*.blade.php',
+        './resources/svgs/**/*.vue',
+    ],
+    safelist: ['h-6', 'w-6', 'w-12', 'h-12'],
     theme: {
         extend: {
             colors: {
@@ -30,6 +25,5 @@ module.exports = {
             '64': '16rem',
         },
     },
-    variants: {},
     plugins: [],
 };
