@@ -107,7 +107,7 @@
                     <li v-for="attendee in growthSession.attendees">
                         <a ref="attendee" :href="attendee.githubURL" class="flex items-center ml-6 my-4">
                             <v-avatar size="12" class="mr-3" :src="attendee.avatar" :alt="`${attendee.name}'s Avatar`"/>
-                            <p v-if="attendee.is_vehikl_member == false" class="text-vehikl-orange">{{
+                            <p v-if="!attendee.is_vehikl_member" class="text-vehikl-orange">{{
                                     attendee.name
                                 }}</p>
                             <p v-else>{{ attendee.name }}</p>
@@ -121,7 +121,7 @@
                     <li v-for="watcher in growthSession.watchers">
                         <a ref="attendee" :href="watcher.githubURL" class="flex items-center ml-6 my-4">
                             <v-avatar :alt="`${watcher.name}'s Avatar`" :src="watcher.avatar" class="mr-3" size="12"/>
-                            <p v-if="watcher.is_vehikl_member == false" class="text-vehikl-orange">{{
+                            <p v-if="!watcher.is_vehikl_member" class="text-vehikl-orange">{{
                                     watcher.name
                                 }}</p>
                             <p v-else>{{ watcher.name }}</p>
@@ -147,10 +147,10 @@ import GrowthSessionForm from "./GrowthSessionForm.vue";
 
 @Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker, GrowthSessionForm}})
 export default class GrowthSessionView extends Vue {
-    @Prop({required: false}) userJson!: IUser;
-    @Prop({required: true}) growthSessionJson!: IGrowthSession;
-    @Prop({required: false}) discordGuildId!: string;
-    growthSession: GrowthSession = new GrowthSession(this.growthSessionJson);
+    @Prop({required: false}) userJson!: IUser
+    @Prop({required: true}) growthSessionJson!: IGrowthSession
+    @Prop({required: false}) discordGuildId!: string
+    growthSession: GrowthSession
 
     get date(): string {
         return `${DateTime.parseByDate(this.growthSession.date).format('MMM-DD')}`
@@ -162,6 +162,10 @@ export default class GrowthSessionView extends Vue {
 
     get mobtimeUrl(): string {
         return `https://mobtime.vehikl.com/vgs-${this.growthSessionJson.id}`;
+    }
+
+    async created() {
+        this.growthSession = new GrowthSession(this.growthSessionJson);
     }
 
     get discordChannelUrl(): string {

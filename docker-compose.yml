@@ -65,7 +65,7 @@ services:
     entrypoint: vendor/bin/phpunit
 
   db:
-    image: mysql:5.7
+    image: mysql:8.0.29
     container_name: growth-app-db
     restart: unless-stopped
     ports:
