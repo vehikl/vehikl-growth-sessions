@@ -34,23 +34,25 @@ class GrowthSession extends JsonResource
         }
 
         if ($isPersonNotAVehiklMember) {
-            $attributes = $this->hideGuestInformationFromPayload('attendees', $attributes);
-            $attributes = $this->hideGuestInformationFromPayload('watchers', $attributes);
+            $attributes = $this->hideGuestInformationFromPayload('attendees', $attributes, $user);
+            $attributes = $this->hideGuestInformationFromPayload('watchers', $attributes, $user);
         }
 
         return $attributes;
     }
 
-    protected function hideGuestInformationFromPayload($key, $payload): array
+    protected function hideGuestInformationFromPayload($key, $payload, $user): array
     {
         if (!Arr::has($payload, $key)) {
             return $payload;
         }
 
         for ($i = 0; $i < count($payload[$key]); $i++) {
-            $isThisAttendeeAGuest = !$payload[$key][$i]['is_vehikl_member'];
+            $currentAttendee = $payload[$key][$i];
+            $isThisAttendeeAGuest = !$currentAttendee['is_vehikl_member'];
+            $isThisAttendeeTheRequesterThemselves = (optional($user)->id === $currentAttendee['id']);
 
-            if ($isThisAttendeeAGuest) {
+            if ($isThisAttendeeAGuest && !$isThisAttendeeTheRequesterThemselves) {
                 $payload[$key][$i]['name'] = 'Guest';
                 $payload[$key][$i]['avatar'] = asset('images/guest-avatar.webp');
                 $payload[$key][$i]['github_nickname'] = '';

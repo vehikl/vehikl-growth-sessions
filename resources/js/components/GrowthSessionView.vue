@@ -20,19 +20,19 @@
             <div>
                 <button
                     class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="growthSession.join()"
+                    @click.stop="joinGrowthSession"
                     v-show="growthSession.canJoin(userJson)">
                     Join
                 </button>
                 <button
                     v-show="growthSession.canWatch(userJson)"
                     class="watch-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="growthSession.watch()">
+                    @click.stop="watchGrowthSession">
                     Spectate
                 </button>
                 <button
                     class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
-                    @click.stop="growthSession.leave()"
+                    @click.stop="leaveGrowthSession"
                     v-show="growthSession.canLeave(userJson)">
                     Leave
                 </button>
@@ -134,16 +134,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { IGrowthSession, IUser } from '../types';
-import { DateTime } from '../classes/DateTime';
-import { GrowthSession } from '../classes/GrowthSession';
-import VueTimepicker from 'vue2-timepicker';
-import Datepicker from 'vuejs-datepicker';
-import CommentList from './CommentList.vue';
-import VAvatar from './VAvatar.vue';
-import LocationRenderer from './LocationRenderer.vue';
-import GrowthSessionForm from "./GrowthSessionForm.vue";
+import {Component, Prop, Vue} from "vue-property-decorator"
+import {IGrowthSession, IUser} from "../types"
+import {DateTime} from "../classes/DateTime"
+import {GrowthSession} from "../classes/GrowthSession"
+import VueTimepicker from "vue2-timepicker"
+import Datepicker from "vuejs-datepicker"
+import CommentList from "./CommentList.vue"
+import VAvatar from "./VAvatar.vue"
+import LocationRenderer from "./LocationRenderer.vue"
+import GrowthSessionForm from "./GrowthSessionForm.vue"
 
 @Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker, GrowthSessionForm}})
 export default class GrowthSessionView extends Vue {
@@ -173,15 +173,30 @@ export default class GrowthSessionView extends Vue {
     }
 
     async deleteGrowthSession() {
-        if (confirm('Are you sure you want to delete?')) {
-            await this.growthSession.delete();
-            window.location.assign('/');
+        if (confirm("Are you sure you want to delete?")) {
+            await this.growthSession.delete()
+            window.location.assign("/")
         }
     }
 
     async onGrowthSessionUpdated(growthSession: GrowthSession) {
         this.growthSession.refresh(growthSession)
-        this.$modal.hide('growth-session-form')
+        this.$modal.hide("growth-session-form")
+    }
+
+    async joinGrowthSession() {
+        await this.growthSession.join()
+        this.$forceUpdate()
+    }
+
+    async leaveGrowthSession() {
+        await this.growthSession.leave()
+        this.$forceUpdate()
+    }
+
+    async watchGrowthSession() {
+        await this.growthSession.watch()
+        this.$forceUpdate()
     }
 }
 </script>
