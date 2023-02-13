@@ -14,9 +14,12 @@ class GrowthSessionSeeder extends Seeder
 {
     public function run()
     {
-        $monday = today()->dayOfWeek < CarbonInterface::MONDAY
-            ? CarbonImmutable::parse('Next Monday')
-            : CarbonImmutable::parse('Last Monday');
+        $dayOfWeek = today()->dayOfWeek;
+        $monday = match (TRUE) {
+            $dayOfWeek === CarbonInterface::MONDAY => CarbonImmutable::today(),
+            $dayOfWeek < CarbonInterface::MONDAY => CarbonImmutable::parse('Next Monday'),
+            $dayOfWeek > CarbonInterface::MONDAY => CarbonImmutable::parse('Last Monday'),
+        };
 
         $numberOfFakeGrowthSessions = 5;
         for ($i = 0; $i < $numberOfFakeGrowthSessions; $i++) {
