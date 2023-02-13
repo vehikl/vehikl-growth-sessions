@@ -1,7 +1,7 @@
-import { IAnyDesk, IComment, IGrowthSession, IUser } from '../types';
-import { DateTime } from '../classes/DateTime';
-import { GrowthSessionApi } from '../services/GrowthSessionApi';
-import { User } from './User';
+import {IAnyDesk, IComment, IGrowthSession, IUser} from "../types"
+import {DateTime} from "../classes/DateTime"
+import {GrowthSessionApi} from "../services/GrowthSessionApi"
+import {User} from "./User"
 
 export class GrowthSession implements IGrowthSession {
     id!: number;
@@ -53,9 +53,9 @@ export class GrowthSession implements IGrowthSession {
         this.allow_watchers = growthSession.allow_watchers;
         this.start_time = growthSession.start_time;
         this.end_time = growthSession.end_time;
-        this.owner = new User(growthSession.owner);
-        this.attendees = growthSession.attendees.map(attendee => new User(attendee));
-        this.watchers = growthSession.watchers?.map(attendee => new User(attendee)) ?? [];
+        this.owner = new User(growthSession.owner)
+        this.attendees = growthSession.attendees?.map(attendee => new User(attendee)) ?? []
+        this.watchers = growthSession.watchers?.map(attendee => new User(attendee)) ?? []
         this.comments = growthSession.comments;
         this.attendee_limit = growthSession.attendee_limit;
         this.discord_channel_id = growthSession.discord_channel_id;
