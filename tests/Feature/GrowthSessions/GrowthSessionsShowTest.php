@@ -180,20 +180,44 @@ class GrowthSessionsShowTest extends TestCase
     /**
      * @dataProvider providesGrowthSessionGuests
      */
-    public function testItCannotShowGuestDetailsForUnauthenicatedUsers($guestUserType, $guestRelationship)
+    public function testItShowsAGuestTheirOwnDetails($guestUserType, $guestRelationship)
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(false), $guestUserType, $guestRelationship)
+            ->hasAttached(User::factory()->vehiklMember(FALSE), $guestUserType, $guestRelationship)
             ->create();
 
         $guestMember = $growthSession->$guestRelationship()->first();
 
-        $this->get(route('growth_sessions.show', $growthSession))
+        $this->actingAs($guestMember)->get(route('growth_sessions.show', $growthSession))
+            ->assertSee($guestMember->name)
+            ->assertSee($growthSession->avatar)
+            ->assertSee($guestMember->github_nickname)
+            ->assertDontSee('images\\/guest-avatar.webp')
+            ->assertDontSee('Guest');
+    }
+
+    /**
+     * @dataProvider providesGrowthSessionGuests
+     */
+    public function testItCannotShowGuestDetailsForUnauthenicatedUsers($guestUserType, $guestRelationship)
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory()->vehiklMember(FALSE), $guestUserType, $guestRelationship)
+            ->hasAttached(User::factory()->vehiklMember(FALSE), $guestUserType, $guestRelationship)
+            ->create();
+
+        $guest = $growthSession->fresh()->$guestRelationship->first();
+        $anotherGuest = $growthSession->fresh()->$guestRelationship->last();
+
+        $this->actingAs($guest)->get(route('growth_sessions.show', $growthSession))
             ->assertSee('Guest')
             ->assertSee('images\\/guest-avatar.webp')
-            ->assertDontSee($guestMember->name)
-            ->assertDontSee($growthSession->avatar)
-            ->assertDontSee($guestMember->github_nickname);
+            ->assertDontSee($anotherGuest->name)
+            ->assertDontSee($anotherGuest->avatar)
+            ->assertDontSee($anotherGuest->github_nickname)
+            ->assertSee($guest->name)
+            ->assertSee($guest->avatar)
+            ->assertSee($guest->github_nickname);
     }
 
     public function testItProvidesTheListOfAttendeesAndWatchers()
