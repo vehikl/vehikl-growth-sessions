@@ -21,10 +21,10 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 # Install xdebug
-# RUN pecl install xdebug  --PHP 7.4 is no longer supported
+RUN pecl install xdebug
 
 # Get latest Composer
-COPY --from=composer:1 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 # Create system user to run Composer and Artisan Commands
 RUN useradd -G www-data,root -u $uid -d /home/$user $user
