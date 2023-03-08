@@ -103,6 +103,3 @@ services:
 networks:
   growth-app:
     driver: bridge
-
-volumes:
-  project:
