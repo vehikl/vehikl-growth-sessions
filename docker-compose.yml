@@ -22,13 +22,17 @@ services:
       - .:/app
     working_dir: /app
     entrypoint: yarn
+    environment:
+      - TZ=America/Toronto
 
   jest:
     image: node:18.13
     volumes:
       - .:/app
     working_dir: /app
-    entrypoint: npm test
+    entrypoint: npm run test
+    environment:
+      - TZ=America/Toronto
 
   artisan:
     image: growth-app
