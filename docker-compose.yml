@@ -8,44 +8,29 @@ services:
       context: ./
       dockerfile: docker/app/Dockerfile
     image: growth-app
+    depends_on:
+      - files
     container_name: growth-app-php
     restart: unless-stopped
     working_dir: /var/www/
     volumes:
       - project:/var/www
-    networks:
-      - growth-app
 
   yarn:
-    image: node:lts-alpine
+    image: node:18.13
+    depends_on:
+      - files
     volumes:
       - project:/app
     working_dir: /app
     entrypoint: yarn
-
-  jest:
-    image: node:lts-alpine
-    volumes:
-      - project:/app
-    working_dir: /app
-    entrypoint: npm test
-
-  artisan:
-    image: growth-app
-    depends_on:
-      - app
-    user: root
-    volumes:
-      - project:/app
-    working_dir: /app
-    networks:
-      - growth-app
-    entrypoint: php artisan
+    environment:
+      - TZ=America/Toronto
 
   composer:
     image: growth-app
     depends_on:
-      - app
+      - files
     environment:
       - COMPOSER_CACHE_DIR=/app/var/cache/composer
     restart: "no"
@@ -55,10 +40,32 @@ services:
     working_dir: /app
     entrypoint: composer
 
+  jest:
+    image: node:18.13
+    depends_on:
+      - files
+    volumes:
+      - project:/app
+    working_dir: /app
+    entrypoint: npm run test
+    environment:
+      - TZ=America/Toronto
+
+  artisan:
+    image: growth-app
+    depends_on:
+      - db
+      - files
+    user: root
+    volumes:
+      - project:/app
+    working_dir: /app
+    entrypoint: php artisan
+
   phpunit:
     image: growth-app
     depends_on:
-      - app
+      - files
     user: root
     volumes:
       - project:/var/www
@@ -66,6 +73,8 @@ services:
 
   db:
     image: mysql:8.0.29
+    depends_on:
+      - files
     container_name: growth-app-db
     restart: unless-stopped
     ports:
@@ -77,20 +86,21 @@ services:
       MYSQL_USER: ${DB_USERNAME}
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
-    networks:
-      - growth-app
-
-  nginx:
-    image: nginx:alpine
-    container_name: growth-app-nginx
-    restart: unless-stopped
-    ports:
-      - 8007:80
     volumes:
       - project:/var/www
       - ./docker/nginx:/etc/nginx/conf.d/
-    networks:
-      - growth-app
+
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      - files
+    container_name: growth-app-nginx
+    restart: unless-stopped
+    ports:
+      - ${APP_PORT}:80
+    volumes:
+      - project:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d/
 
   files:
     image: alpine:latest
@@ -99,10 +109,6 @@ services:
     restart: unless-stopped
     volumes:
       - project:/project
-
-networks:
-  growth-app:
-    driver: bridge
 
 volumes:
   project:

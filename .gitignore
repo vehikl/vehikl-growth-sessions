@@ -9,6 +9,8 @@
 /vendor
 .env
 .env.backup
+.env.*
+!.env.example
 .idea
 .phpunit.result.cache
 Homestead.json

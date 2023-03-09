@@ -16,4 +16,4 @@ mutagen sync terminate growth-app
 # Turn off docker
 docker-compose down
 
-docker volume rm growth-sessions_project
+docker volume rm vehikl-growth-sessions_project
