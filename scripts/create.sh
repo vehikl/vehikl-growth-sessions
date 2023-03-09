@@ -55,17 +55,14 @@ mutagen sync create --name=growth-app \
     ./ docker://growth-app-files/project
 #    --sync-mode=two-way-resolved  <- To be considered if the Mutagen Sync keeps having conflicts
 
+WAIT_TIME=10
 echo "Files container has started."
-read -p "Press any key to continue..."
-echo ""
+echo "...Waiting $WAIT_TIME seconds to allow mutagen to sync properly..."
+sleep $WAIT_TIME
 
 # PHP Dependencies
 docker compose run --rm composer install
 #docker-compose run composer install
-
-echo "Composer dependencies have been installed."
-read -p "Press any key to continue..."
-echo ""
 
 # Setup env
 docker compose run --rm artisan key:generate
@@ -74,17 +71,13 @@ docker compose run --rm artisan key:generate
 docker compose up -d db
 
 echo "Database container has started."
-read -p "Press any key to continue..."
-echo ""
+echo "...Waiting $WAIT_TIME seconds to make sure the Database is available..."
+sleep $WAIT_TIME
 
 # Start app
 docker compose up --build -d app
 
 docker compose run --rm artisan migrate --seed
-
-echo "Migrations have finished."
-read -p "Press any key to continue..."
-echo ""
 
 # Turn on the containers
 
