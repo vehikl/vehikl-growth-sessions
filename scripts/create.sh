@@ -60,27 +60,16 @@ echo "Files container has started."
 echo "...Waiting $WAIT_TIME seconds to allow mutagen to sync properly..."
 sleep $WAIT_TIME
 
-# PHP Dependencies
 docker compose run --rm composer install
-#docker-compose run composer install
-
-# Setup env
 docker compose run --rm artisan key:generate
 
-# Database stuff
 docker compose up -d db
-
 echo "Database container has started."
 echo "...Waiting $WAIT_TIME seconds to make sure the Database is available..."
 sleep $WAIT_TIME
 
-# Start app
 docker compose up --build -d app
-
 docker compose run --rm artisan migrate --seed
-
-# Turn on the containers
-
 docker compose up -d nginx
 
 # NPM Dependencies
