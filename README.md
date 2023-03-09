@@ -6,7 +6,30 @@ To create / join a Growth Session, the user must login.
 
 To avoid the registration step, this application uses oauth. 
 
-## Local Setup
+## Docker Setup
+
+### Prerequisites
+
+ - Docker for Mac: https://www.docker.com/products/docker-desktop
+ - Mutagen: https://mutagen.io/
+
+### Setup
+
+#### Initial configuration
+
+```sh
+sh scripts/create.sh
+```
+
+NOTE: The create script populates OAuth credentials through a secure vault. You can skip this through pressing ENTER when prompted.
+
+
+#### Run
+
+The site should be available at http://127.0.0.1:8008
+
+
+## Local Setup without using docker
 
 ### Prerequisites
 
@@ -71,28 +94,6 @@ php artisan migrate
 Run
 `php artisan serve`
 
-## Docker Setup
-
-### Prerequisites
-
- - Docker for Mac: https://www.docker.com/products/docker-desktop
- - Mutagen: https://mutagen.io/
-
-### Setup
-
-#### Initial configuration
-
-```sh
-sh scripts/create.sh
-```
-
-NOTE: The create script populates OAuth credentials through a secure vault. You can skip this through pressing ENTER when prompted.
-
-
-#### Run
-
-The site should be available at http://localhost:8007
-
 
 ## Optional
 
@@ -101,8 +102,8 @@ The site should be available at http://localhost:8007
 1. Go to github, and open your settings page
 2. Open *Developer settings*
 3. Create a new *OAuth App*
-4. Set the homepage to `http://localhost:8007`
-5. Set the callback url to `http://localhost:8007/oauth/github/callback`
+4. Set the homepage to `http://localhost:8008`
+5. Set the callback url to `http://localhost:8008/oauth/github/callback`
 6. Save it
 7. Copy the *Client ID* to `./.env#GITHUB_CLIENT_ID` and *Client Secret* to `./.env#GITHUB_CLIENT_SECRET`
 
@@ -114,10 +115,10 @@ The site should be available at http://localhost:8007
 4. Create OAuth Credentials for the project
     1. Select `Web Application` as the _Application Type_
     2. Give your application a _Name_
-    3. Add `http://localhost:8007/oauth/google/callback` as a _Redirect URI_
+    3. Add `http://localhost:8008/oauth/google/callback` as a _Redirect URI_
     4. Click _Create_
 5. Copy the *Client ID* to `./.env#GOOGLE_CLIENT_ID` and *Client Secret* to `./.env#GOOGLE_CLIENT_SECRET`
-6. Set `./.env#GOOGLE_REDIRECT_URL` to `http://localhost:8007/oauth/google/callback`
+6. Set `./.env#GOOGLE_REDIRECT_URL` to `http://localhost:8008/oauth/google/callback`
 
 For more information, see:
  - [Laravel socialite](https://laravel.com/docs/7.x/socialite#configuration)
