@@ -91,5 +91,7 @@ docker compose run --rm yarn prod
 docker compose run --rm phpunit
 docker compose run --rm jest
 
+clear
+
 source .env
 echo "The application is being served at $APP_URL"
