@@ -47,12 +47,12 @@ fi
 
 # Set up mutagen.io file share
 docker-compose up -d files
-mutagen sync create --name=growth-app \
-    --ignore-vcs \
-    --ignore=".idea" \
-    --default-directory-mode=777 \
-    --default-file-mode=666 \
-    ./ docker://growth-app-files/project
+#mutagen sync create --name=growth-app \
+#    --ignore-vcs \
+#    --ignore=".idea" \
+#    --default-directory-mode=777 \
+#    --default-file-mode=666 \
+#    ./ docker://growth-app-files/project
 
 # Turn on the containers
 docker-compose up --build -d app
@@ -66,7 +66,7 @@ docker-compose run --rm artisan key:generate
 
 # NPM Dependencies
 docker-compose run --rm yarn
-docker-compose run --rm yarn dev
+docker-compose run --rm yarn prod
 
 # Database stuff
 docker-compose run --rm artisan migrate --seed
@@ -74,3 +74,6 @@ docker-compose run --rm artisan migrate --seed
 # Run the tests
 docker compose run --rm phpunit
 docker compose run --rm jest
+
+source .env
+echo "The application is being served at $APP_URL"
