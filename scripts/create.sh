@@ -46,30 +46,53 @@ else
 fi
 
 # Set up mutagen.io file share
-docker-compose up -d files
-#mutagen sync create --name=growth-app \
-#    --ignore-vcs \
-#    --ignore=".idea" \
-#    --default-directory-mode=777 \
-#    --default-file-mode=666 \
-#    ./ docker://growth-app-files/project
+docker compose up -d files
+mutagen sync create --name=growth-app \
+    --ignore-vcs \
+    --ignore=".idea" \
+    --default-directory-mode=777 \
+    --default-file-mode=666 \
+    ./ docker://growth-app-files/project
+#    --sync-mode=two-way-resolved  <- To be considered if the Mutagen Sync keeps having conflicts
 
-# Turn on the containers
-docker-compose up --build -d app
-docker-compose up -d db nginx
+echo "Files container has started."
+read -p "Press any key to continue..."
+echo ""
 
 # PHP Dependencies
-docker-compose run --rm composer install
+docker compose run --rm composer install
+#docker-compose run composer install
+
+echo "Composer dependencies have been installed."
+read -p "Press any key to continue..."
+echo ""
 
 # Setup env
-docker-compose run --rm artisan key:generate
-
-# NPM Dependencies
-docker-compose run --rm yarn
-docker-compose run --rm yarn prod
+docker compose run --rm artisan key:generate
 
 # Database stuff
-docker-compose run --rm artisan migrate --seed
+docker compose up -d db
+
+echo "Database container has started."
+read -p "Press any key to continue..."
+echo ""
+
+# Start app
+docker compose up --build -d app
+
+docker compose run --rm artisan migrate --seed
+
+echo "Migrations have finished."
+read -p "Press any key to continue..."
+echo ""
+
+# Turn on the containers
+
+docker compose up -d nginx
+
+# NPM Dependencies
+docker compose run --rm yarn
+docker compose run --rm yarn prod
 
 # Run the tests
 docker compose run --rm phpunit

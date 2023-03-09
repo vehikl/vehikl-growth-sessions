@@ -8,27 +8,44 @@ services:
       context: ./
       dockerfile: docker/app/Dockerfile
     image: growth-app
+    depends_on:
+      - files
     container_name: growth-app-php
     restart: unless-stopped
     working_dir: /var/www/
     volumes:
-      - .:/var/www
-    networks:
-      - growth-app
+      - project:/var/www
 
   yarn:
     image: node:18.13
+    depends_on:
+      - files
     volumes:
-      - .:/app
+      - project:/app
     working_dir: /app
     entrypoint: yarn
     environment:
       - TZ=America/Toronto
 
+  composer:
+    image: growth-app
+    depends_on:
+      - files
+    environment:
+      - COMPOSER_CACHE_DIR=/app/var/cache/composer
+    restart: "no"
+    user: root
+    volumes:
+      - project:/app
+    working_dir: /app
+    entrypoint: composer
+
   jest:
     image: node:18.13
+    depends_on:
+      - files
     volumes:
-      - .:/app
+      - project:/app
     working_dir: /app
     entrypoint: npm run test
     environment:
@@ -37,39 +54,27 @@ services:
   artisan:
     image: growth-app
     depends_on:
-      - app
+      - db
+      - files
     user: root
     volumes:
-      - .:/app
+      - project:/app
     working_dir: /app
-    networks:
-      - growth-app
     entrypoint: php artisan
-
-  composer:
-    image: growth-app
-    depends_on:
-      - app
-    environment:
-      - COMPOSER_CACHE_DIR=/app/var/cache/composer
-    restart: "no"
-    user: root
-    volumes:
-      - .:/app
-    working_dir: /app
-    entrypoint: composer
 
   phpunit:
     image: growth-app
     depends_on:
-      - app
+      - files
     user: root
     volumes:
-      - .:/var/www
+      - project:/var/www
     entrypoint: vendor/bin/phpunit
 
   db:
     image: mysql:8.0.29
+    depends_on:
+      - files
     container_name: growth-app-db
     restart: unless-stopped
     ports:
@@ -81,20 +86,21 @@ services:
       MYSQL_USER: ${DB_USERNAME}
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
-    networks:
-      - growth-app
+    volumes:
+      - project:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d/
 
   nginx:
     image: nginx:alpine
+    depends_on:
+      - files
     container_name: growth-app-nginx
     restart: unless-stopped
     ports:
       - ${APP_PORT}:80
     volumes:
-      - .:/var/www
+      - project:/var/www
       - ./docker/nginx:/etc/nginx/conf.d/
-    networks:
-      - growth-app
 
   files:
     image: alpine:latest
@@ -102,8 +108,7 @@ services:
     entrypoint: top
     restart: unless-stopped
     volumes:
-      - .:/project
+      - project:/project
 
-networks:
-  growth-app:
-    driver: bridge
+volumes:
+  project:
