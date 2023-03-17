@@ -16,8 +16,14 @@ class AnydeskReminderSessionsCommand extends Command
 
     public function handle()
     {
-
         $vehikl = User::query()->where('email', 'go@vehikl.com')->firstOrFail();
+
+        $doesReminderAlreadyExist = $vehikl->growthSessions()
+            ->where('date', Carbon::parse('next Friday')->format('Y-m-d'))
+            ->exists();
+        if ($doesReminderAlreadyExist) {
+            return;
+        }
         $newGrowthSession = GrowthSession::query()->create([
             'title' => 'Updating Workstations (but not AnyDesk)',
             'topic' =>
