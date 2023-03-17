@@ -8,8 +8,9 @@ use Tests\TestCase;
 
 class AnydeskReminderSessionsCommandTest extends TestCase
 {
-    public function test_it_creates_a_reminder_growth_session_on_friday()
+    public function test_it_creates_a_reminder_growth_session_on_the_upcoming_friday()
     {
+        $this->setTestNow('last Tuesday');
         $this->assertEquals(0, GrowthSession::query()->count());
 
         $this->artisan('create:anydesk-reminder')->assertOk();
@@ -17,6 +18,8 @@ class AnydeskReminderSessionsCommandTest extends TestCase
         $this->assertEquals(1, GrowthSession::query()->count());
 
         $growthSession = GrowthSession::query()->first();
-        $this->assertEquals(Carbon::FRIDAY, Carbon::parse($growthSession->date)->weekday());
+
+        $expectedDate = Carbon::parse('next Friday');
+        $this->assertEquals($expectedDate, $growthSession->date);
     }
 }

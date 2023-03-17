@@ -6,6 +6,7 @@ use App\GrowthSession;
 use App\User;
 use App\UserType;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 
 class AnydeskReminderSessionsCommand extends Command
 {
@@ -18,10 +19,20 @@ class AnydeskReminderSessionsCommand extends Command
 
         $vehikl = User::query()->where('email', 'go@vehikl.com')->firstOrFail();
         $newGrowthSession = GrowthSession::query()->create([
-            'title' => 'foobar',
-            'topic' => 'foobar',
-            'location' => 'foobar',
-            'date' => today(),
+            'title' => 'Updating Workstations (but not AnyDesk)',
+            'topic' =>
+                "Friendly reminder to check if anything needs updating on your squad's Workstation before breaking out for the weekend.
+
+A few things to update:
+- Anydesk Password (If it's been more than a month since the last update)
+- Mac User Password (If it's been more than a month since the last update)
+- Docker
+- Chrome
+- PHPStorm
+- Brew
+",
+            'location' => 'N/A',
+            'date' => Carbon::parse('next Friday'),
             'start_time' => '4:30 pm',
             'end_time' => '5:00 pm',
             'attendee_limit' => 0,
