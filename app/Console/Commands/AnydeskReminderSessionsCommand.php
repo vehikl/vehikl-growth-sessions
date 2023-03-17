@@ -14,7 +14,8 @@ class AnydeskReminderSessionsCommand extends Command
 {
     protected $signature = 'create:anydesk-reminder';
 
-    protected $description = 'Creates reminder mobs for anydesks';
+    protected $description = 'Creates reminder mobs for anydesks. You can change the text of the reminder by updating anydeskReminder.json. (The file is optional)';
+
     protected $vehikl;
     protected $date;
 
