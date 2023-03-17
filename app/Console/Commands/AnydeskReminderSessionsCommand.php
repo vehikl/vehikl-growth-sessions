@@ -26,9 +26,11 @@ class AnydeskReminderSessionsCommand extends Command
         $doesReminderAlreadyExist = $vehikl->growthSessions()
             ->where('date', $date->format('Y-m-d'))
             ->exists();
+
         if ($doesReminderAlreadyExist) {
             return;
         }
+
         $newGrowthSession = GrowthSession::query()->create([
             'title' => 'Updating Workstations (but not AnyDesk)',
             'topic' =>
