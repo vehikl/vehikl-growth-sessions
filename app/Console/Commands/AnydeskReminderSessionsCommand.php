@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\GrowthSession;
 use App\User;
 use App\UserType;
+use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 
@@ -18,8 +19,12 @@ class AnydeskReminderSessionsCommand extends Command
     {
         $vehikl = User::query()->where('email', 'go@vehikl.com')->firstOrFail();
 
+        $date = today()->weekday() === CarbonInterface::FRIDAY
+            ? today()
+            : Carbon::parse('next Friday');
+
         $doesReminderAlreadyExist = $vehikl->growthSessions()
-            ->where('date', Carbon::parse('next Friday')->format('Y-m-d'))
+            ->where('date', $date->format('Y-m-d'))
             ->exists();
         if ($doesReminderAlreadyExist) {
             return;
@@ -38,7 +43,7 @@ A few things to update:
 - Brew
 ",
             'location' => 'N/A',
-            'date' => Carbon::parse('next Friday'),
+            'date' => $date,
             'start_time' => '4:30 pm',
             'end_time' => '5:00 pm',
             'attendee_limit' => 0,
