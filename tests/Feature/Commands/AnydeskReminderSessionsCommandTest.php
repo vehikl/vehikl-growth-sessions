@@ -17,15 +17,12 @@ class AnydeskReminderSessionsCommandTest extends TestCase
 
         $this->assertEquals(1, GrowthSession::query()->count());
 
-        $growthSession = GrowthSession::query()->first();
-
         $expectedDate = Carbon::parse('next Friday');
-        $this->assertEquals($expectedDate, $growthSession->date);
+        $this->assertEquals($expectedDate, GrowthSession::query()->first()->date);
     }
 
     public function test_it_does_not_duplicate_reminders()
     {
-        $this->setTestNow('last Tuesday');
         $this->artisan('create:anydesk-reminder')->assertOk();
         $this->artisan('create:anydesk-reminder')->assertOk();
 
@@ -39,9 +36,7 @@ class AnydeskReminderSessionsCommandTest extends TestCase
 
         $this->artisan('create:anydesk-reminder')->assertOk();
 
-        $growthSession = GrowthSession::query()->first();
-
         $expectedDate = today();
-        $this->assertEquals($expectedDate, $growthSession->date);
+        $this->assertEquals($expectedDate, GrowthSession::query()->first()->date);
     }
 }
