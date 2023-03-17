@@ -4,10 +4,18 @@ namespace Tests\Feature\Commands;
 
 use App\GrowthSession;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AnydeskReminderSessionsCommandTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Storage::fake();
+    }
+
     public function test_it_creates_a_reminder_growth_session_on_the_upcoming_friday()
     {
         $this->setTestNow('last Tuesday');
@@ -38,5 +46,16 @@ class AnydeskReminderSessionsCommandTest extends TestCase
 
         $expectedDate = today();
         $this->assertEquals($expectedDate, GrowthSession::query()->first()->date);
+    }
+
+    public function test_it_allows_the_usage_of_anydeskReminderJson_for_the_values()
+    {
+        $customAttributes = ["topic", "title", "location"];
+        $attributes = Arr::only(GrowthSession::factory()->raw(), $customAttributes);
+        Storage::put('anydeskReminder.json', json_encode($attributes));
+
+        $this->artisan('create:anydesk-reminder')->assertOk();
+
+        $this->assertEquals($attributes, GrowthSession::query()->first()->only($customAttributes));
     }
 }

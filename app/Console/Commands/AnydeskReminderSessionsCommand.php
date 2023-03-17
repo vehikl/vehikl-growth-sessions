@@ -8,30 +8,45 @@ use App\UserType;
 use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class AnydeskReminderSessionsCommand extends Command
 {
     protected $signature = 'create:anydesk-reminder';
 
     protected $description = 'Creates reminder mobs for anydesks';
+    protected $vehikl;
+    protected $date;
 
     public function handle()
     {
-        $vehikl = User::query()->where('email', 'go@vehikl.com')->firstOrFail();
-
-        $date = today()->weekday() === CarbonInterface::FRIDAY
+        $this->vehikl = User::query()->where('email', 'go@vehikl.com')->firstOrFail();
+        $this->date = today()->weekday() === CarbonInterface::FRIDAY
             ? today()
             : Carbon::parse('next Friday');
 
-        $doesReminderAlreadyExist = $vehikl->growthSessions()
-            ->where('date', $date->format('Y-m-d'))
+        $doesReminderAlreadyExist = $this->vehikl->growthSessions()
+            ->where('date', $this->date->format('Y-m-d'))
             ->exists();
 
         if ($doesReminderAlreadyExist) {
             return;
         }
 
-        $newGrowthSession = GrowthSession::query()->create([
+        $defaultAttributes = $this->getDefaultAttributes();
+        $overrides = [];
+        if (Storage::has('anydeskReminder.json')) {
+            $overrides = json_decode(Storage::get('anydeskReminder.json'), TRUE);
+        }
+        $newGrowthSession = GrowthSession::query()->create([...$defaultAttributes, ...$overrides]);
+
+        $this->vehikl->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::OWNER_ID]);
+        return Command::SUCCESS;
+    }
+
+    public function getDefaultAttributes(): array
+    {
+        return [
             'title' => 'Updating Workstations (but not AnyDesk)',
             'topic' =>
                 "Friendly reminder to check if anything needs updating on your squad's Workstation before breaking out for the weekend.
@@ -45,15 +60,12 @@ A few things to update:
 - Brew
 ",
             'location' => 'N/A',
-            'date' => $date,
+            'date' => $this->date,
             'start_time' => '4:30 pm',
             'end_time' => '5:00 pm',
             'attendee_limit' => 0,
             'is_public' => FALSE,
             'allow_watchers' => FALSE,
-        ]);
-
-        $vehikl->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::OWNER_ID]);
-        return Command::SUCCESS;
+        ];
     }
 }
