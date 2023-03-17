@@ -8,11 +8,6 @@ use Illuminate\Support\Str;
 
 class UserFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = User::class;
 
     public function vehiklMember(bool $vehiklMember = true)
@@ -22,11 +17,6 @@ class UserFactory extends Factory
         ]);
     }
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array
-     */
     public function definition()
     {
         return [
