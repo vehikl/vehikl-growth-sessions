@@ -18,30 +18,30 @@
                 {{ growthSession.title }}
             </h2>
             <div>
-                <button
-                    class="join-button w-32 bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                <v-button
+                    class="join-button"
+                    color="blue"
                     @click.stop="joinGrowthSession"
-                    v-show="growthSession.canJoin(userJson)">
-                    Join
-                </button>
-                <button
+                    v-show="growthSession.canJoin(userJson)"
+                    text="Join" />
+                <v-button
+                    class="watch-button"
+                    color="orange"
+                    @click.stop="watchGrowthSession"
                     v-show="growthSession.canWatch(userJson)"
-                    class="watch-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="watchGrowthSession">
-                    Spectate
-                </button>
-                <button
-                    class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
+                    text="Spectate" />
+                <v-button
+                    class="leave-button"
+                    color="red"
                     @click.stop="leaveGrowthSession"
-                    v-show="growthSession.canLeave(userJson)">
-                    Leave
-                </button>
-                <button
-                    class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+                    v-show="growthSession.canLeave(userJson)"
+                    text="Leave" />
+                <v-button
+                    class="update-button"
+                    color="orange"
                     @click.stop="$modal.show('growth-session-form')"
-                    v-if="growthSession.canEditOrDelete(userJson)">
-                    Edit
-                </button>
+                    v-if="growthSession.canEditOrDelete(userJson)"
+                    text="Edit" />
                 <button
                     class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
                     @click.stop="deleteGrowthSession"
@@ -144,8 +144,9 @@ import CommentList from "./CommentList.vue"
 import VAvatar from "./VAvatar.vue"
 import LocationRenderer from "./LocationRenderer.vue"
 import GrowthSessionForm from "./GrowthSessionForm.vue"
+import VButton from "./VButton.vue"
 
-@Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker, GrowthSessionForm}})
+@Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker, GrowthSessionForm, VButton}})
 export default class GrowthSessionView extends Vue {
     @Prop({required: false}) userJson!: IUser
     @Prop({required: true}) growthSessionJson!: IGrowthSession

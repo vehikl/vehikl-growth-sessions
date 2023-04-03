@@ -72,24 +72,24 @@
             {{ growthSession.anydesk.name }}
         </div>
 
-        <button
-            class="join-button bg-blue-500 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        <v-button
+            class="join-button"
+            color="blue"
             @click.prevent="joinGrowthSession"
-            v-show="growthSession.canJoin(user)">
-            Join Mob
-        </button>
-        <button
+            v-show="growthSession.canJoin(user)"
+            text="Join Mob" />
+        <v-button
+            class="watch-button"
+            color="orange"
+            @click.prevent="watchGrowthSession"
             v-show="growthSession.canWatch(user)"
-            class="watch-button bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-            @click.prevent="watchGrowthSession">
-            Spectate
-        </button>
-        <button
-            class="leave-button w-32 bg-red-500 hover:bg-red-700 focus:bg-red-700  text-white font-bold py-2 px-4 rounded"
+            text="Spectate" />
+        <v-button
+            class="leave-button"
+            color="red"
             @click.prevent="leaveGrowthSession"
-            v-show="growthSession.canLeave(user)">
-            Leave
-        </button>
+            v-show="growthSession.canLeave(user)"
+            text="Leave" />
     </a>
 </template>
 
@@ -99,11 +99,12 @@ import { GrowthSessionApi } from '../services/GrowthSessionApi';
 import { GrowthSession } from '../classes/GrowthSession';
 import { IUser } from '../types';
 import VAvatar from './VAvatar.vue';
+import VButton from './VButton.vue';
 import IconDraggable from '../svgs/IconDraggable.vue';
 import LocationRenderer from './LocationRenderer.vue';
 
 @Component({
-    components: {VAvatar, IconDraggable, LocationRenderer}
+    components: {VAvatar, IconDraggable, LocationRenderer, VButton}
 })
 export default class GrowthSessionCard extends Vue {
     @Prop({required: true}) growthSession!: GrowthSession;
