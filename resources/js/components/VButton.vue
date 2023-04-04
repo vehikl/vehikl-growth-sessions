@@ -1,6 +1,6 @@
 <template>
     <button
-        :class="`join-button w-32 bg-${color}-500 hover:bg-${color}-700 focus:bg-${color}-700 text-white font-bold py-2 px-4 mx-1 rounded`"
+        :class="`join-button w-32 ${colorClasses} text-white font-bold py-2 px-4 mx-1 rounded`"
         @click="$emit('click')"
     >
         {{ text }}
@@ -14,5 +14,14 @@
         @Prop({required: true}) text!: string;
         // @Prop({required: true}) onClick!: () => void;
         @Prop({required: false, default: 'blue'}) color: 'blue' | 'orange' | 'red';
+
+        get colorClasses() {
+            const mapping = {
+                blue: 'bg-blue-500 hover:bg-blue-700 focus:bg-blue-700',
+                orange: 'bg-orange-500 hover:bg-orange-700 focus:bg-orange-700',
+                red: 'bg-red-500 hover:bg-red-700 focus:bg-red-700',
+            };
+            return mapping[this.color];
+        }
     }
 </script>
