@@ -21,25 +21,25 @@
                 <v-button
                     class="join-button"
                     color="blue"
-                    @click.stop="joinGrowthSession"
+                    @click="joinGrowthSession"
                     v-show="growthSession.canJoin(userJson)"
                     text="Join" />
                 <v-button
                     class="watch-button"
                     color="orange"
-                    @click.stop="watchGrowthSession"
+                    @click="watchGrowthSession"
                     v-show="growthSession.canWatch(userJson)"
                     text="Spectate" />
                 <v-button
                     class="leave-button"
                     color="red"
-                    @click.stop="leaveGrowthSession"
+                    @click="leaveGrowthSession"
                     v-show="growthSession.canLeave(userJson)"
                     text="Leave" />
                 <v-button
                     class="update-button"
                     color="orange"
-                    @click.stop="$modal.show('growth-session-form')"
+                    @click="$modal.show('growth-session-form')"
                     v-if="growthSession.canEditOrDelete(userJson)"
                     text="Edit" />
                 <button

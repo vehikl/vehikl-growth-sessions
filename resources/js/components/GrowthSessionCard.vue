@@ -75,19 +75,19 @@
         <v-button
             class="join-button"
             color="blue"
-            @click.prevent="joinGrowthSession"
+            @click="joinGrowthSession"
             v-show="growthSession.canJoin(user)"
             text="Join Mob" />
         <v-button
             class="watch-button"
             color="orange"
-            @click.prevent="watchGrowthSession"
+            @click="watchGrowthSession"
             v-show="growthSession.canWatch(user)"
             text="Spectate" />
         <v-button
             class="leave-button"
             color="red"
-            @click.prevent="leaveGrowthSession"
+            @click="leaveGrowthSession"
             v-show="growthSession.canLeave(user)"
             text="Leave" />
     </a>

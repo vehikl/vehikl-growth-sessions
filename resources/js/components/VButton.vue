@@ -1,7 +1,7 @@
 <template>
     <button
         :class="`join-button w-32 ${colorClasses} text-white font-bold py-2 px-4 mx-1 rounded`"
-        @click="$emit('click')"
+        @click.stop="() => $emit('click')"
     >
         {{ text }}
     </button>
