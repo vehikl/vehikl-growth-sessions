@@ -21,7 +21,11 @@ To avoid the registration step, this application uses oauth.
 sh scripts/create.sh
 ```
 
-NOTE: The create script populates OAuth credentials through a secure vault. You can skip this through pressing ENTER when prompted.
+> **Note**
+> The create script populates OAuth credentials through a secure vault. You can skip this through pressing ENTER when prompted.
+
+> **Note**
+> The create script might fail to install `mutagen` if you don't have XCode command line tools. Run `xcode-select --install` to install them. 
 
 
 #### Run
