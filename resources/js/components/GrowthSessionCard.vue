@@ -72,24 +72,26 @@
             {{ growthSession.anydesk.name }}
         </div>
 
-        <v-button
-            class="join-button"
-            color="blue"
-            @click="joinGrowthSession"
-            v-show="growthSession.canJoin(user)"
-            text="Join Mob" />
-        <v-button
-            class="watch-button"
-            color="orange"
-            @click="watchGrowthSession"
-            v-show="growthSession.canWatch(user)"
-            text="Spectate" />
-        <v-button
-            class="leave-button"
-            color="red"
-            @click="leaveGrowthSession"
-            v-show="growthSession.canLeave(user)"
-            text="Leave" />
+        <div class="flex flex-row">
+            <v-button
+                class="join-button"
+                color="blue"
+                @click="joinGrowthSession"
+                text="Join Mob"
+                v-show="growthSession.canJoin(user)" />
+            <v-button
+                class="watch-button"
+                color="orange"
+                @click="watchGrowthSession"
+                text="Spectate"
+                v-show="growthSession.canWatch(user)" />
+            <v-button
+                class="leave-button"
+                color="red"
+                @click="leaveGrowthSession"
+                v-show="growthSession.canLeave(user)"
+                text="Leave" />
+        </div>
     </a>
 </template>
 
