@@ -12,7 +12,6 @@
     @Component({})
     export default class GrowthSessionView extends Vue {
         @Prop({required: true}) text!: string;
-        // @Prop({required: true}) onClick!: () => void;
         @Prop({required: false, default: 'blue'}) color: 'blue' | 'orange' | 'red';
 
         get colorClasses() {
