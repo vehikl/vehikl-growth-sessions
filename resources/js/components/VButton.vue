@@ -1,7 +1,7 @@
 <template>
     <button
         :class="`w-32 ${colorClasses} text-white font-bold py-2 px-4 mx-1 rounded`"
-        @click.stop="() => $emit('click')"
+        @click.prevent="() => $emit('click')"
     >
         {{ text }}
     </button>
