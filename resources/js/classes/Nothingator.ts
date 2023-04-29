@@ -5,6 +5,7 @@ export class Nothingator {
         'Nada',
         'Nichts',
         'Niente',
+        'Нічого',
         'Nothing at all'
     ];
 
