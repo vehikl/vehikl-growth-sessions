@@ -259,6 +259,14 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.find('.copy-button').element).not.toBeVisible();
     });
 
+    it('does not display the growth session topic if the date of the growth session is in the past', () => {
+        const oneDayAfterTheGrowthSession = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
+        DateTime.setTestNow(oneDayAfterTheGrowthSession);
+        wrapper = mount(GrowthSessionCard, {propsData: {growthSession: growthSessionData, user: attendee}});
+
+        expect(wrapper.findComponent({ref: "growth-session-topic"}).element).not.toBeVisible();
+    });
+
     it('Emits a copy-requested event when the copy button is clicked', () => {
         wrapper.find('.copy-button').trigger('click');
 

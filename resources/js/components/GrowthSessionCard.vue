@@ -44,7 +44,8 @@
         <pre
             class="mb-4 inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
             ref="growth-session-topic"
-            v-text="growthSession.topic"/>
+            v-text="growthSession.topic"
+            v-show="!growthSession.hasAlreadyHappened"/>
         <div class="flex items-center flex-1 mb-4 text-blue-700">
             <p class="mr-3">Host:</p>
             <p class="mr-6 text-md" v-text="growthSession.owner.name"/>
