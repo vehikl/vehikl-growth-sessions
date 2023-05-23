@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
@@ -24,6 +26,10 @@ class LoginController extends Controller
 
     public function redirectToProvider($driver)
     {
+        if (App::environment('local') && empty(config('services.github.client_id'))) {
+            Auth::login(User::where('email', 'go@vehikl.com')->first());
+            return redirect()->back();
+        }
         return Socialite::driver($driver)->redirect();
     }
 
