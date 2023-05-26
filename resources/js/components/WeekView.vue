@@ -26,7 +26,7 @@
 
 
         <div class="flex flex-col md:flex-row justify-center flex-wrap">
-            <v-modal :state="formModalState">
+            <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
                 <div class="flex flex-wrap flex-row-reverse w-full h-full overflow-y-scroll">
                     <button class="p-4 pb-0" @click="formModalState = 'closed';">
                         <i aria-hidden="true" class="fa fa-times text-xl"></i>

@@ -1,7 +1,7 @@
 <template>
     <div class="max-w-5xl text-blue-600">
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
-            <v-modal :state="formModalState">
+            <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
                 <div class="flex w-full h-full overflow-y-scroll">
                     <growth-session-form v-if="formModalState === 'open'"
                                          :growth-session="growthSession"

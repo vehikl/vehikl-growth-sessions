@@ -6,7 +6,7 @@ const props = withDefaults(defineProps<{
 }>(), {state: "closed"})
 
 const dialog = ref()
-
+const emit = defineEmits(["modal-closed"])
 function refreshModalVisibility() {
     if (props.state === "open") {
         dialog.value.showModal()
@@ -20,8 +20,15 @@ watch(() => props.state, () => {
 })
 
 onMounted(() => {
+    dialog.value.addEventListener("close", () => {
+        emit("modal-closed")
+    })
     refreshModalVisibility()
 })
+onMounted(() => {
+
+})
+
 
 </script>
 
