@@ -1,17 +1,16 @@
-import {createLocalVue, mount, Wrapper} from '@vue/test-utils';
-import WeekView from './WeekView.vue';
-import flushPromises from 'flush-promises';
-import growthSessionsThisWeekJson from '../../../tests/fixtures/WeekGrowthSessions.json';
-import {IUser} from '../types';
-import VModal from 'vue-js-modal';
-import {GrowthSessionApi} from '../services/GrowthSessionApi';
-import {DateTime} from '../classes/DateTime';
-import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
-import {GrowthSession} from '../classes/GrowthSession';
-import {Nothingator} from '../classes/Nothingator';
-import {DiscordChannelApi} from "../services/DiscordChannelApi";
-import GrowthSessionCard from "./GrowthSessionCard.vue";
-import {AnydesksApi} from "../services/AnydesksApi";
+import {mount, Wrapper} from "@vue/test-utils"
+import WeekView from "./WeekView.vue"
+import flushPromises from "flush-promises"
+import growthSessionsThisWeekJson from "../../../tests/fixtures/WeekGrowthSessions.json"
+import {IUser} from "../types"
+import {GrowthSessionApi} from "../services/GrowthSessionApi"
+import {DateTime} from "../classes/DateTime"
+import {WeekGrowthSessions} from "../classes/WeekGrowthSessions"
+import {GrowthSession} from "../classes/GrowthSession"
+import {Nothingator} from "../classes/Nothingator"
+import {DiscordChannelApi} from "../services/DiscordChannelApi"
+import GrowthSessionCard from "./GrowthSessionCard.vue"
+import {AnydesksApi} from "../services/AnydesksApi"
 
 const authVehiklUser: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -29,8 +28,6 @@ const authNonVehiklUser: IUser = {
     is_vehikl_member: false
 };
 
-const localVue = createLocalVue();
-localVue.use(VModal);
 let growthSessionsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
 
 const metadataForGrowthSessionsFixture = {
@@ -51,9 +48,9 @@ describe('WeekView', () => {
         GrowthSessionApi.leave = jest.fn().mockImplementation(growthSession => growthSession);
         GrowthSessionApi.delete = jest.fn().mockImplementation(growthSession => growthSession);
         DiscordChannelApi.index = jest.fn();
-        AnydesksApi.getAllAnyDesks = jest.fn();
-        wrapper = mount(WeekView, {localVue});
-        await flushPromises();
+        AnydesksApi.getAllAnyDesks = jest.fn()
+        wrapper = mount(WeekView)
+        await flushPromises()
     });
 
     afterEach(() => {
@@ -89,9 +86,9 @@ describe('WeekView', () => {
 
     it('if no growth sessions are available on that day, display a variation of nothing in different languages', async () => {
         const wordForNothing = 'A random nothing';
-        Nothingator.random = jest.fn().mockReturnValue(wordForNothing);
-        wrapper = mount(WeekView, {localVue});
-        await flushPromises();
+        Nothingator.random = jest.fn().mockReturnValue(wordForNothing)
+        wrapper = mount(WeekView)
+        await flushPromises()
 
         expect(wrapper.find(`[weekDay=${metadataForGrowthSessionsFixture.dayWithNoGrowthSessions.weekday}`).text())
             .toContain(wordForNothing);
@@ -104,8 +101,8 @@ describe('WeekView', () => {
 
     describe('for an authenticated non-vehikl user', () => {
         beforeEach(async () => {
-            wrapper = mount(WeekView, {localVue, propsData: {user: authNonVehiklUser}});
-            await flushPromises();
+            wrapper = mount(WeekView, {propsData: {user: authNonVehiklUser}})
+            await flushPromises()
         });
 
         it('does not display the growth session creation buttons for authed non-vehikl users', async () => {
@@ -120,8 +117,8 @@ describe('WeekView', () => {
 
     describe('for an authenticated vehikl user', () => {
         beforeEach(async () => {
-            wrapper = mount(WeekView, {localVue, propsData: {user: authVehiklUser}});
-            await flushPromises();
+            wrapper = mount(WeekView, {propsData: {user: authVehiklUser}})
+            await flushPromises()
         });
 
         it('renders for authenticated vehikl users', async () => {
@@ -264,9 +261,9 @@ describe('WeekView', () => {
         });
 
         it('displays the growth sessions of the week of the date provided in the query string if it exists', () => {
-            window.history.pushState({}, 'sometitle', `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`)
-            wrapper = mount(WeekView, {localVue});
-            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
+            window.history.pushState({}, "sometitle", `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`)
+            wrapper = mount(WeekView)
+            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date)
         });
 
         it('updates the query string for the date whenever the user navigates the weeks', async () => {
@@ -278,9 +275,9 @@ describe('WeekView', () => {
         });
 
         it('properly display the growth sessions of the day from the query string when the user navigates back in history', async () => {
-            window.history.pushState({}, 'sometitle', `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`)
-            wrapper = mount(WeekView, {localVue});
-            await flushPromises();
+            window.history.pushState({}, "sometitle", `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`)
+            wrapper = mount(WeekView)
+            await flushPromises()
             GrowthSessionApi.getAllGrowthSessionsOfTheWeek = jest.fn();
 
             window.history.back = () => {
@@ -299,14 +296,14 @@ describe('WeekView', () => {
     describe('Scroll to today', () => {
         it('will show the scroll to today button', async () => {
             DateTime.setTestNow(todayDate)
-            wrapper = mount(WeekView, {localVue});
-            await flushPromises();
+            wrapper = mount(WeekView)
+            await flushPromises()
             expect(wrapper.findComponent({ref: 'scroll-to-today'}).exists()).toBeTruthy()
         })
         it('will hide the scroll to today button when today is not available', async () => {
             DateTime.setTestNow(metadataForGrowthSessionsFixture.nextWeek.date)
-            wrapper = mount(WeekView, {localVue});
-            await flushPromises();
+            wrapper = mount(WeekView)
+            await flushPromises()
             expect(wrapper.findComponent({ref: 'scroll-to-today'}).exists()).toBeFalsy()
         })
 
@@ -316,7 +313,6 @@ describe('WeekView', () => {
             DateTime.setTestNow(todayDate)
             const today = DateTime.today()
             wrapper = mount(WeekView, {
-                localVue,
                 attachTo: document.body
             });
             await flushPromises();

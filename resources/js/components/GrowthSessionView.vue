@@ -1,15 +1,16 @@
 <template>
     <div class="max-w-5xl text-blue-600">
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
-            <modal :dynamic="true" :height="600" :width="500" name="growth-session-form">
+            <v-modal :state="formModalState">
                 <div class="flex w-full h-full overflow-y-scroll">
-                    <growth-session-form :growth-session="growthSession"
+                    <growth-session-form v-if="formModalState === 'open'"
+                                         :growth-session="growthSession"
                                          :owner="growthSession.owner"
                                          :start-date="growthSession.date"
                                          class="growth-session-form"
                                          @submitted="onGrowthSessionUpdated"/>
                 </div>
-            </modal>
+            </v-modal>
             <h2 class="text-2xl lg:text-3xl font-sans font-light flex items-center text-blue-700">
                 <a :href="growthSession.owner.githubURL" ref="owner-avatar-link">
                     <v-avatar class="mr-4" :src="growthSession.owner.avatar"
@@ -23,25 +24,25 @@
                     color="blue"
                     @click="joinGrowthSession"
                     v-show="growthSession.canJoin(userJson)"
-                    text="Join" />
+                    text="Join"/>
                 <v-button
                     class="watch-button"
                     color="orange"
                     @click="watchGrowthSession"
                     v-show="growthSession.canWatch(userJson)"
-                    text="Spectate" />
+                    text="Spectate"/>
                 <v-button
                     class="leave-button"
                     color="red"
                     @click="leaveGrowthSession"
                     v-show="growthSession.canLeave(userJson)"
-                    text="Leave" />
+                    text="Leave"/>
                 <v-button
                     class="update-button"
                     color="orange"
-                    @click="$modal.show('growth-session-form')"
+                    text="Edit"
                     v-if="growthSession.canEditOrDelete(userJson)"
-                    text="Edit" />
+                    @click="formModalState = 'open'"/>
                 <button
                     class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
                     @click.stop="deleteGrowthSession"
@@ -116,7 +117,8 @@
                 </ul>
 
 
-                <h3 v-if="growthSession.watchers.length" class="text-2xl font-sans font-light mb-3 text-blue-700">Watchers</h3>
+                <h3 v-if="growthSession.watchers.length" class="text-2xl font-sans font-light mb-3 text-blue-700">
+                    Watchers</h3>
                 <ul>
                     <li v-for="watcher in growthSession.watchers">
                         <a ref="attendee" :href="watcher.githubURL" class="flex items-center ml-6 my-4">
@@ -145,32 +147,39 @@ import VAvatar from "./VAvatar.vue"
 import LocationRenderer from "./LocationRenderer.vue"
 import GrowthSessionForm from "./GrowthSessionForm.vue"
 import VButton from "./VButton.vue"
+import VModal from "./VModal.vue"
 
-@Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker, GrowthSessionForm, VButton}})
+@Component({
+    components: {
+        VModal,
+        LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker, GrowthSessionForm, VButton
+    }
+})
 export default class GrowthSessionView extends Vue {
     @Prop({required: false}) userJson!: IUser
     @Prop({required: true}) growthSessionJson!: IGrowthSession
     @Prop({required: false}) discordGuildId!: string
     growthSession: GrowthSession
+    formModalState: "open" | "closed" = "closed"
 
     get date(): string {
-        return `${DateTime.parseByDate(this.growthSession.date).format('MMM-DD')}`
+        return `${DateTime.parseByDate(this.growthSession.date).format("MMM-DD")}`
     }
 
     get time(): string {
-        return `${this.growthSession.startTime} - ${this.growthSession.endTime}`;
+        return `${this.growthSession.startTime} - ${this.growthSession.endTime}`
     }
 
     get mobtimeUrl(): string {
-        return `https://mobtime.vehikl.com/vgs-${this.growthSessionJson.id}`;
-    }
-
-    async created() {
-        this.growthSession = new GrowthSession(this.growthSessionJson);
+        return `https://mobtime.vehikl.com/vgs-${this.growthSessionJson.id}`
     }
 
     get discordChannelUrl(): string {
-        return `discord://discordapp.com/channels/${this.discordGuildId}/${this.growthSession.discord_channel_id}`;
+        return `discord://discordapp.com/channels/${this.discordGuildId}/${this.growthSession.discord_channel_id}`
+    }
+
+    async created() {
+        this.growthSession = new GrowthSession(this.growthSessionJson)
     }
 
     async deleteGrowthSession() {
@@ -182,7 +191,7 @@ export default class GrowthSessionView extends Vue {
 
     async onGrowthSessionUpdated(growthSession: GrowthSession) {
         this.growthSession.refresh(growthSession)
-        this.$modal.hide("growth-session-form")
+        this.formModalState = "closed"
     }
 
     async joinGrowthSession() {
