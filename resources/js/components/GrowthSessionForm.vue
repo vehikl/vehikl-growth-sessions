@@ -7,7 +7,7 @@
                 </label>
                 <div :class="{'error-outline': getError('date')}"
                      class="border p-1 border-gray-400 flex justify-center">
-                    <date-picker id="date" tabIndex="1" v-model="date"/>
+                    <input id="date" v-model="date" type="date">
                 </div>
             </div>
 
@@ -142,16 +142,14 @@
 <script lang="ts">
 import {Component, Prop, Vue, Watch} from "vue-property-decorator"
 import {IGrowthSession, IStoreGrowthSessionRequest, IUser, IValidationError} from "../types"
-import VueTimepicker from "vue2-timepicker"
 import {GrowthSessionApi} from "../services/GrowthSessionApi"
 import {DateTime} from "../classes/DateTime"
-import DatePicker from "./DatePicker.vue"
 import {DiscordChannelApi} from "../services/DiscordChannelApi"
 import {IDropdownOption} from "../types/IDropdownOption"
 import {AnydesksApi} from "../services/AnydesksApi"
 import TimePicker from "./TimePicker.vue"
 
-@Component({components: {TimePicker, DatePicker, VueTimepicker}})
+@Component({components: {TimePicker}})
 export default class GrowthSessionForm extends Vue {
     @Prop({required: true}) owner!: IUser;
     @Prop({required: false, default: null}) growthSession!: IGrowthSession;
@@ -172,8 +170,8 @@ export default class GrowthSessionForm extends Vue {
     discordChannels: Array<Object> = [];
     anyDesk: { label: string | undefined; value: number | undefined } | null = null;
     anyDesks: Array<Object> = [];
-    anydesksToggle: boolean = !!this.growthSession?.anydesk;
-
+    anydesksToggle: boolean = !!this.growthSession?.anydesk
+    foobar: string = ""
     mounted() {
         this.date = this.startDate;
         let input = document.getElementById('title');

@@ -50,7 +50,7 @@
                         </label>
                         <div :class="{'error-outline': getError('date')}"
                              class="border p-1 border-gray-400 justify-center">
-                            <date-picker id="date" v-model="growthSession.date"/>
+                            <input id="date" v-model="growthSession.date" type="date">
                         </div>
 
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="start_time">
@@ -93,16 +93,14 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import {IGrowthSession, IUser, IValidationError} from '../types';
-import {DateTime} from '../classes/DateTime';
-import {GrowthSession} from '../classes/GrowthSession';
-import VueTimepicker from 'vue2-timepicker';
-import {GrowthSessionApi} from '../services/GrowthSessionApi';
-import VAvatar from './VAvatar.vue';
-import DatePicker from './DatePicker.vue';
+import {Component, Prop, Vue} from "vue-property-decorator"
+import {IGrowthSession, IUser, IValidationError} from "../types"
+import {DateTime} from "../classes/DateTime"
+import {GrowthSession} from "../classes/GrowthSession"
+import {GrowthSessionApi} from "../services/GrowthSessionApi"
+import VAvatar from "./VAvatar.vue"
 
-@Component({components: {DatePicker, VAvatar, VueTimepicker}})
+@Component({components: {VAvatar}})
 export default class GrowthSessionEdit extends Vue {
     @Prop({required: false}) user!: IUser;
     @Prop({required: true}) growthSessionJson!: IGrowthSession;

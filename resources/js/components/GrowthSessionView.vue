@@ -140,8 +140,6 @@ import {Component, Prop, Vue} from "vue-property-decorator"
 import {IGrowthSession, IUser} from "../types"
 import {DateTime} from "../classes/DateTime"
 import {GrowthSession} from "../classes/GrowthSession"
-import VueTimepicker from "vue2-timepicker"
-import Datepicker from "vuejs-datepicker"
 import CommentList from "./CommentList.vue"
 import VAvatar from "./VAvatar.vue"
 import LocationRenderer from "./LocationRenderer.vue"
@@ -152,7 +150,7 @@ import VModal from "./VModal.vue"
 @Component({
     components: {
         VModal,
-        LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker, GrowthSessionForm, VButton
+        LocationRenderer, VAvatar, CommentList, GrowthSessionForm, VButton
     }
 })
 export default class GrowthSessionView extends Vue {

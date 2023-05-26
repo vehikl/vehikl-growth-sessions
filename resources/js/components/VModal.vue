@@ -33,7 +33,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <dialog ref="dialog">
+    <dialog ref="dialog" class="w-full max-w-xl">
         <slot></slot>
     </dialog>
 </template>
