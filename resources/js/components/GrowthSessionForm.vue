@@ -28,29 +28,13 @@
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="start_time">
                     Start
                 </label>
-                <vue-timepicker :class="{'error-outline': getError('start_time')}"
-                                :minute-interval="15"
-                                advanced-keyboard
-                                auto-scroll
-                                format="hh:mm a"
-                                hide-disabled-items
-                                id="start_time"
-                                tabindex="2"
-                                v-model="startTime"/>
+                <time-picker v-model="startTime" :class="{'error-outline': getError('start_time')}"/>
             </div>
             <div class="ml-12">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="end_time">
                     End
                 </label>
-                <vue-timepicker :class="{'error-outline': getError('end_time')}"
-                                :minute-interval="15"
-                                advanced-keyboard
-                                auto-scroll
-                                format="hh:mm a"
-                                hide-disabled-items
-                                id="end_time"
-                                tabindex="3"
-                                v-model="endTime"/>
+                <time-picker v-model="endTime" :class="{'error-outline': getError('start_time')}"/>
             </div>
         </div>
 
@@ -156,17 +140,18 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
-import {IGrowthSession, IStoreGrowthSessionRequest, IUser, IValidationError} from '../types';
-import VueTimepicker from 'vue2-timepicker'
-import {GrowthSessionApi} from '../services/GrowthSessionApi';
-import {DateTime} from '../classes/DateTime';
-import DatePicker from './DatePicker.vue';
-import {DiscordChannelApi} from "../services/DiscordChannelApi";
-import {IDropdownOption} from "../types/IDropdownOption";
-import {AnydesksApi} from "../services/AnydesksApi";
+import {Component, Prop, Vue, Watch} from "vue-property-decorator"
+import {IGrowthSession, IStoreGrowthSessionRequest, IUser, IValidationError} from "../types"
+import VueTimepicker from "vue2-timepicker"
+import {GrowthSessionApi} from "../services/GrowthSessionApi"
+import {DateTime} from "../classes/DateTime"
+import DatePicker from "./DatePicker.vue"
+import {DiscordChannelApi} from "../services/DiscordChannelApi"
+import {IDropdownOption} from "../types/IDropdownOption"
+import {AnydesksApi} from "../services/AnydesksApi"
+import TimePicker from "./TimePicker.vue"
 
-@Component({components: {DatePicker, VueTimepicker}})
+@Component({components: {TimePicker, DatePicker, VueTimepicker}})
 export default class GrowthSessionForm extends Vue {
     @Prop({required: true}) owner!: IUser;
     @Prop({required: false, default: null}) growthSession!: IGrowthSession;

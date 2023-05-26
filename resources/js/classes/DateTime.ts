@@ -1,4 +1,4 @@
-import moment, {Moment} from 'moment';
+import moment, {Moment} from "moment"
 
 export class DateTime {
     private dateTime: string;
@@ -30,23 +30,27 @@ export class DateTime {
     }
 
     format(formatString: string): string {
-        return moment(this.dateTime, 'YYYY-MM-DD').format(formatString);
+        return moment(this.dateTime, "YYYY-MM-DD").format(formatString)
     }
 
     toDateString(): string {
-        return this.format('YYYY-MM-DD');
+        return this.format("YYYY-MM-DD")
     }
 
     toTimeString12Hours(withAmPm: boolean = true): string {
-        return moment(this.dateTime).format(`hh:mm ${withAmPm ? 'a' : ''}`);
+        return moment(this.dateTime).format(`hh:mm ${withAmPm ? "a" : ""}`)
+    }
+
+    toTimeString24Hours(): string {
+        return moment(this.dateTime).format(`HH:mm`)
     }
 
     toGoogleCalendarStyle(): string {
-        return this.toISOString().replace(/[\-:]/g, '').replace('.000', '');
+        return this.toISOString().replace(/[\-:]/g, "").replace(".000", "")
     }
 
     toISOString(): string {
-        return moment(this.dateTime).toISOString();
+        return moment(this.dateTime).toISOString()
     }
 
     weekDayNumber(): number {
