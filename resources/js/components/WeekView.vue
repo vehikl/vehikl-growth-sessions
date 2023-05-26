@@ -26,18 +26,19 @@
 
 
         <div class="flex flex-col md:flex-row justify-center flex-wrap">
-            <modal :clickToClose="false" :dynamic="true" :height="650" :width="500" name="growth-session-form">
-               <div class="flex flex-wrap flex-row-reverse w-full h-full overflow-y-scroll">
-                   <button class="p-4 pb-0" @click="$modal.hide('growth-session-form')">
-                       <i class="fa fa-times text-xl" aria-hidden="true"></i>
-                   </button>
-                   <growth-session-form :growth-session="growthSessionToUpdate"
-                                        :owner="user"
-                                        :start-date="newGrowthSessionDate"
-                                        class="growth-session-form"
-                                        @submitted="onFormSubmitted"/>
-               </div>
-            </modal>
+            <v-modal :state="formModalState">
+                <div class="flex flex-wrap flex-row-reverse w-full h-full overflow-y-scroll">
+                    <button class="p-4 pb-0" @click="formModalState = 'closed';">
+                        <i aria-hidden="true" class="fa fa-times text-xl"></i>
+                    </button>
+                    <growth-session-form v-if="formModalState === 'open'"
+                                         :growth-session="growthSessionToUpdate"
+                                         :owner="user"
+                                         :start-date="newGrowthSessionDate"
+                                         class="growth-session-form"
+                                         @submitted="onFormSubmitted"/>
+                </div>
+            </v-modal>
             <div v-for="date in growthSessions.weekDates"
                  :key="date.toDateString()"
                  :class="{
@@ -98,17 +99,18 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import {IUser} from '../types';
-import GrowthSessionCard from './GrowthSessionCard.vue';
-import GrowthSessionForm from './GrowthSessionForm.vue';
-import {GrowthSessionApi} from '../services/GrowthSessionApi';
-import {DateTime} from '../classes/DateTime';
-import Draggable from 'vuedraggable';
-import {GrowthSession} from '../classes/GrowthSession';
-import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
-import {Nothingator} from '../classes/Nothingator';
-import VisibilityRadioFieldset from "./VisibilityRadioFieldset.vue";
+import {Component, Prop, Vue} from "vue-property-decorator"
+import {IUser} from "../types"
+import GrowthSessionCard from "./GrowthSessionCard.vue"
+import GrowthSessionForm from "./GrowthSessionForm.vue"
+import {GrowthSessionApi} from "../services/GrowthSessionApi"
+import {DateTime} from "../classes/DateTime"
+import Draggable from "vuedraggable"
+import {GrowthSession} from "../classes/GrowthSession"
+import {WeekGrowthSessions} from "../classes/WeekGrowthSessions"
+import {Nothingator} from "../classes/Nothingator"
+import VisibilityRadioFieldset from "./VisibilityRadioFieldset.vue"
+import VModal from "./VModal.vue"
 
 interface IGrowthSessionCardDragChange {
     added?: { element: GrowthSession, index: number }
@@ -116,7 +118,7 @@ interface IGrowthSessionCardDragChange {
 }
 
 @Component({
-    components: {VisibilityRadioFieldset, GrowthSessionForm, GrowthSessionCard, Draggable}
+    components: {VModal, VisibilityRadioFieldset, GrowthSessionForm, GrowthSessionCard, Draggable}
 })
 export default class WeekView extends Vue {
     @Prop({required: false, default: null}) user!: IUser;
@@ -127,7 +129,8 @@ export default class WeekView extends Vue {
     DateTime = DateTime;
     Nothingator = Nothingator;
     draggedGrowthSession!: GrowthSession;
-    visibilityFilter: string = 'all';
+    visibilityFilter: string = "all"
+    formModalState: "open" | "closed" = "closed"
 
     async created() {
         await this.refreshGrowthSessionsOfTheWeek()
@@ -187,27 +190,27 @@ export default class WeekView extends Vue {
     }
 
     async onFormSubmitted() {
-        await this.getAllGrowthSessionsOfTheWeek();
-        this.$modal.hide('growth-session-form');
+        await this.getAllGrowthSessionsOfTheWeek()
+        this.formModalState = "closed"
     }
 
     onCreateNewGrowthSessionClicked(startDate: DateTime) {
         this.growthSessionToUpdate = null;
-        this.newGrowthSessionDate = startDate.toISOString();
-        this.$modal.show('growth-session-form');
+        this.newGrowthSessionDate = startDate.toISOString()
+        this.formModalState = "open"
     }
 
     onGrowthSessionEditRequested(growthSession: GrowthSession) {
         this.growthSessionToUpdate = growthSession;
-        this.newGrowthSessionDate = '';
-        this.$modal.show('growth-session-form');
+        this.newGrowthSessionDate = ""
+        this.formModalState = "open"
     }
 
     onGrowthSessionCopyRequested(growthSession: GrowthSession) {
         growthSession.id = 0;
         this.growthSessionToUpdate = growthSession;
-        this.newGrowthSessionDate = '';
-        this.$modal.show('growth-session-form');
+        this.newGrowthSessionDate = ""
+        this.formModalState = "open"
     }
 
     async changeReferenceDate(deltaDays: number) {
