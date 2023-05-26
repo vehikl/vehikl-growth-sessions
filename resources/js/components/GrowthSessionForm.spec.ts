@@ -1,13 +1,14 @@
-import { createLocalVue, mount, Wrapper } from '@vue/test-utils';
-import GrowthSessionForm from './GrowthSessionForm.vue';
-import { IAnyDesk, IStoreGrowthSessionRequest, IUser } from '../types';
-import flushPromises from 'flush-promises';
-import { GrowthSessionApi } from '../services/GrowthSessionApi';
-import vSelect from 'vue-select';
-import { IDiscordChannel } from "../types/IDiscordChannel";
-import { DiscordChannelApi } from "../services/DiscordChannelApi";
-import growthSessionWithCommentsJson from '../../../tests/fixtures/GrowthSessionWithComments.json';
-import { AnydesksApi } from "../services/AnydesksApi";
+import {createLocalVue, mount, Wrapper} from "@vue/test-utils"
+import GrowthSessionForm from "./GrowthSessionForm.vue"
+import {IAnyDesk, IStoreGrowthSessionRequest, IUser} from "../types"
+import flushPromises from "flush-promises"
+import {GrowthSessionApi} from "../services/GrowthSessionApi"
+import vSelect from "vue-select"
+import {IDiscordChannel} from "../types/IDiscordChannel"
+import {DiscordChannelApi} from "../services/DiscordChannelApi"
+import growthSessionWithCommentsJson from "../../../tests/fixtures/GrowthSessionWithComments.json"
+import {AnydesksApi} from "../services/AnydesksApi"
+import {DateTime} from "../classes/DateTime"
 
 const localVue = createLocalVue();
 localVue.component('v-select', vSelect)
@@ -56,11 +57,11 @@ describe('GrowthSessionForm', () => {
     });
 
     const baseGrowthSessionRequest: IStoreGrowthSessionRequest = {
-        location: 'The growth session location',
-        topic: 'Chosen topic',
-        title: 'Chosen title',
-        date: '2020-10-01',
-        start_time: '4:45 pm',
+        location: "The growth session location",
+        topic: "Chosen topic",
+        title: "Chosen title",
+        date: "2020-10-01",
+        start_time: "04:45 pm",
         discord_channel_id: undefined,
         anydesk_id: undefined,
         allow_watchers: true
@@ -135,8 +136,8 @@ describe('GrowthSessionForm', () => {
 
                 window.confirm = jest.fn();
 
-                wrapper.vm.$data.startTime = chosenStartTime;
-                wrapper.find('#title').setValue(chosenTitle);
+                wrapper.find("#start-time").setValue(DateTime.parseByTime(chosenStartTime).toTimeString24Hours())
+                wrapper.find("#title").setValue(chosenTitle)
                 wrapper.find('#topic').setValue(chosenTopic);
                 wrapper.find('#location').setValue(chosenLocation);
 
@@ -194,8 +195,8 @@ describe('GrowthSessionForm', () => {
         });
 
         it('emits submitted event on success', async () => {
-            wrapper.vm.$data.startTime = '3:30 pm';
-            wrapper.find('#title').setValue('Something');
+            wrapper.find("#start-time").setValue("09:30")
+            wrapper.find("#title").setValue("Something")
             wrapper.find('#topic').setValue('Anything');
             wrapper.find('#location').setValue('Anywhere');
             await wrapper.vm.$nextTick();
@@ -209,8 +210,8 @@ describe('GrowthSessionForm', () => {
         });
 
         it('enables the submit button when all required fields are filled', async () => {
-            wrapper.vm.$data.startTime = '3:30 pm';
-            wrapper.find('#title').setValue('Something');
+            wrapper.find("#start-time").setValue("09:30")
+            wrapper.find("#title").setValue("Something")
             wrapper.find('#topic').setValue('Anything');
             wrapper.find('#location').setValue('Anywhere');
             await wrapper.vm.$nextTick();
@@ -320,9 +321,9 @@ describe('GrowthSessionForm', () => {
 
             wrapper.find('#title').setValue(growthSessionInformation.title);
             wrapper.find('#topic').setValue(growthSessionInformation.topic);
-            wrapper.find('#location').setValue(growthSessionInformation.location);
-            wrapper.vm.$data.startTime = growthSessionInformation.start_time;
-            wrapper.findComponent({ref: 'is-public'}).setChecked(true)
+            wrapper.find("#location").setValue(growthSessionInformation.location)
+            wrapper.find("#start-time").setValue(DateTime.parseByTime(growthSessionInformation.start_time).toTimeString12Hours())
+            wrapper.findComponent({ref: "is-public"}).setChecked(true)
 
             await wrapper.vm.$nextTick();
 

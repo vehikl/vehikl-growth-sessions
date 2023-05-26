@@ -28,13 +28,13 @@
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="start_time">
                     Start
                 </label>
-                <time-picker v-model="startTime" :class="{'error-outline': getError('start_time')}"/>
+                <time-picker id="start-time" v-model="startTime" :class="{'error-outline': getError('start_time')}"/>
             </div>
             <div class="ml-12">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="end_time">
                     End
                 </label>
-                <time-picker v-model="endTime" :class="{'error-outline': getError('start_time')}"/>
+                <time-picker id="end-time" v-model="endTime" :class="{'error-outline': getError('start_time')}"/>
             </div>
         </div>
 
