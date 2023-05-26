@@ -9,6 +9,7 @@
                         class="load-previous-week mx-4 mb-2"
                         @click="changeReferenceDate(-7)">
                     <i aria-hidden="true" class="fa fa-chevron-left"></i>
+                    <-
                 </button>
                 <h2 v-if="growthSessions.weekDates.length > 0" class="text-center mb-2 w-72">
                     Week of
@@ -20,6 +21,7 @@
                         class="load-next-week mx-4 mb-2"
                         @click="changeReferenceDate(+7)">
                     <i aria-hidden="true" class="fa fa-chevron-right"></i>
+                    ->
                 </button>
             </div>
         </div>
@@ -86,6 +88,7 @@
                         class="create-growth-session text-5xl h-20 w-20 text-blue-600 hover:text-blue-700 focus:text-blue-700 font-bold my-3"
                         @click="onCreateNewGrowthSessionClicked(date)">
                         <i aria-hidden="true" class="fa fa-plus-circle"></i>
+                        +
                     </button>
                 </draggable>
             </div>
