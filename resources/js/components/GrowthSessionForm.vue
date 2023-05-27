@@ -16,7 +16,6 @@
                 :disabled="! isReadyToSubmit"
                 @click="onSubmit"
                 class="mt-6 w-48 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                tabindex="6"
                 type="submit"
                 ref="submit-button"
                 v-text="isCreating? 'Create' : 'Update'">
@@ -47,7 +46,6 @@
                    id="title"
                    maxlength="45"
                    placeholder="In a short sentence, what is this growth session about?"
-                   tabindex="4"
                    type="text"
                    v-model="title"/>
         </div>
@@ -73,7 +71,6 @@
                     class="w-24 text-center shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     min="4"
                     placeholder="Limit of participants"
-                    tabindex="4"
                     type="number"/>
             </div>
         </div>
@@ -109,7 +106,6 @@
                       id="topic"
                       placeholder="Do you want to provide more details about this growth session?"
                       rows="4"
-                      tabindex="5"
                       v-model="topic"/>
         </div>
 
@@ -133,7 +129,6 @@
                       id="location"
                       placeholder="Where should people go to participate?"
                       rows="2"
-                      tabindex="6"
                       v-model="location"/>
         </div>
     </form>
@@ -171,13 +166,9 @@ export default class GrowthSessionForm extends Vue {
     anyDesk: { label: string | undefined; value: number | undefined } | null = null;
     anyDesks: Array<Object> = [];
     anydesksToggle: boolean = !!this.growthSession?.anydesk
-    foobar: string = ""
+
     mounted() {
         this.date = this.startDate;
-        let input = document.getElementById('title');
-        if (input) {
-            input.focus();
-        }
 
         this.getDiscordChannels();
 
