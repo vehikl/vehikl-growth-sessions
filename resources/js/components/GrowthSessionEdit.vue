@@ -1,9 +1,66 @@
+<script lang="ts" setup>
+import {IGrowthSession, IUser, IValidationError} from "../types"
+import {DateTime} from "../classes/DateTime"
+import {GrowthSession} from "../classes/GrowthSession"
+import {GrowthSessionApi} from "../services/GrowthSessionApi"
+import VAvatar from "./VAvatar.vue"
+import {computed, ref} from "vue"
+
+interface IProps {
+    user?: IUser;
+    growthSessionJson: IGrowthSession;
+}
+
+const props = defineProps<IProps>()
+const emit = defineEmits(["submitted"])
+
+const growthSession = ref<GrowthSession>(new GrowthSession(props.growthSessionJson))
+const validationErrors = ref<IValidationError | null>(null)
+
+const date = computed(() => `${DateTime.parseByDate(growthSession.value.date).format("MMM-DD")}`)
+const time = computed(() => `${growthSession.value.startTime} - ${growthSession.value.endTime}`)
+
+async function deleteGrowthSession() {
+    await growthSession.value.delete()
+    window.location.assign("/")
+}
+
+async function updateGrowthSession() {
+    try {
+        const payload = {...growthSession.value}
+        if (growthSession.value.isLimitless) {
+            payload.attendee_limit = null
+        }
+        let updatedGrowthSession: IGrowthSession = await GrowthSessionApi.update(growthSession.value, payload)
+        emit("submitted", updatedGrowthSession)
+        window.history.back()
+    } catch (e) {
+        onRequestFailed(e)
+    }
+}
+
+function onRequestFailed(exception: any) {
+    if (exception.response?.status === 422) {
+        console.log(exception.response.data.errors)
+        validationErrors.value = exception.response.data
+    } else {
+        alert("Something went wrong :(")
+    }
+}
+
+function getError(field: string): string {
+    let errors = validationErrors.value?.errors[field]
+    return errors ? errors[0] : ""
+}
+</script>
+
 <template>
     <div class="max-w-5xl text-blue-600">
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
             <h2 class="text-2xl lg:text-3xl font-sans font-light flex flex-1 items-center text-blue-700 pr-6">
                 <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :src="growthSession.owner.avatar" class="mr-4"/>
-                <input class="flex-1 shadow appearance-none border rounded w-full px-3" placeholder="Please enter a growth session title"
+                <input class="flex-1 shadow appearance-none border rounded w-full px-3"
+                       placeholder="Please enter a growth session title"
                        type="text"
                        maxlength="45"
                        v-model="growthSession.title">
@@ -83,72 +140,14 @@
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Attendees</h3>
                 <ul>
                     <li class="flex items-center ml-6 my-4" v-for="attendee in growthSession.attendees">
-                        <v-avatar :alt="`${attendee.name}'s Avatar`" :src="attendee.avatar" class="mr-3" size="12"/>
-                        {{attendee.name}}
+                        <v-avatar :alt="`${attendee.name}'s Avatar`" :size="12" :src="attendee.avatar" class="mr-3"/>
+                        {{ attendee.name }}
                     </li>
                 </ul>
             </div>
         </div>
     </div>
 </template>
-
-<script lang="ts">
-import {Component, Prop, Vue} from "vue-property-decorator"
-import {IGrowthSession, IUser, IValidationError} from "../types"
-import {DateTime} from "../classes/DateTime"
-import {GrowthSession} from "../classes/GrowthSession"
-import {GrowthSessionApi} from "../services/GrowthSessionApi"
-import VAvatar from "./VAvatar.vue"
-
-@Component({components: {VAvatar}})
-export default class GrowthSessionEdit extends Vue {
-    @Prop({required: false}) user!: IUser;
-    @Prop({required: true}) growthSessionJson!: IGrowthSession;
-    growthSession: GrowthSession = new GrowthSession(this.growthSessionJson);
-    validationErrors: IValidationError | null = null;
-
-    get date(): string {
-        return `${DateTime.parseByDate(this.growthSession.date).format('MMM-DD')}`
-    }
-
-    get time(): string {
-        return `${this.growthSession.startTime} - ${this.growthSession.endTime}`;
-    }
-
-    async deleteGrowthSession() {
-        await this.growthSession.delete();
-        window.location.assign('/');
-    }
-
-    async updateGrowthSession() {
-        try {
-            const payload = {...this.growthSession}
-            if (this.growthSession.isLimitless) {
-                payload.attendee_limit = null;
-            }
-            let updatedGrowthSession: IGrowthSession = await GrowthSessionApi.update(this.growthSession, payload);
-            this.$emit('submitted', updatedGrowthSession);
-            window.history.back()
-        } catch (e) {
-            this.onRequestFailed(e);
-        }
-    }
-
-    onRequestFailed(exception: any) {
-        if (exception.response?.status === 422) {
-            console.log(exception.response.data.errors);
-            this.validationErrors = exception.response.data;
-        } else {
-            alert('Something went wrong :(');
-        }
-    }
-
-    getError(field: string): string {
-        let errors = this.validationErrors?.errors[field];
-        return errors ? errors[0] : '';
-    }
-}
-</script>
 
 <style lang="scss" scoped>
 .error-outline {

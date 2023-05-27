@@ -1,16 +1,36 @@
 {
     "compilerOptions": {
-        "target": "esNext",
-        "module": "commonjs",
-        "moduleResolution": "node",
         "strict": true,
-        "noImplicitAny": true,
-        "sourceMap": true,
-        "experimentalDecorators": true,
+        "module": "ES2020",
+        "target": "ESNext",
+        "moduleResolution": "Node",
         "resolveJsonModule": true,
-        "esModuleInterop": true
+        "lib": [
+            "DOM",
+            "DOM.Iterable",
+            "ESNext"
+        ],
+        "types": [
+            "vite/client",
+            "vitest/globals"
+        ],
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        }
+    },
+    "ts-node": {
+        "transpileOnly": true,
+        "esm": true,
+        "compilerOptions": {
+            "moduleResolution": "Node16"
+        }
     },
     "include": [
-        "resources/js/**/*.ts"
+        "resources/**/*.ts",
+        "resources/**/*.vue"
     ]
 }

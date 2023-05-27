@@ -1,21 +1,15 @@
-<template>
-    <input :value="sanitizedTime" type="time" @input="onInput"/>
-</template>
-
-<script lang=ts>
-import {Component, Model, Vue} from "vue-property-decorator"
+<script lang="ts" setup>
 import {DateTime} from "../classes/DateTime"
+import {computed} from "vue"
 
-@Component({})
-export default class TimePicker extends Vue {
-    @Model("time-changed") time!: string
-
-    get sanitizedTime(): string {
-        return DateTime.parseByTime(this.time).toTimeString24Hours()
-    }
-
-    onInput({target}) {
-        this.$emit("time-changed", DateTime.parseByTime(target.value).toTimeString12Hours())
-    }
-}
+const props = defineProps<{ modelValue: string }>()
+const emit = defineEmits(["update:modelValue"])
+const time = computed({
+    get: () => DateTime.parseByTime(props.modelValue).toTimeString24Hours(),
+    set: (value) => emit("update:modelValue", DateTime.parseByTime(value).toTimeString12Hours())
+})
 </script>
+
+<template>
+    <input v-model="time" type="time"/>
+</template>

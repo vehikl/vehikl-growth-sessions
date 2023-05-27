@@ -25,11 +25,6 @@ onMounted(() => {
     })
     refreshModalVisibility()
 })
-onMounted(() => {
-
-})
-
-
 </script>
 
 <template>

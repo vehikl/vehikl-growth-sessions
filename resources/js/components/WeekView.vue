@@ -1,3 +1,129 @@
+<script lang="ts" setup>
+import {IUser} from "../types"
+import GrowthSessionCard from "./GrowthSessionCard.vue"
+import GrowthSessionForm from "./GrowthSessionForm.vue"
+import {GrowthSessionApi} from "../services/GrowthSessionApi"
+import {DateTime} from "../classes/DateTime"
+import Draggable from "vuedraggable"
+import {GrowthSession} from "../classes/GrowthSession"
+import {WeekGrowthSessions} from "../classes/WeekGrowthSessions"
+import {Nothingator} from "../classes/Nothingator"
+import VisibilityRadioFieldset from "./VisibilityRadioFieldset.vue"
+import VModal from "./VModal.vue"
+import {onBeforeMount, onBeforeUnmount, ref} from "vue"
+
+interface IGrowthSessionCardDragChange {
+    added?: { element: GrowthSession, index: number }
+    removed?: { element: GrowthSession, index: number }
+}
+
+const props = defineProps<{ user?: IUser }>()
+const referenceDate = ref(DateTime.today())
+const growthSessions = ref<WeekGrowthSessions>(WeekGrowthSessions.empty())
+const newGrowthSessionDate = ref("")
+const growthSessionToUpdate = ref<GrowthSession | null>(null)
+const draggedGrowthSession = ref<GrowthSession | null>(null)
+const visibilityFilter = ref<"all" | "public" | "private">("all")
+const formModalState = ref<"open" | "closed">("closed")
+
+onBeforeMount(async () => {
+    await refreshGrowthSessionsOfTheWeek()
+    window.onpopstate = refreshGrowthSessionsOfTheWeek
+})
+
+onBeforeUnmount(() => {
+    window.onpopstate = null
+})
+
+async function refreshGrowthSessionsOfTheWeek() {
+    useDateFromUrlAsReference()
+    await getAllGrowthSessionsOfTheWeek()
+}
+
+function growthSessionsVisibleInDate(date: DateTime) {
+    let allGrowthSessionsOnDate = growthSessions.value.getSessionByDate(date)
+    return allGrowthSessionsOnDate.filter((session) => {
+        if (visibilityFilter.value === "private") {
+            return !session.is_public
+        }
+
+        if (visibilityFilter.value === "public") {
+            return session.is_public
+        }
+
+        return true
+    })
+}
+
+function useDateFromUrlAsReference() {
+    const urlSearchParams = new URLSearchParams(window.location.search)
+    referenceDate.value = urlSearchParams.has("date")
+        ? DateTime.parseByDate(urlSearchParams.get("date")!)
+        : DateTime.today()
+}
+
+async function onDragEnd(location: any) {
+    let targetDate = location.to.__vueParentComponent.attrs.date
+    if (!draggedGrowthSession.value) {
+        return
+    }
+    try {
+        await GrowthSessionApi.update(draggedGrowthSession.value, {
+            date: targetDate.toDateString(),
+            attendee_limit: draggedGrowthSession.value.attendee_limit
+        })
+    } catch (e) {
+    }
+
+    await getAllGrowthSessionsOfTheWeek()
+}
+
+function onChange(change: IGrowthSessionCardDragChange) {
+    if (change.added) {
+        return draggedGrowthSession.value = change.added.element
+    }
+}
+
+
+async function getAllGrowthSessionsOfTheWeek() {
+    growthSessions.value = await GrowthSessionApi.getAllGrowthSessionsOfTheWeek(referenceDate.value.toDateString())
+}
+
+async function onFormSubmitted() {
+    await getAllGrowthSessionsOfTheWeek()
+    formModalState.value = "closed"
+}
+
+function onCreateNewGrowthSessionClicked(startDate: DateTime) {
+    growthSessionToUpdate.value = null
+    newGrowthSessionDate.value = startDate.toDateString()
+    formModalState.value = "open"
+}
+
+function onGrowthSessionEditRequested(growthSession: GrowthSession) {
+    growthSessionToUpdate.value = growthSession
+    newGrowthSessionDate.value = ""
+    formModalState.value = "open"
+}
+
+function onGrowthSessionCopyRequested(growthSession: GrowthSession) {
+    growthSession.id = 0
+    growthSessionToUpdate.value = growthSession
+    newGrowthSessionDate.value = ""
+    formModalState.value = "open"
+}
+
+async function changeReferenceDate(deltaDays: number) {
+    referenceDate.value.addDays(deltaDays)
+    window.history.pushState({}, document.title, `?date=${referenceDate.value.toDateString()}`)
+    await getAllGrowthSessionsOfTheWeek()
+}
+
+function scrollToDate(id: string) {
+    window.document.getElementById(id)?.scrollIntoView({behavior: "smooth"})
+}
+</script>
+
 <template>
     <div v-if="growthSessions.isReady">
         <div class="flex flex-col justify-center items-center text-xl text-blue-600 font-bold">
@@ -11,11 +137,10 @@
                 </button>
                 <h2 v-if="growthSessions.weekDates.length > 0" class="text-center mb-2 w-72">
                     Week of
-                    {{ growthSessions.firstDay.format('MMM-DD') }} to
-                    {{ growthSessions.lastDay.format('MMM-DD') }}
+                    {{ growthSessions.firstDay.format("MMM-DD") }} to
+                    {{ growthSessions.lastDay.format("MMM-DD") }}
                 </h2>
-                <button ref="load-next-week-button"
-                        aria-label="Load next week"
+                <button aria-label="Load next week"
                         class="load-next-week mx-4 mb-2"
                         @click="changeReferenceDate(+7)">
                     <i aria-hidden="true" class="fa fa-chevron-right"></i>
@@ -44,9 +169,8 @@
                  'bg-blue-100 border-blue-200': date.isEvenDate(),
                  'bg-blue-200 border-blue-300': !date.isEvenDate(),
                  }"
-
                  :weekDay="date.weekDayString()"
-                 class="day flex flex-col text-center mx-1 mb-2 relative rounded border">
+                 class="day flex flex-col text-center mx-1 mb-2 relative rounded border items-center">
                 <h3
                     class="text-lg text-blue-700 font-bold p-3 md:pt-6 sticky sm:relative top-0 w-full z-20 border-b md:border-b-0 rounded-t md:rounded-none mb-2 md:mb-0"
                     v-text="date.weekDayString()"
@@ -61,15 +185,22 @@
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
                 </div>
 
+                <button
+                    v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
+                    class="create-growth-session text-5xl h-20 w-20 text-blue-600 hover:text-blue-700 focus:text-blue-700 font-bold mt-3 mb-8"
+                    @click="onCreateNewGrowthSessionClicked(date)">
+                    <i aria-hidden="true" class="fa fa-plus-circle"></i>
+                </button>
+
                 <draggable :date="date"
+                           item-key="id"
                            :list="growthSessionsVisibleInDate(date)"
                            class="h-full w-full px-2"
                            group="growth-sessions"
                            handle=".handle"
                            @change="onChange"
                            @end="onDragEnd">
-                    <div v-for="growthSession in growthSessionsVisibleInDate(date)"
-                         :key="growthSession.id">
+                    <template #item="{ element: growthSession }">
                         <growth-session-card
                             :growth-session="growthSession"
                             :user="user"
@@ -78,151 +209,19 @@
                             @copy-requested="onGrowthSessionCopyRequested"
                             @edit-requested="onGrowthSessionEditRequested"
                             @delete-requested="getAllGrowthSessionsOfTheWeek"/>
-                    </div>
-
-                    <button
-                        v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
-                        class="create-growth-session text-5xl h-20 w-20 text-blue-600 hover:text-blue-700 focus:text-blue-700 font-bold my-3"
-                        @click="onCreateNewGrowthSessionClicked(date)">
-                        <i aria-hidden="true" class="fa fa-plus-circle"></i>
-                    </button>
+                    </template>
                 </draggable>
             </div>
             <div class="block md:hidden fixed bottom-0 right-0 m-2 z-50" v-if="growthSessions.hasCurrentDate">
-                <button @click="scrollToDate(DateTime.today().weekDayString())" type="button" ref="scroll-to-today" class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <button aria-label="Scroll to today"
+                        class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        @click="scrollToDate(DateTime.today().weekDayString())">
                     Go to today <i aria-hidden="true" class="fa fa-calendar ml-2"></i>
                 </button>
             </div>
         </div>
     </div>
 </template>
-
-<script lang="ts">
-import {Component, Prop, Vue} from "vue-property-decorator"
-import {IUser} from "../types"
-import GrowthSessionCard from "./GrowthSessionCard.vue"
-import GrowthSessionForm from "./GrowthSessionForm.vue"
-import {GrowthSessionApi} from "../services/GrowthSessionApi"
-import {DateTime} from "../classes/DateTime"
-import Draggable from "vuedraggable"
-import {GrowthSession} from "../classes/GrowthSession"
-import {WeekGrowthSessions} from "../classes/WeekGrowthSessions"
-import {Nothingator} from "../classes/Nothingator"
-import VisibilityRadioFieldset from "./VisibilityRadioFieldset.vue"
-import VModal from "./VModal.vue"
-
-interface IGrowthSessionCardDragChange {
-    added?: { element: GrowthSession, index: number }
-    removed?: { element: GrowthSession, index: number }
-}
-
-@Component({
-    components: {VModal, VisibilityRadioFieldset, GrowthSessionForm, GrowthSessionCard, Draggable}
-})
-export default class WeekView extends Vue {
-    @Prop({required: false, default: null}) user!: IUser;
-    referenceDate: DateTime = DateTime.today();
-    growthSessions: WeekGrowthSessions = WeekGrowthSessions.empty();
-    newGrowthSessionDate: string = '';
-    growthSessionToUpdate: GrowthSession | null = null;
-    DateTime = DateTime;
-    Nothingator = Nothingator;
-    draggedGrowthSession!: GrowthSession;
-    visibilityFilter: string = "all"
-    formModalState: "open" | "closed" = "closed"
-
-    async created() {
-        await this.refreshGrowthSessionsOfTheWeek()
-        window.onpopstate = this.refreshGrowthSessionsOfTheWeek;
-    }
-
-    beforeDestroy() {
-        window.onpopstate = null;
-    }
-
-    async refreshGrowthSessionsOfTheWeek() {
-        this.useDateFromUrlAsReference();
-        await this.getAllGrowthSessionsOfTheWeek();
-    }
-
-    growthSessionsVisibleInDate(date: DateTime) {
-        let allGrowthSessionsOnDate = this.growthSessions.getSessionByDate(date);
-        return allGrowthSessionsOnDate.filter((session) => {
-            if (this.visibilityFilter === 'private') {
-                return !session.is_public
-            }
-
-            if (this.visibilityFilter === 'public') {
-                return session.is_public
-            }
-
-            return true;
-        })
-    }
-
-    useDateFromUrlAsReference() {
-        const urlSearchParams = new URLSearchParams(window.location.search);
-        this.referenceDate = urlSearchParams.has('date')
-            ? DateTime.parseByDate(urlSearchParams.get('date')!)
-            : DateTime.today();
-    }
-
-    async onDragEnd(location: any) {
-        let targetDate = location.to.__vue__.$attrs.date;
-        try {
-            await GrowthSessionApi.update(this.draggedGrowthSession, {date: targetDate.toDateString(), attendee_limit: this.draggedGrowthSession.attendee_limit});
-        } catch (e) {
-        }
-
-        await this.getAllGrowthSessionsOfTheWeek();
-    }
-
-    onChange(change: IGrowthSessionCardDragChange) {
-        if (change.added) {
-            return this.draggedGrowthSession = change.added.element;
-        }
-    }
-
-
-    async getAllGrowthSessionsOfTheWeek() {
-        this.growthSessions = await GrowthSessionApi.getAllGrowthSessionsOfTheWeek(this.referenceDate.toDateString());
-    }
-
-    async onFormSubmitted() {
-        await this.getAllGrowthSessionsOfTheWeek()
-        this.formModalState = "closed"
-    }
-
-    onCreateNewGrowthSessionClicked(startDate: DateTime) {
-        this.growthSessionToUpdate = null
-        this.newGrowthSessionDate = startDate.toDateString()
-        this.formModalState = "open"
-    }
-
-    onGrowthSessionEditRequested(growthSession: GrowthSession) {
-        this.growthSessionToUpdate = growthSession;
-        this.newGrowthSessionDate = ""
-        this.formModalState = "open"
-    }
-
-    onGrowthSessionCopyRequested(growthSession: GrowthSession) {
-        growthSession.id = 0;
-        this.growthSessionToUpdate = growthSession;
-        this.newGrowthSessionDate = ""
-        this.formModalState = "open"
-    }
-
-    async changeReferenceDate(deltaDays: number) {
-        this.referenceDate.addDays(deltaDays);
-        window.history.pushState({}, document.title, `?date=${this.referenceDate.toDateString()}`);
-        await this.getAllGrowthSessionsOfTheWeek();
-    }
-
-    scrollToDate(id: string) {
-        window.document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-    }
-}
-</script>
 
 <style lang="scss" scoped>
 .day {

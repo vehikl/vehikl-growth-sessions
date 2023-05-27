@@ -7,6 +7,7 @@ import {User} from "../classes/User"
 import {IGrowthSession, IUser} from "../types"
 import {GrowthSession} from "../classes/GrowthSession"
 import {DiscordChannelApi} from "../services/DiscordChannelApi"
+import {vi} from "vitest"
 
 const user: IUser = {
     name: 'Alice',
@@ -17,8 +18,6 @@ const user: IUser = {
 };
 const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
 
-jest.mock('')
-
 describe('GrowthSessionView', () => {
     let wrapper: Wrapper<GrowthSessionView>;
 
@@ -27,9 +26,9 @@ describe('GrowthSessionView', () => {
     });
 
     it('redirects to the owners GitHub page when clicked on the profile', async () => {
-        const ownerComponent = wrapper.findComponent({ref: 'owner-avatar-link'})
+        const ownerComponent = wrapper.find("#owner-avatar-link")
 
-        expect(ownerComponent.element).toHaveAttribute('href', new User(growthSessionJson.owner).githubURL)
+        expect(ownerComponent.attributes("href")).toEqual(new User(growthSessionJson.owner).githubURL)
     });
 
     it('displays the host name', () => {
@@ -38,8 +37,8 @@ describe('GrowthSessionView', () => {
 
     it('displays the mobtime link', () => {
         const mobTimeUrl = 'https://mobtime.vehikl.com/vgs-' + growthSessionJson.id
-        expect(wrapper.html()).toContain(mobTimeUrl);
-        expect(wrapper.find(`a[href="${mobTimeUrl}"]`).element).toHaveAttribute('target', '_blank');
+        expect(wrapper.html()).toContain(mobTimeUrl)
+        expect(wrapper.find(`a[href="${mobTimeUrl}"]`).attributes("target")).toEqual("_blank")
     });
 
     it('displays the anydesk information for vehikl member user', () => {
@@ -49,10 +48,10 @@ describe('GrowthSessionView', () => {
 
     describe('attendees section', () => {
         it('redirects to the attendees GitHub page when clicked on the profile', async () => {
-            const attendeeComponents = wrapper.findAllComponents({ref: 'attendee'})
+            const attendeeComponents = wrapper.findAllComponents({ref: "attendee"})
 
-            attendeeComponents.wrappers.forEach((attendeeComponent, i) =>
-                expect(attendeeComponent.element).toHaveAttribute('href', new User(growthSessionJson.attendees[i]).githubURL)
+            attendeeComponents.forEach((attendeeComponent, i) =>
+                expect(attendeeComponent.attributes("href")).toEqual(new User(growthSessionJson.attendees[i]).githubURL)
             )
         })
 
@@ -109,13 +108,13 @@ describe('GrowthSessionView', () => {
     describe('as the owner', () => {
         beforeEach(() => {
             const owner = growthSessionJson.owner;
-            DiscordChannelApi.index = jest.fn().mockResolvedValue([]);
+            DiscordChannelApi.index = vi.fn().mockResolvedValue([])
             wrapper = mount(GrowthSessionView, {
                 propsData: {userJson: owner, growthSessionJson}
-            });
+            })
         });
         it('prompts for confirmation when the owner clicks on the delete button', () => {
-            window.confirm = jest.fn();
+            window.confirm = vi.fn()
 
             wrapper.find('.delete-button').trigger('click');
 
