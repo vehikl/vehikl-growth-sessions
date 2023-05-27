@@ -34,7 +34,7 @@
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="end_time">
                     End
                 </label>
-                <time-picker id="end-time" v-model="endTime" :class="{'error-outline': getError('start_time')}"/>
+                <time-picker id="end-time" v-model="endTime" :class="{'error-outline': getError('end_time')}"/>
             </div>
         </div>
 

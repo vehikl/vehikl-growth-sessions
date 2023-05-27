@@ -3,7 +3,6 @@
         <div class="flex flex-col justify-center items-center text-xl text-blue-600 font-bold">
             <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
                                      v-model="visibilityFilter"/>
-
             <div class="flex my-5">
                 <button aria-label="Load previous week"
                         class="load-previous-week mx-4 mb-2"
@@ -198,8 +197,8 @@ export default class WeekView extends Vue {
     }
 
     onCreateNewGrowthSessionClicked(startDate: DateTime) {
-        this.growthSessionToUpdate = null;
-        this.newGrowthSessionDate = startDate.toISOString()
+        this.growthSessionToUpdate = null
+        this.newGrowthSessionDate = startDate.toDateString()
         this.formModalState = "open"
     }
 
