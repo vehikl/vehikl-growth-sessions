@@ -5,6 +5,8 @@
         "target": "ESNext",
         "moduleResolution": "Node",
         "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
         "lib": [
             "DOM",
             "DOM.Iterable",
@@ -13,21 +15,7 @@
         "types": [
             "vite/client",
             "vitest/globals"
-        ],
-        "skipLibCheck": true,
-        "esModuleInterop": true,
-        "paths": {
-            "@/*": [
-                "./src/*"
-            ]
-        }
-    },
-    "ts-node": {
-        "transpileOnly": true,
-        "esm": true,
-        "compilerOptions": {
-            "moduleResolution": "Node16"
-        }
+        ]
     },
     "include": [
         "resources/**/*.ts",
