@@ -59,8 +59,8 @@ describe('GrowthSessionForm', () => {
         title: "Chosen title",
         date: "2020-10-01",
         start_time: "04:45 pm",
-        discord_channel_id: null,
-        anydesk_id: null,
+        discord_channel_id: undefined,
+        anydesk_id: undefined,
         allow_watchers: true
     }
     describe('used for creation', () => {
@@ -88,7 +88,7 @@ describe('GrowthSessionForm', () => {
                 ],
                 [
                     "Can accept no Discord channel",
-                    {...baseGrowthSessionRequest, discord_channel_id: null}
+                    {...baseGrowthSessionRequest, discord_channel_id: undefined}
                 ],
                 [
                     "Can accept a Discord channel",
@@ -104,7 +104,7 @@ describe('GrowthSessionForm', () => {
                 ],
                 [
                     "Can accept no AnyDesk",
-                    {...baseGrowthSessionRequest, anydesk_id: null}
+                    {...baseGrowthSessionRequest, anydesk_id: undefined}
                 ],
                 [
                     "Can accept an AnyDesk",

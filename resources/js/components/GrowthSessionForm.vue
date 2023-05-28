@@ -53,8 +53,8 @@ const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
     end_time: endTime.value,
     is_public: isPublic.value,
     attendee_limit: isLimitless.value ? undefined : attendeeLimit.value,
-    discord_channel_id: selectedDiscordChannelId.value,
-    anydesk_id: selectedAnydeskId.value ? Number.parseInt(selectedAnydeskId.value) : null,
+    discord_channel_id: selectedDiscordChannelId.value ?? undefined,
+    anydesk_id: selectedAnydeskId.value ? Number.parseInt(selectedAnydeskId.value) : undefined,
     allow_watchers: allowWatchers.value
 }))
 
