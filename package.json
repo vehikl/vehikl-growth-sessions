@@ -3,7 +3,8 @@
     "scripts": {
         "dev": "vite",
         "prod": "vite build",
-        "test": "TZ=America/Toronto vitest"
+        "test": "TZ=America/Toronto vitest",
+        "test:ci": "LARAVEL_BYPASS_ENV_CHECK=1 TZ=America/Toronto vitest --run"
     },
     "dependencies": {
         "vue": "^3.3.4",
