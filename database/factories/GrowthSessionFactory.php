@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\GrowthSession;
-use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class GrowthSessionFactory extends Factory
@@ -26,11 +26,16 @@ class GrowthSessionFactory extends Factory
             'title' => $this->faker->sentence(2),
             'topic' => $this->faker->sentence,
             'location' => 'At AnyDesk XYZ - abcdefg',
-            'date' => today(),
+            'date' => function () {
+                if (today()->isWeekend()) {
+                    return Carbon::parse('Next Wednesday');
+                }
+                return today();
+            },
             'start_time' => now()->setTime(15, 30),
             'end_time' => now()->setTime(17, 00),
             'attendee_limit' => GrowthSession::NO_LIMIT,
-            'is_public' => true
+            'is_public' => TRUE
         ];
     }
 }
