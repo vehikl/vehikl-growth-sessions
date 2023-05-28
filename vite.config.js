@@ -14,5 +14,10 @@ export default defineConfig({
         environment: 'happy-dom',
         setupFiles: ['./setup-vitest.ts'],
         globals: true
-    }
+    },
+    resolve: {
+        alias: {
+            vue: 'vue/dist/vue.esm-bundler.js'
+        }
+    },
 });
