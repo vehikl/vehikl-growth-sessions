@@ -40,7 +40,7 @@ The site should be available at http://127.0.0.1:8008
  - PHP 8.2
  - Composer
  - Node >= 18 LTS
- - Yarn
+ - PNPM
  - Mailtrap
 
 ### Setup
@@ -50,8 +50,8 @@ The site should be available at http://127.0.0.1:8008
 ```sh
 # PHP Dependencies
 composer install
-# NPM Dependencies
-yarn
+# Node Dependencies
+pnpm i
 # Setup env
 cp .env.example .env
 php artisan key:generate

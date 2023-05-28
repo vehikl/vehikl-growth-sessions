@@ -1,17 +1,70 @@
+<script lang="ts" setup>
+import {IGrowthSession, IUser} from "../types"
+import {DateTime} from "../classes/DateTime"
+import {GrowthSession} from "../classes/GrowthSession"
+import CommentList from "./CommentList.vue"
+import VAvatar from "./VAvatar.vue"
+import LocationRenderer from "./LocationRenderer.vue"
+import GrowthSessionForm from "./GrowthSessionForm.vue"
+import VButton from "./VButton.vue"
+import VModal from "./VModal.vue"
+import {computed, ref} from "vue"
+
+interface IProps {
+    userJson?: IUser;
+    growthSessionJson: IGrowthSession;
+    discordGuildId?: string;
+}
+
+const props = defineProps<IProps>()
+const growthSession = ref<GrowthSession>(new GrowthSession(props.growthSessionJson))
+const formModalState = ref<"open" | "closed">("closed")
+
+const date = computed(() => `${DateTime.parseByDate(growthSession.value.date).format("MMM-DD")}`)
+const time = computed(() => `${growthSession.value.startTime} - ${growthSession.value.endTime}`)
+const mobtimeUrl = computed(() => `https://mobtime.vehikl.com/vgs-${props.growthSessionJson.id}`)
+const discordChannelUrl = computed(() => `discord://discordapp.com/channels/${props.discordGuildId}/${growthSession.value.discord_channel_id}`)
+
+async function deleteGrowthSession() {
+    if (confirm("Are you sure you want to delete?")) {
+        await growthSession.value.delete()
+        window.location.assign("/")
+    }
+}
+
+async function onGrowthSessionUpdated(newValues: GrowthSession) {
+    growthSession.value.refresh(newValues)
+    formModalState.value = "closed"
+}
+
+async function joinGrowthSession() {
+    await growthSession.value.join()
+}
+
+async function leaveGrowthSession() {
+    await growthSession.value.leave()
+}
+
+async function watchGrowthSession() {
+    await growthSession.value.watch()
+}
+</script>
+
 <template>
     <div class="max-w-5xl text-blue-600">
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
-            <modal :dynamic="true" :height="600" :width="500" name="growth-session-form">
+            <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
                 <div class="flex w-full h-full overflow-y-scroll">
-                    <growth-session-form :growth-session="growthSession"
+                    <growth-session-form v-if="formModalState === 'open'"
+                                         :growth-session="growthSession"
                                          :owner="growthSession.owner"
                                          :start-date="growthSession.date"
                                          class="growth-session-form"
                                          @submitted="onGrowthSessionUpdated"/>
                 </div>
-            </modal>
+            </v-modal>
             <h2 class="text-2xl lg:text-3xl font-sans font-light flex items-center text-blue-700">
-                <a :href="growthSession.owner.githubURL" ref="owner-avatar-link">
+                <a id="owner-avatar-link" :href="growthSession.owner.githubURL">
                     <v-avatar class="mr-4" :src="growthSession.owner.avatar"
                               :alt="`${growthSession.owner.name}'s Avatar`"/>
                 </a>
@@ -23,25 +76,25 @@
                     color="blue"
                     @click="joinGrowthSession"
                     v-show="growthSession.canJoin(userJson)"
-                    text="Join" />
+                    text="Join"/>
                 <v-button
                     class="watch-button"
                     color="orange"
                     @click="watchGrowthSession"
                     v-show="growthSession.canWatch(userJson)"
-                    text="Spectate" />
+                    text="Spectate"/>
                 <v-button
                     class="leave-button"
                     color="red"
                     @click="leaveGrowthSession"
                     v-show="growthSession.canLeave(userJson)"
-                    text="Leave" />
+                    text="Leave"/>
                 <v-button
                     class="update-button"
                     color="orange"
-                    @click="$modal.show('growth-session-form')"
+                    text="Edit"
                     v-if="growthSession.canEditOrDelete(userJson)"
-                    text="Edit" />
+                    @click="formModalState = 'open'"/>
                 <button
                     class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
                     @click.stop="deleteGrowthSession"
@@ -69,7 +122,7 @@
                     <a v-if="growthSession.discord_channel_id"
                        class="location-icon"
                        target="_blank"
-                       :href="this.discordChannelUrl">
+                       :href="discordChannelUrl">
                         <svg enable-background="new 0 0 24 24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <g fill="#5c6bc0">
                                 <path
@@ -106,7 +159,8 @@
                 <ul>
                     <li v-for="attendee in growthSession.attendees">
                         <a ref="attendee" :href="attendee.githubURL" class="flex items-center ml-6 my-4">
-                            <v-avatar size="12" class="mr-3" :src="attendee.avatar" :alt="`${attendee.name}'s Avatar`"/>
+                            <v-avatar :alt="`${attendee.name}'s Avatar`" :size="12" :src="attendee.avatar"
+                                      class="mr-3"/>
                             <p v-if="!attendee.is_vehikl_member" class="text-vehikl-orange">{{
                                     attendee.name
                                 }}</p>
@@ -116,11 +170,12 @@
                 </ul>
 
 
-                <h3 v-if="growthSession.watchers.length" class="text-2xl font-sans font-light mb-3 text-blue-700">Watchers</h3>
+                <h3 v-if="growthSession.watchers.length" class="text-2xl font-sans font-light mb-3 text-blue-700">
+                    Watchers</h3>
                 <ul>
                     <li v-for="watcher in growthSession.watchers">
                         <a ref="attendee" :href="watcher.githubURL" class="flex items-center ml-6 my-4">
-                            <v-avatar :alt="`${watcher.name}'s Avatar`" :src="watcher.avatar" class="mr-3" size="12"/>
+                            <v-avatar :alt="`${watcher.name}'s Avatar`" :size="12" :src="watcher.avatar" class="mr-3"/>
                             <p v-if="!watcher.is_vehikl_member" class="text-vehikl-orange">{{
                                     watcher.name
                                 }}</p>
@@ -132,75 +187,6 @@
         </div>
     </div>
 </template>
-
-<script lang="ts">
-import {Component, Prop, Vue} from "vue-property-decorator"
-import {IGrowthSession, IUser} from "../types"
-import {DateTime} from "../classes/DateTime"
-import {GrowthSession} from "../classes/GrowthSession"
-import VueTimepicker from "vue2-timepicker"
-import Datepicker from "vuejs-datepicker"
-import CommentList from "./CommentList.vue"
-import VAvatar from "./VAvatar.vue"
-import LocationRenderer from "./LocationRenderer.vue"
-import GrowthSessionForm from "./GrowthSessionForm.vue"
-import VButton from "./VButton.vue"
-
-@Component({components: {LocationRenderer, VAvatar, CommentList, VueTimepicker, Datepicker, GrowthSessionForm, VButton}})
-export default class GrowthSessionView extends Vue {
-    @Prop({required: false}) userJson!: IUser
-    @Prop({required: true}) growthSessionJson!: IGrowthSession
-    @Prop({required: false}) discordGuildId!: string
-    growthSession: GrowthSession
-
-    get date(): string {
-        return `${DateTime.parseByDate(this.growthSession.date).format('MMM-DD')}`
-    }
-
-    get time(): string {
-        return `${this.growthSession.startTime} - ${this.growthSession.endTime}`;
-    }
-
-    get mobtimeUrl(): string {
-        return `https://mobtime.vehikl.com/vgs-${this.growthSessionJson.id}`;
-    }
-
-    async created() {
-        this.growthSession = new GrowthSession(this.growthSessionJson);
-    }
-
-    get discordChannelUrl(): string {
-        return `discord://discordapp.com/channels/${this.discordGuildId}/${this.growthSession.discord_channel_id}`;
-    }
-
-    async deleteGrowthSession() {
-        if (confirm("Are you sure you want to delete?")) {
-            await this.growthSession.delete()
-            window.location.assign("/")
-        }
-    }
-
-    async onGrowthSessionUpdated(growthSession: GrowthSession) {
-        this.growthSession.refresh(growthSession)
-        this.$modal.hide("growth-session-form")
-    }
-
-    async joinGrowthSession() {
-        await this.growthSession.join()
-        this.$forceUpdate()
-    }
-
-    async leaveGrowthSession() {
-        await this.growthSession.leave()
-        this.$forceUpdate()
-    }
-
-    async watchGrowthSession() {
-        await this.growthSession.watch()
-        this.$forceUpdate()
-    }
-}
-</script>
 
 <style lang="scss" scoped>
 .description {

@@ -15,10 +15,12 @@ jobs:
         uses: actions/setup-node@v2.1.4
         with:
           node-version: '18.13.0'
+      - name: Install pnpm
+        run: npm i -g pnpm
       - name: Install Javascript Dependencies
-        run: yarn
+        run: pnpm i
       - name: Build Javascript
-        run: yarn prod
+        run: pnpm prod
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
       - name: Install Dependencies
@@ -30,4 +32,4 @@ jobs:
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         run: vendor/bin/phpunit
       - name: Execute Frontend tests
-        run: yarn test
+        run: pnpm test:ci

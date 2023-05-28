@@ -1,13 +1,13 @@
-import {createLocalVue, mount, Wrapper} from "@vue/test-utils";
-import VModal from 'vue-js-modal';
-import GrowthSessionView from "./GrowthSessionView.vue";
-import userJson from '../../../tests/fixtures/User.json';
-import growthSessionJson from '../../../tests/fixtures/GrowthSessionWithComments.json'
-import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json'
-import {User} from "../classes/User";
-import {IGrowthSession, IUser} from '../types';
-import {GrowthSession} from "../classes/GrowthSession";
-import {DiscordChannelApi} from "../services/DiscordChannelApi";
+import {mount, Wrapper} from "@vue/test-utils"
+import GrowthSessionView from "./GrowthSessionView.vue"
+import userJson from "../../../tests/fixtures/User.json"
+import growthSessionJson from "../../../tests/fixtures/GrowthSessionWithComments.json"
+import growthSessionWithComments from "../../../tests/fixtures/GrowthSessionWithComments.json"
+import {User} from "../classes/User"
+import {IGrowthSession, IUser} from "../types"
+import {GrowthSession} from "../classes/GrowthSession"
+import {DiscordChannelApi} from "../services/DiscordChannelApi"
+import {vi} from "vitest"
 
 const user: IUser = {
     name: 'Alice',
@@ -17,22 +17,18 @@ const user: IUser = {
     is_vehikl_member: true,
 };
 const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
-const localVue = createLocalVue();
-localVue.use(VModal);
-
-jest.mock('')
 
 describe('GrowthSessionView', () => {
     let wrapper: Wrapper<GrowthSessionView>;
 
     beforeEach(() => {
-        wrapper = mount(GrowthSessionView, {propsData: {userJson, growthSessionJson}, localVue});
+        wrapper = mount(GrowthSessionView, {propsData: {userJson, growthSessionJson}})
     });
 
     it('redirects to the owners GitHub page when clicked on the profile', async () => {
-        const ownerComponent = wrapper.findComponent({ref: 'owner-avatar-link'})
+        const ownerComponent = wrapper.find("#owner-avatar-link")
 
-        expect(ownerComponent.element).toHaveAttribute('href', new User(growthSessionJson.owner).githubURL)
+        expect(ownerComponent.attributes("href")).toEqual(new User(growthSessionJson.owner).githubURL)
     });
 
     it('displays the host name', () => {
@@ -41,8 +37,8 @@ describe('GrowthSessionView', () => {
 
     it('displays the mobtime link', () => {
         const mobTimeUrl = 'https://mobtime.vehikl.com/vgs-' + growthSessionJson.id
-        expect(wrapper.html()).toContain(mobTimeUrl);
-        expect(wrapper.find(`a[href="${mobTimeUrl}"]`).element).toHaveAttribute('target', '_blank');
+        expect(wrapper.html()).toContain(mobTimeUrl)
+        expect(wrapper.find(`a[href="${mobTimeUrl}"]`).attributes("target")).toEqual("_blank")
     });
 
     it('displays the anydesk information for vehikl member user', () => {
@@ -52,24 +48,24 @@ describe('GrowthSessionView', () => {
 
     describe('attendees section', () => {
         it('redirects to the attendees GitHub page when clicked on the profile', async () => {
-            const attendeeComponents = wrapper.findAllComponents({ref: 'attendee'})
+            const attendeeComponents = wrapper.findAllComponents({ref: "attendee"})
 
-            attendeeComponents.wrappers.forEach((attendeeComponent, i) =>
-                expect(attendeeComponent.element).toHaveAttribute('href', new User(growthSessionJson.attendees[i]).githubURL)
+            attendeeComponents.forEach((attendeeComponent, i) =>
+                expect(attendeeComponent.attributes("href")).toEqual(new User(growthSessionJson.attendees[i]).githubURL)
             )
         })
 
         it('can display the attendee limit', () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, attendee_limit: 42});
-            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}, localVue});
-            expect(wrapper.text()).toContain('Attendee Limit');
+            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+            expect(wrapper.text()).toContain("Attendee Limit")
             expect(wrapper.find('.attendee_limit').text()).toContain(growthSession.attendee_limit);
         });
 
         it('can hide the attendee limit', () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, attendee_limit: null});
-            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}, localVue});
-            expect(wrapper.text()).not.toContain('Attendee Limit');
+            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+            expect(wrapper.text()).not.toContain("Attendee Limit")
         });
 
         it('renders a direct link to the Discord channel', () => {
@@ -78,14 +74,14 @@ describe('GrowthSessionView', () => {
                 propsData: {
                     growthSessionJson: growthSession,
                     discordGuildId: '1234567890'
-                }, localVue
+                }
             });
             expect(wrapper.find('a[href="discord://discordapp.com/channels/1234567890/1234567890"').exists()).toBeTruthy();
         })
 
         it('display the list of attendees', () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, attendees: [user]});
-            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}, localVue});
+            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
 
             expect(wrapper.text()).toContain(user.name);
         })
@@ -95,7 +91,7 @@ describe('GrowthSessionView', () => {
     describe('watchers section', () => {
         it('displays the list of watchers', () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, watchers: [user]});
-            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}, localVue});
+            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
 
             expect(wrapper.text()).toContain(user.name);
             expect(wrapper.text()).toContain('Watchers');
@@ -103,7 +99,7 @@ describe('GrowthSessionView', () => {
 
         it('does not display the watcher section if there are no watchers',  () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, watchers: []});
-            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}, localVue});
+            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
 
             expect(wrapper.text()).not.toContain('Watchers');
         });
@@ -112,14 +108,13 @@ describe('GrowthSessionView', () => {
     describe('as the owner', () => {
         beforeEach(() => {
             const owner = growthSessionJson.owner;
-            DiscordChannelApi.index = jest.fn().mockResolvedValue([]);
+            DiscordChannelApi.index = vi.fn().mockResolvedValue([])
             wrapper = mount(GrowthSessionView, {
-                propsData: {userJson: owner, growthSessionJson},
-                localVue
-            });
+                propsData: {userJson: owner, growthSessionJson}
+            })
         });
         it('prompts for confirmation when the owner clicks on the delete button', () => {
-            window.confirm = jest.fn();
+            window.confirm = vi.fn()
 
             wrapper.find('.delete-button').trigger('click');
 
@@ -134,8 +129,8 @@ describe('GrowthSessionView', () => {
             }
 
             wrapper.find('.update-button').trigger('click');
-            await awaitForElement('.edit-growth-session-form');
-            expect(wrapper.find('.edit-growth-session-form').element).toBeVisible();
+            await awaitForElement(".edit-growth-session-form")
+            expect(wrapper.find(".edit-growth-session-form").exists()).toBe(true)
         });
     })
 

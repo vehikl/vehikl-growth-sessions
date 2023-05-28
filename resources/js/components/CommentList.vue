@@ -1,3 +1,33 @@
+<script lang="ts" setup>
+import {GrowthSession} from "../classes/GrowthSession"
+import {User} from "../classes/User"
+import VAvatar from "./VAvatar.vue"
+import {IComment, IUser} from "../types"
+import {computed, ref} from "vue"
+
+interface IProps {
+    growthSession: GrowthSession,
+    user?: IUser;
+}
+
+const props = defineProps<IProps>()
+const newComment = ref("")
+const allowsNewCommentSubmission = computed<boolean>(() => !!props.user && !!newComment.value)
+const commentFormPlaceholder = computed<string>(() => props.user
+    ? "Leave a comment..."
+    : "You must be logged in to comment..."
+)
+
+async function createNewComment() {
+    await props.growthSession.postComment(newComment.value)
+    newComment.value = ""
+}
+
+function getGithubURL(comment: IComment): string {
+    return new User(comment.user).githubURL
+}
+</script>
+
 <template>
     <div>
         <form @submit.prevent="createNewComment" class="flex">
@@ -23,7 +53,7 @@
 
         <ul class="mt-6">
             <li v-for="comment in growthSession.comments" :key="comment.id" class="flex py-4 border-b border-blue-200">
-                <a ref="commenter-avatar-link" :href="getGithubURL(comment)">
+                <a :href="getGithubURL(comment)" aria-label="visit-their-github">
                     <v-avatar :src="comment.user.avatar"
                               class="mr-4"
                               :alt="`${comment.user.name}'s avatar`"/>
@@ -41,46 +71,11 @@
                         </button>
                     </div>
                     <div class="text-blue-400 text-sm" v-text="comment.time_stamp"></div>
-                    <pre class="mx-4 mt-3 font-sans m-5 break-words-fixed whitespace-pre-wrap max-h-48 overflow-y-auto">{{comment.content}}</pre>
+                    <pre class="mx-4 mt-3 font-sans m-5 break-words-fixed whitespace-pre-wrap max-h-48 overflow-y-auto">{{
+                            comment.content
+                        }}</pre>
                 </div>
             </li>
         </ul>
     </div>
 </template>
-
-<script lang="ts">
-    import {Component, Prop, Vue} from 'vue-property-decorator';
-    import {GrowthSession} from '../classes/GrowthSession';
-    import {User} from '../classes/User';
-    import VAvatar from './VAvatar.vue';
-    import {IComment, IUser} from '../types';
-
-    @Component({
-        components: {VAvatar}
-    })
-    export default class CommentList extends Vue {
-        @Prop({required: true}) growthSession!: GrowthSession;
-        @Prop({required: false}) user!: IUser;
-        newComment: string = '';
-
-        async createNewComment() {
-            await this.growthSession.postComment(this.newComment);
-            this.newComment = '';
-        }
-
-        get allowsNewCommentSubmission(): boolean {
-            return !!this.user && !!this.newComment;
-        }
-
-        get commentFormPlaceholder(): string {
-            return this.user ? 'Leave a comment...' : 'You must be logged in to comment...';
-        }
-
-        getGithubURL(comment: IComment): string {
-            return new User(comment.user).githubURL;
-        }
-    }
-</script>
-
-<style lang="scss" scoped>
-</style>
