@@ -124,7 +124,8 @@ class GrowthSessionsShowTest extends TestCase
 
     public function testItProvidesTheGrowthSessionVisibilityInThePayload()
     {
-        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+        $this->setTestNow('2020-01-15');
+        $growthSession = GrowthSession::factory()->create(['is_public' => FALSE]);
         /** @var User $user */
         $user = User::factory()->create(['is_vehikl_member' => true]);
 

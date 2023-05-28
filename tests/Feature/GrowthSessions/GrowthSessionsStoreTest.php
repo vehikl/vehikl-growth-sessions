@@ -27,6 +27,7 @@ class GrowthSessionsStoreTest extends TestCase
 
     public function testAUserCanCreateAGrowthSessionWithAnAnyDesk()
     {
+        $this->setTestNow('2020-01-15');
         $user = User::factory()->vehiklMember()->create();
         $anyDesk = AnyDesk::factory()->create();
 
@@ -51,6 +52,7 @@ class GrowthSessionsStoreTest extends TestCase
     /** @dataProvider provideWatcherPayload */
     public function testAGrowthSessionCanBeCreatedWithAllowWatchers($watcherFlag)
     {
+        $this->setTestNow('2020-01-15');
         $user = User::factory()->vehiklMember()->create();
 
         $this->actingAs($user)->postJson(
@@ -78,16 +80,16 @@ class GrowthSessionsStoreTest extends TestCase
 
     public function testAUserCanCreateAPubliclyAvailableGrowthSession()
     {
-        // Create a session
+        $this->setTestNow('2020-01-15');
+
         /** @var User $user */
-        $user = User::factory()->create(['is_vehikl_member' => true]);
+        $user = User::factory()->create(['is_vehikl_member' => TRUE]);
 
         $this->actingAs($user)->postJson(
             route('growth_sessions.store'),
-            $this->defaultParameters(['is_public' => true])
+            $this->defaultParameters(['is_public' => TRUE])
         );
 
-        // check if the session is public
         $this->assertTrue(GrowthSession::find(1)->is_public);
     }
 
@@ -118,6 +120,8 @@ class GrowthSessionsStoreTest extends TestCase
 
     public function testAnAttendeeLimitCanBeSetWhenCreatingAtGrowthSession()
     {
+        $this->setTestNow('2020-01-15');
+
         $user = User::factory()->vehiklMember()->create();
 
         $expectedAttendeeLimit = 420;
