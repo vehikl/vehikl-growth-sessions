@@ -4,7 +4,7 @@ module.exports = {
         './resources/views/**/*.blade.php',
         './resources/svgs/**/*.vue',
     ],
-    safelist: ['h-6', 'w-6', 'w-12', 'h-12', 'w-30', 'h-30'],
+    safelist: ['h-6', 'w-6', 'w-12', 'h-12'],
     theme: {
         extend: {
             colors: {
