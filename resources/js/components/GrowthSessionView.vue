@@ -9,6 +9,7 @@ import GrowthSessionForm from "./GrowthSessionForm.vue"
 import VButton from "./VButton.vue"
 import VModal from "./VModal.vue"
 import {computed, ref} from "vue"
+import {useGrowthSession} from "../composables/useGrowthSession"
 
 interface IProps {
     userJson?: IUser;
@@ -17,8 +18,14 @@ interface IProps {
 }
 
 const props = defineProps<IProps>()
-const growthSession = ref<GrowthSession>(new GrowthSession(props.growthSessionJson))
 const formModalState = ref<"open" | "closed">("closed")
+const {
+    watchGrowthSession,
+    leaveGrowthSession,
+    joinGrowthSession,
+    growthSession,
+    isProcessing
+} = useGrowthSession(props.growthSessionJson)
 
 const date = computed(() => `${DateTime.parseByDate(growthSession.value.date).format("MMM-DD")}`)
 const time = computed(() => `${growthSession.value.startTime} - ${growthSession.value.endTime}`)
@@ -35,18 +42,6 @@ async function deleteGrowthSession() {
 async function onGrowthSessionUpdated(newValues: GrowthSession) {
     growthSession.value.refresh(newValues)
     formModalState.value = "closed"
-}
-
-async function joinGrowthSession() {
-    await growthSession.value.join()
-}
-
-async function leaveGrowthSession() {
-    await growthSession.value.leave()
-}
-
-async function watchGrowthSession() {
-    await growthSession.value.watch()
 }
 </script>
 
@@ -72,30 +67,40 @@ async function watchGrowthSession() {
             </h2>
             <div>
                 <v-button
+                    :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
+                    :disabled="isProcessing"
                     class="join-button"
                     color="blue"
                     @click="joinGrowthSession"
                     v-show="growthSession.canJoin(userJson)"
                     text="Join"/>
                 <v-button
+                    :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
+                    :disabled="isProcessing"
                     class="watch-button"
                     color="orange"
                     @click="watchGrowthSession"
                     v-show="growthSession.canWatch(userJson)"
                     text="Spectate"/>
                 <v-button
+                    :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
+                    :disabled="isProcessing"
                     class="leave-button"
                     color="red"
                     @click="leaveGrowthSession"
                     v-show="growthSession.canLeave(userJson)"
                     text="Leave"/>
                 <v-button
+                    :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
+                    :disabled="isProcessing"
                     class="update-button"
                     color="orange"
                     text="Edit"
                     v-if="growthSession.canEditOrDelete(userJson)"
                     @click="formModalState = 'open'"/>
                 <button
+                    :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
+                    :disabled="isProcessing"
                     class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
                     @click.stop="deleteGrowthSession"
                     v-if="growthSession.canEditOrDelete(userJson)">
