@@ -6,13 +6,15 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GrowthSession extends Model
 {
     use HasFactory;
 
     const NO_LIMIT = PHP_INT_MAX;
-    protected $with = ['attendees', 'watchers', 'comments', 'anydesk'];
+    protected $with = ['attendees', 'watchers', 'comments', 'anydesk', 'tags'];
 
     protected $appends = ['owner'];
 
@@ -73,6 +75,11 @@ class GrowthSession extends Model
     public function anydesk()
     {
         return $this->belongsTo(AnyDesk::class, 'anydesk_id', 'id');
+    }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class);
     }
 
     public function setDateAttribute($value)
