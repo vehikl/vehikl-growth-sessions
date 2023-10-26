@@ -4,7 +4,7 @@ import userJson from "../../../tests/fixtures/User.json"
 import growthSessionJson from "../../../tests/fixtures/GrowthSessionWithComments.json"
 import growthSessionWithComments from "../../../tests/fixtures/GrowthSessionWithComments.json"
 import {User} from "../classes/User"
-import {IGrowthSession, IUser} from "../types"
+import {IGrowthSession, ITag, IUser} from "../types"
 import {GrowthSession} from "../classes/GrowthSession"
 import {DiscordChannelApi} from "../services/DiscordChannelApi"
 import {vi} from "vitest"
@@ -45,6 +45,28 @@ describe('GrowthSessionView', () => {
         expect(wrapper.html()).toContain(growthSessionJson.anydesk.name);
         expect(wrapper.html()).toContain(growthSessionJson.anydesk.remote_desk_id);
     });
+
+    it('displays tags', () => {
+        const tags: ITag[] = [
+            {
+                id: 1,
+                name: 'cool tag'
+            },
+            {
+                id: 2,
+                name: 'not cool tag'
+            }
+        ]
+        const growthSession = new GrowthSession({...dummyGrowthSession, tags});
+        wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+
+        const tagElements = wrapper.findAll('.tag')
+        expect(tagElements.length).toBe(tags.length);
+
+        tagElements.forEach((tagElement: Wrapper, index: number) => {
+            expect(tagElement.text()).toBe(tags[index].name);
+        })
+    })
 
     describe('attendees section', () => {
         it('redirects to the attendees GitHub page when clicked on the profile', async () => {
@@ -133,5 +155,4 @@ describe('GrowthSessionView', () => {
             expect(wrapper.find(".edit-growth-session-form").exists()).toBe(true)
         });
     })
-
 });

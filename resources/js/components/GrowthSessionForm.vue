@@ -8,6 +8,7 @@ import {AnydesksApi} from "../services/AnydesksApi"
 import TimePicker from "./TimePicker.vue"
 import {computed, onBeforeMount, ref, watch} from "vue"
 import VSelect from "./VSelect.vue"
+import Multiselect from 'vue-multiselect'
 
 interface IProps {
     owner: IUser;
@@ -34,7 +35,8 @@ const discordChannels = ref<IDropdownOption[]>([])
 const selectedAnydeskId = ref<string | null>(null)
 const anyDesks = ref<IDropdownOption[]>([])
 const anydesksToggle = ref<boolean>(false)
-
+const selectedTags = ref<number[]>([])
+const tagOptions = ref<number[]>([])
 
 const isCreating = computed(() => !props.growthSession?.id)
 const isReadyToSubmit = computed(() => !!startTime.value
@@ -60,6 +62,7 @@ const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
 
 onBeforeMount(() => {
     anydesksToggle.value = !!props.growthSession?.anydesk
+    tagOptions.value = [1, 2, 3];
 
     date.value = props.startDate
 
@@ -265,6 +268,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                           :options="anyDesks" class="ml-4 w-32"/>
             </label>
         </div>
+        <multiselect v-model="selectedTags" :options="tagOptions"></multiselect>
 
         <div class="mb-4" v-if="(discordChannels.length > 0)">
             <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-2">
