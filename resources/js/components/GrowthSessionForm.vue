@@ -8,7 +8,8 @@ import {AnydesksApi} from "../services/AnydesksApi"
 import TimePicker from "./TimePicker.vue"
 import {computed, onBeforeMount, ref, watch} from "vue"
 import VSelect from "./VSelect.vue"
-import Multiselect from 'vue-multiselect'
+import Multiselect from "@vueform/multiselect"
+import {TagsApi} from "../services/TagsApi";
 
 interface IProps {
     owner: IUser;
@@ -35,8 +36,8 @@ const discordChannels = ref<IDropdownOption[]>([])
 const selectedAnydeskId = ref<string | null>(null)
 const anyDesks = ref<IDropdownOption[]>([])
 const anydesksToggle = ref<boolean>(false)
-const selectedTags = ref<number[]>([])
-const tagOptions = ref<number[]>([])
+const tagIds = ref<string[]>([])
+const tagOptions = ref<any>({})
 
 const isCreating = computed(() => !props.growthSession?.id)
 const isReadyToSubmit = computed(() => !!startTime.value
@@ -57,18 +58,20 @@ const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
     attendee_limit: isLimitless.value ? undefined : attendeeLimit.value,
     discord_channel_id: selectedDiscordChannelId.value ?? undefined,
     anydesk_id: selectedAnydeskId.value ? Number.parseInt(selectedAnydeskId.value) : undefined,
-    allow_watchers: allowWatchers.value
+    allow_watchers: allowWatchers.value,
+    tags: tagIds.value.map((tag) => +tag)
 }))
 
 onBeforeMount(() => {
     anydesksToggle.value = !!props.growthSession?.anydesk
-    tagOptions.value = [1, 2, 3];
 
     date.value = props.startDate
 
     getDiscordChannels()
 
     getAnyDesks()
+
+    getTags()
 
     if (props.growthSession) {
         date.value = props.growthSession.date
@@ -82,6 +85,7 @@ onBeforeMount(() => {
         isPublic.value = props.growthSession.is_public
         selectedAnydeskId.value = props.growthSession.anydesk?.id.toString() ?? null
         allowWatchers.value = props.growthSession.allow_watchers
+        tagIds.value = props.growthSession.tags.map(tag => tag.id.toString())
     }
 })
 
@@ -154,6 +158,20 @@ async function getAnyDesks() {
     } catch (e) {
         onRequestFailed(e)
     }
+}
+
+async function getTags() {
+  try {
+    const tagsFromApi = await TagsApi.index()
+    tagOptions.value = tagsFromApi.map(tag => {
+      return {
+        label: tag.name,
+        value: tag.id.toString()
+      }
+    })
+  } catch (e) {
+    onRequestFailed(e)
+  }
 }
 
 watch(selectedDiscordChannelId, (selectedId: string | null) => {
@@ -268,7 +286,14 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                           :options="anyDesks" class="ml-4 w-32"/>
             </label>
         </div>
-        <multiselect v-model="selectedTags" :options="tagOptions"></multiselect>
+
+        <Multiselect
+            v-model="tagIds"
+            mode="tags"
+            :close-on-select="false"
+            :searchable="true"
+            :options="tagOptions"
+        />
 
         <div class="mb-4" v-if="(discordChannels.length > 0)">
             <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-2">
@@ -303,6 +328,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                 </button>
     </form>
 </template>
+<style src="@vueform/multiselect/themes/default.css"></style>
 
 <style lang="scss" scoped>
 .error-outline {
