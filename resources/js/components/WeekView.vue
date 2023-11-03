@@ -195,7 +195,7 @@ function scrollToDate(id: string) {
                 <draggable :date="date"
                            item-key="id"
                            :list="growthSessionsVisibleInDate(date)"
-                           class="h-full w-full px-2"
+                           class="h-full w-full px-2 overflow-y-auto"
                            group="growth-sessions"
                            handle=".handle"
                            @change="onChange"
