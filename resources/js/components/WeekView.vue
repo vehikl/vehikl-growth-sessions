@@ -149,7 +149,7 @@ function scrollToDate(id: string) {
         </div>
 
 
-        <div class="flex flex-col md:flex-row justify-center flex-wrap">
+        <div class="week-grid">
             <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
                 <div class="flex flex-wrap flex-row-reverse w-full h-full overflow-y-scroll">
                     <button class="p-4 pb-0" @click="formModalState = 'closed';">
@@ -195,7 +195,7 @@ function scrollToDate(id: string) {
                 <draggable :date="date"
                            item-key="id"
                            :list="growthSessionsVisibleInDate(date)"
-                           class="h-full w-full px-2"
+                           class="h-full w-full px-2 overflow-y-auto"
                            group="growth-sessions"
                            handle=".handle"
                            @change="onChange"
@@ -225,11 +225,16 @@ function scrollToDate(id: string) {
 
 <style lang="scss" scoped>
 .day {
-
     min-height: 10rem;
     @media (min-width: 768px) {
         min-height: 35rem;
-        width: 20rem;
     }
+}
+
+.week-grid {
+    display: grid;
+    grid-auto-flow: row;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-auto-rows: 680px;
 }
 </style>
