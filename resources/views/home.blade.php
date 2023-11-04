@@ -16,23 +16,25 @@
     @endguest
     <week-view class="mt-6" :user="{{ json_encode(auth()->user()) }}"></week-view>
 
-    <section class="flex flex-col lg:flex-row justify-around">
-        <div class="flex">
-            <p class="text-lg mx-2 text-blue-700 font-bold mt-4">Have suggestions for this app? </p>
-            <a class="inline-block bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2 mt-2"
-               target="_blank"
-               href="https://github.com/vehikl/vehikl-growth-sessions/issues">
-                Please, share them here
-            </a>
-        </div>
+    <div class="bg-blue-800">
+        @include('partials.about')
 
-        <div class="flex">
-            <p class="text-lg mx-2 text-blue-700 font-bold mt-4">Have feedback on our growth sessions? </p>
-            <p class="inline-block bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2 mt-2">
-                <a href="mailto:gsfeedback@vehikl.com">Send us an email!</a>
-        </div>
-    </section>
-    </p>
+        <section class="flex flex-col lg:flex-row px-24 pt-8 pb-12 justify-between text-blue-100 bg-blue-600">
+            <div class="text-center py-16 h-64">
+                <p class="text-4xl tracking-wide mt-4 mb-4">Have <span class="italic font-semibold text-white">suggestions</span> for this app?</p>
+                <a class="inline-block transform hover:-skew-y-2 hover:text-5xl bg-blue-600 border-4 border-white hover:bg-blue-700 focus:bg-blue-700 text-white text-2xl font-bold py-2 px-4 mt-2"
+                target="_blank"
+                href="https://github.com/vehikl/vehikl-growth-sessions/issues">
+                    Share them!
+                </a>
+            </div>
 
-    @include('partials.about')
+            <div class="text-center py-16 h-64">
+                <p class="text-4xl tracking-wide mt-4 mb-4">Have <span class="italic font-semibold text-white">feedback</span> on our <span class="italic font-semibold text-white">growth sessions</span>? </p>
+                <p class="inline-block transform hover:-skew-y-2 hover:text-5xl bg-blue-600 border-4 border-white hover:bg-blue-700 focus:bg-blue-700 text-white text-2xl font-bold py-2 px-4 mt-2">
+                    <a href="mailto:gsfeedback@vehikl.com">Send it to us!</a>
+            </div>
+        </section>
+
+    </div>
 @endsection

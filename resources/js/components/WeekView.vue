@@ -149,7 +149,7 @@ function scrollToDate(id: string) {
         </div>
 
 
-        <div class="week-grid">
+        <div class="week-grid p-6">
             <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
                 <div class="flex flex-wrap flex-row-reverse w-full h-full overflow-y-scroll">
                     <button class="p-4 pb-0" @click="formModalState = 'closed';">
