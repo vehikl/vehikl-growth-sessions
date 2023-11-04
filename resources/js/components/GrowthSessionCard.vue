@@ -87,12 +87,12 @@ async function onDeleteClicked() {
         <h3 class="font-light text-4xl font-extrabold text-blue-900 text-left mb-3"
         :class="{'pr-4': isDraggable}"
         v-text="growthSession.title"/>
-        <div class="flex items-center justify-between flex-1 mb-2 text-blue-700">
+        <div class="flex items-center justify-between flex-1 mb-2 text-blue-900">
             <p class="mr-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name"/>
             <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar"/>
         </div>
 
-        <div class="flex justify-between mb-2 text-sky-500">
+        <div class="flex justify-between mb-2 text-blue-600">
             <div class="flex items-center attendees-count">
                 <i class="fa fa-user-circle text-lg mr-2" aria-hidden="true"></i>
                 <span v-text="growthSession.attendees.length"/>

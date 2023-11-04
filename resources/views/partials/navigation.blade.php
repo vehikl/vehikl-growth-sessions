@@ -1,9 +1,9 @@
-<nav class="bg-blue-800 p-6">
+<nav class="bg-blue-800 px-6 py-3">
     <div class="flex items-center justify-between flex-wrap">
-        <div class="flex items-center flex-shrink-0 mr-6 text-white hover:text-orange-200">
-            <i class="fa fa-users text-xl md:text-2xl mr-2" aria-hidden="true"></i>
+        <div class="flex items-center flex-shrink-0 mr-6 text-lg text-white hover:text-orange-200">
+            <i class="fa fa-users mr-6" aria-hidden="true"></i>
             <a href="{{ route('home') }}"
-               class="font-semibold text-xl md:text-3xl">{{ config('app.name', 'Vehikl Growth Sessions') }}</a>
+               class="font-semibold">{{ config('app.name', 'Vehikl Growth Sessions') }}</a>
         </div>
         <div class="block lg:hidden">
             <button
@@ -37,11 +37,11 @@
                 @auth
                     <a href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                       class="mt-4 flex items-center lg:mt-0 text-white hover:text-orange-200 ">
+                       class="mt-4 flex items-center lg:mt-0 text-white hover:text-orange-200 tracking-wider">
                         <v-avatar class="mr-4"
                                   src="{{ auth()->user()->avatar }}"
                                   alt="Your Avatar"
-                                  :size="12"></v-avatar>
+                                  :size="6"></v-avatar>
                         Logout
                     </a>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -49,7 +49,7 @@
                     </form>
                 @endauth
                 <a href="{{route('about')}}"
-                   class="mt-4 lg:mt-0 ml-6 text-white hover:text-orange-200 ">About
+                   class="mt-4 lg:mt-0 ml-6 text-white hover:text-orange-200 tracking-wider">About
                 </a>
             </div>
         </div>
