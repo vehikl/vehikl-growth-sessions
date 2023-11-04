@@ -230,7 +230,12 @@ function scrollToDate(id: string) {
     display: grid;
     grid-auto-flow: row;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    grid-auto-rows: 680px;
+    @media (min-width: 768px) {
+        grid-auto-rows: 800px;
+    }
+    @media (max-width: 767px) {
+        grid-auto-rows: auto;
+    }
     grid-gap: 1rem;
 }
 </style>
