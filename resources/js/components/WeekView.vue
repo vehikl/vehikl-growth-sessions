@@ -166,18 +166,18 @@ function scrollToDate(id: string) {
             <div v-for="date in growthSessions.weekDates"
                  :key="date.toDateString()"
                  :class="{
-                 'bg-blue-100 border-blue-200': date.isEvenDate(),
-                 'bg-blue-200 border-blue-300': !date.isEvenDate(),
+                 ' border-blue-900': date.isEvenDate(),
+                 ' border-blue-800': !date.isEvenDate(),
                  }"
                  :weekDay="date.weekDayString()"
-                 class="day flex flex-col text-center mx-1 mb-2 relative rounded border items-center">
+                 class="day flex flex-col mx-1 mb-2 relative border-2 items-center">
                 <h3
-                    class="text-lg text-blue-700 font-bold p-3 md:pt-6 sticky sm:relative top-0 w-full z-20 border-b md:border-b-0 rounded-t md:rounded-none mb-2 md:mb-0"
+                    class="text-3xl tracking-wide text-white font-bold p-3 md:pt-6 sticky sm:relative top-0 w-full z-20 border-b md:border-b-0 rounded-t md:rounded-none mb-2 md:mb-0"
                     v-text="date.weekDayString()"
                     :id="date.weekDayString()"
                     :class="{
-                     'bg-blue-100 border-blue-200': date.isEvenDate(),
-                     'bg-blue-200 border-blue-300': !date.isEvenDate(),
+                     'bg-blue-900 border-blue-200': date.isEvenDate(),
+                     'bg-blue-800 border-blue-200': !date.isEvenDate(),
                      }"
                 ></h3>
                 <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-blue-600 text-lg my-4">
@@ -214,7 +214,7 @@ function scrollToDate(id: string) {
             </div>
             <div class="block md:hidden fixed bottom-0 right-0 m-2 z-50" v-if="growthSessions.hasCurrentDate">
                 <button aria-label="Scroll to today"
-                        class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         @click="scrollToDate(DateTime.today().weekDayString())">
                     Go to today <i aria-hidden="true" class="fa fa-calendar ml-2"></i>
                 </button>
