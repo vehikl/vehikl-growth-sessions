@@ -126,10 +126,8 @@ function scrollToDate(id: string) {
 
 <template>
     <div v-if="growthSessions.isReady">
-        <div class="flex flex-col justify-center items-center text-xl text-blue-600 font-bold">
-            <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
-                                     v-model="visibilityFilter"/>
-            <div class="flex my-5">
+        <div class="flex justify-between px-6 items-center text-xl text-blue-600 font-bold">
+            <div class="flex">
                 <button aria-label="Load previous week"
                         class="load-previous-week mx-4 mb-2"
                         @click="changeReferenceDate(-7)">
@@ -146,6 +144,9 @@ function scrollToDate(id: string) {
                     <i aria-hidden="true" class="fa fa-chevron-right"></i>
                 </button>
             </div>
+
+            <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
+                                     v-model="visibilityFilter"/>
         </div>
 
 
@@ -184,7 +185,7 @@ function scrollToDate(id: string) {
                 <draggable :date="date"
                            item-key="id"
                            :list="growthSessionsVisibleInDate(date)"
-                           class="w-full py-2 overflow-y-auto"
+                           class="w-full h-full py-2 overflow-y-auto"
                            group="growth-sessions"
                            handle=".handle"
                            @change="onChange"

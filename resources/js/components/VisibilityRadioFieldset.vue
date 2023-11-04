@@ -10,7 +10,7 @@ const visibility = computed({
 </script>
 
 <template>
-    <fieldset class="border inline-flex p-4 rounded border-blue-300 gap-5 mt-5">
+    <fieldset class="border flex p-4 rounded border-blue-300 gap-5">
         <label>
             All
             <input v-model="visibility" name="filter-sessions" type="radio" value="all">
