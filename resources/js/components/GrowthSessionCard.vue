@@ -45,7 +45,7 @@ async function onDeleteClicked() {
 </script>
 
 <template>
-    <a class="block bg-gray-100 border py-4 px-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer overflow-hidden mb-3 transform transition-transform duration-150"
+    <a class="block bg-gray-100 border py-4 px-6 hover:bg-blue-100 cursor-pointer overflow-hidden mb-3 transform transition-transform duration-150"
        :class="growthSession.is_public ? 'border-blue-300' : 'border-vehikl-orange'"
        :href="growthSessionUrl">
         <div v-if="growthSession.title || isDraggable" :class="{'mb-2': growthSession.title}"
