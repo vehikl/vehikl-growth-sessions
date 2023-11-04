@@ -204,7 +204,6 @@ function scrollToDate(id: string) {
                         <growth-session-card
                             :growth-session="growthSession"
                             :user="user"
-                            class="mb-3 transform transition-transform duration-150"
                             @growth-session-updated="getAllGrowthSessionsOfTheWeek"
                             @copy-requested="onGrowthSessionCopyRequested"
                             @edit-requested="onGrowthSessionEditRequested"
