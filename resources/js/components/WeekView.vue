@@ -172,7 +172,7 @@ function scrollToDate(id: string) {
                  :weekDay="date.weekDayString()"
                  class="day flex flex-col mx-1 mb-2 relative border-2 items-center">
                 <h3
-                    class="text-3xl tracking-wide text-white font-bold p-3 md:pt-6 sticky sm:relative top-0 w-full z-20 border-b md:border-b-0 rounded-t md:rounded-none mb-2 md:mb-0"
+                    class="text-3xl tracking-wide text-white font-bold p-3 md:pt-6 sticky sm:relative top-0 w-full z-20 border-b md:border-b-0 md:rounded-none"
                     v-text="date.weekDayString()"
                     :id="date.weekDayString()"
                     :class="{
