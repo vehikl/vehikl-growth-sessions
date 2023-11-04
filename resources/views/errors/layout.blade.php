@@ -36,7 +36,6 @@
             }
 
             .content {
-                text-align: center;
             }
 
             .title {
