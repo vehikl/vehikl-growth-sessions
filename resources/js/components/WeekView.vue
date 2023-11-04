@@ -167,6 +167,7 @@ function scrollToDate(id: string) {
                  :key="date.toDateString()"
                  :weekDay="date.weekDayString()"
                  class="day flex flex-col mx-1 mb-2 relative items-center">
+
                 <h3
                     class="text-3xl tracking-wide text-white font-bold p-3 sticky sm:relative top-0 w-full z-20 rounded-br-full"
                     v-text="date.weekDayString()"
@@ -176,22 +177,14 @@ function scrollToDate(id: string) {
                      'bg-blue-800 border-blue-200': !date.isEvenDate(),
                      }"
                 ></h3>
-                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-blue-600 text-lg my-4">
+                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-blue-600 text-xl py-8">
                     <p v-text="`${Nothingator.random()}...`"/>
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
                 </div>
-
-                <button
-                    v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
-                    class="create-growth-session text-5xl h-20 w-20 text-blue-600 hover:text-blue-700 focus:text-blue-700 font-bold mt-3 mb-8"
-                    @click="onCreateNewGrowthSessionClicked(date)">
-                    <i aria-hidden="true" class="fa fa-plus-circle"></i>
-                </button>
-
                 <draggable :date="date"
                            item-key="id"
                            :list="growthSessionsVisibleInDate(date)"
-                           class="h-full w-full py-2 overflow-y-auto"
+                           class="w-full py-2 overflow-y-auto"
                            group="growth-sessions"
                            handle=".handle"
                            @change="onChange"
@@ -206,6 +199,14 @@ function scrollToDate(id: string) {
                             @delete-requested="getAllGrowthSessionsOfTheWeek"/>
                     </template>
                 </draggable>
+
+                <button
+                    v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
+                    class="create-growth-session flex flex-col items-center text-6xl tracking-wide px-1 py-12 w-full bg-white text-blue-800 hover:bg-white hover:text-sky-500"
+                    @click="onCreateNewGrowthSessionClicked(date)">
+                    <i aria-hidden="true" class="fa fa-plus-circle"></i><span class="text-2xl mt-2">Add Session</span>
+                </button>
+
             </div>
             <div class="block md:hidden fixed bottom-0 right-0 m-2 z-50" v-if="growthSessions.hasCurrentDate">
                 <button aria-label="Scroll to today"

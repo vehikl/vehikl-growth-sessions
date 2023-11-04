@@ -45,7 +45,7 @@ async function onDeleteClicked() {
 </script>
 
 <template>
-    <a class="block border-l-4 py-4 px-4 cursor-pointer overflow-hidden mb-3 transform transition-transform duration-150"
+    <a class="block border-l-4 py-4 px-4 cursor-pointer overflow-hidden mb-3 transform transition-transform duration-150 shadow-md"
        :class="growthSession.is_public ? 'border-blue-900' : 'border-vehikl-orange'"
        :href="growthSessionUrl">
         <div v-if="growthSession.title || isDraggable" :class="{'mb-2': growthSession.title}"
@@ -85,17 +85,14 @@ async function onDeleteClicked() {
 
         </div>
         <h3 class="font-light text-4xl font-extrabold text-blue-900 text-left mb-3"
-            :class="{'pr-4': isDraggable}"
-            v-text="growthSession.title"/>
-        <pre
-            class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed"
-            v-text="growthSession.topic"/>
-        <div class="flex items-center flex-1 mb-4 text-blue-700">
-            <p class="mr-3">Host:</p>
-            <p class="mr-6 text-md" v-text="growthSession.owner.name"/>
+        :class="{'pr-4': isDraggable}"
+        v-text="growthSession.title"/>
+        <div class="flex items-center justify-between flex-1 mb-2 text-blue-700">
+            <p class="mr-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name"/>
             <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar"/>
         </div>
-        <div class="flex justify-between mb-2 text-blue-700">
+
+        <div class="flex justify-between mb-2 text-sky-500">
             <div class="flex items-center attendees-count">
                 <i class="fa fa-user-circle text-lg mr-2" aria-hidden="true"></i>
                 <span v-text="growthSession.attendees.length"/>
@@ -108,6 +105,10 @@ async function onDeleteClicked() {
                 {{ growthSession.startTime }} to {{ growthSession.endTime }}
             </div>
         </div>
+
+        <pre
+            class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed"
+            v-text="growthSession.topic"/>
 
         <div class="text-blue-700 text-left mb-2 break-all">
             <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
