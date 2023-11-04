@@ -45,8 +45,8 @@ async function onDeleteClicked() {
 </script>
 
 <template>
-    <a class="block bg-gray-100 border py-4 px-6 hover:bg-blue-100 cursor-pointer overflow-hidden mb-3 transform transition-transform duration-150"
-       :class="growthSession.is_public ? 'border-blue-300' : 'border-vehikl-orange'"
+    <a class="block border-l-4 py-4 px-4 cursor-pointer overflow-hidden mb-3 transform transition-transform duration-150"
+       :class="growthSession.is_public ? 'border-blue-900' : 'border-vehikl-orange'"
        :href="growthSessionUrl">
         <div v-if="growthSession.title || isDraggable" :class="{'mb-2': growthSession.title}"
              class="flex justify-end items-center">
@@ -84,11 +84,11 @@ async function onDeleteClicked() {
             </div>
 
         </div>
-        <h3 class="font-light text-lg text-blue-700 text-left mb-3"
+        <h3 class="font-light text-4xl font-extrabold text-blue-900 text-left mb-3"
             :class="{'pr-4': isDraggable}"
             v-text="growthSession.title"/>
         <pre
-            class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
+            class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed"
             v-text="growthSession.topic"/>
         <div class="flex items-center flex-1 mb-4 text-blue-700">
             <p class="mr-3">Host:</p>

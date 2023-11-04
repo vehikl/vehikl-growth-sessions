@@ -165,14 +165,10 @@ function scrollToDate(id: string) {
             </v-modal>
             <div v-for="date in growthSessions.weekDates"
                  :key="date.toDateString()"
-                 :class="{
-                 ' border-blue-900': date.isEvenDate(),
-                 ' border-blue-800': !date.isEvenDate(),
-                 }"
                  :weekDay="date.weekDayString()"
-                 class="day flex flex-col mx-1 mb-2 relative border-2 items-center">
+                 class="day flex flex-col mx-1 mb-2 relative items-center">
                 <h3
-                    class="text-3xl tracking-wide text-white font-bold p-3 md:pt-6 sticky sm:relative top-0 w-full z-20 border-b md:border-b-0"
+                    class="text-3xl tracking-wide text-white font-bold p-3 sticky sm:relative top-0 w-full z-20 rounded-br-full"
                     v-text="date.weekDayString()"
                     :id="date.weekDayString()"
                     :class="{
@@ -195,7 +191,7 @@ function scrollToDate(id: string) {
                 <draggable :date="date"
                            item-key="id"
                            :list="growthSessionsVisibleInDate(date)"
-                           class="h-full w-full p-2 overflow-y-auto"
+                           class="h-full w-full py-2 overflow-y-auto"
                            group="growth-sessions"
                            handle=".handle"
                            @change="onChange"
@@ -235,5 +231,6 @@ function scrollToDate(id: string) {
     grid-auto-flow: row;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     grid-auto-rows: 680px;
+    grid-gap: 1rem;
 }
 </style>
