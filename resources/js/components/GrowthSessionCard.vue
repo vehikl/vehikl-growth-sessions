@@ -45,7 +45,7 @@ async function onDeleteClicked() {
 </script>
 
 <template>
-    <a class="block border-l-4 p-4 pt-2 mx-2 cursor-pointer overflow-hidden mb-3 transform transition-transform duration-150 shadow-md bg-white"
+    <a class="block border-l-4 p-4 pt-2 mx-2 cursor-pointer overflow-visible mb-3 transform transition-transform duration-150 shadow-md bg-white"
        :class="growthSession.is_public ? 'border-blue-900' : 'border-vehikl-orange'"
        :href="growthSessionUrl">
        <div v-if="growthSession.title || isDraggable"
@@ -54,9 +54,10 @@ async function onDeleteClicked() {
                 aria-label="add-to-calendar"
                 :href="growthSession.calendarUrl"
                 target="_blank"
-                class="text-slate-600 leading-none hover:bg-slate-300 hover:text-slate-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
+                class="text-slate-600 group relative leading-none hover:bg-slate-300 hover:text-slate-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
             >
                 <i aria-hidden="true" class="fa fa-calendar"></i>
+                <div class="bg-slate-700 text-slate-50 hidden group-hover:block absolute p-2 bottom-full rounded-lg">Add to Calendar</div>
             </a>
             <button
                 v-show="growthSession.canEditOrDelete(user)"
