@@ -112,8 +112,8 @@ async function onDeleteClicked() {
             class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed"
             v-text="growthSession.topic"/>
 
-        <div class="text-blue-700 text-left mb-4 break-all">
-            <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
+        <div class="text-blue-600 text-left mb-4 break-all">
+            <i class="fa fa-compass text-xl mr-2" aria-hidden="true"></i>
             <location-renderer :locationString="growthSession.location"/>
         </div>
 
