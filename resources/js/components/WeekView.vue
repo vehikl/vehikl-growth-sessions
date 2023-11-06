@@ -126,7 +126,7 @@ function scrollToDate(id: string) {
 
 <template>
     <div v-if="growthSessions.isReady">
-        <div class="flex justify-between sm:justify-center text-2xl sm:text-3xl md:text-4xl bg-sky-800 text-white px-4 py-2">
+        <div class="flex justify-between sm:justify-center text-2xl sm:text-3xl md:text-4xl bg-emerald-800 text-white px-4 py-2">
             <button aria-label="Load previous week"
                     class="load-previous-week text-5xl sm:text-3xl pr-8"
                     @click="changeReferenceDate(-7)">
@@ -175,17 +175,17 @@ function scrollToDate(id: string) {
                     v-text="date.weekDayString()"
                     :id="date.weekDayString()"
                     :class="{
-                     'bg-sky-900 border-sky-200': date.isEvenDate(),
-                     'bg-sky-800 border-sky-200': !date.isEvenDate(),
+                     'bg-emerald-900 border-emerald-200': date.isEvenDate(),
+                     'bg-emerald-800 border-emerald-200': !date.isEvenDate(),
                      }"
                 ></h3>
                 <button
                     v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
-                    class="create-growth-session text-center text-2xl tracking-wide px-2 py-1 my-1 w-full bg-white border-4 border-sky-800 text-sky-800 transform hover:scale-90 scale-75 hover:bg-sky-800 hover:text-white rounded-full"
+                    class="create-growth-session text-center text-2xl tracking-wide px-2 py-1 my-1 w-full bg-white border-4 border-emerald-800 text-emerald-800 transform hover:scale-90 scale-75 hover:bg-emerald-800 hover:text-white rounded-full"
                     @click="onCreateNewGrowthSessionClicked(date)">
                     <i aria-hidden="true" class="fa fa-plus-circle mr-4"></i><span class="text">Add Session</span>
                 </button>
-                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-sky-600 text-xl py-8">
+                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-emerald-600 text-xl py-8">
                     <p v-text="`${Nothingator.random()}...`"/>
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
                 </div>
@@ -213,7 +213,7 @@ function scrollToDate(id: string) {
             </div>
             <div class="block md:hidden fixed bottom-4 inset-x-4 z-50" v-if="growthSessions.hasCurrentDate">
                 <button aria-label="Scroll to today"
-                        class="flex w-full justify-center items-center px-2 py-1 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+                        class="flex w-full justify-center items-center px-2 py-1 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
                         @click="scrollToDate(DateTime.today().weekDayString())">
                     Go to today <i aria-hidden="true" class="fa fa-calendar ml-2"></i>
                 </button>

@@ -235,11 +235,11 @@
                 background-color: #64d5ca;
             }
 
-            .bg-sky-dark {
+            .bg-emerald-dark {
                 background-color: #2779bd;
             }
 
-            .bg-sky-light {
+            .bg-emerald-light {
                 background-color: #7886d7;
             }
 
