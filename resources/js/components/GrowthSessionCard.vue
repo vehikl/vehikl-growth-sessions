@@ -45,42 +45,42 @@ async function onDeleteClicked() {
 </script>
 
 <template>
-    <a class="block border-l-4 py-4 px-4 cursor-pointer overflow-hidden mb-3 transform transition-transform duration-150 shadow-md"
+    <a class="block border-l-4 p-4 pt-2 cursor-pointer overflow-hidden mb-3 transform transition-transform duration-150 shadow-md"
        :class="growthSession.is_public ? 'border-blue-900' : 'border-vehikl-orange'"
        :href="growthSessionUrl">
        <div v-if="growthSession.title || isDraggable"
-             class="flex items-center px-2 -mx-2 bg-slate-100 rounded-lg mb-4">
+             class="flex items-center px-1 py-1 -mx-2 bg-slate-100 rounded-lg mb-4">
             <a
                 aria-label="add-to-calendar"
                 :href="growthSession.calendarUrl"
                 target="_blank"
-                class="text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
+                class="text-gray-600 leading-none hover:bg-gray-300 hover:text-gray-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
             >
                 <i aria-hidden="true" class="fa fa-calendar"></i>
             </a>
             <button
                 v-show="growthSession.canEditOrDelete(user)"
-                class="update-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
+                class="update-button text-gray-600 leading-none hover:bg-gray-300 hover:text-gray-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
                 @click.prevent="emit('edit-requested', growthSession)">
                 <i aria-hidden="true" class="fa fa-edit"></i>
             </button>
             <button
                 v-show="user && user.is_vehikl_member"
-                class="copy-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
+                class="copy-button text-gray-600 leading-none hover:bg-gray-300 hover:text-gray-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
                 @click.prevent="emit('copy-requested', growthSession)">
                 <i aria-hidden="true" class="fa fa-copy"></i>
             </button>
             <button
                 v-show="growthSession.canEditOrDelete(user)"
-                class="delete-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
+                class="delete-button text-gray-600 leading-none hover:bg-gray-300 hover:text-gray-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
                 @click.prevent="onDeleteClicked">
                 <i class="fa fa-trash" aria-hidden="true"></i>
             </button>
 
             <div v-if="isDraggable"
                  @click.stop
-                 class="z-10 handle h-10 w-10 hover:bg-blue-200 rounded-full inline-flex justify-center items-center cursor-move">
-                <icon-draggable class="h-4 text-blue-600 hover:text-blue-800"/>
+                 class="z-10 handle h-10 w-10 hover:bg-gray-300 hover:text-gray-900 rounded-lg inline-flex justify-center items-center cursor-move">
+                <icon-draggable class="h-4 text-gray-600 hover:text-gray-800"/>
             </div>
 
         </div>
@@ -112,7 +112,7 @@ async function onDeleteClicked() {
             class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed"
             v-text="growthSession.topic"/>
 
-        <div class="text-blue-700 text-left mb-2 break-all">
+        <div class="text-blue-700 text-left mb-4 break-all">
             <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
             <location-renderer :locationString="growthSession.location"/>
         </div>
@@ -122,7 +122,7 @@ async function onDeleteClicked() {
             {{ growthSession.anydesk.name }}
         </div>
 
-        <div class="flex flex-row items-between">
+        <div class="flex flex-row items-between gap-2">
             <v-button
                 class="join-button"
                 color="blue"
