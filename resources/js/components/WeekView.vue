@@ -207,9 +207,9 @@ function scrollToDate(id: string) {
 
 
             </div>
-            <div class="block md:hidden fixed bottom-0 right-0 m-2 z-50" v-if="growthSessions.hasCurrentDate">
+            <div class="block md:hidden fixed bottom-4 inset-x-4 z-50" v-if="growthSessions.hasCurrentDate">
                 <button aria-label="Scroll to today"
-                        class="inline-flex items-center px-2 py-1 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        class="flex w-full justify-center items-center px-2 py-1 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         @click="scrollToDate(DateTime.today().weekDayString())">
                     Go to today <i aria-hidden="true" class="fa fa-calendar ml-2"></i>
                 </button>
