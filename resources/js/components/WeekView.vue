@@ -126,28 +126,25 @@ function scrollToDate(id: string) {
 
 <template>
     <div v-if="growthSessions.isReady">
-        <div class="flex justify-between px-6 items-center text-xl text-blue-600 font-bold">
-            <div class="flex">
-                <button aria-label="Load previous week"
-                        class="load-previous-week mx-4 mb-2"
-                        @click="changeReferenceDate(-7)">
-                    <i aria-hidden="true" class="fa fa-chevron-left"></i>
-                </button>
-                <h2 v-if="growthSessions.weekDates.length > 0" class="text-center mb-2 w-72">
-                    Week of
-                    {{ growthSessions.firstDay.format("MMM-DD") }} to
-                    {{ growthSessions.lastDay.format("MMM-DD") }}
-                </h2>
-                <button aria-label="Load next week"
-                        class="load-next-week mx-4 mb-2"
-                        @click="changeReferenceDate(+7)">
-                    <i aria-hidden="true" class="fa fa-chevron-right"></i>
-                </button>
-            </div>
-
-            <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
-                                     v-model="visibilityFilter"/>
+        <div class="flex justify-between sm:justify-center text-5xl text-blue-800 mb-4 px-4">
+            <button aria-label="Load previous week"
+                    class="load-previous-week text-5xl sm:text-3xl pr-8"
+                    @click="changeReferenceDate(-7)">
+                <i aria-hidden="true" class="fa fa-chevron-left"></i>
+            </button>
+            <h2 class="flex flex-col sm:flex-row items-center mx-4" v-if="growthSessions.weekDates.length > 0">
+                {{ growthSessions.firstDay.format("MMMM DD") }} <span class="text-gray-400 mx-4">to</span>
+                {{ growthSessions.lastDay.format("MMMM DD") }}
+            </h2>
+            <button aria-label="Load next week"
+                    class="load-next-week text-5xl sm:text-3xl pl-8"
+                    @click="changeReferenceDate(+7)">
+                <i aria-hidden="true" class="fa fa-chevron-right"></i>
+            </button>
         </div>
+
+        <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
+                                    v-model="visibilityFilter"/>
 
 
         <div class="week-grid p-6">
