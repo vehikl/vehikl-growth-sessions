@@ -177,7 +177,7 @@ function scrollToDate(id: string) {
                 ></h3>
                 <button
                     v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
-                    class="create-growth-session flex justify-start items-center text-2xl tracking-wide px-2 py-1 my-2 w-full bg-white border-4 border-blue-800 text-blue-800 transform origin-left hover:scale-100 scale-75 hover:bg-blue-800 hover:text-white rounded-r-full"
+                    class="create-growth-session text-center text-2xl tracking-wide px-2 py-1 my-2 w-full bg-white border-4 border-blue-800 text-blue-800 transform hover:scale-90 scale-75 hover:bg-blue-800 hover:text-white rounded-full"
                     @click="onCreateNewGrowthSessionClicked(date)">
                     <i aria-hidden="true" class="fa fa-plus-circle mr-4"></i><span class="text">Add Session</span>
                 </button>
