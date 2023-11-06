@@ -167,7 +167,7 @@ function scrollToDate(id: string) {
                  class="day flex flex-col mx-1 mb-2 relative items-center">
 
                 <h3
-                    class="text-3xl tracking-wide text-white font-bold p-3 sticky sm:relative top-0 w-full z-20 rounded-br-full"
+                    class="text-3xl tracking-wide text-white font-bold p-3 sticky sm:relative top-0 w-full z-20 rounded-r-full"
                     v-text="date.weekDayString()"
                     :id="date.weekDayString()"
                     :class="{
@@ -175,6 +175,12 @@ function scrollToDate(id: string) {
                      'bg-blue-800 border-blue-200': !date.isEvenDate(),
                      }"
                 ></h3>
+                <button
+                    v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
+                    class="create-growth-session flex justify-start items-center text-2xl tracking-wide px-2 py-1 my-2 w-full bg-white border-4 border-blue-800 text-blue-800 transform origin-left hover:scale-100 scale-75 hover:bg-blue-800 hover:text-white rounded-r-full"
+                    @click="onCreateNewGrowthSessionClicked(date)">
+                    <i aria-hidden="true" class="fa fa-plus-circle mr-4"></i><span class="text">Add Session</span>
+                </button>
                 <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-blue-600 text-xl py-8">
                     <p v-text="`${Nothingator.random()}...`"/>
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
@@ -198,12 +204,7 @@ function scrollToDate(id: string) {
                     </template>
                 </draggable>
 
-                <button
-                    v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
-                    class="create-growth-session flex flex-col items-center text-6xl tracking-wide px-1 py-12 w-full bg-white text-blue-800 hover:bg-white hover:text-sky-500"
-                    @click="onCreateNewGrowthSessionClicked(date)">
-                    <i aria-hidden="true" class="fa fa-plus-circle"></i><span class="text-2xl mt-2">Add Session</span>
-                </button>
+
 
             </div>
             <div class="block md:hidden fixed bottom-0 right-0 m-2 z-50" v-if="growthSessions.hasCurrentDate">
