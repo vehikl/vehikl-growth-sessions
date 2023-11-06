@@ -1,13 +1,13 @@
-<nav class="bg-blue-800 px-6 py-2">
+<nav class="bg-sky-800 px-6 py-2">
     <div class="flex items-center justify-between flex-wrap">
-        <div class="flex items-center flex-shrink-0 mr-6 text-lg text-white hover:text-orange-200">
+        <div class="flex items-center flex-shrink-0 mr-6 text-lg text-white hover:text-amber-200">
             <i class="fa fa-users mr-6" aria-hidden="true"></i>
             <a href="{{ route('home') }}"
                class="font-semibold">{{ config('app.name', 'Vehikl Growth Sessions') }}</a>
         </div>
         <div class="block lg:hidden">
             <button
-                class="flex items-center px-3 py-2 border rounded text-white border-white hover:text-orange-200 hover:border-orange-200"
+                class="flex items-center px-3 py-2 border rounded text-white border-white hover:text-amber-200 hover:border-amber-200"
                 onclick="document.getElementById('nav-links').classList.toggle('hidden')"
                 @click="isExpanded = !isExpanded">
                 <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -24,12 +24,12 @@
             <div class="text-xl justify-center items-center flex flex-col lg:flex-row">
                 @guest
                     <a href="{{route('oauth.login.redirect', ['driver' => 'github'])}}"
-                       class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-200 ">
+                       class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-amber-200 ">
                         <i class="fa fa-github text-3xl mr-4" aria-hidden="true"></i> Login with Github
                     </a>
                     @if(config('services.google.client_id'))
                         <a href="{{route('oauth.login.redirect', ['driver' => 'google'])}}"
-                           class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-200 ">
+                           class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-amber-200 ">
                             <i class="fa fa-google text-3xl mr-4" aria-hidden="true"></i> Login with Google
                         </a>
                     @endif
@@ -37,7 +37,7 @@
                 @auth
                     <a href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                       class="mt-4 flex items-center lg:mt-0 text-white hover:text-orange-200 tracking-wider">
+                       class="mt-4 flex items-center lg:mt-0 text-white hover:text-amber-200 tracking-wider">
                         <v-avatar class="mr-4"
                                   src="{{ auth()->user()->avatar }}"
                                   alt="Your Avatar"
@@ -49,7 +49,7 @@
                     </form>
                 @endauth
                 <a href="{{route('about')}}"
-                   class="mt-4 lg:mt-0 ml-6 text-white hover:text-orange-200 tracking-wider">About
+                   class="mt-4 lg:mt-0 ml-6 text-white hover:text-amber-200 tracking-wider">About
                 </a>
             </div>
         </div>

@@ -46,7 +46,7 @@ async function onDeleteClicked() {
 
 <template>
     <a class="block border-l-4 p-4 pt-2 mx-2 cursor-pointer overflow-visible mb-3 transform transition-transform duration-150 shadow-md bg-white"
-       :class="growthSession.is_public ? 'border-blue-900' : 'border-vehikl-orange'"
+       :class="growthSession.is_public ? 'border-sky-900' : 'border-vehikl-orange'"
        :href="growthSessionUrl">
        <div v-if="growthSession.title || isDraggable"
              class="flex items-center px-1 py-1 -mx-2 bg-slate-100 rounded-lg mb-4">
@@ -85,11 +85,11 @@ async function onDeleteClicked() {
             </div>
 
         </div>
-        <div class="flex items-center justify-between flex-1 mb-2 text-blue-900">
+        <div class="flex items-center justify-between flex-1 mb-2 text-sky-900">
             <p class="mr-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name"/>
             <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar"/>
         </div>
-       <h3 class="font-light text-4xl font-extrabold text-blue-900 text-left mb-3"
+       <h3 class="font-light text-4xl font-extrabold text-sky-900 text-left mb-3"
         :class="{'pr-4': isDraggable}"
         v-text="growthSession.title"/>
 
@@ -113,12 +113,12 @@ async function onDeleteClicked() {
             class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed"
             v-text="growthSession.topic"/>
 
-        <div class="text-blue-600 text-left mb-4 break-all">
+        <div class="text-sky-600 text-left mb-4 break-all">
             <i class="fa fa-compass text-xl mr-2" aria-hidden="true"></i>
             <location-renderer :locationString="growthSession.location"/>
         </div>
 
-        <div v-if="growthSession.anydesk && user" class="text-blue-700 text-left mb-4 break-all">
+        <div v-if="growthSession.anydesk && user" class="text-sky-700 text-left mb-4 break-all">
             <i class="fa fa-desktop text-lg mr-1" aria-hidden="true"></i>
             {{ growthSession.anydesk.name }}
         </div>

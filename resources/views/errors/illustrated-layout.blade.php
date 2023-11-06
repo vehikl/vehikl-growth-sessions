@@ -235,11 +235,11 @@
                 background-color: #64d5ca;
             }
 
-            .bg-blue-dark {
+            .bg-sky-dark {
                 background-color: #2779bd;
             }
 
-            .bg-indigo-light {
+            .bg-sky-light {
                 background-color: #7886d7;
             }
 
