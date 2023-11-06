@@ -2,7 +2,7 @@
 
 @section('content')
     @guest
-        <p role="alert" class="block text-center text-orange-600 text-2xl my-10">To join/create growth session or see
+        <p role="alert" class="fixed z-30 text-white inset-x-4 rounded-xl bottom-4 block text-center bg-orange-600 text-2xl py-4">To join/create growth session or see
             their location, you must
             <strong><a href="{{route('oauth.login.redirect', ['driver' => 'github'])}}"
                        class="underline hover:text-orange-400">log in with Github</a></strong>
