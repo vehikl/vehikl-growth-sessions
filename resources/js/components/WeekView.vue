@@ -126,7 +126,7 @@ function scrollToDate(id: string) {
 
 <template>
     <div v-if="growthSessions.isReady">
-        <div class="flex justify-between sm:justify-center text-4xl bg-blue-800 text-white p-4">
+        <div class="flex justify-between sm:justify-center text-2xl sm:text-3xl md:text-4xl bg-blue-800 text-white px-4 py-2">
             <button aria-label="Load previous week"
                     class="load-previous-week text-5xl sm:text-3xl pr-8"
                     @click="changeReferenceDate(-7)">
