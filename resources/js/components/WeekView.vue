@@ -164,6 +164,10 @@ function scrollToDate(id: string) {
             <div v-for="date in growthSessions.weekDates"
                  :key="date.toDateString()"
                  :weekDay="date.weekDayString()"
+                 :class="{
+                     'bg-slate-100': date.isEvenDate(),
+                     'bg-slate-50': !date.isEvenDate(),
+                     }"
                  class="day flex flex-col mb-2 relative items-center bg-slate-100">
 
                 <h3
