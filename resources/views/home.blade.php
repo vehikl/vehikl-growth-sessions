@@ -14,7 +14,7 @@
             !
         </p>
     @endguest
-    <week-view class="mt-6" :user="{{ json_encode(auth()->user()) }}"></week-view>
+    <week-view :user="{{ json_encode(auth()->user()) }}"></week-view>
 
     <div class="bg-blue-800">
         @include('partials.about')
