@@ -82,7 +82,7 @@ function getError(field: string): string {
             <div class="flex-1 mr-2 max-w-5xl">
                 <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Topic</h3>
                 <textarea :class="{'error-outline': getError('topic')}"
-                          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
                           id="topic"
                           placeholder="What is this growth session about?"
                           rows="4"
@@ -92,7 +92,7 @@ function getError(field: string): string {
                 <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Location:</h3>
                     <textarea :class="{'error-outline': getError('location')}"
-                              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                              class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
                               id="location"
                               placeholder="Where should people go to participate?"
                               rows="2"
@@ -102,15 +102,15 @@ function getError(field: string): string {
                 <div class="mb-3">
                     <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Time:</h3>
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="date">
+                        <label class="block text-slate-700 text-sm font-bold mb-2" for="date">
                             Date
                         </label>
                         <div :class="{'error-outline': getError('date')}"
-                             class="border p-1 border-gray-400 justify-center">
+                             class="border p-1 border-slate-400 justify-center">
                             <input id="date" v-model="growthSession.date" type="date">
                         </div>
 
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="start_time">
+                        <label class="block text-slate-700 text-sm font-bold mb-2" for="start_time">
                             Start
                         </label>
                         <vue-timepicker :class="{'error-outline': getError('start_time')}"
@@ -123,7 +123,7 @@ function getError(field: string): string {
                                         v-model="growthSession.start_time"/>
                     </div>
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="end_time">
+                        <label class="block text-slate-700 text-sm font-bold mb-2" for="end_time">
                             End
                         </label>
                         <vue-timepicker :class="{'error-outline': getError('end_time')}"

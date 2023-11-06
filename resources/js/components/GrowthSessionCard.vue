@@ -45,7 +45,7 @@ async function onDeleteClicked() {
 </script>
 
 <template>
-    <a class="block border-l-4 p-4 pt-2 cursor-pointer overflow-hidden mb-3 transform transition-transform duration-150 shadow-md"
+    <a class="block border-l-4 p-4 pt-2 mx-2 cursor-pointer overflow-hidden mb-3 transform transition-transform duration-150 shadow-md bg-white"
        :class="growthSession.is_public ? 'border-blue-900' : 'border-vehikl-orange'"
        :href="growthSessionUrl">
        <div v-if="growthSession.title || isDraggable"
@@ -54,33 +54,33 @@ async function onDeleteClicked() {
                 aria-label="add-to-calendar"
                 :href="growthSession.calendarUrl"
                 target="_blank"
-                class="text-gray-600 leading-none hover:bg-gray-300 hover:text-gray-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
+                class="text-slate-600 leading-none hover:bg-slate-300 hover:text-slate-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
             >
                 <i aria-hidden="true" class="fa fa-calendar"></i>
             </a>
             <button
                 v-show="growthSession.canEditOrDelete(user)"
-                class="update-button text-gray-600 leading-none hover:bg-gray-300 hover:text-gray-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
+                class="update-button text-slate-600 leading-none hover:bg-slate-300 hover:text-slate-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
                 @click.prevent="emit('edit-requested', growthSession)">
                 <i aria-hidden="true" class="fa fa-edit"></i>
             </button>
             <button
                 v-show="user && user.is_vehikl_member"
-                class="copy-button text-gray-600 leading-none hover:bg-gray-300 hover:text-gray-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
+                class="copy-button text-slate-600 leading-none hover:bg-slate-300 hover:text-slate-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
                 @click.prevent="emit('copy-requested', growthSession)">
                 <i aria-hidden="true" class="fa fa-copy"></i>
             </button>
             <button
                 v-show="growthSession.canEditOrDelete(user)"
-                class="delete-button text-gray-600 leading-none hover:bg-gray-300 hover:text-gray-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
+                class="delete-button text-slate-600 leading-none hover:bg-slate-300 hover:text-slate-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
                 @click.prevent="onDeleteClicked">
                 <i class="fa fa-trash" aria-hidden="true"></i>
             </button>
 
             <div v-if="isDraggable"
                  @click.stop
-                 class="z-10 handle h-10 w-10 hover:bg-gray-300 hover:text-gray-900 rounded-lg inline-flex justify-center items-center cursor-move">
-                <icon-draggable class="h-4 text-gray-600 hover:text-gray-800"/>
+                 class="z-10 handle h-10 w-10 hover:bg-slate-300 hover:text-slate-900 rounded-lg inline-flex justify-center items-center cursor-move">
+                <icon-draggable class="h-4 text-slate-600 hover:text-slate-800"/>
             </div>
 
         </div>

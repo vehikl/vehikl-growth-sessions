@@ -35,7 +35,7 @@ function getGithubURL(comment: IComment): string {
                 Comment:
             </label>
             <textarea
-                class="shadow resize-none appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                class="shadow resize-none appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="new-comment"
                 v-model="newComment"
                 :disabled="!user"

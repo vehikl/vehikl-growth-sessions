@@ -168,9 +168,9 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
     <form @submit.prevent class="create-growth-session edit-growth-session-form bg-white w-full p-4 text-left">
         <div class="mb-4 flex justify-between">
             <label :class="{'error-outline': getError('date')}"
-                   class="block text-gray-700 text-sm font-bold mb-2 justify-center">
+                   class="block text-slate-700 text-sm font-bold mb-2 justify-center">
                 Date
-                <input id="date" v-model="date" class="block border p-1 border-gray-400" type="date">
+                <input id="date" v-model="date" class="block border p-1 border-slate-400" type="date">
             </label>
 
             <button
@@ -186,7 +186,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
 
         <div class="mb-4 flex">
             <div>
-                <label class="text-gray-700 text-sm font-bold mb-2">
+                <label class="text-slate-700 text-sm font-bold mb-2">
                     Start
                     <time-picker id="start-time"
                                  v-model="startTime"
@@ -196,7 +196,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
 
             </div>
             <div class="ml-12">
-                <label class="text-gray-700 text-sm font-bold mb-2">
+                <label class="text-slate-700 text-sm font-bold mb-2">
                     End
                     <time-picker id="end-time" v-model="endTime" :class="{'error-outline': getError('end_time')}"
                                  class="block"/>
@@ -205,13 +205,13 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
         </div>
 
         <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">
+            <label class="block text-slate-700 text-sm font-bold mb-2">
                 Title
                 <input
                     id="title"
                     v-model="title"
                     :class="{'error-outline': getError('title')}"
-                    class="shadow block appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    class="shadow block appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
                     maxlength="45"
                     placeholder="In a short sentence, what is this growth session about?"
                     type="text"/>
@@ -219,23 +219,23 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
         </div>
 
         <div class="mb-4 mt-6 h-12 flex items-center justify-between">
-            <label class="block text-gray-700 text-sm font-bold mb-2">
+            <label class="block text-slate-700 text-sm font-bold mb-2">
                 <input id="is-public" v-model="isPublic" type="checkbox"> Is Public
             </label>
 
-            <label class="block text-gray-700 text-sm font-bold mb-2">
+            <label class="block text-slate-700 text-sm font-bold mb-2">
                 <input id="no-limit" v-model="isLimitless" type="checkbox">
                 No Limit
             </label>
 
             <div v-if="!isLimitless" class="flex items-center">
-                <label class="text-gray-700 text-sm font-bold flex">
+                <label class="text-slate-700 text-sm font-bold flex">
                     Limit
                     <input
                         id="attendee-limit"
                         v-model.number="attendeeLimit"
                         :class="{'error-outline': getError('limit')}"
-                        class="w-24 ml-4 text-center shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        class="w-24 ml-4 text-center shadow appearance-none border rounded py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
                         min="4"
                         placeholder="Limit of participants"
                         type="number"/>
@@ -244,13 +244,13 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
             <div v-else class="w-32"></div>
         </div>
 
-        <label class="block text-gray-700 text-sm font-bold mb-2">
+        <label class="block text-slate-700 text-sm font-bold mb-2">
             <input id="allow-watchers" v-model="allowWatchers" type="checkbox"> Allow watchers
         </label>
 
         <div v-if="anyDesks.length > 0" class="flex justify-between w-full">
             <div class="flex-1">
-                <label class="block text-gray-700 text-sm font-bold mb-4">
+                <label class="block text-slate-700 text-sm font-bold mb-4">
                     <input id="anydesks-toggle"
                            v-model="anydesksToggle"
                            type="checkbox"
@@ -258,7 +258,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                     Plan to use an AnyDesk?
                 </label>
             </div>
-            <label v-if="anydesksToggle" class="flex-1 text-right block text-gray-700 text-sm font-bold">
+            <label v-if="anydesksToggle" class="flex-1 text-right block text-slate-700 text-sm font-bold">
                 Anydesk
                 <v-select id="anydesk-selection"
                           v-model="selectedAnydeskId"
@@ -267,20 +267,20 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
         </div>
 
         <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="topic">
+            <label class="block text-slate-700 text-sm font-bold mb-2" for="topic">
                 Topic
             </label>
             <textarea
                 id="topic"
                 v-model="topic"
                 :class="{'error-outline': getError('topic')}"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
                 placeholder="Do you want to provide more details about this growth session?"
                 rows="4"/>
         </div>
 
         <div class="mb-4" v-if="(discordChannels.length > 0)">
-            <label class="block text-gray-700 text-sm font-bold mb-2">
+            <label class="block text-slate-700 text-sm font-bold mb-2">
                 Discord Channel
                 <v-select id="discord-channel"
                           v-model="selectedDiscordChannelId"
@@ -290,14 +290,14 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
         </div>
 
         <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="location">
+            <label class="block text-slate-700 text-sm font-bold mb-2" for="location">
                 Location
             </label>
             <textarea
                 id="location"
                 v-model="location"
                 :class="{'error-outline': getError('location')}"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
                 placeholder="Where should people go to participate?"
                 rows="2"/>
         </div>

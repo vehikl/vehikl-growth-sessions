@@ -133,7 +133,7 @@ function scrollToDate(id: string) {
                 <i aria-hidden="true" class="fa fa-chevron-left"></i>
             </button>
             <h2 class="flex flex-col sm:flex-row items-center mx-4" v-if="growthSessions.weekDates.length > 0">
-                {{ growthSessions.firstDay.format("MMMM DD") }} <span class="text-gray-400 mx-4">to</span>
+                {{ growthSessions.firstDay.format("MMMM DD") }} <span class="text-slate-400 mx-4">to</span>
                 {{ growthSessions.lastDay.format("MMMM DD") }}
             </h2>
             <button aria-label="Load next week"
@@ -147,7 +147,7 @@ function scrollToDate(id: string) {
                                     v-model="visibilityFilter"/>
 
 
-        <div class="week-grid p-6 sticky top-0 h-screen">
+        <div class="week-grid px-4 py-6 gap-4">
             <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
                 <div class="flex flex-wrap flex-row-reverse w-full h-full overflow-y-scroll">
                     <button class="p-4 pb-0" @click="formModalState = 'closed';">
@@ -164,10 +164,10 @@ function scrollToDate(id: string) {
             <div v-for="date in growthSessions.weekDates"
                  :key="date.toDateString()"
                  :weekDay="date.weekDayString()"
-                 class="day flex flex-col mx-1 mb-2 relative items-center">
+                 class="day flex flex-col mb-2 relative items-center bg-slate-100">
 
                 <h3
-                    class="text-3xl tracking-wide text-white font-bold p-3 sticky sm:relative top-0 w-full z-20 rounded-r-full"
+                    class="text-3xl tracking-wide text-white font-bold p-3 sticky sm:relative top-0 w-full z-20 rounded-br-full"
                     v-text="date.weekDayString()"
                     :id="date.weekDayString()"
                     :class="{
@@ -209,7 +209,7 @@ function scrollToDate(id: string) {
             </div>
             <div class="block md:hidden fixed bottom-0 right-0 m-2 z-50" v-if="growthSessions.hasCurrentDate">
                 <button aria-label="Scroll to today"
-                        class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        class="inline-flex items-center px-2 py-1 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         @click="scrollToDate(DateTime.today().weekDayString())">
                     Go to today <i aria-hidden="true" class="fa fa-calendar ml-2"></i>
                 </button>
@@ -229,13 +229,12 @@ function scrollToDate(id: string) {
 .week-grid {
     display: grid;
     grid-auto-flow: row;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(228px, 1fr));
     @media (min-width: 768px) {
-        grid-auto-rows: 720px;
+        // grid-auto-rows: 720px;
     }
     @media (max-width: 767px) {
         grid-auto-rows: auto;
     }
-    grid-gap: 1rem;
 }
 </style>
