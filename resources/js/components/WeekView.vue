@@ -147,7 +147,7 @@ function scrollToDate(id: string) {
                                     v-model="visibilityFilter"/>
 
 
-        <div class="week-grid p-6">
+        <div class="week-grid p-6 sticky top-0 h-screen">
             <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
                 <div class="flex flex-wrap flex-row-reverse w-full h-full overflow-y-scroll">
                     <button class="p-4 pb-0" @click="formModalState = 'closed';">
@@ -231,7 +231,7 @@ function scrollToDate(id: string) {
     grid-auto-flow: row;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     @media (min-width: 768px) {
-        grid-auto-rows: 800px;
+        grid-auto-rows: 720px;
     }
     @media (max-width: 767px) {
         grid-auto-rows: auto;
