@@ -48,8 +48,8 @@ async function onDeleteClicked() {
     <a class="block border-l-4 py-4 px-4 cursor-pointer overflow-hidden mb-3 transform transition-transform duration-150 shadow-md"
        :class="growthSession.is_public ? 'border-blue-900' : 'border-vehikl-orange'"
        :href="growthSessionUrl">
-        <div v-if="growthSession.title || isDraggable" :class="{'mb-2': growthSession.title}"
-             class="flex justify-end items-center">
+       <div v-if="growthSession.title || isDraggable"
+             class="flex items-center px-2 -mx-2 bg-slate-100 rounded-lg mb-4">
             <a
                 aria-label="add-to-calendar"
                 :href="growthSession.calendarUrl"
@@ -84,15 +84,19 @@ async function onDeleteClicked() {
             </div>
 
         </div>
-        <h3 class="font-light text-4xl font-extrabold text-blue-900 text-left mb-3"
-        :class="{'pr-4': isDraggable}"
-        v-text="growthSession.title"/>
         <div class="flex items-center justify-between flex-1 mb-2 text-blue-900">
             <p class="mr-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name"/>
             <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar"/>
         </div>
+       <h3 class="font-light text-4xl font-extrabold text-blue-900 text-left mb-3"
+        :class="{'pr-4': isDraggable}"
+        v-text="growthSession.title"/>
 
-        <div class="flex justify-between mb-2 text-blue-600">
+
+        <div class="flex justify-between mb-2 text-slate-500">
+            <div class="font-bold">
+                {{ growthSession.startTime }} to {{ growthSession.endTime }}
+            </div>
             <div class="flex items-center attendees-count">
                 <i class="fa fa-user-circle text-lg mr-2" aria-hidden="true"></i>
                 <span v-text="growthSession.attendees.length"/>
@@ -100,11 +104,9 @@ async function onDeleteClicked() {
                         growthSession.attendee_limit
                     }}</span>
             </div>
-            <div class="flex items-center">
-                <i class="fa fa-clock-o text-lg mr-2" aria-hidden="true"></i>
-                {{ growthSession.startTime }} to {{ growthSession.endTime }}
-            </div>
         </div>
+
+
 
         <pre
             class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed"
@@ -120,7 +122,7 @@ async function onDeleteClicked() {
             {{ growthSession.anydesk.name }}
         </div>
 
-        <div class="flex flex-row">
+        <div class="flex flex-row items-between">
             <v-button
                 class="join-button"
                 color="blue"
