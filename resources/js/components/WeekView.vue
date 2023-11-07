@@ -174,7 +174,6 @@ function scrollToDate(id: string) {
                     class="text-3xl bg-white text-center tracking-wide text-slate-600 font-bold p-2 pt-4 pb-1 sticky sm:relative top-0 w-full z-20 rounded-t-xl"
                     v-text="date.weekDayString()"
                     :id="date.weekDayString()"
-
                 ></h2>
                 <p v-if="date.isInAPastDate()"
                 class="text-center uppercase tracking-widest font-semibold px-4 py-1 bg-slate-200 text-slate-600 w-full">
@@ -186,7 +185,7 @@ function scrollToDate(id: string) {
                     @click="onCreateNewGrowthSessionClicked(date)">
                     <i aria-hidden="true" class="fa fa-plus-circle mr-4"></i><span class="text">Add Session</span>
                 </button>
-                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-blue-600 text-xl py-8">
+                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-blue-600 text-xl py-8 px-4 text-center">
                     <p v-text="`${Nothingator.random()}...`"/>
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
                 </div>
