@@ -46,10 +46,10 @@ async function onDeleteClicked() {
 
 <template>
     <a class="block border-l-4 px-4 pb-2 pt-6 mx-2 cursor-pointer overflow-visible mb-3 transform transition-transform duration-150 shadow-md bg-white"
-       :class="growthSession.is_public ? 'border-blue-900' : 'border-vehikl-orange'"
+       :class="growthSession.is_public ? 'border-slate-300' : 'border-vehikl-orange'"
        :href="growthSessionUrl">
 
-        <div class="flex items-center justify-between flex-1 mb-2 text-blue-900">
+        <div class="flex items-center justify-between flex-1 mb-2 text-blue-700">
             <p class="mr-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name"/>
             <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar"/>
         </div>
@@ -86,7 +86,7 @@ async function onDeleteClicked() {
             {{ growthSession.anydesk.name }}
         </div>
 
-        <div class="flex flex-row items-between gap-2 mb-2">
+        <div class="grid gap-2 mb-2">
             <v-button
                 class="join-button"
                 color="blue"

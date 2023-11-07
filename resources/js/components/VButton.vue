@@ -8,9 +8,9 @@ const props = withDefaults(defineProps<{
 
 const colorClasses = computed(() => {
     const mapping = {
-        blue: "bg-blue-500 hover:bg-blue-700 focus:bg-blue-700",
-        orange: "bg-amber-500 hover:bg-amber-700 focus:bg-amber-700",
-        red: "bg-red-500 hover:bg-red-700 focus:bg-red-700"
+        blue: "border-blue-600 hover:bg-blue-600 focus:bg-blue-700 text-blue-600",
+        orange: "border-amber-600 hover:bg-amber-600 focus:bg-amber-700 text-amber-600",
+        red: "border-red-600 hover:bg-red-600 focus:bg-red-700 text-red-600"
     }
     return mapping[props.color]
 })
@@ -18,7 +18,7 @@ const colorClasses = computed(() => {
 
 <template>
     <button
-        :class="`w-32 ${colorClasses} text-white font-bold py-2 px-4 rounded`"
+        :class="`w-32 ${colorClasses} border-4 bg-white hover:text-white font-bold py-2 px-4 w-full`"
         @click.prevent="() => $emit('click')"
     >
         {{ text }}
