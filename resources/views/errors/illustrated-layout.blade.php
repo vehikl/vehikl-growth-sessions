@@ -235,11 +235,11 @@
                 background-color: #64d5ca;
             }
 
-            .bg-emerald-dark {
+            .bg-blue-dark {
                 background-color: #2779bd;
             }
 
-            .bg-emerald-light {
+            .bg-blue-light {
                 background-color: #7886d7;
             }
 

@@ -46,7 +46,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
 </script>
 
 <template>
-    <div class="max-w-5xl text-emerald-600">
+    <div class="max-w-5xl text-blue-600">
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
             <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
                 <div class="flex w-full h-full overflow-y-scroll">
@@ -58,7 +58,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                                          @submitted="onGrowthSessionUpdated"/>
                 </div>
             </v-modal>
-            <h2 class="text-2xl lg:text-3xl font-sans font-light flex items-center text-emerald-700">
+            <h2 class="text-2xl lg:text-3xl font-sans font-light flex items-center text-blue-700">
                 <a id="owner-avatar-link" :href="growthSession.owner.githubURL">
                     <v-avatar class="mr-4" :src="growthSession.owner.avatar"
                               :alt="`${growthSession.owner.name}'s Avatar`"/>
@@ -110,19 +110,19 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
         </div>
         <div class="flex flex-col lg:flex-row flex-wrap">
             <div class="flex-1 mr-2 max-w-5xl">
-                <h3 class="text-2xl font-sans font-light mb-3 text-emerald-700">Topic</h3>
+                <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Topic</h3>
                 <pre class="description font-sans m-5 break-words-fixed whitespace-pre-wrap"
                      v-text="growthSession.topic"/>
                 <comment-list class="mt-24 max-w-xl" :growth-session="growthSession" :user="userJson"/>
             </div>
             <div class="flex-none max-w-md">
                 <div class="mb-3">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-emerald-700">Host:</h3>
+                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Host:</h3>
                     <span>{{ growthSession.owner.name }}</span>
                 </div>
 
                 <div class="mb-3">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-emerald-700">Location:</h3>
+                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Location:</h3>
                     <location-renderer :location-string="growthSession.location"/>
                     <a v-if="growthSession.discord_channel_id"
                        class="location-icon"
@@ -141,26 +141,26 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                     </a>
                 </div>
                 <div v-if="growthSession.anydesk" class="mb-3">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-emerald-700">AnyDesk:</h3>
+                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">AnyDesk:</h3>
                     <span>{{ growthSession.anydesk.name }}: {{ growthSession.anydesk.remote_desk_id }}</span>
                 </div>
                 <div class="mb-3">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-emerald-700">MobTime:</h3>
+                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">MobTime:</h3>
                     <a :href="mobtimeUrl" target="_blank">{{ mobtimeUrl }}</a>
                 </div>
 
                 <div class="mb-3">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-emerald-700">Time:</h3>
+                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Time:</h3>
                     <span class="mr-2">{{ date }}</span>
                     <span class="whitespace-no-wrap">( {{ time }} )</span>
                 </div>
 
                 <div class="mb-3" v-if="growthSession.attendee_limit">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-emerald-700">Attendee Limit:</h3>
+                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Attendee Limit:</h3>
                     <span class="attendee_limit">{{ growthSession.attendee_limit }}</span>
                 </div>
 
-                <h3 class="text-2xl font-sans font-light mb-3 text-emerald-700">Attendees</h3>
+                <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Attendees</h3>
                 <ul>
                     <li v-for="attendee in growthSession.attendees">
                         <a ref="attendee" :href="attendee.githubURL" class="flex items-center ml-6 my-4">
@@ -175,7 +175,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                 </ul>
 
 
-                <h3 v-if="growthSession.watchers.length" class="text-2xl font-sans font-light mb-3 text-emerald-700">
+                <h3 v-if="growthSession.watchers.length" class="text-2xl font-sans font-light mb-3 text-blue-700">
                     Watchers</h3>
                 <ul>
                     <li v-for="watcher in growthSession.watchers">
