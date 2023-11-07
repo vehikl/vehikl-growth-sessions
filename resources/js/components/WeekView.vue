@@ -170,7 +170,7 @@ function scrollToDate(id: string) {
                      }"
                  class="day flex flex-col mb-2 relative items-center bg-slate-100">
 
-                <h3
+                <h2
                     class="text-3xl tracking-wide text-white font-bold p-3 sticky sm:relative top-0 w-full z-20 rounded-t-xl rounded-br-[4rem]"
                     v-text="date.weekDayString()"
                     :id="date.weekDayString()"
@@ -178,7 +178,7 @@ function scrollToDate(id: string) {
                      'bg-blue-900 border-blue-200': date.isEvenDate(),
                      'bg-blue-800 border-blue-200': !date.isEvenDate(),
                      }"
-                ></h3>
+                ></h2>
                 <button
                     v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
                     class="create-growth-session text-center text-2xl tracking-wide px-2 py-1 my-1 w-full bg-white border-4 border-blue-800 text-blue-800 transform hover:scale-90 scale-75 hover:bg-blue-800 hover:text-white rounded-full"
