@@ -171,7 +171,7 @@ function scrollToDate(id: string) {
                  class="day flex flex-col mb-2 relative items-center bg-slate-100">
 
                 <h2
-                    class="text-3xl tracking-wide text-white font-bold p-3 sticky sm:relative top-0 w-full z-20 rounded-t-xl rounded-br-[4rem]"
+                    class="text-3xl text-center tracking-wide text-white font-bold p-2 pt-4 sticky sm:relative top-0 w-full z-20 rounded-t-xl"
                     v-text="date.weekDayString()"
                     :id="date.weekDayString()"
                     :class="{
@@ -179,9 +179,13 @@ function scrollToDate(id: string) {
                      'bg-blue-800 border-blue-200': !date.isEvenDate(),
                      }"
                 ></h2>
+                <p v-if="date.isInAPastDate()"
+                class="text-2xl text-center tracking-wide px-4 py-1 bg-slate-200 text-slate-600 w-full">
+                     Finished
+                </p>
                 <button
                     v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
-                    class="create-growth-session text-center text-2xl tracking-wide px-2 py-1 my-1 w-full bg-white border-4 border-blue-800 text-blue-800 transform hover:scale-90 scale-75 hover:bg-blue-800 hover:text-white rounded-full"
+                    class="create-growth-session block w-full text-2xl tracking-wide px-4 py-1 bg-sky-600 text-white hover:bg-white hover:text-sky-800"
                     @click="onCreateNewGrowthSessionClicked(date)">
                     <i aria-hidden="true" class="fa fa-plus-circle mr-4"></i><span class="text">Add Session</span>
                 </button>
