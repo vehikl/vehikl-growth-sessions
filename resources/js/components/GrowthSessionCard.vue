@@ -90,7 +90,6 @@ async function onDeleteClicked() {
             <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar"/>
         </div>
        <h3 class="font-light text-4xl font-extrabold text-blue-900 text-left mb-3"
-        :class="{'pr-4': isDraggable}"
         v-text="growthSession.title"/>
 
 
