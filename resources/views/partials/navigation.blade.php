@@ -1,7 +1,7 @@
 <nav class="bg-blue-800 px-6 py-2">
     <div class="flex items-center justify-between flex-wrap">
-        <div class="flex items-center flex-shrink-0 mr-6 text-lg text-white hover:text-amber-200">
-            <i class="fa fa-users mr-6" aria-hidden="true"></i>
+        <div class="flex items-center flex-shrink-0 mr-6 sm:text-lg text-white hover:text-amber-200">
+            <i class="fa fa-users mr-4" aria-hidden="true"></i>
             <a href="{{ route('home') }}"
                class="font-semibold">{{ config('app.name', 'Vehikl Growth Sessions') }}</a>
         </div>
@@ -49,7 +49,7 @@
                     </form>
                 @endauth
                 <a href="{{route('about')}}"
-                   class="mt-4 lg:mt-0 ml-6 text-white hover:text-amber-200 tracking-wider">About
+                   class="mt-4 lg:mt-0 sm:ml-6 text-white hover:text-amber-200 tracking-wider">About
                 </a>
             </div>
         </div>
