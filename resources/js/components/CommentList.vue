@@ -30,23 +30,23 @@ function getGithubURL(comment: IComment): string {
 
 <template>
     <div>
-        <form @submit.prevent="createNewComment" class="px-4">
+        <form @submit.prevent="createNewComment">
             <label class="sr-only" for="new-comment">
                 Comment:
             </label>
             <textarea
-                class="shadow resize-none appearance-none border py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
+                class="shadow resize-none appearance-none border w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="new-comment"
                 v-model="newComment"
                 :disabled="!user"
                 :placeholder="commentFormPlaceholder"
                 rows="3"></textarea>
             <button
-                class="bg-blue-500 hover:bg-blue-700 text-white text-xl font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                class="bg-blue-500 w-full hover:bg-blue-700 text-white text-xl tracking-wider py-1 px-4 focus:outline-none focus:shadow-outline"
                 id="submit-new-comment"
-                :class="{'opacity-25 cursor-not-allowed' : !allowsNewCommentSubmission}"
+                :class="{'opacity-75 cursor-not-allowed' : !allowsNewCommentSubmission}"
                 :disabled="! allowsNewCommentSubmission">
-                <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                <i class="fa fa-commenting-o mr-2 -ml-6" aria-hidden="true"></i> Submit
             </button>
         </form>
 
