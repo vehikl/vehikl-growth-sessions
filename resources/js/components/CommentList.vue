@@ -30,12 +30,12 @@ function getGithubURL(comment: IComment): string {
 
 <template>
     <div>
-        <form @submit.prevent="createNewComment" class="flex">
+        <form @submit.prevent="createNewComment" class="px-4">
             <label class="sr-only" for="new-comment">
                 Comment:
             </label>
             <textarea
-                class="shadow resize-none appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
+                class="shadow resize-none appearance-none border py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="new-comment"
                 v-model="newComment"
                 :disabled="!user"
@@ -52,13 +52,14 @@ function getGithubURL(comment: IComment): string {
 
 
         <ul class="mt-6">
-            <li v-for="comment in growthSession.comments" :key="comment.id" class="flex py-4 border-b border-blue-200">
+            <li v-for="comment in growthSession.comments" :key="comment.id" class="py-4 border-b">
                 <a :href="getGithubURL(comment)" aria-label="visit-their-github">
                     <v-avatar :src="comment.user.avatar"
                               class="mr-4"
+                              :size="16"
                               :alt="`${comment.user.name}'s avatar`"/>
                 </a>
-                <div class="flex-1 mx-6">
+                <div class="mx-6">
                     <div class="flex items-center">
                         <i class="fa fa-star text-amber-500 mr-2"
                            v-if="growthSession.isOwner(comment.user)"
