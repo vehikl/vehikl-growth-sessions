@@ -42,7 +42,7 @@ function getGithubURL(comment: IComment): string {
                 :placeholder="commentFormPlaceholder"
                 rows="3"></textarea>
             <button
-                class="bg-blue-500 w-full hover:bg-blue-700 text-white text-xl tracking-wider py-1 px-4 focus:outline-none focus:shadow-outline"
+                class="w-full hover:bg-blue-700 bg-white text-blue-700 hover:text-white border-4 border-blue-700 font-bold tracking-wider py-1 px-4 focus:outline-none focus:shadow-outline"
                 id="submit-new-comment"
                 :class="{'opacity-75 cursor-not-allowed' : !allowsNewCommentSubmission}"
                 :disabled="! allowsNewCommentSubmission">
