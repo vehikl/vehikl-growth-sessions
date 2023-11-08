@@ -152,17 +152,17 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
         </div>
 
         <div v-if="growthSession.anydesk" class="mb-4">
-            <h3 class="text-2xl font-sans font-light text-blue-700">AnyDesk:</h3>
+            <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">AnyDesk</h3>
             <span>{{ growthSession.anydesk.name }}: {{ growthSession.anydesk.remote_desk_id }}</span>
         </div>
 
         <div class="mb-4">
-            <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">MobTime:</h3>
+            <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">MobTime</h3>
             <a :href="mobtimeUrl" target="_blank" class="text-blue-600 break-words">{{ mobtimeUrl }}</a>
         </div>
 
         <div class="mb-4" v-if="growthSession.attendee_limit">
-            <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">Attendee Limit:</h3>
+            <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">Attendee Limit</h3>
             <span class="attendee_limit">{{ growthSession.attendee_limit }}</span>
         </div>
 
