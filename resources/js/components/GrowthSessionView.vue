@@ -129,6 +129,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
         </div>
 
         <div class="text-blue-600 text-left mb-4 break-all">
+            <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">Location</h3>
             <i class="fa fa-compass text-xl mr-2" aria-hidden="true"></i>
             <location-renderer :locationString="growthSession.location"/>
         </div>
