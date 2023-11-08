@@ -126,18 +126,18 @@ function scrollToDate(id: string) {
 
 <template>
     <div v-if="growthSessions.isReady">
-        <div class="flex justify-between sm:justify-center text-2xl sm:text-3xl md:text-4xl bg-blue-800 text-white px-4 py-2">
+        <div class="flex justify-between sm:justify-center text-xl sm:text-3xl md:text-4xl bg-blue-800 text-white px-4 py-2">
             <button aria-label="Load previous week"
-                    class="load-previous-week text-5xl sm:text-3xl pr-8"
+                    class="load-previous-week text-3xl sm:text-3xl pr-8"
                     @click="changeReferenceDate(-7)">
                 <i aria-hidden="true" class="fa fa-chevron-left"></i>
             </button>
-            <h2 class="flex flex-col sm:flex-row items-center mx-4" v-if="growthSessions.weekDates.length > 0">
+            <h2 class="flex flex-col sm:flex-row items-center mx-4 text-center" v-if="growthSessions.weekDates.length > 0">
                 {{ growthSessions.firstDay.format("MMMM DD") }} <span class="text-slate-400 mx-4">to</span>
                 {{ growthSessions.lastDay.format("MMMM DD") }}
             </h2>
             <button aria-label="Load next week"
-                    class="load-next-week text-5xl sm:text-3xl pl-8"
+                    class="load-next-week text-3xl sm:text-3xl pl-8"
                     @click="changeReferenceDate(+7)">
                 <i aria-hidden="true" class="fa fa-chevron-right"></i>
             </button>
