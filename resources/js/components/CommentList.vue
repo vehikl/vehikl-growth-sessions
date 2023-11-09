@@ -30,27 +30,7 @@ function getGithubURL(comment: IComment): string {
 
 <template>
     <div>
-        <form @submit.prevent="createNewComment" class="mb-6">
-            <label class="sr-only" for="new-comment">
-                Comment:
-            </label>
-            <textarea
-                class="shadow resize-none appearance-none border w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="new-comment"
-                v-model="newComment"
-                :disabled="!user"
-                :placeholder="commentFormPlaceholder"
-                rows="3"></textarea>
-            <button
-                class="w-full hover:bg-blue-700 bg-white text-blue-700 hover:text-white border-4 border-blue-700 font-bold tracking-wider py-1 px-4 focus:outline-none focus:shadow-outline"
-                id="submit-new-comment"
-                :class="{'opacity-75 cursor-not-allowed' : !allowsNewCommentSubmission}"
-                :disabled="! allowsNewCommentSubmission">
-                <i class="fa fa-commenting-o mr-2 -ml-6" aria-hidden="true"></i> Submit
-            </button>
-        </form>
-
-
+        <h2 class="text-lg font-bold tracking-wide mb-4 text-slate-500">Comments</h2>
         <ul>
             <li v-for="comment in growthSession.comments" :key="comment.id" class="py-4 border-b flex">
                 <a :href="getGithubURL(comment)" aria-label="visit-their-github" class="mr-4">
@@ -77,5 +57,24 @@ function getGithubURL(comment: IComment): string {
                 </div>
             </li>
         </ul>
+        <form @submit.prevent="createNewComment" class="mb-6">
+                <label class="sr-only" for="new-comment">
+                    Comment:
+                </label>
+                <textarea
+                    class="shadow resize-none appearance-none border w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="new-comment"
+                    v-model="newComment"
+                    :disabled="!user"
+                    :placeholder="commentFormPlaceholder"
+                    rows="3"></textarea>
+                <button
+                    class="w-full hover:bg-blue-700 bg-white text-blue-700 hover:text-white border-4 border-blue-700 font-bold tracking-wider py-1 px-4 focus:outline-none focus:shadow-outline"
+                    id="submit-new-comment"
+                    :class="{ 'opacity-75 cursor-not-allowed': !allowsNewCommentSubmission }"
+                    :disabled="!allowsNewCommentSubmission">
+                    <i class="fa fa-commenting-o mr-2 -ml-6" aria-hidden="true"></i> Submit
+                </button>
+            </form>
     </div>
 </template>
