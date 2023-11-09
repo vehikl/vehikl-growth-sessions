@@ -127,7 +127,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                         :disabled="isProcessing"
                         color="red"
                         class="delete-button"
-                        @click.stop="deleteGrowthSession"
+                        @click="deleteGrowthSession"
                         v-if="growthSession.canEditOrDelete(userJson)"
                         text="Delete"/>
                 </div>
