@@ -189,7 +189,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
 
 
                 <h3 v-if="growthSession.watchers.length" class="text-lg uppercase tracking-widest text-slate-600 font-semibold">
-                    Spectators</h3>
+                    Watchers</h3>
                 <ul>
                     <li v-for="watcher in growthSession.watchers">
                         <a ref="attendee" :href="watcher.githubURL" class="flex items-center mb-4">
