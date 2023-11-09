@@ -1,6 +1,6 @@
-<section class="text-blue-50 px-6 sm:px-24 pt-32 pb-24 leading-loose">
+<section class="text-blue-50 px-6 sm:px-24 pt-32 pb-24 leading-loose max-w-screen-2xl">
     <h2 class="text-6xl tracking-wide font-extrabold mb-6">What is a Vehikl Growth Session?</h2>
-    <article class="md:columns-3 lg:columns-4 mb-16 text-blue-200">
+    <article class="md:columns-3 lg:columns-4 mb-16 text-blue-200 gap-8">
         <p>In <strong>"The 7 Habits of Highly Effective People"</strong> Stephen Covey tells the story of a hiker who
             was walking through a forest when they came across a frustrated lumberjack.</p>
 
