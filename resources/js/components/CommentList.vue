@@ -30,7 +30,7 @@ function getGithubURL(comment: IComment): string {
 
 <template>
     <div>
-        <form @submit.prevent="createNewComment">
+        <form @submit.prevent="createNewComment" class="mb-6">
             <label class="sr-only" for="new-comment">
                 Comment:
             </label>
@@ -51,28 +51,27 @@ function getGithubURL(comment: IComment): string {
         </form>
 
 
-        <ul class="mt-6">
-            <li v-for="comment in growthSession.comments" :key="comment.id" class="py-4 border-b">
-                <a :href="getGithubURL(comment)" aria-label="visit-their-github">
+        <ul>
+            <li v-for="comment in growthSession.comments" :key="comment.id" class="py-4 border-b flex">
+                <a :href="getGithubURL(comment)" aria-label="visit-their-github" class="mr-4">
                     <v-avatar :src="comment.user.avatar"
-                              class="mr-4"
                               :size="16"
                               :alt="`${comment.user.name}'s avatar`"/>
                 </a>
-                <div class="mx-6">
+                <div>
                     <div class="flex items-center">
                         <i class="fa fa-star text-amber-500 mr-2"
                            v-if="growthSession.isOwner(comment.user)"
                            aria-hidden="true"/>
-                        <h3 class="font-bold flex-1" v-text="comment.user.name"/>
+                        <h3 class="flex-1 font-bold tracking-wider uppercase text-slate-600" v-text="comment.user.name"/>
                         <button v-show="growthSession.canDeleteComment(user, comment)"
                                 class="text-red-600 hover:text-red-800"
                                 @click="growthSession.deleteComment(comment)">
                             <i class="fa fa-minus-circle" aria-hidden="true"></i>
                         </button>
                     </div>
-                    <div class="text-blue-400 text-sm" v-text="comment.time_stamp"></div>
-                    <pre class="mx-4 mt-3 font-sans m-5 break-words-fixed whitespace-pre-wrap max-h-48 overflow-y-auto">{{
+                    <div class="text-blue-700 text-sm mb-2" v-text="comment.time_stamp"></div>
+                    <pre class="inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed">{{
                             comment.content
                         }}</pre>
                 </div>

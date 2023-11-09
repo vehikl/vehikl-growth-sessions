@@ -46,7 +46,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
 </script>
 
 <template>
-    <div class="max-w-5xl px-4 grid grid-cols-1 sm:grid-cols-2 gap-8">
+    <div class="max-w-5xl px-4">
         <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
             <div class="flex w-full h-full overflow-y-scroll">
                 <growth-session-form v-if="formModalState === 'open'"
@@ -58,7 +58,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
             </div>
         </v-modal>
 
-        <div class="col-span-2">
+        <div>
             <a id="owner-avatar-link" :href="growthSession.owner.githubURL">
                 <div class="flex items-center justify-start flex-1 mb-2 text-blue-700">
                     <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar"/>
