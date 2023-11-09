@@ -89,7 +89,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                     </div>
                 </div>
 
-                <GrowthSessionTags :growth-session="growthSession" />
+                <GrowthSessionTags :tags="growthSession.tags" />
 
                     <pre
                     class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed"
