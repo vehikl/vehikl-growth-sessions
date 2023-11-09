@@ -60,9 +60,9 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
 
         <div class="col-span-2">
             <a id="owner-avatar-link" :href="growthSession.owner.githubURL">
-                <div class="flex items-center justify-between flex-1 mb-2 text-blue-700">
-                    <p class="mr-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name"/>
+                <div class="flex items-center justify-start flex-1 mb-2 text-blue-700">
                     <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar"/>
+                    <p class="ml-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name"/>
                 </div>
             </a>
 
@@ -177,10 +177,10 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                     <a ref="attendee" :href="attendee.githubURL" class="flex items-center">
                         <v-avatar :alt="`${attendee.name}'s Avatar`" :size="6" :src="attendee.avatar"
                                     class="mr-3"/>
-                        <p v-if="!attendee.is_vehikl_member" class="text-vehikl-orange">{{
+                        <p v-if="!attendee.is_vehikl_member" class="ml-2 text-sm font-bold tracking-wider uppercase text-vehikl-orange">{{
                                 attendee.name
                             }}</p>
-                        <p v-else>{{ attendee.name }}</p>
+                        <p v-else class="ml-2 text-sm font-bold tracking-wider uppercase text-slate-600">{{ attendee.name }}</p>
                     </a>
                 </li>
             </ul>
@@ -192,10 +192,10 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                 <li v-for="watcher in growthSession.watchers">
                     <a ref="attendee" :href="watcher.githubURL" class="flex items-center mb-4">
                         <v-avatar :alt="`${watcher.name}'s Avatar`" :size="6" :src="watcher.avatar" class="mr-3"/>
-                        <p v-if="!watcher.is_vehikl_member" class="text-vehikl-orange">{{
+                        <p v-if="!watcher.is_vehikl_member" class="ml-2 text-sm font-bold tracking-wider uppercase text-vehikl-orange">{{
                                 watcher.name
                             }}</p>
-                        <p v-else>{{ watcher.name }}</p>
+                        <p v-else class="ml-2 text-sm font-bold tracking-wider uppercase text-slate-600">{{ watcher.name }}</p>
                     </a>
                 </li>
             </ul>
