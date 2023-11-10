@@ -176,12 +176,12 @@ function scrollToDate(id: string) {
                     :id="date.weekDayString()"
                 ></h2>
                 <p v-if="date.isInAPastDate()"
-                class="text-center uppercase tracking-widest font-semibold px-4 py-1 bg-slate-200 text-slate-600 w-full">
+                class="text-center uppercase tracking-widest font-semibold text-lg px-4 py-1 bg-slate-200 text-slate-600 border-4 w-full">
                      Finished
                 </p>
                 <button
                     v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
-                    class="create-growth-session block w-full tracking-widest uppercase font-semibold px-4 py-1 mb-2 bg-white border-gray-800 text-gray-800 hover:bg-gray-600 hover:border-gray-600 hover:text-white"
+                    class="create-growth-session block w-full tracking-widest uppercase font-semibold text-lg px-4 py-1 mb-2 bg-white border-gray-600 border-4 text-gray-600 hover:bg-gray-600 hover:border-gray-600 hover:text-white"
                     @click="onCreateNewGrowthSessionClicked(date)">
                     <i aria-hidden="true" class="fa fa-plus-circle mr-4"></i><span class="text">Add Session</span>
                 </button>
