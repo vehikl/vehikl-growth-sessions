@@ -165,7 +165,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
 </script>
 
 <template>
-    <form @submit.prevent class="create-growth-session edit-growth-session-form bg-white w-full p-4 pt-8 text-left">
+    <form @submit.prevent class="create-growth-session edit-growth-session-form bg-white w-full p-4 pt-10 text-left">
         <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-6">
             Title
             <input
@@ -191,7 +191,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                 rows="4"/>
         </div>
 
-        <div class="mb-4 grid grid-cols-3 gap-6">
+        <div class="mb-4 grid grid-cols-3 gap-6 bg-slate-100 p-4 rounded">
             <label :class="{'error-outline': getError('date')}"
                    class="block text-slate-700 text-sm uppercase tracking-wide font-bold">
                 Date
@@ -214,42 +214,46 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
         </div>
 
 
-        <div class="mb-4 mt-6 h-12 flex items-center justify-between">
-            <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-2">
-                <input id="is-public" v-model="isPublic" type="checkbox"> Is Public
-            </label>
+        <div class="p-4 py-6 bg-slate-100 rounded">
+            <div class="mb-4 grid grid-cols-2 gap-6">
+                <div class="grid grid-rows-2 gap-2">
+                    <label class="flex text-slate-700 text-sm uppercase tracking-wide font-bold items-center">
+                        <input id="is-public" v-model="isPublic" type="checkbox" class="mr-2"> Is Public
+                    </label>
 
-            <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-2">
-                <input id="no-limit" v-model="isLimitless" type="checkbox">
-                No Limit
-            </label>
+                    <label class="flex text-slate-700 text-sm uppercase tracking-wide font-bold items-center">
+                        <input id="no-limit" v-model="isLimitless" type="checkbox" class="mr-2">
+                        No Limit
+                    </label>
+                </div>
 
-            <div v-if="!isLimitless" class="flex items-center">
-                <label class="text-slate-700 text-sm uppercase tracking-wide font-bold flex">
-                    Limit
-                    <input
-                        id="attendee-limit"
-                        v-model.number="attendeeLimit"
-                        :class="{'error-outline': getError('limit')}"
-                        class="w-24 ml-4 text-center shadow appearance-none border border-slate-400 py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
-                        min="4"
-                        placeholder="Limit of participants"
-                        type="number"/>
-                </label>
+                <div v-if="!isLimitless" class="flex items-center">
+                    <label class="text-slate-700 text-sm uppercase tracking-wide font-bold">
+                        Limit
+                        <input
+                            id="attendee-limit"
+                            v-model.number="attendeeLimit"
+                            :class="{'error-outline': getError('limit')}"
+                            class="block w-full text-center shadow appearance-none border border-slate-400 py-1 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
+                            min="4"
+                            placeholder="Limit of participants"
+                            type="number"/>
+                    </label>
+                </div>
             </div>
-            <div v-else class="w-32"></div>
+
+            <label class="flex items-center text-slate-700 text-sm uppercase tracking-wide font-bold">
+                <input id="allow-watchers" v-model="allowWatchers" type="checkbox" class="mr-2"> Allow watchers
+            </label>
         </div>
 
-        <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-2">
-            <input id="allow-watchers" v-model="allowWatchers" type="checkbox"> Allow watchers
-        </label>
-
-        <div v-if="anyDesks.length > 0" class="flex justify-between w-full">
+        <div v-if="anyDesks.length > 0" class="flex justify-between items-center w-full py-4">
             <div class="flex-1">
-                <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-4">
+                <label class="flex items-center text-slate-700 text-sm uppercase tracking-wide font-bold">
                     <input id="anydesks-toggle"
                            v-model="anydesksToggle"
                            type="checkbox"
+                           class="mr-2"
                            @input="selectedAnydeskId = null">
                     Plan to use an AnyDesk?
                 </label>
