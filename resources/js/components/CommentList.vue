@@ -40,7 +40,7 @@ function getGithubURL(comment: IComment): string {
                 </a>
                 <div>
                     <div class="flex items-center">
-                        <i class="fa fa-star text-amber-500 mr-2"
+                        <i class="fa fa-star text-orange-500 mr-2"
                            v-if="growthSession.isOwner(comment.user)"
                            aria-hidden="true"/>
                         <h3 class="flex-1 font-bold tracking-wider uppercase text-slate-600" v-text="comment.user.name"/>
@@ -50,7 +50,7 @@ function getGithubURL(comment: IComment): string {
                             <i class="fa fa-minus-circle" aria-hidden="true"></i>
                         </button>
                     </div>
-                    <div class="text-blue-700 text-sm mb-2" v-text="comment.time_stamp"></div>
+                    <div class="text-gray-700 text-sm mb-2" v-text="comment.time_stamp"></div>
                     <pre class="inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed">{{
                             comment.content
                         }}</pre>
@@ -69,7 +69,7 @@ function getGithubURL(comment: IComment): string {
                     :placeholder="commentFormPlaceholder"
                     rows="3"></textarea>
                 <button
-                    class="w-full hover:bg-blue-700 bg-white text-blue-700 hover:text-white border-4 border-blue-700 font-bold tracking-wider py-1 px-4 focus:outline-none focus:shadow-outline"
+                    class="w-full hover:bg-gray-700 bg-white text-gray-700 hover:text-white border-4 border-gray-700 font-bold tracking-wider py-1 px-4 focus:outline-none focus:shadow-outline"
                     id="submit-new-comment"
                     :class="{ 'opacity-75 cursor-not-allowed': !allowsNewCommentSubmission }"
                     :disabled="!allowsNewCommentSubmission">

@@ -61,14 +61,14 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
                 <a id="owner-avatar-link" :href="growthSession.owner.githubURL">
-                    <div class="flex items-center justify-start flex-1 mb-2 text-blue-700">
+                    <div class="flex items-center justify-start flex-1 mb-2 text-gray-700">
                         <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar"/>
                         <p class="ml-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name"/>
                     </div>
                 </a>
 
                 <h1
-                    class="text-4xl font-light text-blue-900 text-left mb-3 break-words"
+                    class="text-4xl font-semibold text-gray-700 text-left mb-3 break-words"
                 >
                     {{ growthSession.title }}
                 </h1>
@@ -134,7 +134,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
             </div>
 
             <div class="row-span-2">
-                <div class="text-blue-600 text-left mb-4 break-all">
+                <div class="text-gray-600 text-left mb-4 break-all">
                     <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">Location</h3>
                     <i class="fa fa-compass text-xl mr-2" aria-hidden="true"></i>
                     <location-renderer :locationString="growthSession.location"/>
@@ -165,7 +165,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
 
                 <div class="mb-4">
                     <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">MobTime</h3>
-                    <a :href="mobtimeUrl" target="_blank" class="text-blue-600 break-words">{{ mobtimeUrl }}</a>
+                    <a :href="mobtimeUrl" target="_blank" class="text-gray-600 break-words">{{ mobtimeUrl }}</a>
                 </div>
 
                 <div class="mb-4" v-if="growthSession.attendee_limit">

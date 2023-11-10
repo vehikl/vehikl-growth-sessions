@@ -1,6 +1,9 @@
-<section class="text-blue-50 px-6 sm:px-24 pt-32 pb-24 leading-loose max-w-screen-2xl">
-    <h2 class="text-6xl tracking-wide font-extrabold mb-6">What is a Vehikl Growth Session?</h2>
-    <article class="md:columns-3 lg:columns-4 mb-16 text-blue-200 gap-8">
+<section class="text-gray-50 px-6 sm:px-24 pt-32 pb-24 leading-loose max-w-screen-2xl">
+    <div>
+        <h2 class="text-6xl tracking-wide font-extrabold mb-6">What is a Vehikl Growth Session?</h2>
+        <div class="w-24 h-1 mb-6 rounded-full bg-orange-600"></div>
+    </di>
+    <article class="md:columns-3 lg:columns-4 mb-16 text-gray-200 gap-8">
         <p>In <strong>"The 7 Habits of Highly Effective People"</strong> Stephen Covey tells the story of a hiker who
             was walking through a forest when they came across a frustrated lumberjack.</p>
 
@@ -24,7 +27,7 @@
 
     </article>
 
-    <p class="italic leading-tight text-2xl font-light text-blue-300 tracking-wider">Vehikl Growth Sessions are an opportunity for each of us to sharpen our saw (and discover brand new innovations like the
+    <p class="italic leading-tight text-2xl font-light text-gray-300 tracking-wider">Vehikl Growth Sessions are an opportunity for each of us to sharpen our saw (and discover brand new innovations like the
         chainsaw!). It is a space for experimenting, getting help when we are stuck, learning from others and
         sharing the benefits of what we have discovered in our travels.</p>
 

@@ -55,9 +55,9 @@ function getError(field: string): string {
 </script>
 
 <template>
-    <div class="max-w-5xl text-blue-600">
+    <div class="max-w-5xl text-gray-600">
         <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
-            <h2 class="text-2xl lg:text-3xl font-sans font-light flex flex-1 items-center text-blue-700 pr-6">
+            <h2 class="text-2xl lg:text-3xl font-sans font-light flex flex-1 items-center text-gray-700 pr-6">
                 <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :src="growthSession.owner.avatar" class="mr-4"/>
                 <input class="flex-1 shadow appearance-none border rounded w-full px-3"
                        placeholder="Please enter a growth session title"
@@ -68,7 +68,7 @@ function getError(field: string): string {
             <div>
                 <button
                     @click.stop="updateGrowthSession"
-                    class="update-button w-32 bg-amber-500 hover:bg-amber-700 focus:bg-amber-700 text-white font-bold py-2 px-4 rounded">
+                    class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded">
                     Save
                 </button>
                 <button
@@ -80,7 +80,7 @@ function getError(field: string): string {
         </div>
         <div class="flex flex-col lg:flex-row flex-wrap">
             <div class="flex-1 mr-2 max-w-5xl">
-                <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Topic</h3>
+                <h3 class="text-2xl font-sans font-light mb-3 text-gray-700">Topic</h3>
                 <textarea :class="{'error-outline': getError('topic')}"
                           class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
                           id="topic"
@@ -90,7 +90,7 @@ function getError(field: string): string {
             </div>
             <div class="flex-none max-w-md">
                 <div class="mb-3">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Location:</h3>
+                    <h3 class="text-2xl font-sans inline font-light mr-3 text-gray-700">Location:</h3>
                     <textarea :class="{'error-outline': getError('location')}"
                               class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
                               id="location"
@@ -100,7 +100,7 @@ function getError(field: string): string {
                 </div>
 
                 <div class="mb-3">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Time:</h3>
+                    <h3 class="text-2xl font-sans inline font-light mr-3 text-gray-700">Time:</h3>
                     <div>
                         <label class="block text-slate-700 text-sm font-bold mb-2" for="date">
                             Date
@@ -137,7 +137,7 @@ function getError(field: string): string {
                     </div>
                 </div>
 
-                <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Attendees</h3>
+                <h3 class="text-2xl font-sans font-light mb-3 text-gray-700">Attendees</h3>
                 <ul>
                     <li class="flex items-center ml-6 my-4" v-for="attendee in growthSession.attendees">
                         <v-avatar :alt="`${attendee.name}'s Avatar`" :size="12" :src="attendee.avatar" class="mr-3"/>

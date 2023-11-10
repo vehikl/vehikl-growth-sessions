@@ -8,8 +8,8 @@ const props = withDefaults(defineProps<{
 
 const colorClasses = computed(() => {
     const mapping = {
-        blue: "border-blue-600 hover:bg-blue-600 focus:bg-blue-700 text-blue-600",
-        orange: "border-amber-600 hover:bg-amber-600 focus:bg-amber-700 text-amber-600",
+        blue: "border-gray-600 hover:bg-gray-600 focus:bg-gray-700 text-gray-600",
+        orange: "border-orange-600 hover:bg-orange-600 focus:bg-orange-700 text-orange-600",
         red: "border-red-600 hover:bg-red-600 focus:bg-red-700 text-red-600"
     }
     return mapping[props.color]

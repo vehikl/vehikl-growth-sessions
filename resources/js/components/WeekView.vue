@@ -126,7 +126,7 @@ function scrollToDate(id: string) {
 
 <template>
     <div v-if="growthSessions.isReady">
-        <div class="flex justify-between sm:justify-center text-xl sm:text-3xl md:text-4xl bg-blue-800 text-white px-4 py-2">
+        <div class="flex justify-between sm:justify-center text-xl sm:text-3xl md:text-4xl bg-gray-900 text-white px-4 py-2">
             <button aria-label="Load previous week"
                     class="load-previous-week text-3xl sm:text-3xl pr-8"
                     @click="changeReferenceDate(-7)">
@@ -181,11 +181,11 @@ function scrollToDate(id: string) {
                 </p>
                 <button
                     v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
-                    class="create-growth-session block w-full tracking-widest uppercase font-semibold px-4 py-1 mb-2 bg-white border-blue-800 text-blue-800 hover:bg-blue-600 hover:border-blue-600 hover:text-white"
+                    class="create-growth-session block w-full tracking-widest uppercase font-semibold px-4 py-1 mb-2 bg-white border-gray-800 text-gray-800 hover:bg-gray-600 hover:border-gray-600 hover:text-white"
                     @click="onCreateNewGrowthSessionClicked(date)">
                     <i aria-hidden="true" class="fa fa-plus-circle mr-4"></i><span class="text">Add Session</span>
                 </button>
-                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-blue-600 text-xl py-8 px-4 text-center">
+                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-gray-600 text-xl py-8 px-4 text-center">
                     <p v-text="`${Nothingator.random()}...`"/>
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
                 </div>
@@ -213,7 +213,7 @@ function scrollToDate(id: string) {
             </div>
             <div class="block md:hidden fixed bottom-4 inset-x-4 z-50" v-if="growthSessions.hasCurrentDate">
                 <button aria-label="Scroll to today"
-                        class="flex w-full justify-center items-center px-2 py-1 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        class="flex w-full justify-center items-center px-2 py-1 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                         @click="scrollToDate(DateTime.today().weekDayString())">
                     Go to today <i aria-hidden="true" class="fa fa-calendar ml-2"></i>
                 </button>
