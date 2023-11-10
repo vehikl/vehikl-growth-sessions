@@ -149,9 +149,9 @@ function scrollToDate(id: string) {
 
         <div class="week-grid px-4 py-6 gap-4">
             <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
-                <div class="flex flex-wrap flex-row-reverse w-full h-full overflow-y-scroll">
-                    <button class="p-4 pb-0" @click="formModalState = 'closed';">
-                        <i aria-hidden="true" class="fa fa-times text-xl"></i>
+                <div class="flex flex-wrap flex-row-reverse overflow-visible relative">
+                    <button class="bg-gray-900 absolute text-white border-4 border-gray-900 rounded-full px-4 py-1 -top-2 right-2 hover:text-gray-900 hover:bg-white x hover:border-gray-900" @click="formModalState = 'closed';">
+                        <i aria-hidden="true" class="fa fa-times text-xl"></i> Close
                     </button>
                     <growth-session-form v-if="formModalState === 'open'"
                                          :growth-session="growthSessionToUpdate"

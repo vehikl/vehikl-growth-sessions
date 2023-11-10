@@ -18,7 +18,7 @@ const colorClasses = computed(() => {
 
 <template>
     <button
-        :class="`w-32 ${colorClasses} border-4 bg-white hover:text-white font-bold py-2 px-4 w-full`"
+        :class="`${colorClasses} border-4 bg-white hover:text-white font-bold py-2 px-4 w-full`"
         @click.prevent="() => $emit('click')"
     >
         {{ text }}
