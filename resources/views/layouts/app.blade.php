@@ -20,7 +20,7 @@
 <body>
     <div id="app">
         @include('partials.navigation')
-        <main class="mx-2">
+        <main>
             @yield('content')
         </main>
     </div>

@@ -126,34 +126,32 @@ function scrollToDate(id: string) {
 
 <template>
     <div v-if="growthSessions.isReady">
-        <div class="flex flex-col justify-center items-center text-xl text-blue-600 font-bold">
-            <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
-                                     v-model="visibilityFilter"/>
-            <div class="flex my-5">
-                <button aria-label="Load previous week"
-                        class="load-previous-week mx-4 mb-2"
-                        @click="changeReferenceDate(-7)">
-                    <i aria-hidden="true" class="fa fa-chevron-left"></i>
-                </button>
-                <h2 v-if="growthSessions.weekDates.length > 0" class="text-center mb-2 w-72">
-                    Week of
-                    {{ growthSessions.firstDay.format("MMM-DD") }} to
-                    {{ growthSessions.lastDay.format("MMM-DD") }}
-                </h2>
-                <button aria-label="Load next week"
-                        class="load-next-week mx-4 mb-2"
-                        @click="changeReferenceDate(+7)">
-                    <i aria-hidden="true" class="fa fa-chevron-right"></i>
-                </button>
-            </div>
+        <div class="flex justify-between sm:justify-center text-xl sm:text-3xl md:text-4xl bg-gray-900 text-white px-4 py-2">
+            <button aria-label="Load previous week"
+                    class="load-previous-week text-3xl sm:text-3xl pr-8"
+                    @click="changeReferenceDate(-7)">
+                <i aria-hidden="true" class="fa fa-chevron-left"></i>
+            </button>
+            <h2 class="flex flex-col sm:flex-row items-center mx-4 text-center" v-if="growthSessions.weekDates.length > 0">
+                {{ growthSessions.firstDay.format("MMMM DD") }} <span class="text-slate-400 mx-4">to</span>
+                {{ growthSessions.lastDay.format("MMMM DD") }}
+            </h2>
+            <button aria-label="Load next week"
+                    class="load-next-week text-3xl sm:text-3xl pl-8"
+                    @click="changeReferenceDate(+7)">
+                <i aria-hidden="true" class="fa fa-chevron-right"></i>
+            </button>
         </div>
 
+        <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
+                                    v-model="visibilityFilter"/>
 
-        <div class="week-grid">
+
+        <div class="week-grid px-4 py-6 gap-4">
             <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
-                <div class="flex flex-wrap flex-row-reverse w-full h-full overflow-y-scroll">
-                    <button class="p-4 pb-0" @click="formModalState = 'closed';">
-                        <i aria-hidden="true" class="fa fa-times text-xl"></i>
+                <div class="flex flex-wrap flex-row-reverse overflow-visible relative">
+                    <button class="bg-gray-900 absolute text-white border-4 border-gray-900 rounded-full px-4 py-1 -top-2 right-2 hover:text-gray-900 hover:bg-white x hover:border-gray-900" @click="formModalState = 'closed';">
+                        <i aria-hidden="true" class="fa fa-times text-xl"></i> Close
                     </button>
                     <growth-session-form v-if="formModalState === 'open'"
                                          :growth-session="growthSessionToUpdate"
@@ -165,37 +163,36 @@ function scrollToDate(id: string) {
             </v-modal>
             <div v-for="date in growthSessions.weekDates"
                  :key="date.toDateString()"
-                 :class="{
-                 'bg-blue-100 border-blue-200': date.isEvenDate(),
-                 'bg-blue-200 border-blue-300': !date.isEvenDate(),
-                 }"
                  :weekDay="date.weekDayString()"
-                 class="day flex flex-col text-center mx-1 mb-2 relative rounded border items-center">
-                <h3
-                    class="text-lg text-blue-700 font-bold p-3 md:pt-6 sticky sm:relative top-0 w-full z-20 border-b md:border-b-0 rounded-t md:rounded-none mb-2 md:mb-0"
+                 :class="{
+                     'bg-slate-100': date.isEvenDate(),
+                     'bg-slate-50': !date.isEvenDate(),
+                     }"
+                 class="day flex flex-col mb-2 relative items-center bg-slate-100">
+
+                <h2
+                    class="text-3xl bg-white text-center tracking-wide text-slate-600 font-bold p-2 pt-4 pb-1 sticky sm:relative top-0 w-full z-20 rounded-t-xl"
                     v-text="date.weekDayString()"
                     :id="date.weekDayString()"
-                    :class="{
-                     'bg-blue-100 border-blue-200': date.isEvenDate(),
-                     'bg-blue-200 border-blue-300': !date.isEvenDate(),
-                     }"
-                ></h3>
-                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-blue-600 text-lg my-4">
+                ></h2>
+                <p v-if="date.isInAPastDate()"
+                class="text-center uppercase tracking-widest font-semibold text-lg px-4 py-1 bg-slate-200 text-slate-600 border-4 w-full">
+                     Finished
+                </p>
+                <button
+                    v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
+                    class="create-growth-session block w-full tracking-widest uppercase font-semibold text-lg px-4 py-1 mb-2 bg-white border-gray-600 border-4 text-gray-600 hover:bg-gray-600 hover:border-gray-600 hover:text-white"
+                    @click="onCreateNewGrowthSessionClicked(date)">
+                    <i aria-hidden="true" class="fa fa-plus-circle mr-4"></i><span class="text">Add Session</span>
+                </button>
+                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="text-gray-600 text-xl py-8 px-4 text-center">
                     <p v-text="`${Nothingator.random()}...`"/>
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
                 </div>
-
-                <button
-                    v-if="user && user.is_vehikl_member && ! date.isInAPastDate()"
-                    class="create-growth-session text-5xl h-20 w-20 text-blue-600 hover:text-blue-700 focus:text-blue-700 font-bold mt-3 mb-8"
-                    @click="onCreateNewGrowthSessionClicked(date)">
-                    <i aria-hidden="true" class="fa fa-plus-circle"></i>
-                </button>
-
                 <draggable :date="date"
                            item-key="id"
                            :list="growthSessionsVisibleInDate(date)"
-                           class="h-full w-full px-2 overflow-y-auto"
+                           class="w-full h-full py-2"
                            group="growth-sessions"
                            handle=".handle"
                            @change="onChange"
@@ -204,17 +201,19 @@ function scrollToDate(id: string) {
                         <growth-session-card
                             :growth-session="growthSession"
                             :user="user"
-                            class="mb-3 transform transition-transform duration-150"
                             @growth-session-updated="getAllGrowthSessionsOfTheWeek"
                             @copy-requested="onGrowthSessionCopyRequested"
                             @edit-requested="onGrowthSessionEditRequested"
                             @delete-requested="getAllGrowthSessionsOfTheWeek"/>
                     </template>
                 </draggable>
+
+
+
             </div>
-            <div class="block md:hidden fixed bottom-0 right-0 m-2 z-50" v-if="growthSessions.hasCurrentDate">
+            <div class="block md:hidden fixed bottom-4 inset-x-4 z-50" v-if="growthSessions.hasCurrentDate">
                 <button aria-label="Scroll to today"
-                        class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        class="flex w-full justify-center items-center px-2 py-1 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                         @click="scrollToDate(DateTime.today().weekDayString())">
                     Go to today <i aria-hidden="true" class="fa fa-calendar ml-2"></i>
                 </button>
@@ -234,13 +233,9 @@ function scrollToDate(id: string) {
 .week-grid {
     display: grid;
     grid-auto-flow: row;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    @media (min-width: 768px) {
-        grid-auto-rows: 800px;
-    }
+    grid-template-columns: repeat(auto-fit, minmax(228px, 1fr));
     @media (max-width: 767px) {
         grid-auto-rows: auto;
     }
-    grid-gap: 1rem;
 }
 </style>

@@ -46,88 +46,108 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
 </script>
 
 <template>
-    <div class="max-w-5xl text-blue-600">
-        <div class="mb-8 flex flex-col lg:flex-row lg:justify-between items-center">
-            <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
-                <div class="flex w-full h-full overflow-y-scroll">
-                    <growth-session-form v-if="formModalState === 'open'"
-                                         :growth-session="growthSession"
-                                         :owner="growthSession.owner"
-                                         :start-date="growthSession.date"
-                                         class="growth-session-form"
-                                         @submitted="onGrowthSessionUpdated"/>
-                </div>
-            </v-modal>
-            <h2 class="text-2xl lg:text-3xl font-sans font-light flex items-center text-blue-700">
-                <a id="owner-avatar-link" :href="growthSession.owner.githubURL">
-                    <v-avatar class="mr-4" :src="growthSession.owner.avatar"
-                              :alt="`${growthSession.owner.name}'s Avatar`"/>
-                </a>
-                {{ growthSession.title }}
-            </h2>
-            <div>
-                <v-button
-                    :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
-                    :disabled="isProcessing"
-                    class="join-button"
-                    color="blue"
-                    @click="joinGrowthSession"
-                    v-show="growthSession.canJoin(userJson)"
-                    text="Join"/>
-                <v-button
-                    :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
-                    :disabled="isProcessing"
-                    class="watch-button"
-                    color="orange"
-                    @click="watchGrowthSession"
-                    v-show="growthSession.canWatch(userJson)"
-                    text="Spectate"/>
-                <v-button
-                    :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
-                    :disabled="isProcessing"
-                    class="leave-button"
-                    color="red"
-                    @click="leaveGrowthSession"
-                    v-show="growthSession.canLeave(userJson)"
-                    text="Leave"/>
-                <v-button
-                    :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
-                    :disabled="isProcessing"
-                    class="update-button"
-                    color="orange"
-                    text="Edit"
-                    v-if="growthSession.canEditOrDelete(userJson)"
-                    @click="formModalState = 'open'"/>
-                <button
-                    :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
-                    :disabled="isProcessing"
-                    class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    @click.stop="deleteGrowthSession"
-                    v-if="growthSession.canEditOrDelete(userJson)">
-                    <i class="fa fa-trash" aria-hidden="true"></i>
+    <div class="max-w-5xl px-4">
+        <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
+            <div class="flex flex-wrap flex-row-reverse overflow-visible relative">
+                <button class="bg-gray-900 absolute text-white border-4 border-gray-900 rounded-full px-4 py-1 -top-2 right-2 hover:text-gray-900 hover:bg-white x hover:border-gray-900" @click="formModalState = 'closed';">
+                    <i aria-hidden="true" class="fa fa-times text-xl"></i> Close
                 </button>
+                <growth-session-form v-if="formModalState === 'open'"
+                                        :growth-session="growthSession"
+                                        :owner="growthSession.owner"
+                                        :start-date="growthSession.date"
+                                        class="growth-session-form"
+                                        @submitted="onGrowthSessionUpdated"/>
             </div>
-        </div>
-        <div class="flex flex-col lg:flex-row flex-wrap">
-            <div class="flex-1 mr-2 max-w-5xl">
-                <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Topic</h3>
-                <pre class="description font-sans m-5 break-words-fixed whitespace-pre-wrap"
-                     v-text="growthSession.topic"/>
-                <comment-list class="mt-24 max-w-xl" :growth-session="growthSession" :user="userJson"/>
+        </v-modal>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div>
+                <a id="owner-avatar-link" :href="growthSession.owner.githubURL">
+                    <div class="flex items-center justify-start flex-1 mb-2 text-gray-700">
+                        <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar"/>
+                        <p class="ml-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name"/>
+                    </div>
+                </a>
+
+                <h1
+                    class="text-4xl font-semibold text-gray-700 text-left mb-3 break-words"
+                >
+                    {{ growthSession.title }}
+                </h1>
+                <div class="flex justify-between mb-2 text-slate-500">
+                    <div class="font-bold">
+                        {{ growthSession.startTime }} to {{ growthSession.endTime }}
+                    </div>
+                    <div class="flex items-center attendees-count">
+                        <i class="fa fa-user-circle text-lg mr-2" aria-hidden="true"></i>
+                        <span v-text="growthSession.attendees.length"/>
+                        <span v-if="growthSession.attendee_limit" class="pl-1 attendee-limit">of {{
+                            growthSession.attendee_limit
+                        }}</span>
+                    </div>
+                </div>
+                    <pre
+                    class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed"
+                    v-text="growthSession.topic"
+                />
+
+                <div class="grid grid-cols-1 gap-2">
+                    <v-button
+                        :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
+                        :disabled="isProcessing"
+                        class="join-button"
+                        color="blue"
+                        @click="joinGrowthSession"
+                        v-show="growthSession.canJoin(userJson)"
+                        text="Join"/>
+                    <v-button
+                        :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
+                        :disabled="isProcessing"
+                        class="watch-button"
+                        color="orange"
+                        @click="watchGrowthSession"
+                        v-show="growthSession.canWatch(userJson)"
+                        text="Spectate"/>
+                    <v-button
+                        :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
+                        :disabled="isProcessing"
+                        class="leave-button"
+                        color="red"
+                        @click="leaveGrowthSession"
+                        v-show="growthSession.canLeave(userJson)"
+                        text="Leave"/>
+                    <v-button
+                        :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
+                        :disabled="isProcessing"
+                        class="update-button"
+                        color="orange"
+                        text="Edit"
+                        v-if="growthSession.canEditOrDelete(userJson)"
+                        @click="formModalState = 'open'"/>
+                    <v-button
+                        :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
+                        :disabled="isProcessing"
+                        color="red"
+                        class="delete-button"
+                        @click="deleteGrowthSession"
+                        v-if="growthSession.canEditOrDelete(userJson)"
+                        text="Delete"/>
+                </div>
             </div>
-            <div class="flex-none max-w-md">
-                <div class="mb-3">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Host:</h3>
-                    <span>{{ growthSession.owner.name }}</span>
+
+            <div class="row-span-2">
+                <div class="text-gray-600 text-left mb-4 break-all">
+                    <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">Location</h3>
+                    <i class="fa fa-compass text-xl mr-2" aria-hidden="true"></i>
+                    <location-renderer :locationString="growthSession.location"/>
                 </div>
 
-                <div class="mb-3">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Location:</h3>
-                    <location-renderer :location-string="growthSession.location"/>
+                <div class="mb-4">
                     <a v-if="growthSession.discord_channel_id"
-                       class="location-icon"
-                       target="_blank"
-                       :href="discordChannelUrl">
+                        class="location-icon"
+                        target="_blank"
+                        :href="discordChannelUrl">
                         <svg enable-background="new 0 0 24 24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <g fill="#5c6bc0">
                                 <path
@@ -140,55 +160,53 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                         </svg>
                     </a>
                 </div>
-                <div v-if="growthSession.anydesk" class="mb-3">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">AnyDesk:</h3>
+
+                <div v-if="growthSession.anydesk" class="mb-4">
+                    <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">AnyDesk</h3>
                     <span>{{ growthSession.anydesk.name }}: {{ growthSession.anydesk.remote_desk_id }}</span>
                 </div>
-                <div class="mb-3">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">MobTime:</h3>
-                    <a :href="mobtimeUrl" target="_blank">{{ mobtimeUrl }}</a>
+
+                <div class="mb-4">
+                    <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">MobTime</h3>
+                    <a :href="mobtimeUrl" target="_blank" class="text-gray-600 break-words">{{ mobtimeUrl }}</a>
                 </div>
 
-                <div class="mb-3">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Time:</h3>
-                    <span class="mr-2">{{ date }}</span>
-                    <span class="whitespace-no-wrap">( {{ time }} )</span>
-                </div>
-
-                <div class="mb-3" v-if="growthSession.attendee_limit">
-                    <h3 class="text-2xl font-sans inline font-light mr-3 text-blue-700">Attendee Limit:</h3>
+                <div class="mb-4" v-if="growthSession.attendee_limit">
+                    <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">Attendee Limit</h3>
                     <span class="attendee_limit">{{ growthSession.attendee_limit }}</span>
                 </div>
 
-                <h3 class="text-2xl font-sans font-light mb-3 text-blue-700">Attendees</h3>
-                <ul>
-                    <li v-for="attendee in growthSession.attendees">
-                        <a ref="attendee" :href="attendee.githubURL" class="flex items-center ml-6 my-4">
-                            <v-avatar :alt="`${attendee.name}'s Avatar`" :size="12" :src="attendee.avatar"
-                                      class="mr-3"/>
-                            <p v-if="!attendee.is_vehikl_member" class="text-vehikl-orange">{{
+                <h3 class="text-lg uppercase tracking-widest text-slate-600 font-semibold">Attendees</h3>
+                <ul class="mb-4">
+                    <li v-for="attendee in growthSession.attendees" class="py-2">
+                        <a ref="attendee" :href="attendee.githubURL" class="flex items-center">
+                            <v-avatar :alt="`${attendee.name}'s Avatar`" :size="6" :src="attendee.avatar"
+                                        class="mr-3"/>
+                            <p v-if="!attendee.is_vehikl_member" class="ml-2 text-sm font-bold tracking-wider uppercase text-vehikl-orange">{{
                                     attendee.name
                                 }}</p>
-                            <p v-else>{{ attendee.name }}</p>
+                            <p v-else class="ml-2 text-sm font-bold tracking-wider uppercase text-slate-600">{{ attendee.name }}</p>
                         </a>
                     </li>
                 </ul>
 
 
-                <h3 v-if="growthSession.watchers.length" class="text-2xl font-sans font-light mb-3 text-blue-700">
+                <h3 v-if="growthSession.watchers.length" class="text-lg uppercase tracking-widest text-slate-600 font-semibold">
                     Watchers</h3>
                 <ul>
                     <li v-for="watcher in growthSession.watchers">
-                        <a ref="attendee" :href="watcher.githubURL" class="flex items-center ml-6 my-4">
-                            <v-avatar :alt="`${watcher.name}'s Avatar`" :size="12" :src="watcher.avatar" class="mr-3"/>
-                            <p v-if="!watcher.is_vehikl_member" class="text-vehikl-orange">{{
+                        <a ref="attendee" :href="watcher.githubURL" class="flex items-center mb-4">
+                            <v-avatar :alt="`${watcher.name}'s Avatar`" :size="6" :src="watcher.avatar" class="mr-3"/>
+                            <p v-if="!watcher.is_vehikl_member" class="ml-2 text-sm font-bold tracking-wider uppercase text-vehikl-orange">{{
                                     watcher.name
                                 }}</p>
-                            <p v-else>{{ watcher.name }}</p>
+                            <p v-else class="ml-2 text-sm font-bold tracking-wider uppercase text-slate-600">{{ watcher.name }}</p>
                         </a>
                     </li>
                 </ul>
             </div>
+
+            <comment-list :growth-session="growthSession" :user="userJson"/>
         </div>
     </div>
 </template>

@@ -10,18 +10,18 @@ const visibility = computed({
 </script>
 
 <template>
-    <fieldset class="border inline-flex p-4 rounded border-blue-300 gap-5 mt-5">
-        <label>
+    <fieldset class="flex flex-col sm:flex-row items-end sm:justify-end gap-2 sm:gap-6 mx-4 px-4 py-2 rounded-b-xl text-sm sm:text-lg tracking-wide text-gray-800 bg-slate-200">
+        <label class="flex items-center">
             All
-            <input v-model="visibility" name="filter-sessions" type="radio" value="all">
+            <input v-model="visibility" name="filter-sessions" type="radio" value="all" class="w-6 h-6 ml-2 accent-gray-800">
         </label>
-        <label>
+        <label class="flex items-center ">
             Private Only
-            <input id="private" v-model="visibility" name="filter-sessions" type="radio" value="private">
+            <input id="private" v-model="visibility" name="filter-sessions" type="radio" value="private" class="w-6 h-6 ml-2 accent-orange-600">
         </label>
-        <label>
+        <label class="flex items-center">
             Public Only
-            <input id="public" v-model="visibility" name="filter-sessions" type="radio" value="public">
+            <input id="public" v-model="visibility" name="filter-sessions" type="radio" value="public" class="w-6 h-6 ml-2 accent-gray-800">
         </label>
     </fieldset>
 </template>
