@@ -21,7 +21,7 @@ const props = defineProps<IProps>()
         <div
             v-for="tag in tags"
             @click="buttonClick(tag.id)"
-            class="tag text-xs inline-flex items-center font-bold leading-sm uppercase px-3 py-1 bg-blue-200 text-blue-700 rounded-full">
+            class="tag text-xs inline-flex items-center font-bold leading-sm uppercase px-3 py-1 bg-gray-600 text-white rounded-md">
             {{tag.name}}
         </div>
     </div>
