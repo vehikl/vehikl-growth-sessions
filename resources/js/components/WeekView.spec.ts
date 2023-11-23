@@ -100,6 +100,12 @@ describe('WeekView', () => {
         expect(visibilityFilters.exists()).toBeFalsy();
     });
 
+    describe('Tag Filter', () => {
+        it.todo('renders unique combined list of tags from visible growth sessions')
+
+        it.todo('shows growth sessions that have all tags selected')
+    })
+
     describe('for an authenticated non-vehikl user', () => {
         beforeEach(async () => {
             wrapper = mount(WeekView, {propsData: {user: authNonVehiklUser}})

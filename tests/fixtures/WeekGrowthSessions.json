@@ -29,7 +29,29 @@
             "attendees": [],
             "watchers": [],
             "comments": [],
-            "anydesk": null
+            "anydesk": null,
+            "tags": [
+                {
+                    "id": 1,
+                    "name": "foo",
+                    "created_at": "2023-10-12T20:53:43.000000Z",
+                    "updated_at": "2023-10-12T20:53:43.000000Z",
+                    "pivot": {
+                        "growth_session_id": 1,
+                        "tag_id": 1
+                    }
+                },
+                {
+                    "id": 2,
+                    "name": "bar",
+                    "created_at": "2023-10-12T20:53:43.000000Z",
+                    "updated_at": "2023-10-12T20:53:43.000000Z",
+                    "pivot": {
+                        "growth_session_id": 1,
+                        "tag_id": 2
+                    }
+                }
+            ]
         }
     ],
     "2020-01-14": [],
@@ -63,7 +85,29 @@
             "attendees": [],
             "watchers": [],
             "comments": [],
-            "anydesk": null
+            "anydesk": null,
+            "tags": [
+                {
+                    "id": 1,
+                    "name": "foo",
+                    "created_at": "2023-10-12T20:53:43.000000Z",
+                    "updated_at": "2023-10-12T20:53:43.000000Z",
+                    "pivot": {
+                        "growth_session_id": 3,
+                        "tag_id": 1
+                    }
+                },
+                {
+                    "id": 3,
+                    "name": "baz",
+                    "created_at": "2023-10-12T20:53:43.000000Z",
+                    "updated_at": "2023-10-12T20:53:43.000000Z",
+                    "pivot": {
+                        "growth_session_id": 3,
+                        "tag_id": 3
+                    }
+                }
+            ]
         },
         {
             "id": 2,
