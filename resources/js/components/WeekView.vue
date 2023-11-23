@@ -163,8 +163,8 @@ function onTagClick(id: number) {
             </button>
         </div>
 
-        <div class="flex flex-row justify-between mx-4 px-4 py-2 rounded-b-xl text-sm sm:text-lg tracking-wide text-gray-800 bg-slate-200">
-            <GrowthSessionTags :tags="uniqueTags" @tag-click="onTagClick" />
+        <div class="flex flex-row gap-2 justify-between mx-4 px-4 py-2 rounded-b-xl text-sm sm:text-lg tracking-wide text-gray-800 bg-slate-200">
+            <GrowthSessionTags :tags="uniqueTags" :selected-tag-ids="selectedTagIds" @tag-click="onTagClick" />
             <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
                                         v-model="visibilityFilter"/>
         </div>
