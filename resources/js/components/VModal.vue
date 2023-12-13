@@ -28,7 +28,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <dialog ref="dialog" class="w-full max-w-xl">
+    <dialog ref="dialog" class="w-full max-w-xl p-0 overflow-visible">
         <slot></slot>
     </dialog>
 </template>

@@ -45,57 +45,22 @@ async function onDeleteClicked() {
 </script>
 
 <template>
-    <a class="block bg-gray-100 border py-4 px-6 shadow rounded-lg hover:bg-blue-100 cursor-pointer overflow-hidden"
-       :class="growthSession.is_public ? 'border-blue-300' : 'border-vehikl-orange'"
+    <a class="block border-l-4 px-4 pb-2 pt-6 mx-2 cursor-pointer overflow-visible mb-3 transform transition-transform duration-150 shadow-md bg-white"
+       :class="growthSession.is_public ? 'border-slate-300' : 'border-vehikl-orange'"
        :href="growthSessionUrl">
-        <div v-if="growthSession.title || isDraggable" :class="{'mb-2': growthSession.title}"
-             class="flex justify-end items-center">
-            <a
-                aria-label="add-to-calendar"
-                :href="growthSession.calendarUrl"
-                target="_blank"
-                class="text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
-            >
-                <i aria-hidden="true" class="fa fa-calendar"></i>
-            </a>
-            <button
-                v-show="growthSession.canEditOrDelete(user)"
-                class="update-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
-                @click.prevent="emit('edit-requested', growthSession)">
-                <i aria-hidden="true" class="fa fa-edit"></i>
-            </button>
-            <button
-                v-show="user && user.is_vehikl_member"
-                class="copy-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
-                @click.prevent="emit('copy-requested', growthSession)">
-                <i aria-hidden="true" class="fa fa-copy"></i>
-            </button>
-            <button
-                v-show="growthSession.canEditOrDelete(user)"
-                class="delete-button text-blue-700 leading-none hover:bg-blue-200 rounded-full h-10 w-10 inline-flex justify-center items-center"
-                @click.prevent="onDeleteClicked">
-                <i class="fa fa-trash" aria-hidden="true"></i>
-            </button>
 
-            <div v-if="isDraggable"
-                 @click.stop
-                 class="z-10 handle h-10 w-10 hover:bg-blue-200 rounded-full inline-flex justify-center items-center cursor-move">
-                <icon-draggable class="h-4 text-blue-600 hover:text-blue-800"/>
-            </div>
-
-        </div>
-        <h3 class="font-light text-lg text-blue-700 text-left mb-3"
-            :class="{'pr-4': isDraggable}"
-            v-text="growthSession.title"/>
-        <pre
-            class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans"
-            v-text="growthSession.topic"/>
-        <div class="flex items-center flex-1 mb-4 text-blue-700">
-            <p class="mr-3">Host:</p>
-            <p class="mr-6 text-md" v-text="growthSession.owner.name"/>
+        <div class="flex items-center justify-between flex-1 mb-2 text-gray-700">
+            <p class="mr-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name"/>
             <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar"/>
         </div>
-        <div class="flex justify-between mb-2 text-blue-700">
+       <h3 class="font-semibold text-3xl text-gray-700 text-left mb-3 break-words"
+        v-text="growthSession.title"/>
+
+
+        <div class="flex justify-between mb-2 text-slate-500">
+            <div class="font-bold">
+                {{ growthSession.startTime }} to {{ growthSession.endTime }}
+            </div>
             <div class="flex items-center attendees-count">
                 <i class="fa fa-user-circle text-lg mr-2" aria-hidden="true"></i>
                 <span v-text="growthSession.attendees.length"/>
@@ -103,23 +68,25 @@ async function onDeleteClicked() {
                         growthSession.attendee_limit
                     }}</span>
             </div>
-            <div class="flex items-center">
-                <i class="fa fa-clock-o text-lg mr-2" aria-hidden="true"></i>
-                {{ growthSession.startTime }} to {{ growthSession.endTime }}
-            </div>
         </div>
 
-        <div class="text-blue-700 text-left mb-2 break-all">
-            <i class="fa fa-compass text-xl mr-1" aria-hidden="true"></i>
+
+
+        <pre
+            class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed"
+            v-text="growthSession.topic"/>
+
+        <div class="text-gray-600 text-left mb-4 break-all">
+            <i class="fa fa-compass text-xl mr-2" aria-hidden="true"></i>
             <location-renderer :locationString="growthSession.location"/>
         </div>
 
-        <div v-if="growthSession.anydesk && user" class="text-blue-700 text-left mb-4 break-all">
+        <div v-if="growthSession.anydesk && user" class="text-gray-700 text-left mb-4 break-all">
             <i class="fa fa-desktop text-lg mr-1" aria-hidden="true"></i>
             {{ growthSession.anydesk.name }}
         </div>
 
-        <div class="flex flex-row">
+        <div class="grid gap-2 mb-2">
             <v-button
                 class="join-button"
                 color="blue"
@@ -139,6 +106,46 @@ async function onDeleteClicked() {
                 v-show="growthSession.canLeave(user)"
                 text="Leave"/>
         </div>
+
+        <div
+            v-if="growthSession.title || isDraggable"
+            class="flex items-center px-1 py-1 -mx-2 bg-slate-100 rounded-lg"
+        >
+                <a
+                    aria-label="add-to-calendar"
+                    :href="growthSession.calendarUrl"
+                    target="_blank"
+                    class="text-slate-600 group relative leading-none hover:bg-slate-300 hover:text-slate-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
+                >
+                    <i aria-hidden="true" class="fa fa-calendar"></i>
+                    <div class="bg-slate-700 text-slate-50 hidden group-hover:block absolute p-2 bottom-full rounded-lg">Add to Calendar</div>
+                </a>
+                <button
+                    v-show="growthSession.canEditOrDelete(user)"
+                    class="update-button text-slate-600 leading-none hover:bg-slate-300 hover:text-slate-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
+                    @click.prevent="emit('edit-requested', growthSession)">
+                    <i aria-hidden="true" class="fa fa-edit"></i>
+                </button>
+                <button
+                    v-show="user && user.is_vehikl_member"
+                    class="copy-button text-slate-600 leading-none hover:bg-slate-300 hover:text-slate-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
+                    @click.prevent="emit('copy-requested', growthSession)">
+                    <i aria-hidden="true" class="fa fa-copy"></i>
+                </button>
+                <button
+                    v-show="growthSession.canEditOrDelete(user)"
+                    class="delete-button text-slate-600 leading-none hover:bg-slate-300 hover:text-slate-900 rounded-lg h-10 w-10 inline-flex justify-center items-center"
+                    @click.prevent="onDeleteClicked">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
+
+                <div v-if="isDraggable"
+                     @click.stop
+                     class="z-10 handle h-10 w-10 hover:bg-slate-300 hover:text-slate-900 rounded-lg inline-flex justify-center items-center cursor-move">
+                    <icon-draggable class="h-4 text-slate-600 hover:text-slate-800"/>
+                </div>
+
+            </div>
     </a>
 </template>
 
