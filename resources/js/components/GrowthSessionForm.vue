@@ -186,7 +186,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
 </script>
 
 <template>
-    <form @submit.prevent class="create-growth-session edit-growth-session-form bg-white w-full p-4 pt-10 text-left">
+    <form @submit.prevent class="create-growth-session edit-growth-session-form bg-white w-full p-4 pt-10 text-left overflow-y-auto max-h-[95vh]">
         <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-6">
             Title
             <input
@@ -286,14 +286,18 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                           :options="anyDesks" class="ml-4 w-32"/>
             </label>
         </div>
+        <label class="flex flex-col text-slate-700 text-sm uppercase tracking-wide font-bold gap-1 mb-6">
+            Tags
+            <Multiselect
+                v-model="tagIds"
+                mode="tags"
+                :close-on-select="false"
+                :searchable="true"
+                :options="tagOptions"
+                :classes="{ tag: 'bg-slate-100 text-slate-700 text-sm font-semibold py-0.5 pl-2 rounded mr-1 mb-1 flex items-center whitespace-nowrap min-w-0 rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1' }"
+            />
+        </label>
 
-        <Multiselect
-            v-model="tagIds"
-            mode="tags"
-            :close-on-select="false"
-            :searchable="true"
-            :options="tagOptions"
-        />
 
         <div class="mb-4" v-if="(discordChannels.length > 0)">
             <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-2">
@@ -305,8 +309,8 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
             </label>
         </div>
 
-        <div class="mb-4">
-            <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-2" for="location">
+        <div class="mb-6">
+            <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-1" for="location">
                 Location
             </label>
             <textarea
