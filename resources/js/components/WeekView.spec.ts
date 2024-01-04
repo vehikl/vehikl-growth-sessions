@@ -1,5 +1,6 @@
 import {mount, Wrapper} from "@vue/test-utils"
 import WeekView from "./WeekView.vue"
+import GrowthSessionTags from "./GrowthSessionTags.vue";
 import flushPromises from "flush-promises"
 import growthSessionsThisWeekJson from "../../../tests/fixtures/WeekGrowthSessions.json"
 import {IUser} from "../types"
@@ -101,9 +102,17 @@ describe('WeekView', () => {
     });
 
     describe('Tag Filter', () => {
-        it.todo('renders unique combined list of tags from visible growth sessions')
+        it('renders unique combined list of tags from visible growth sessions', async () => {
+            const wrapper = mount(WeekView, {propsData: {user: authVehiklUser}})
+            await flushPromises()
 
-        it.todo('shows growth sessions that have all tags selected')
+            const tagsFilter = wrapper.findComponent(GrowthSessionTags)
+
+
+            expect(tagsFilter).toContainEqual('div')
+        })
+
+        it.todo('shows growth sessions that have any of the tags selected')
     })
 
     describe('for an authenticated non-vehikl user', () => {
