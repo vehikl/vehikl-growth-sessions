@@ -29,7 +29,10 @@ const formModalState = ref<"open" | "closed">("closed")
 const selectedTagIds = ref<number[]>([])
 
 const uniqueTags = computed(() => {
-    return growthSessions.value.allGrowthSessions.flatMap(gs => gs.tags).filter((tag, index, allTags) => allTags.map((t) => t.id).indexOf(tag.id) == index)
+    const allTags = growthSessions.value.allGrowthSessions.flatMap(gs => gs.tags)
+
+    return allTags
+        .filter((tag, index, allTags) => allTags.map((t) => t.id).indexOf(tag.id) == index)
 })
 
 onBeforeMount(async () => {
@@ -164,7 +167,7 @@ function onTagClick(id: number) {
         </div>
 
         <div class="flex flex-row gap-2 justify-between mx-4 px-4 py-2 rounded-b-xl text-sm sm:text-lg tracking-wide text-gray-800 bg-slate-200">
-            <GrowthSessionTags :tags="uniqueTags" :selected-tag-ids="selectedTagIds" @tag-click="onTagClick" />
+            <GrowthSessionTags :tags="uniqueTags" :selected-tag-ids="selectedTagIds" @tag-click="onTagClick" ref="growthSessionTags"/>
             <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
                                         v-model="visibilityFilter"/>
         </div>

@@ -1,6 +1,5 @@
 import {mount, Wrapper} from "@vue/test-utils"
 import WeekView from "./WeekView.vue"
-import GrowthSessionTags from "./GrowthSessionTags.vue";
 import flushPromises from "flush-promises"
 import growthSessionsThisWeekJson from "../../../tests/fixtures/WeekGrowthSessions.json"
 import {IUser} from "../types"
@@ -103,13 +102,16 @@ describe('WeekView', () => {
 
     describe('Tag Filter', () => {
         it('renders unique combined list of tags from visible growth sessions', async () => {
-            const wrapper = mount(WeekView, {propsData: {user: authVehiklUser}})
+        beforeEach(async () => {
             await flushPromises()
+        });
 
-            const tagsFilter = wrapper.findComponent(GrowthSessionTags)
+        it('renders unique combined list of tags from visible growth sessions', async () => {
+            const tagsFilter = wrapper.findComponent({ref: 'growthSessionTags'})
 
-
-            expect(tagsFilter).toContainEqual('div')
+            expect(tagsFilter.find('div#foo').text()).toBe('foo')
+            expect(tagsFilter.find('div#bar').text()).toBe('bar')
+            expect(tagsFilter.find('div#baz').text()).toBe('baz')
         })
 
         it.todo('shows growth sessions that have any of the tags selected')

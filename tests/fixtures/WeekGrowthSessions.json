@@ -138,7 +138,8 @@
             "attendees": [],
             "watchers": [],
             "comments": [],
-            "anydesk": null
+            "anydesk": null,
+            "tags": []
         }
     ],
     "2020-01-16": [],
@@ -172,7 +173,8 @@
             "attendees": [],
             "watchers": [],
             "comments": [],
-            "anydesk": null
+            "anydesk": null,
+            "tags": []
         },
         {
             "id": 5,
@@ -203,7 +205,8 @@
             "attendees": [],
             "watchers": [],
             "comments": [],
-            "anydesk": null
+            "anydesk": null,
+            "tags": []
         }
     ]
 }
