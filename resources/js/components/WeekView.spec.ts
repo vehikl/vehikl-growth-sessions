@@ -101,8 +101,8 @@ describe('WeekView', () => {
     });
 
     describe('Tag Filter', () => {
-        it('renders unique combined list of tags from visible growth sessions', async () => {
         beforeEach(async () => {
+            wrapper = mount(WeekView, {propsData: {user: authNonVehiklUser}})
             await flushPromises()
         });
 
@@ -114,7 +114,17 @@ describe('WeekView', () => {
             expect(tagsFilter.find('div#baz').text()).toBe('baz')
         })
 
-        it.todo('shows growth sessions that have any of the tags selected')
+        it('shows growth sessions that have any of the tags selected', async () => {
+            let growthSessions = wrapper.findAllComponents(GrowthSessionCard);
+            expect(growthSessions.length).toBe(5);
+
+            const tagsFilter = wrapper.findComponent({ref: 'growthSessionTags'})
+            await tagsFilter.find('div#foo').trigger('click')
+
+            growthSessions = wrapper.findAllComponents(GrowthSessionCard);
+
+            expect(growthSessions.length).toBe(2);
+        })
     })
 
     describe('for an authenticated non-vehikl user', () => {
