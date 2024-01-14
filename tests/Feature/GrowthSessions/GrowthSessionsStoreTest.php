@@ -4,6 +4,7 @@ namespace Tests\Feature\GrowthSessions;
 
 use App\AnyDesk;
 use App\GrowthSession;
+use App\Tag;
 use App\User;
 use Illuminate\Http\Response;
 use Tests\TestCase;
@@ -61,6 +62,21 @@ class GrowthSessionsStoreTest extends TestCase
         )->assertSuccessful();
 
         $this->assertEquals($watcherFlag, $user->fresh()->growthSessions->first()->allow_watchers);
+    }
+
+    public function testAGrowthSessionCanBeCreatedWithMultipleTags()
+    {
+        $user = User::factory()->vehiklMember()->create();
+
+        $tags = Tag::factory(3)->create();
+
+        $this->actingAs($user)->postJson(
+            route('growth_sessions.store'),
+            $this->defaultParameters(['tags' => $tags->pluck('id')])
+        )->assertSuccessful();
+
+        $growthSessionTagsNames = $user->fresh()->growthSessions->first()->tags->pluck('name');
+        $this->assertEqualsCanonicalizing($tags->pluck('name'), $growthSessionTagsNames);
     }
 
     public function testAGrowthSessionCannotBeCreatedDuringTheWeekend()

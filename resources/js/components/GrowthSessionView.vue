@@ -10,6 +10,7 @@ import VButton from "./VButton.vue"
 import VModal from "./VModal.vue"
 import {computed, ref} from "vue"
 import {useGrowthSession} from "../composables/useGrowthSession"
+import GrowthSessionTags from "./GrowthSessionTags.vue";
 
 interface IProps {
     userJson?: IUser;
@@ -87,6 +88,9 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                         }}</span>
                     </div>
                 </div>
+
+                <GrowthSessionTags :tags="growthSession.tags" class="mb-4" />
+
                     <pre
                     class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed"
                     v-text="growthSession.topic"

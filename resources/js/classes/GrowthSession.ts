@@ -1,4 +1,4 @@
-import {IAnyDesk, IComment, IGrowthSession, IUser} from "../types"
+import {IAnyDesk, IComment, IGrowthSession, IUser, ITag} from "../types"
 import {DateTime} from "../classes/DateTime"
 import {GrowthSessionApi} from "../services/GrowthSessionApi"
 import {User} from "./User"
@@ -20,6 +20,7 @@ export class GrowthSession implements IGrowthSession {
     allow_watchers!: boolean;
     discord_channel_id!: string | null;
     anydesk!: IAnyDesk | null;
+    tags!: ITag[];
 
     constructor(growthSession: IGrowthSession) {
         this.refresh(growthSession);
@@ -60,6 +61,7 @@ export class GrowthSession implements IGrowthSession {
         this.attendee_limit = growthSession.attendee_limit;
         this.discord_channel_id = growthSession.discord_channel_id;
         this.anydesk = growthSession.anydesk;
+        this.tags = growthSession.tags;
     }
 
     get hasAlreadyHappened(): boolean {

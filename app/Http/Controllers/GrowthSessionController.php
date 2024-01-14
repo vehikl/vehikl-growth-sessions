@@ -51,6 +51,7 @@ class GrowthSessionController extends Controller
         $newGrowthSession->save();
         $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::OWNER_ID]);
         $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $newGrowthSession->tags()->sync($request->input('tags'));
 
         $newGrowthSession->fresh();
         event(new GrowthSessionCreated($newGrowthSession));
@@ -91,6 +92,7 @@ class GrowthSessionController extends Controller
     {
         $originalValues = $growthSession->toArray();
         $growthSession->update($request->validated());
+        $growthSession->tags()->sync($request->input('tags'));
 
         if ($request->input('anydesk_id')) {
             $anyDesk = AnyDesk::query()->find($request->input('anydesk_id'));

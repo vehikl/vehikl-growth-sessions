@@ -8,6 +8,8 @@ import {AnydesksApi} from "../services/AnydesksApi"
 import TimePicker from "./TimePicker.vue"
 import {computed, onBeforeMount, ref, watch} from "vue"
 import VSelect from "./VSelect.vue"
+import Multiselect from "@vueform/multiselect"
+import {TagsApi} from "../services/TagsApi";
 
 interface IProps {
     owner: IUser;
@@ -34,7 +36,8 @@ const discordChannels = ref<IDropdownOption[]>([])
 const selectedAnydeskId = ref<string | null>(null)
 const anyDesks = ref<IDropdownOption[]>([])
 const anydesksToggle = ref<boolean>(false)
-
+const tagIds = ref<string[]>([])
+const tagOptions = ref<any>({})
 
 const isCreating = computed(() => !props.growthSession?.id)
 const isReadyToSubmit = computed(() => !!startTime.value
@@ -55,7 +58,8 @@ const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
     attendee_limit: isLimitless.value ? undefined : attendeeLimit.value,
     discord_channel_id: selectedDiscordChannelId.value ?? undefined,
     anydesk_id: selectedAnydeskId.value ? Number.parseInt(selectedAnydeskId.value) : undefined,
-    allow_watchers: allowWatchers.value
+    allow_watchers: allowWatchers.value,
+    tags: tagIds.value.map((tag) => +tag)
 }))
 
 onBeforeMount(() => {
@@ -66,6 +70,8 @@ onBeforeMount(() => {
     getDiscordChannels()
 
     getAnyDesks()
+
+    getTags()
 
     if (props.growthSession) {
         date.value = props.growthSession.date
@@ -79,6 +85,7 @@ onBeforeMount(() => {
         isPublic.value = props.growthSession.is_public
         selectedAnydeskId.value = props.growthSession.anydesk?.id.toString() ?? null
         allowWatchers.value = props.growthSession.allow_watchers
+        tagIds.value = props.growthSession.tags.map(tag => tag.id.toString())
     }
 })
 
@@ -153,6 +160,20 @@ async function getAnyDesks() {
     }
 }
 
+async function getTags() {
+  try {
+    const tagsFromApi = await TagsApi.index()
+    tagOptions.value = tagsFromApi.map(tag => {
+      return {
+        label: tag.name,
+        value: tag.id.toString()
+      }
+    })
+  } catch (e) {
+    onRequestFailed(e)
+  }
+}
+
 watch(selectedDiscordChannelId, (selectedId: string | null) => {
     if (!selectedId) {
         return
@@ -165,7 +186,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
 </script>
 
 <template>
-    <form @submit.prevent class="create-growth-session edit-growth-session-form bg-white w-full p-4 pt-10 text-left">
+    <form @submit.prevent class="create-growth-session edit-growth-session-form bg-white w-full p-4 pt-10 text-left overflow-y-auto max-h-[95vh]">
         <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-6">
             Title
             <input
@@ -265,6 +286,18 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                           :options="anyDesks" class="ml-4 w-32"/>
             </label>
         </div>
+        <label class="flex flex-col text-slate-700 text-sm uppercase tracking-wide font-bold gap-1 mb-6">
+            Tags
+            <Multiselect
+                v-model="tagIds"
+                mode="tags"
+                :close-on-select="false"
+                :searchable="true"
+                :options="tagOptions"
+                :classes="{ tag: 'bg-slate-100 text-slate-700 text-sm font-semibold py-0.5 pl-2 rounded mr-1 mb-1 flex items-center whitespace-nowrap min-w-0 rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1' }"
+            />
+        </label>
+
 
         <div class="mb-4" v-if="(discordChannels.length > 0)">
             <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-2">
@@ -276,8 +309,8 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
             </label>
         </div>
 
-        <div class="mb-4">
-            <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-2" for="location">
+        <div class="mb-6">
+            <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-1" for="location">
                 Location
             </label>
             <textarea
@@ -299,6 +332,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                 </button>
     </form>
 </template>
+<style src="@vueform/multiselect/themes/default.css"></style>
 
 <style lang="scss" scoped>
 .error-outline {

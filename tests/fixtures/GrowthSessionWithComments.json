@@ -108,6 +108,7 @@
             }
         }
     ],
+    "tags": [],
     "anydesk": {
         "id": 1,
         "name": "TestoDesko",

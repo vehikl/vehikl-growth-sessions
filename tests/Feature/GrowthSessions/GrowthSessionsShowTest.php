@@ -3,6 +3,7 @@
 namespace Tests\Feature\GrowthSessions;
 
 use App\GrowthSession;
+use App\Tag;
 use App\User;
 use App\UserType;
 use Carbon\CarbonImmutable;
@@ -240,6 +241,22 @@ class GrowthSessionsShowTest extends TestCase
         $this->getJson(route('growth_sessions.show', $growthSession))
             ->assertJsonCount($numberOfAttendees, 'attendees')
             ->assertJsonCount($numberOfWatchers, 'watchers');
+    }
+
+    public function testItProvidesAListOfTags()
+    {
+        $numberOfTags = 3;
+
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(
+                Tag::factory()->times($numberOfTags),
+                [],
+                'tags'
+            )
+            ->create();
+
+        $this->getJson(route('growth_sessions.show', $growthSession))
+            ->assertJsonCount($numberOfTags, 'tags');
     }
 
     public function providesGrowthSessionGuests()

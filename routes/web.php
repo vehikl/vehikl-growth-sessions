@@ -33,3 +33,4 @@ Route::prefix('api')->name('api.')->middleware('auth')->group(function () {
 });
 
 Route::get('/anydesks', 'AnyDesksController@index')->middleware('auth');
+Route::get('/tags', 'TagsController@index')->middleware('auth');

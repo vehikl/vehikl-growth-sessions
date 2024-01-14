@@ -70,7 +70,17 @@ const baseGrowthSessionDataAttributes = {
         id: 1,
         name: 'TestoDesko',
         remote_desk_id: '123 456 789',
-    }
+    },
+    tags: [
+        {
+            id: 1,
+            name: 'Test Tag #1'
+        },
+        {
+            id: 2,
+            name: 'Test Tag #2'
+        }
+    ]
 };
 
 
@@ -275,6 +285,18 @@ describe('GrowthSessionCard', () => {
             const addToCalendarLink = wrapper.find("[aria-label=add-to-calendar]").element as HTMLAnchorElement
 
             expect(addToCalendarLink.href).toContain("google.com/calendar");
+        })
+    })
+
+    it('Displays tags', () => {
+        const existingTags = baseGrowthSessionDataAttributes.tags;
+
+        const tags = wrapper.findAll('.tag')
+        let expectedNumberOfTags = existingTags.length;
+        expect(tags.length).toBe(expectedNumberOfTags);
+
+        tags.forEach((tag: Wrapper, index: number) => {
+            expect(tag.text()).toBe(existingTags[index].name);
         })
     })
 });

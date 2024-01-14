@@ -109,6 +109,10 @@ describe('GrowthSessionForm', () => {
                 [
                     "Can accept an AnyDesk",
                     {...baseGrowthSessionRequest, anydesk_id: 1}
+                ],
+                [
+                    "Can accept tags",
+                    {...baseGrowthSessionRequest, tags: [1]}
                 ]
             ]
 
@@ -122,7 +126,7 @@ describe('GrowthSessionForm', () => {
                     discord_channel_id: discordChannelId,
                     anydesk_id: anyDeskId,
                     allow_watchers,
-
+                    tags
                 } = payload;
 
                 const discordChannel = discordChannels.filter(channel => channel.id === discordChannelId)[0] || undefined;
@@ -157,6 +161,12 @@ describe('GrowthSessionForm', () => {
                     await wrapper.vm.$nextTick()
 
                     wrapper.find("#anydesk-selection").setValue(anyDeskId.toString())
+                }
+
+                if (tags) {
+                    for (const tagId of tags) {
+                        // select tag in multiselect
+                    }
                 }
 
                 await wrapper.vm.$nextTick();

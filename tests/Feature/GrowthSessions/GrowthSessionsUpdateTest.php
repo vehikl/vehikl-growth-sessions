@@ -3,6 +3,7 @@
 namespace Tests\Feature\GrowthSessions;
 
 use App\GrowthSession;
+use App\Tag;
 use App\User;
 use App\UserType;
 use Illuminate\Http\Response;
@@ -196,5 +197,21 @@ class GrowthSessionsUpdateTest extends TestCase
         $this->assertFalse($growthSession->fresh()->allow_watchers);
     }
 
+    public function testTheOwnerCanUpdateTheTags()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->create(['allow_watchers' => true]);
 
+        $tag = Tag::factory()->create();
+
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
+            'tags' => [$tag->id],
+        ])->assertSuccessful();
+
+        $this->assertCount(1, $growthSession->fresh()->tags);
+    }
 }

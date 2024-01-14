@@ -10,7 +10,8 @@ import {WeekGrowthSessions} from "../classes/WeekGrowthSessions"
 import {Nothingator} from "../classes/Nothingator"
 import VisibilityRadioFieldset from "./VisibilityRadioFieldset.vue"
 import VModal from "./VModal.vue"
-import {onBeforeMount, onBeforeUnmount, ref} from "vue"
+import {computed, onBeforeMount, onBeforeUnmount, ref} from "vue"
+import GrowthSessionTags from "./GrowthSessionTags.vue";
 
 interface IGrowthSessionCardDragChange {
     added?: { element: GrowthSession, index: number }
@@ -25,6 +26,14 @@ const growthSessionToUpdate = ref<GrowthSession | null>(null)
 const draggedGrowthSession = ref<GrowthSession | null>(null)
 const visibilityFilter = ref<"all" | "public" | "private">("all")
 const formModalState = ref<"open" | "closed">("closed")
+const selectedTagIds = ref<number[]>([])
+
+const uniqueTags = computed(() => {
+    const allTags = growthSessions.value.allGrowthSessions.flatMap(gs => gs.tags)
+
+    return allTags
+        .filter((tag, index, allTags) => allTags.map((t) => t.id).indexOf(tag.id) == index)
+})
 
 onBeforeMount(async () => {
     await refreshGrowthSessionsOfTheWeek()
@@ -42,7 +51,13 @@ async function refreshGrowthSessionsOfTheWeek() {
 
 function growthSessionsVisibleInDate(date: DateTime) {
     let allGrowthSessionsOnDate = growthSessions.value.getSessionByDate(date)
-    return allGrowthSessionsOnDate.filter((session) => {
+    return allGrowthSessionsOnDate
+        .filter((session) => {
+            if (selectedTagIds.value.length == 0) return true
+
+            return session.tags.some((tag) => selectedTagIds.value.includes(tag.id))
+        })
+        .filter((session) => {
         if (visibilityFilter.value === "private") {
             return !session.is_public
         }
@@ -122,6 +137,14 @@ async function changeReferenceDate(deltaDays: number) {
 function scrollToDate(id: string) {
     window.document.getElementById(id)?.scrollIntoView({behavior: "smooth"})
 }
+
+function onTagClick(id: number) {
+    if (selectedTagIds.value.includes(id)) {
+        selectedTagIds.value = selectedTagIds.value.filter(tagId => tagId != id)
+    } else {
+        selectedTagIds.value.push(id)
+    }
+}
 </script>
 
 <template>
@@ -143,9 +166,11 @@ function scrollToDate(id: string) {
             </button>
         </div>
 
-        <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
-                                    v-model="visibilityFilter"/>
-
+        <div class="flex flex-row gap-2 justify-between mx-4 px-4 py-2 rounded-b-xl text-sm sm:text-lg tracking-wide text-gray-800 bg-slate-200">
+            <GrowthSessionTags :tags="uniqueTags" :selected-tag-ids="selectedTagIds" @tag-click="onTagClick" ref="growthSessionTags"/>
+            <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters"
+                                        v-model="visibilityFilter"/>
+        </div>
 
         <div class="week-grid px-4 py-6 gap-4">
             <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">

@@ -100,6 +100,33 @@ describe('WeekView', () => {
         expect(visibilityFilters.exists()).toBeFalsy();
     });
 
+    describe('Tag Filter', () => {
+        beforeEach(async () => {
+            wrapper = mount(WeekView, {propsData: {user: authNonVehiklUser}})
+            await flushPromises()
+        });
+
+        it('renders unique combined list of tags from visible growth sessions', async () => {
+            const tagsFilter = wrapper.findComponent({ref: 'growthSessionTags'})
+
+            expect(tagsFilter.find('div#foo').text()).toBe('foo')
+            expect(tagsFilter.find('div#bar').text()).toBe('bar')
+            expect(tagsFilter.find('div#baz').text()).toBe('baz')
+        })
+
+        it('shows growth sessions that have any of the tags selected', async () => {
+            let growthSessions = wrapper.findAllComponents(GrowthSessionCard);
+            expect(growthSessions.length).toBe(5);
+
+            const tagsFilter = wrapper.findComponent({ref: 'growthSessionTags'})
+            await tagsFilter.find('div#foo').trigger('click')
+
+            growthSessions = wrapper.findAllComponents(GrowthSessionCard);
+
+            expect(growthSessions.length).toBe(2);
+        })
+    })
+
     describe('for an authenticated non-vehikl user', () => {
         beforeEach(async () => {
             wrapper = mount(WeekView, {propsData: {user: authNonVehiklUser}})

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\AnyDesk;
 use App\GrowthSession;
+use App\Tag;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateGrowthSessionRequest extends FormRequest
@@ -38,6 +39,7 @@ class UpdateGrowthSessionRequest extends FormRequest
             'is_public' => 'sometimes|boolean',
             'allow_watchers' => 'sometimes|boolean',
             'anydesk_id' => 'sometimes|integer|exists:' . AnyDesk::class . ',id',
+            'tags' => 'nullable|array|exists:' . Tag::class . ',id',
         ];
     }
 }

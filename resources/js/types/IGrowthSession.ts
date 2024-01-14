@@ -1,4 +1,4 @@
-import {IComment, IUser} from '.';
+import {IComment, IUser, ITag} from '.';
 import {IAnyDesk} from "./IAnyDesk";
 
 export interface IGrowthSession {
@@ -18,4 +18,5 @@ export interface IGrowthSession {
     watchers: IUser[];
     comments: IComment[];
     anydesk: IAnyDesk | null;
+    tags: ITag[];
 }
