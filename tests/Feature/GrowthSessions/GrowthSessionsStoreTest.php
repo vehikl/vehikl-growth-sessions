@@ -66,6 +66,7 @@ class GrowthSessionsStoreTest extends TestCase
 
     public function testAGrowthSessionCanBeCreatedWithMultipleTags()
     {
+        $this->setTestNow('2020-01-15');
         $user = User::factory()->vehiklMember()->create();
 
         $tags = Tag::factory(3)->create();
