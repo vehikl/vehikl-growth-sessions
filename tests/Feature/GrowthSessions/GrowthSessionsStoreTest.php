@@ -150,16 +150,16 @@ class GrowthSessionsStoreTest extends TestCase
         $this->assertEquals($expectedAttendeeLimit, $user->growthSessions->first()->attendee_limit);
     }
 
-    public function testAnAttendeeLimitCannotBeLessThanFour()
+    public function testAnAttendeeLimitCannotBeLessThanTwo()
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
 
-        $expectedAttendeeLimit = 3;
+        $expectedAttendeeLimit = 1;
         $this->actingAs($vehiklMember)->postJson(
             route('growth_sessions.store'),
             $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
         )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 4']);
+            ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 2']);
     }
 
     private function defaultParameters(array $params = []): array

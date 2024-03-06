@@ -25,7 +25,7 @@ class UpdateGrowthSessionRequest extends FormRequest
 
     public function rules()
     {
-        $minimumAttendees = 4;
+        $minimumAttendees = 2;
         $currentAttendees = $this->growth_session->attendees()->count();
 
         return [

@@ -256,7 +256,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                             v-model.number="attendeeLimit"
                             :class="{'error-outline': getError('limit')}"
                             class="block w-full text-center shadow appearance-none border border-slate-400 py-1 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
-                            min="4"
+                            min="2"
                             placeholder="Limit of participants"
                             type="number"/>
                     </label>
