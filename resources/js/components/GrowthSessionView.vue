@@ -77,8 +77,9 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                     {{ growthSession.title }}
                 </h1>
                 <div class="flex justify-between mb-2 text-slate-500">
-                    <div class="font-bold">
-                        {{ growthSession.startTime }} to {{ growthSession.endTime }}
+                  <div class="font-bold flex flex-col">
+                    <p>{{ growthSession.date }}</p>
+                    <p>{{ growthSession.startTime }} to {{ growthSession.endTime }}</p>
                     </div>
                     <div class="flex items-center attendees-count">
                         <i class="fa fa-user-circle text-lg mr-2" aria-hidden="true"></i>
