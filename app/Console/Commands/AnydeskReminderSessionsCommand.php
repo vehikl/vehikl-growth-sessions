@@ -48,7 +48,7 @@ class AnydeskReminderSessionsCommand extends Command
     public function getDefaultAttributes(): array
     {
         return [
-            'title' => 'Updating Workstations (but not AnyDesk)',
+            'title' => 'Updating Workstations',
             'topic' =>
                 "Friendly reminder to check if anything needs updating on your squad's Workstation before breaking out for the weekend.
 
