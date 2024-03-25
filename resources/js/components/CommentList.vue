@@ -51,7 +51,8 @@ function getGithubURL(comment: IComment): string {
                         </button>
                     </div>
                     <div class="text-gray-700 text-sm mb-2" v-text="comment.time_stamp"></div>
-                    <pre class="inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed">{{
+                  <pre
+                      class="inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-600 tracking-wide leading-relaxed">{{
                             comment.content
                         }}</pre>
                 </div>
