@@ -156,7 +156,7 @@ function onTagClick(id: number) {
                 <i aria-hidden="true" class="fa fa-chevron-left"></i>
             </button>
             <h2 class="flex flex-col sm:flex-row items-center mx-4 text-center" v-if="growthSessions.weekDates.length > 0">
-                {{ growthSessions.firstDay.format("MMMM DD") }} <span class="text-slate-400 mx-4">to</span>
+              {{ growthSessions.firstDay.format("MMMM DD") }} <span class="text-slate-600 mx-4">to</span>
                 {{ growthSessions.lastDay.format("MMMM DD") }}
             </h2>
             <button aria-label="Load next week"

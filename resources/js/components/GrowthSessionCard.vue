@@ -74,7 +74,7 @@ async function onDeleteClicked() {
         <GrowthSessionTags class="mb-4" :tags="growthSession.tags" />
 
         <pre
-            class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-400 tracking-wide leading-relaxed"
+            class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-600 tracking-wide leading-relaxed"
             v-text="growthSession.topic"/>
 
         <div class="text-gray-600 text-left mb-4 break-all">
