@@ -2,7 +2,7 @@ import moment, {Moment} from "moment"
 
 export class DateTime {
     private dateTime: string;
-    private static nowString: string = (new Date()).toISOString();
+    private static nowString: string = (new Date()).toLocaleString('en-CA', {timeZone: 'America/Toronto'});
 
     constructor(dateTime?: string) {
         this.dateTime = dateTime || DateTime.nowString;
