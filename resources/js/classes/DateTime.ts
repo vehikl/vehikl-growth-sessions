@@ -9,7 +9,7 @@ export class DateTime {
     }
 
     static parseByDate(date: string): DateTime {
-        return new DateTime(moment(date, 'YYYY-MM-DD').toISOString());
+        return new DateTime(moment(date, 'YYYY-MM-DD').toISOString(true));
     }
 
     static parseByTime(time: string): DateTime {
@@ -62,7 +62,7 @@ export class DateTime {
     }
 
     addDays(days: number): DateTime {
-        this.dateTime = moment(this.dateTime).add(days, 'days').toISOString();
+        this.dateTime = moment(new Date(this.dateTime.split(',')[0])).add(days, 'days').toISOString(true);
         return this;
     }
 
