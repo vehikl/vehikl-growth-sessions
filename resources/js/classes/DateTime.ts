@@ -1,8 +1,8 @@
-import moment, {Moment} from "moment"
+import moment, {Moment} from "moment-timezone"
 
 export class DateTime {
     private dateTime: string;
-    private static nowString: string = (new Date()).toLocaleString('en-CA', {timeZone: 'America/Toronto'});
+    private static nowString: string = (new Date()).toISOString();
 
     constructor(dateTime?: string) {
         this.dateTime = dateTime || DateTime.nowString;
