@@ -8,6 +8,5 @@ import moment from "moment-timezone"
 moment.tz.setDefault("America/Toronto");
 
 createApp({
-    //@ts-ignore
     components: {WeekView, GrowthSessionView, VAvatar}
 }).mount("#app")

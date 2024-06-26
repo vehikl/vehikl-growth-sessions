@@ -1,4 +1,4 @@
-import {IAnyDesk, IComment, IGrowthSession, IUser, ITag} from "../types"
+import {IAnyDesk, IComment, IGrowthSession, ITag, IUser} from "../types"
 import {DateTime} from "../classes/DateTime"
 import {GrowthSessionApi} from "../services/GrowthSessionApi"
 import {User} from "./User"
@@ -77,7 +77,7 @@ export class GrowthSession implements IGrowthSession {
     }
 
     get calendarUrl(): string {
-        let url = new URL('http://www.google.com/calendar/event');
+        let url = new URL('https://www.google.com/calendar/event');
         url.searchParams.append('action', 'TEMPLATE');
         url.searchParams.append('text', this.title);
         url.searchParams.append('dates', this.googleCalendarDate);
