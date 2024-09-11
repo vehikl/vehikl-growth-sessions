@@ -7,7 +7,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GrowthSession extends Model
 {
@@ -50,6 +49,11 @@ class GrowthSession extends Model
     public function getOwnerAttribute()
     {
         return $this->owners()->first();
+    }
+
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
     }
 
     public function owners()

@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -41,6 +42,11 @@ class User extends Authenticatable
         return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', UserType::OWNER_ID);
     }
 
+    public function allSessions(): BelongsToMany
+    {
+        return $this->belongsToMany(GrowthSession::class);
+    }
+
     public function sessionsHosted(): BelongsToMany
     {
         return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', UserType::OWNER_ID);
@@ -55,7 +61,6 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', UserType::WATCHER_ID);
     }
-
     public function comments()
     {
         return $this->hasMany(Comment::class);
@@ -64,5 +69,15 @@ class User extends Authenticatable
     public function scopeVehikaliens(Builder $query): Builder
     {
         return $query->where('is_vehikl_member', true);
+    }
+
+    public function hasMobbedWith(): Attribute
+    {
+        return Attribute::get(fn() => $this
+            ->allSessions
+            ->flatMap
+            ->members
+            ->unique('id')
+            ->reject(fn(User $peer) => $peer->id === $this->id || !$peer->is_vehikl_member));
     }
 }

@@ -18,6 +18,7 @@ use App\Policies\GrowthSessionPolicy;
 use App\UserType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
 
 class GrowthSessionController extends Controller
 {
@@ -91,7 +92,7 @@ class GrowthSessionController extends Controller
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
     {
         $originalValues = $growthSession->toArray();
-        $growthSession->update($request->validated());
+        $growthSession->update(Arr::except($request->validated(), 'tags'));
         $growthSession->tags()->sync($request->input('tags'));
 
         if ($request->input('anydesk_id')) {

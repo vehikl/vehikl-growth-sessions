@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\GrowthSession;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ShowStatistics extends Controller
 {
@@ -12,30 +13,49 @@ class ShowStatistics extends Controller
     {
         $start_date = GrowthSession::query()->orderBy('date')->first()?->date?->toDateString() ?? today()->toDateString();
         $end_date = today()->toDateString();
-        $emailExclusions = [
-            'go@vehikl.com',
-            config('auth.slack_app_email')
-        ];
 
-        $users = User::query()
-            ->vehikaliens()
-            ->whereNotIn('email', $emailExclusions)
-            ->withCount(['sessionsAttended', 'sessionsHosted', 'sessionsWatched'])
-            ->orderBy('id')
-            ->get()
-            ->map(fn(User $user) => [
-                'name' => $user->name,
-                'user_id' => $user->id,
-                'total_participation' => $user->sessions_attended_count + $user->sessions_hosted_count + $user->sessions_watched_count,
-                'hosted' => $user->sessions_hosted_count,
-                'attended' => $user->sessions_attended_count,
-                'watched' => $user->sessions_watched_count,
-            ]);
+        $cacheDurationInSeconds = 60 * 5;
+        $userStatistics = Cache::remember("statistics-{$start_date}-{$end_date}", $cacheDurationInSeconds,
+            function () use ($start_date, $end_date) {
+                $emailExclusions = [
+                    'go@vehikl.com',
+                    config('auth.slack_app_email')
+                ];
+
+                $allUsers = User::query()
+                    ->vehikaliens()
+                    ->whereNotIn('email', $emailExclusions)
+                    ->withCount(['sessionsAttended', 'sessionsHosted', 'sessionsWatched'])
+                    ->with('allSessions.members')
+                    ->orderBy('id')
+                    ->get();
+
+
+                return $allUsers
+                    ->append('has_mobbed_with')
+                    ->map(fn(User $user) => [
+                        'name' => $user->name,
+                        'user_id' => $user->id,
+                        'has_mobbed_with' => $user->has_mobbed_with
+                            ->map(fn(User $peer) => ['name' => $peer->name, 'user_id' => $peer->id])
+                            ->values(),
+                        'has_not_mobbed_with' => $allUsers
+                            ->whereNotIn('id', $user->has_mobbed_with->pluck('id'))
+                            ->reject(fn(User $peer) => $peer->id === $user->id || !$peer->is_vehikl_member)
+                            ->map(fn(User $peer) => ['name' => $peer->name, 'user_id' => $peer->id])
+                            ->values(),
+                        'total_participation' => $user->sessions_attended_count + $user->sessions_hosted_count + $user->sessions_watched_count,
+                        'hosted' => $user->sessions_hosted_count,
+                        'attended' => $user->sessions_attended_count,
+                        'watched' => $user->sessions_watched_count,
+                    ]);
+            });
+
 
         return response()->json([
             'start_date' => $start_date,
             'end_date' => $end_date,
-            'users' => $users->toArray()
+            'users' => $userStatistics
         ]);
     }
 }
