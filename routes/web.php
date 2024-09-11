@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ShowStatistics;
 use App\Http\Middleware\AllowOnlyOwner;
 use App\Http\Middleware\AuthenticateSlackApp;
 use Illuminate\Support\Facades\Route;
@@ -34,3 +35,6 @@ Route::prefix('api')->name('api.')->middleware('auth')->group(function () {
 
 Route::get('/anydesks', 'AnyDesksController@index')->middleware('auth');
 Route::get('/tags', 'TagsController@index')->middleware('auth');
+Route::get('/statistics', ShowStatistics::class)
+    ->middleware(['auth', 'vehikl'])
+    ->name('statistics');

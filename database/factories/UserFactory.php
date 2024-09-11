@@ -10,7 +10,7 @@ class UserFactory extends Factory
 {
     protected $model = User::class;
 
-    public function vehiklMember(bool $vehiklMember = true)
+    public function vehiklMember(bool $vehiklMember = true): static
     {
         return $this->state([
             'is_vehikl_member' => $vehiklMember
