@@ -46,18 +46,34 @@ onBeforeMount(async () => {
   table.totalRecordCount = response.data?.users?.length ?? 0;
 })
 
+function tableLoadingFinish(elements) {
+  table.isLoading = false;
+  Array.prototype.forEach.call(elements, function (element) {
+    if (element.getAttribute('data-type') === 'alert-button') {
+      element.addEventListener("click", function (event) {
+        event.stopPropagation();
+        alert(this.getAttribute('data-payload'));
+      });
+    }
+  });
+}
+
 function renderNotMobbedButton(row: IUserStatistics) {
   return (
-      '<button type="button" data-id="' +
-      row.id +
-      '" class="is-rows-el quick-btn">' +
-      row.has_not_mobbed_with_count +
-      '</button>'
+      `
+         <button data-id="${row.user_id}"
+                data-payload="${row.has_not_mobbed_with.map(user => user.name).join(', ')}"
+                data-type="alert-button"
+                class="is-rows-el quick-btn border border-blue-800 bg-blue-100 md:w-1/2 hover:brightness-75">
+          ${row.has_not_mobbed_with_count}
+        </button>
+      `
   );
 }
 </script>
 
 <template>
+  <button @click="alert('hi')">Hi</button>
   <table-lite
       class="mt-6 mx-auto max-w-[115rem]"
       :columns="table.columns"
@@ -66,8 +82,8 @@ function renderNotMobbedButton(row: IUserStatistics) {
       :rows="table.rows"
       :sortable="table.sortable"
       :total="table.totalRecordCount"
-      page-size="25"
-      @is-finished="table.isLoading = false"
+      :page-size="25"
+      @is-finished="tableLoadingFinish"
   />
 </template>
 
