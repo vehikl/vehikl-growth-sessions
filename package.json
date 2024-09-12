@@ -10,6 +10,7 @@
         "@vueform/multiselect": "^2.6.8",
         "vue": "^3.4.30",
         "vue-tsc": "^1.8.27",
+        "vue3-table-lite": "^1.4.0",
         "vuedraggable": "^4.1.0"
     },
     "devDependencies": {
