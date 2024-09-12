@@ -16,7 +16,7 @@ class GrowthSession extends JsonResource
         $isParticipatingInGrowthSession = $user &&
             ($this->resource->hasAttendee($user) || $this->resource->hasWatcher($user));
 
-        $isSlackbot = $user && $user->email === config('auth.slack_app_email');
+        $isSlackbot = $user?->github_nickname === config('auth.slack_app_name');
 
         if (!$isSlackbot && !$isParticipatingInGrowthSession) {
             $attributes['location'] = '< Join to see location >';

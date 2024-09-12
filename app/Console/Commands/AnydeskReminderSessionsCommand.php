@@ -21,7 +21,10 @@ class AnydeskReminderSessionsCommand extends Command
 
     public function handle()
     {
-        $this->vehikl = User::query()->where('email', 'go@vehikl.com')->firstOrFail();
+        $this->vehikl = User::query()
+            ->whereIn('github_nickname', config('auth.vehikl_names'))
+            ->firstOrFail();
+
         $this->date = today()->weekday() === CarbonInterface::FRIDAY
             ? today()
             : Carbon::parse('next Friday');

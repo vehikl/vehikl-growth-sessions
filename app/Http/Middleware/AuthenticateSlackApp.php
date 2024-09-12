@@ -11,7 +11,7 @@ class AuthenticateSlackApp
     public function handle(Request $request, Closure $next)
     {
         if ($request->header('Authorization') === 'Bearer '.config('auth.slack_token')) {
-            auth()->login(User::query()->where('email', config('auth.slack_app_email'))->first());
+            auth()->login(User::query()->where('github_nickname', config('auth.slack_app_name'))->first());
         }
         return $next($request);
     }

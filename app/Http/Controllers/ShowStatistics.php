@@ -21,14 +21,14 @@ class ShowStatistics extends Controller
         $cacheDurationInSeconds = 60 * 5;
         $userStatistics = Cache::remember("statistics-{$start_date}-{$end_date}", $cacheDurationInSeconds,
             function () use ($start_date, $end_date) {
-                $emailExclusions = [
-                    'go@vehikl.com',
-                    config('auth.slack_app_email')
+                $githubUserExclusions = [
+                    config('auth.slack_app_name'),
+                    ...config('auth.vehikl_names')
                 ];
 
                 $allUsers = User::query()
                     ->vehikaliens()
-                    ->whereNotIn('email', $emailExclusions)
+                    ->whereNotIn('github_nickname', $githubUserExclusions)
                     ->withCount(['sessionsAttended', 'sessionsHosted', 'sessionsWatched'])
                     ->with('allSessions.members')
                     ->orderBy('id')

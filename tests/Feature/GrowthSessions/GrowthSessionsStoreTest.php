@@ -32,14 +32,15 @@ class GrowthSessionsStoreTest extends TestCase
         $user = User::factory()->vehiklMember()->create();
         $anyDesk = AnyDesk::factory()->create();
 
-        $response = $this->actingAs($user)->postJson(
-            route('growth_sessions.store'),
-            $this->defaultParameters(['anydesk_id' => $anyDesk->id])
-        );
+        $response = $this
+            ->actingAs($user)
+            ->postJson(
+                route('growth_sessions.store'),
+                $this->defaultParameters(['anydesk_id' => $anyDesk->id])
+            )->assertSuccessful();
 
         $response->assertSuccessful();
-        $growth = GrowthSession::find(1);
-        $this->assertEquals($anyDesk->id, $growth->anydesk_id);
+        $this->assertDatabaseHas(GrowthSession::class, ['anydesk_id' => $anyDesk->id]);
     }
 
     public function provideWatcherPayload()
@@ -100,14 +101,14 @@ class GrowthSessionsStoreTest extends TestCase
         $this->setTestNow('2020-01-15');
 
         /** @var User $user */
-        $user = User::factory()->create(['is_vehikl_member' => TRUE]);
+        $user = User::factory()->create(['is_vehikl_member' => true]);
 
         $this->actingAs($user)->postJson(
             route('growth_sessions.store'),
-            $this->defaultParameters(['is_public' => TRUE])
+            $this->defaultParameters(['is_public' => true])
         );
 
-        $this->assertTrue(GrowthSession::find(1)->is_public);
+        $this->assertDatabaseHas(GrowthSession::class, ['is_public' => true]);
     }
 
     public function testVehiklMembersCanCreateAGrowthSession(): void
