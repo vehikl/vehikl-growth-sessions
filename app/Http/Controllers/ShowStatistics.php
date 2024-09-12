@@ -11,6 +11,10 @@ class ShowStatistics extends Controller
 {
     public function __invoke(Request $request)
     {
+        if (!$request->expectsJson()) {
+            return view('statistics');
+        }
+
         $start_date = GrowthSession::query()->orderBy('date')->first()?->date?->toDateString() ?? today()->toDateString();
         $end_date = today()->toDateString();
 
@@ -33,22 +37,30 @@ class ShowStatistics extends Controller
 
                 return $allUsers
                     ->append('has_mobbed_with')
-                    ->map(fn(User $user) => [
-                        'name' => $user->name,
-                        'user_id' => $user->id,
-                        'has_mobbed_with' => $user->has_mobbed_with
+                    ->map(function (User $user) use ($allUsers) {
+                        $hasMobbedWith = $user->has_mobbed_with
                             ->map(fn(User $peer) => ['name' => $peer->name, 'user_id' => $peer->id])
-                            ->values(),
-                        'has_not_mobbed_with' => $allUsers
+                            ->values();
+
+                        $hasNotMobbedWith = $allUsers
                             ->whereNotIn('id', $user->has_mobbed_with->pluck('id'))
                             ->reject(fn(User $peer) => $peer->id === $user->id || !$peer->is_vehikl_member)
                             ->map(fn(User $peer) => ['name' => $peer->name, 'user_id' => $peer->id])
-                            ->values(),
-                        'total_participation' => $user->sessions_attended_count + $user->sessions_hosted_count + $user->sessions_watched_count,
-                        'hosted' => $user->sessions_hosted_count,
-                        'attended' => $user->sessions_attended_count,
-                        'watched' => $user->sessions_watched_count,
-                    ]);
+                            ->values();
+
+                        return [
+                            'name' => $user->name,
+                            'user_id' => $user->id,
+                            'has_mobbed_with' => $hasMobbedWith,
+                            'has_mobbed_with_count' => count($hasMobbedWith),
+                            'has_not_mobbed_with' => $hasNotMobbedWith,
+                            'has_not_mobbed_with_count' => count($hasNotMobbedWith),
+                            'total_sessions_count' => $user->sessions_attended_count + $user->sessions_hosted_count + $user->sessions_watched_count,
+                            'sessions_hosted_count' => $user->sessions_hosted_count,
+                            'sessions_attended_count' => $user->sessions_attended_count,
+                            'sessions_watched_count' => $user->sessions_watched_count,
+                        ];
+                    });
             });
 
 

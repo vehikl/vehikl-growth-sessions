@@ -13,20 +13,20 @@ class ShowStatisticsTest extends TestCase
     public function testItIsAccessibleByVehikaliens()
     {
         $this->actingAs(User::factory()->vehiklMember()->create())
-            ->getJson(route('statistics'))
+            ->getJson(route('statistics.index'))
             ->assertSuccessful();
     }
 
     public function testGuestsCannotAccessStatistics()
     {
-        $this->getJson(route('statistics'))
+        $this->getJson(route('statistics.index'))
             ->assertUnauthorized();
     }
 
     public function testNonVehikaliensCannotAccessStatistics()
     {
         $this->actingAs(User::factory()->vehiklMember(false)->create())
-            ->getJson(route('statistics'))
+            ->getJson(route('statistics.index'))
             ->assertForbidden();
     }
 
@@ -35,7 +35,7 @@ class ShowStatisticsTest extends TestCase
         [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
 
         $this->actingAs(User::factory()->vehiklMember()->create())
-            ->getJson(route('statistics'))
+            ->getJson(route('statistics.index'))
             ->assertSuccessful()
             ->assertJson([
                 'start_date' => today()->subDays(7)->toDateString(),
@@ -44,27 +44,27 @@ class ShowStatisticsTest extends TestCase
                     [
                         'name' => $owner->name,
                         'user_id' => $owner->id,
-                        'total_participation' => 5,
-                        'hosted' => 5,
-                        'attended' => 0,
-                        'watched' => 0,
+                        'total_sessions_count' => 5,
+                        'sessions_hosted_count' => 5,
+                        'sessions_attended_count' => 0,
+                        'sessions_watched_count' => 0,
 
                     ],
                     [
                         'name' => $attendee->name,
                         'user_id' => $attendee->id,
-                        'total_participation' => 5,
-                        'hosted' => 0,
-                        'attended' => 5,
-                        'watched' => 0,
+                        'total_sessions_count' => 5,
+                        'sessions_hosted_count' => 0,
+                        'sessions_attended_count' => 5,
+                        'sessions_watched_count' => 0,
                     ],
                     [
                         'name' => $nonParticipant->name,
                         'user_id' => $nonParticipant->id,
-                        'total_participation' => 0,
-                        'hosted' => 0,
-                        'attended' => 0,
-                        'watched' => 0,
+                        'total_sessions_count' => 0,
+                        'sessions_hosted_count' => 0,
+                        'sessions_attended_count' => 0,
+                        'sessions_watched_count' => 0,
                     ],
                 ]
             ]);
@@ -75,13 +75,14 @@ class ShowStatisticsTest extends TestCase
         [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
 
         $this->actingAs($owner)
-            ->getJson(route('statistics'))
+            ->getJson(route('statistics.index'))
             ->assertSuccessful()
             ->assertJson([
                 'users' => [
                     [
                         'name' => $owner->name,
                         'user_id' => $owner->id,
+                        'has_mobbed_with_count' => 1,
                         'has_mobbed_with' => [
                             [
                                 'name' => $attendee->name,
@@ -92,6 +93,7 @@ class ShowStatisticsTest extends TestCase
                     [
                         'name' => $attendee->name,
                         'user_id' => $attendee->id,
+                        'has_mobbed_with_count' => 1,
                         'has_mobbed_with' => [
                             [
                                 'name' => $owner->name,
@@ -102,6 +104,7 @@ class ShowStatisticsTest extends TestCase
                     [
                         'name' => $nonParticipant->name,
                         'user_id' => $nonParticipant->id,
+                        'has_mobbed_with_count' => 0,
                         'has_mobbed_with' => [],
                     ],
                 ]
@@ -113,13 +116,14 @@ class ShowStatisticsTest extends TestCase
         [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
 
         $this->actingAs($owner)
-            ->getJson(route('statistics'))
+            ->getJson(route('statistics.index'))
             ->assertSuccessful()
             ->assertJson([
                 'users' => [
                     [
                         'name' => $owner->name,
                         'user_id' => $owner->id,
+                        'has_not_mobbed_with_count' => 1,
                         'has_not_mobbed_with' => [
                             [
                                 'name' => $nonParticipant->name,
@@ -130,6 +134,7 @@ class ShowStatisticsTest extends TestCase
                     [
                         'name' => $attendee->name,
                         'user_id' => $attendee->id,
+                        'has_not_mobbed_with_count' => 1,
                         'has_not_mobbed_with' => [
                             [
                                 'name' => $nonParticipant->name,
@@ -140,6 +145,7 @@ class ShowStatisticsTest extends TestCase
                     [
                         'name' => $nonParticipant->name,
                         'user_id' => $nonParticipant->id,
+                        'has_not_mobbed_with_count' => 2,
                         'has_not_mobbed_with' => [
                             [
                                 'name' => $owner->name,
