@@ -50,6 +50,7 @@ onBeforeMount(async () => {
       :sortable="table.sortable"
       :total="table.totalRecordCount"
       class="mt-6 mx-auto max-w-[115rem]"
+      page-size="25"
       @is-finished="table.isLoading = false"
   />
 </template>
