@@ -23,7 +23,8 @@ class ShowStatistics extends Controller
             function () use ($start_date, $end_date) {
                 $githubUserExclusions = [
                     config('auth.slack_app_name'),
-                    ...config('auth.vehikl_names')
+                    ...config('auth.vehikl_names'),
+                    'vehikl-morning-mob'
                 ];
 
                 $allUsers = User::query()
