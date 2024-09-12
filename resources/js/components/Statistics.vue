@@ -35,9 +35,11 @@ const table = reactive({
 });
 
 onBeforeMount(async () => {
+  table.isLoading = true;
   const response = await axios.get<IStatistics>('/statistics');
   table.rows = response.data.users;
   table.totalRecordCount = response.data?.users?.length ?? 0;
+  table.isLoading = false;
 })
 </script>
 
