@@ -259,7 +259,7 @@ class GrowthSessionsShowTest extends TestCase
             ->assertJsonCount($numberOfTags, 'tags');
     }
 
-    public function providesGrowthSessionGuests()
+    public function providesGrowthSessionGuests(): array
     {
         return [
             'The guest is an attendee' => [['user_type_id' => UserType::ATTENDEE_ID], 'attendees'],

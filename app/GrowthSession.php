@@ -13,7 +13,6 @@ class GrowthSession extends Model
     use HasFactory;
 
     const NO_LIMIT = PHP_INT_MAX;
-    protected $with = ['attendees', 'watchers', 'comments', 'anydesk', 'tags'];
 
     protected $appends = ['owner'];
 
@@ -115,6 +114,7 @@ class GrowthSession extends Model
         $endPoint = $startPoint->addDays(4);
 
         $allWeekGrowthSessions = GrowthSession::query()
+            ->with(['attendees', 'watchers', 'comments', 'anydesk', 'tags'])
             ->whereDate('date', '>=', $startPoint)
             ->whereDate('date', '<=', $endPoint)
             ->orderBy('date')

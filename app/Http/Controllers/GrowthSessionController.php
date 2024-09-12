@@ -25,6 +25,7 @@ class GrowthSessionController extends Controller
     public function show(Request $request, GrowthSession $growthSession)
     {
         // if the user is not allowed to view the growth session then return 404
+        $growthSession->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']);
         abort_unless((new GrowthSessionPolicy())->view(request()->user(), $growthSession), Response::HTTP_NOT_FOUND);
         if ($request->expectsJson()) {
             return response()->json(new GrowthSessionResource($growthSession));
@@ -35,7 +36,10 @@ class GrowthSessionController extends Controller
     public function week(Request $request)
     {
         $user = $request->user();
-        $sessions = GrowthSession::allInTheWeekOf($request->input('date'))->filter(function (GrowthSession $session) use ($user) {
+        $sessions = GrowthSession::allInTheWeekOf($request->input('date'))->filter(function (GrowthSession $session) use
+        (
+            $user
+        ) {
             return (new GrowthSessionPolicy())->view($user, $session);
         });
         return new GrowthSessionWeek($sessions);
@@ -43,7 +47,11 @@ class GrowthSessionController extends Controller
 
     public function day()
     {
-        return GrowthSessionResource::collection(GrowthSession::today()->get());
+        return GrowthSessionResource::collection(
+            GrowthSession::today()
+                ->with(['attendees', 'watchers', 'comments', 'anydesk', 'tags'])
+                ->get()
+        );
     }
 
     public function store(StoreGrowthSessionRequest $request)
