@@ -47,11 +47,10 @@
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                         @csrf
                     </form>
-                    @if(\Illuminate\Support\Facades\Route::is('statistics'))
+                        @if(\Illuminate\Support\Facades\Route::is('statistics.index'))
                         <a href="{{route('home')}}" class="mt-4 lg:mt-0 sm:ml-6 hover:text-orange-600">
                             Board
                         </a>
-
                     @else
                         <a href="{{route('statistics.index')}}" class="mt-4 lg:mt-0 sm:ml-6 hover:text-orange-600">
                             Statistics
