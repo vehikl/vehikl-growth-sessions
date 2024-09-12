@@ -45,40 +45,12 @@ else
     sed -i '' "s#GITHUB_CLIENT_SECRET=.*#GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET#"  ./.env
 fi
 
-# Set up mutagen.io file share
-docker compose up -d files
-mutagen sync create --name=growth-app \
-    --ignore-vcs \
-    --ignore=".idea" \
-    --default-directory-mode=777 \
-    --default-file-mode=666 \
-    ./ docker://growth-app-files/project
-#    --sync-mode=two-way-resolved  <- To be considered if the Mutagen Sync keeps having conflicts
+sail up -d
+sail composer i
+sail artisan key:generate
 
-WAIT_TIME=10
-echo "Files container has started."
-echo "...Waiting $WAIT_TIME seconds to allow mutagen to sync properly..."
-sleep $WAIT_TIME
-
-docker compose run --rm composer install
-docker compose run --rm artisan key:generate
-
-docker compose up -d db
-echo "Database container has started."
-echo "...Waiting $WAIT_TIME seconds to make sure the Database is available..."
-sleep $WAIT_TIME
-
-docker compose up --build -d app
-docker compose run --rm artisan migrate --seed
-docker compose up -d nginx
-
-# NPM Dependencies
-docker compose run --rm yarn
-docker compose run --rm yarn prod
-
-# Run the tests
-docker compose run --rm phpunit
-docker compose run --rm jest
+sail pnpm i
+sail pnpm dev
 
 clear
 
