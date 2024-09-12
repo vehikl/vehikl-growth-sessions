@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import TableLite from "vue3-table-lite/ts";
-import {onBeforeMount, reactive} from "vue";
+import {computed, onBeforeMount, reactive, ref, watch} from "vue";
 import axios from "axios";
 import {IStatistics, IUserStatistics} from "../types";
 
@@ -40,20 +40,46 @@ const table = reactive({
   },
 });
 
+const startDate = ref<string | null>(null)
+const apiQuery = computed<string>(() => {
+  const query = new URLSearchParams();
+  if (startDate.value) {
+    query.set('start_date', startDate.value);
+  }
+
+  return query.toString();
+})
+
 onBeforeMount(async () => {
-  const response = await axios.get<IStatistics>('/statistics');
+  await fetchStatistics();
+})
+
+watch([startDate], fetchStatistics);
+
+async function fetchStatistics() {
+  table.isLoading = true;
+  let url = '/statistics';
+  if (apiQuery.value.length > 0) {
+    url += `?${apiQuery.value}`
+  }
+
+  const response = await axios.get<IStatistics>(url);
   table.rows = response.data.users;
   table.totalRecordCount = response.data?.users?.length ?? 0;
-})
+}
+
+function displayAlertHandler(event: Event) {
+  event.stopPropagation();
+  alert(this.getAttribute('data-payload'));
+}
 
 function tableLoadingFinish(elements) {
   table.isLoading = false;
   Array.prototype.forEach.call(elements, function (element) {
     if (element.getAttribute('data-type') === 'alert-button') {
-      element.addEventListener("click", function (event) {
-        event.stopPropagation();
-        alert(this.getAttribute('data-payload'));
-      });
+
+      element.removeEventListener("click", displayAlertHandler);
+      element.addEventListener("click", displayAlertHandler);
     }
   });
 }
@@ -83,17 +109,24 @@ function renderNotMobbedButton(row: IUserStatistics) {
 </script>
 
 <template>
-  <table-lite
-      class="mt-6 mx-auto max-w-[115rem]"
-      :columns="table.columns"
-      :is-loading="table.isLoading"
-      :is-static-mode="true"
-      :rows="table.rows"
-      :sortable="table.sortable"
-      :total="table.totalRecordCount"
-      :page-size="25"
-      @is-finished="tableLoadingFinish"
-  />
+  <div class="mt-6 mx-auto max-w-[115rem]">
+    <label class="flex gap-4 my-4 text-sm items-center font-bold">
+      Start Date
+      <input v-model="startDate" class="max-w-xs border px-2 text-base font-light" type="date">
+    </label>
+
+    <table-lite
+        :columns="table.columns"
+        :is-loading="table.isLoading"
+        :is-static-mode="true"
+        :page-size="25"
+        :rows="table.rows"
+        :sortable="table.sortable"
+        :total="table.totalRecordCount"
+        @is-finished="tableLoadingFinish"
+    />
+  </div>
+
 </template>
 
 <style lang="scss" scoped>

@@ -15,7 +15,12 @@ class ShowStatistics extends Controller
             return view('statistics');
         }
 
-        $start_date = GrowthSession::query()->orderBy('date')->first()?->date?->toDateString() ?? today()->toDateString();
+        $start_date = $request->input(
+            'start_date',
+            GrowthSession::query()->orderBy('date')->first()?->date?->toDateString()
+            ?? today()->toDateString()
+        );
+
         $end_date = today()->toDateString();
 
         $cacheDurationInSeconds = 60 * 5;
@@ -30,8 +35,14 @@ class ShowStatistics extends Controller
                 $allUsers = User::query()
                     ->vehikaliens()
                     ->whereNotIn('github_nickname', $githubUserExclusions)
-                    ->withCount(['sessionsAttended', 'sessionsHosted', 'sessionsWatched'])
-                    ->with('allSessions.members')
+                    ->withCount([
+                        'sessionsAttended' => fn($query) => $query->whereBetween('date', [$start_date, $end_date]),
+                        'sessionsHosted' => fn($query) => $query->whereBetween('date', [$start_date, $end_date]),
+                        'sessionsWatched' => fn($query) => $query->whereBetween('date', [$start_date, $end_date])
+                    ])
+                    ->with('allSessions', fn($query) => $query
+                        ->with('members')
+                    )
                     ->orderBy('id')
                     ->get();
 

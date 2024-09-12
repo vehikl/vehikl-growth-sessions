@@ -28,4 +28,19 @@ describe('Statistics', () => {
         expect(wrapper.text()).toContain(exampleStatisticsResponse.users[0].name);
         mockBackend.restore();
     })
+
+    test('re-fetches information with the updated start date when the user interacts with the calendar', async () => {
+        mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
+
+        const wrapper = mount(Statistics);
+        await flushPromises();
+
+        await wrapper.find("input[type=date]").setValue("2020-01-01");
+        await flushPromises();
+
+        expect(mockBackend.history.get.length).toEqual(2);
+        expect(mockBackend.history.get[0].url).toEqual('/statistics');
+        expect(mockBackend.history.get[1].url).toEqual('/statistics?start_date=2020-01-01');
+        mockBackend.restore();
+    })
 })
