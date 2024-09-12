@@ -20,7 +20,13 @@ const columns: ColumnType[] = [
   {label: "Sessions Attended", field: "sessions_attended_count", width: "15%", sortable: true},
   {label: "Sessions Watched", field: "sessions_watched_count", width: "15%", sortable: true},
   {label: "Mobbed", field: "has_mobbed_with_count", width: "15%", sortable: true},
-  {label: "Not Mobbed", field: "has_not_mobbed_with_count", width: "15%", sortable: true}
+  {
+    label: "Not Mobbed",
+    field: "has_not_mobbed_with_count",
+    width: "15%",
+    sortable: true,
+    display: renderNotMobbedButton
+  }
 ];
 
 const table = reactive({
@@ -39,6 +45,16 @@ onBeforeMount(async () => {
   table.rows = response.data.users;
   table.totalRecordCount = response.data?.users?.length ?? 0;
 })
+
+function renderNotMobbedButton(row: IUserStatistics) {
+  return (
+      '<button type="button" data-id="' +
+      row.id +
+      '" class="is-rows-el quick-btn">' +
+      row.has_not_mobbed_with_count +
+      '</button>'
+  );
+}
 </script>
 
 <template>
