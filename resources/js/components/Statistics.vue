@@ -59,21 +59,30 @@ function tableLoadingFinish(elements) {
 }
 
 function renderNotMobbedButton(row: IUserStatistics) {
+  if (row.has_not_mobbed_with_count === 0) {
+    return (`
+    <div class="flex justify-center">
+        🎉
+    </div>
+    `);
+  }
+
   return (
       `
+      <div class="flex justify-center">
          <button data-id="${row.user_id}"
                 data-payload="${row.has_not_mobbed_with.map(user => user.name).join(', ')}"
                 data-type="alert-button"
                 class="is-rows-el quick-btn border border-blue-800 bg-blue-100 md:w-1/2 hover:brightness-75">
           ${row.has_not_mobbed_with_count}
         </button>
+      </div>
       `
   );
 }
 </script>
 
 <template>
-  <button @click="alert('hi')">Hi</button>
   <table-lite
       class="mt-6 mx-auto max-w-[115rem]"
       :columns="table.columns"
