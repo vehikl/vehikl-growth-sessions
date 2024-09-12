@@ -20,11 +20,11 @@ const columns: ColumnType[] = [
   {label: "Sessions Attended", field: "sessions_attended_count", width: "15%", sortable: true},
   {label: "Sessions Watched", field: "sessions_watched_count", width: "15%", sortable: true},
   {label: "Mobbed", field: "has_mobbed_with_count", width: "15%", sortable: true},
-  {label: "Not Mobbed", field: "has_not_mobbed_with_count", width: "15%", sortable: true},
+  {label: "Not Mobbed", field: "has_not_mobbed_with_count", width: "15%", sortable: true}
 ];
 
 const table = reactive({
-  isLoading: false,
+  isLoading: true,
   columns,
   rows: [],
   totalRecordCount: 0,
@@ -35,23 +35,21 @@ const table = reactive({
 });
 
 onBeforeMount(async () => {
-  table.isLoading = true;
   const response = await axios.get<IStatistics>('/statistics');
   table.rows = response.data.users;
   table.totalRecordCount = response.data?.users?.length ?? 0;
-  table.isLoading = false;
 })
 </script>
 
 <template>
   <table-lite
+      class="mt-6 mx-auto max-w-[115rem]"
       :columns="table.columns"
       :is-loading="table.isLoading"
       :is-static-mode="true"
       :rows="table.rows"
       :sortable="table.sortable"
       :total="table.totalRecordCount"
-      class="mt-6 mx-auto max-w-[115rem]"
       page-size="25"
       @is-finished="table.isLoading = false"
   />
