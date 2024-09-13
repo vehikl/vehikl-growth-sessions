@@ -29,18 +29,23 @@ const columns: ColumnType[] = [
   }
 ];
 
+
+const startDate = ref<string | null>(null)
+const name = ref<string>("")
+const allData = ref<IUserStatistics[]>([])
+
 const table = reactive({
   isLoading: true,
   columns,
-  rows: [],
-  totalRecordCount: 0,
+  rows: computed(() => allData.value.filter(row => row.name.toLowerCase().includes(name.value.toLowerCase()))
+  ),
   sortable: {
     order: "user_id",
     sort: "asc",
   },
+  totalRecordCount: computed(() => table.rows.length)
 });
 
-const startDate = ref<string | null>(null)
 const apiQuery = computed<string>(() => {
   const query = new URLSearchParams();
   if (startDate.value) {
@@ -64,8 +69,8 @@ async function fetchStatistics() {
   }
 
   const response = await axios.get<IStatistics>(url);
-  table.rows = response.data.users;
-  table.totalRecordCount = response.data?.users?.length ?? 0;
+  allData.value = response.data.users;
+  table.isLoading = false;
 }
 
 function displayAlertHandler(event: Event) {
@@ -110,10 +115,17 @@ function renderNotMobbedButton(row: IUserStatistics) {
 
 <template>
   <div class="mt-6 mx-auto max-w-[115rem]">
-    <label class="flex gap-4 my-4 text-sm items-center font-bold">
-      Start Date
-      <input v-model="startDate" class="max-w-xs border px-2 text-base font-light" type="date">
-    </label>
+    <fieldset class="flex gap-8" title="Filters">
+      <label class="flex gap-4 my-4 text-sm items-center font-bold">
+        Name
+        <input v-model="name" class="max-w-xs border px-2 text-base font-light" name="filter-by-name" type="text">
+      </label>
+
+      <label class="flex gap-4 my-4 text-sm items-center font-bold">
+        Start Date
+        <input v-model="startDate" class="max-w-xs border px-2 text-base font-light" type="date">
+      </label>
+    </fieldset>
 
     <table-lite
         :columns="table.columns"

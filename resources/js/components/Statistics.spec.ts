@@ -43,4 +43,29 @@ describe('Statistics', () => {
         expect(mockBackend.history.get[1].url).toEqual('/statistics?start_date=2020-01-01');
         mockBackend.restore();
     })
+
+    test('It allows filtering by name', async () => {
+        const payload = {
+            start_date: exampleStatisticsResponse.start_date,
+            end_date: exampleStatisticsResponse.end_date,
+            users: exampleStatisticsResponse.users.map(user => {
+                return {
+                    ...user,
+                    name: "John Doe"
+                }
+            })
+        }
+        payload.users[0].name = "Jane Doe";
+
+        mockBackend.onGet(/statistics.*/).reply(200, payload);
+
+        const wrapper = mount(Statistics);
+        await flushPromises();
+
+        await wrapper.find("input[type=text][name=filter-by-name]").setValue("Jane");
+        await flushPromises();
+
+        expect(wrapper.text()).toContain("Jane Doe");
+        expect(wrapper.text()).not.toContain("John Doe");
+    })
 })
