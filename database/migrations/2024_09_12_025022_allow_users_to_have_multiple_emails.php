@@ -7,7 +7,6 @@ use App\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB as DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
@@ -20,7 +19,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        DB::table('users')
+        User::query()
             ->select('id', 'email', 'github_nickname')
             ->get()
             ->mapToGroups(fn($user) => [
