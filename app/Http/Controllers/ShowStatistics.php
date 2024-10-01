@@ -34,6 +34,7 @@ class ShowStatistics extends Controller
 
                 $allUsers = User::query()
                     ->vehikaliens()
+                    ->visibleInStatistics()
                     ->whereNotIn('github_nickname', $githubUserExclusions)
                     ->with('allSessions', fn($query) => $query
                         ->with('members')

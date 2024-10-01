@@ -30,7 +30,7 @@ class ShowStatisticsTest extends TestCase
             ->assertForbidden();
     }
 
-    public function testItAlsoIncludesAListOfPeopleTheyHaveMobbedWith()
+    public function testItIncludesAListOfPeopleTheyHaveMobbedWith()
     {
         [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -136,11 +136,12 @@ class ShowStatisticsTest extends TestCase
     {
         $this->setTestNowToASafeWednesday();
 
-        [$owner, $attendee, $nonParticipant] = User::factory()->vehiklMember()->count(3)
+        [$owner, $attendee, $nonParticipant] = User::factory()->vehiklMember()->count(4)
             ->sequence(
                 ['name' => 'Owner'],
                 ['name' => 'Attendee'],
                 ['name' => 'Non-Participant'],
+                ['name' => 'Opt-out of stats', 'is_visible_in_statistics' => false]
             )
             ->create();
 

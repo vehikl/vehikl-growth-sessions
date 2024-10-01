@@ -70,9 +70,14 @@ class User extends Authenticatable
         return $this->hasMany(Comment::class);
     }
 
-    public function scopeVehikaliens(Builder $query): Builder
+    public function scopeVehikaliens(Builder $query, bool $shouldBeVehikalien = true): Builder
     {
-        return $query->where('is_vehikl_member', true);
+        return $query->where('is_vehikl_member', $shouldBeVehikalien);
+    }
+
+    public function scopeVisibleInStatistics(Builder $query, bool $shouldBeVisible = true): Builder
+    {
+        return $query->where('is_visible_in_statistics', $shouldBeVisible);
     }
 
     public function hasMobbedWith(): Attribute
