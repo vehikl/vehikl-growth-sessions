@@ -15,10 +15,6 @@ type ColumnType = {
 const columns: ColumnType[] = [
   {label: "ID", field: "user_id", width: "3%", sortable: true, isKey: true},
   {label: "Name", field: "name", width: "10%", sortable: true},
-  {label: "Total Participation", field: "total_sessions_count", width: "15%", sortable: true},
-  {label: "Sessions Hosted", field: "sessions_hosted_count", width: "15%", sortable: true},
-  {label: "Sessions Attended", field: "sessions_attended_count", width: "15%", sortable: true},
-  {label: "Sessions Watched", field: "sessions_watched_count", width: "15%", sortable: true},
   {label: "Mobbed", field: "has_mobbed_with_count", width: "15%", sortable: true},
   {
     label: "Not Mobbed",

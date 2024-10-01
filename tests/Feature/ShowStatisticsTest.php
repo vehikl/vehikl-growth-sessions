@@ -30,46 +30,6 @@ class ShowStatisticsTest extends TestCase
             ->assertForbidden();
     }
 
-    public function testItReturnsParticipationCountStatisticsForAllUsersInTheSystem()
-    {
-        [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
-
-        $this->actingAs($owner)
-            ->getJson(route('statistics.index'))
-            ->assertSuccessful()
-            ->assertJson([
-                'start_date' => today()->subDays(7)->toDateString(),
-                'end_date' => today()->toDateString(),
-                'users' => [
-                    [
-                        'name' => $owner->name,
-                        'user_id' => $owner->id,
-                        'total_sessions_count' => 5,
-                        'sessions_hosted_count' => 5,
-                        'sessions_attended_count' => 0,
-                        'sessions_watched_count' => 0,
-
-                    ],
-                    [
-                        'name' => $attendee->name,
-                        'user_id' => $attendee->id,
-                        'total_sessions_count' => 5,
-                        'sessions_hosted_count' => 0,
-                        'sessions_attended_count' => 5,
-                        'sessions_watched_count' => 0,
-                    ],
-                    [
-                        'name' => $nonParticipant->name,
-                        'user_id' => $nonParticipant->id,
-                        'total_sessions_count' => 0,
-                        'sessions_hosted_count' => 0,
-                        'sessions_attended_count' => 0,
-                        'sessions_watched_count' => 0,
-                    ],
-                ]
-            ]);
-    }
-
     public function testItAlsoIncludesAListOfPeopleTheyHaveMobbedWith()
     {
         [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
@@ -156,46 +116,6 @@ class ShowStatisticsTest extends TestCase
                                 'user_id' => $attendee->id,
                             ]
                         ],
-                    ],
-                ]
-            ]);
-    }
-
-    public function testItAllowsFilteringByStartTime()
-    {
-        [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
-
-        $this->actingAs($owner)
-            ->getJson(route('statistics.index', ['start_date' => today()->subDay()->toDateString()]))
-            ->assertSuccessful()
-            ->assertJson([
-                'start_date' => today()->subDay()->toDateString(),
-                'end_date' => today()->toDateString(),
-                'users' => [
-                    [
-                        'name' => $owner->name,
-                        'user_id' => $owner->id,
-                        'total_sessions_count' => 1,
-                        'sessions_hosted_count' => 1,
-                        'sessions_attended_count' => 0,
-                        'sessions_watched_count' => 0,
-
-                    ],
-                    [
-                        'name' => $attendee->name,
-                        'user_id' => $attendee->id,
-                        'total_sessions_count' => 1,
-                        'sessions_hosted_count' => 0,
-                        'sessions_attended_count' => 1,
-                        'sessions_watched_count' => 0,
-                    ],
-                    [
-                        'name' => $nonParticipant->name,
-                        'user_id' => $nonParticipant->id,
-                        'total_sessions_count' => 0,
-                        'sessions_hosted_count' => 0,
-                        'sessions_attended_count' => 0,
-                        'sessions_watched_count' => 0,
                     ],
                 ]
             ]);

@@ -35,11 +35,6 @@ class ShowStatistics extends Controller
                 $allUsers = User::query()
                     ->vehikaliens()
                     ->whereNotIn('github_nickname', $githubUserExclusions)
-                    ->withCount([
-                        'sessionsAttended' => fn($query) => $query->whereBetween('date', [$start_date, $end_date]),
-                        'sessionsHosted' => fn($query) => $query->whereBetween('date', [$start_date, $end_date]),
-                        'sessionsWatched' => fn($query) => $query->whereBetween('date', [$start_date, $end_date])
-                    ])
                     ->with('allSessions', fn($query) => $query
                         ->with('members')
                     )
@@ -67,10 +62,6 @@ class ShowStatistics extends Controller
                             'has_mobbed_with_count' => count($hasMobbedWith),
                             'has_not_mobbed_with' => $hasNotMobbedWith,
                             'has_not_mobbed_with_count' => count($hasNotMobbedWith),
-                            'total_sessions_count' => $user->sessions_attended_count + $user->sessions_hosted_count + $user->sessions_watched_count,
-                            'sessions_hosted_count' => $user->sessions_hosted_count,
-                            'sessions_attended_count' => $user->sessions_attended_count,
-                            'sessions_watched_count' => $user->sessions_watched_count,
                         ];
                     });
             });
