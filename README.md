@@ -11,22 +11,8 @@ To avoid the registration step, this application uses oauth.
 ### Prerequisites
 
  - Docker for Mac: https://www.docker.com/products/docker-desktop
- - Mutagen: https://mutagen.io/
 
 ### Setup
-
-#### Initial configuration
-
-```sh
-sh scripts/create.sh
-```
-
-> **Note**
-> The create script populates OAuth credentials through a secure vault. You can skip this through pressing ENTER when prompted.
-
-> **Note**
-> The create script might fail to install `mutagen` if you don't have XCode command line tools. Run `xcode-select --install` to install them. 
-
 
 #### Run
 
@@ -47,57 +33,44 @@ The site should be available at http://127.0.0.1:8008
 
 #### Initial configuration
 
+##### Option 1 - Via the create script
+
 ```sh
-# PHP Dependencies
+sh scripts/create.sh
+```
+
+> **Note**
+> The create script populates OAuth credentials through a secure vault. You can skip this through pressing ENTER when
+> prompted.
+
+##### Option 2 - Manually
+
+```sh
+# PHP Dependencies (This is important just to have sail)
 composer install
-# Node Dependencies
-pnpm i
+
 # Setup env
 cp .env.example .env
-php artisan key:generate
+
+# Start sail containers
+sail up -d
+
+# Install php dependencies through sail
+sail composer i
+
+# Initially App key
+sail artisan key:generate
+
+## Initialize database
+sail artisan migrate --seed
+
+# Start frontend
+sail pnpm i
+sail pnpm dev
+
+# The app will be served on http://localhost:8008 by default
+# The port may be changed via the APP_PORT env variable  
 ```
-
-#### Configuring the database
-
-For ease of local development you can set the database to sqlite:
-
-```diff
-diff --git a/.env b/.env
-index b0303cd..d7983fd 100644
---- a/.env.example
-+++ b/.env.example
-@@ -6,12 +6,7 @@ APP_URL=http://localhost
-
-LOG_CHANNEL=stack
-
--DB_CONNECTION=mysql
--DB_HOST=127.0.0.1
--DB_PORT=3306
--DB_DATABASE=laravel
--DB_USERNAME=root
--DB_PASSWORD=
-+DB_CONNECTION=sqlite
-
-BROADCAST_DRIVER=log
-CACHE_DRIVER=file
-```
-
-Once that is set up:
-
-```sh
-touch database/database.sqlite
-php artisan migrate --seed (To have some pre-made fake mobs in your calendar)
-```
-
-OBS: For production, no seeding is needed, therefore you only need to run
-```sh
-php artisan migrate
-```
-#### Serving the App
-
-Run
-`php artisan serve`
-
 
 ## Optional
 
