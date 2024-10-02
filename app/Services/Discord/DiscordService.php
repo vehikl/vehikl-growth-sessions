@@ -27,8 +27,12 @@ class DiscordService
             ->map(fn(array $channel) => new Channel($channel['id'], $channel['name']));
     }
 
-    public function filterOccupiedChannels(string $toDateString): Collection
+    public function getOccupiedChannels(string $toDateString): Collection
     {
-        return GrowthSession::query()->where('date', $toDateString)->get()->pluck('discord_channel_id');
+        return GrowthSession::query()
+            ->where('date', ">=", $toDateString)
+            ->whereNotNull('discord_channel_id')
+            ->get()
+            ->map(fn(GrowthSession $gs) => new Channel($gs->discord_channel_id, ''));
     }
 }

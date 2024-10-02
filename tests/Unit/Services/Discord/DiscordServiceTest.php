@@ -118,25 +118,28 @@ class DiscordServiceTest extends TestCase
 
     public function testItReturnsDiscordChannelThatAreNotReserved()
     {
-        $discordChannelId = '123buttstaco';
-        Carbon::setTestNow('June 11, 1993');
+        $discordChannelId = fake()->numerify('#####');
+
         $occupiedGrowthSession = GrowthSession::factory()->create([
             'date' => Carbon::now(),
             'discord_channel_id' => $discordChannelId,
         ]);
 
-        $occupiedGrowthSessionOld = GrowthSession::factory()->create([
-            'date' => Carbon::now(),
+        GrowthSession::factory()->create([
             'discord_channel_id' => $discordChannelId,
-            'created_at' => Carbon::now()->subDay(),
+            'date' => Carbon::now()->subDay(),
         ]);
 
         GrowthSession::factory(2)->create();
 
         $discordService = new DiscordService();
 
-        $expectedResult = collect($occupiedGrowthSession->discord_channel_id);
+        $result = $discordService->getOccupiedChannels(Carbon::now()->toDateString());
 
-        $this->assertEquals($expectedResult, $discordService->filterOccupiedChannels(Carbon::now()->toDateTimeString()));
+        $this->assertCount(1, $result);
+        $this->assertEquals(
+            $occupiedGrowthSession->discord_channel_id,
+            $result->first()->id
+        );
     }
 }

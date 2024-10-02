@@ -8,4 +8,9 @@ export class DiscordChannelApi extends BaseApi {
         const response = await BaseApi.httpRequest.get<Array<IDiscordChannel>>(`/${discordChannelResource}`);
         return response.data;
     }
+
+    static async occupied(date): Promise<Array<IDiscordChannel>> {
+        const response = await BaseApi.httpRequest.get<Array<IDiscordChannel>>(`/${discordChannelResource}/${date}/occupied`);
+        return response.data;
+    }
 }
