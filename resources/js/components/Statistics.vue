@@ -117,7 +117,7 @@ function renderNotMobbedButton(row: IUserStatistics) {
         <input v-model="name" class="max-w-xs border px-2 text-base font-light" name="filter-by-name" type="text">
       </label>
 
-      <label class="flex gap-4 my-4 text-sm items-center font-bold">
+      <label v-show="false" class="flex gap-4 my-4 text-sm items-center font-bold">
         Start Date
         <input v-model="startDate" class="max-w-xs border px-2 text-base font-light" type="date">
       </label>

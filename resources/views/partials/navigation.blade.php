@@ -53,7 +53,7 @@
                         </a>
                     @else
                             <a href="{{route('statistics.index')}}"
-                               class="mt-4 lg:mt-0 sm:ml-6 hover:text-orange-600 hidden">
+                               class="mt-4 lg:mt-0 sm:ml-6 hover:text-orange-600">
                             Statistics
                         </a>
                     @endif
