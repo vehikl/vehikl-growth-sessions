@@ -2,8 +2,10 @@
 
 namespace Tests\Unit\Services\Discord;
 
+use App\GrowthSession;
 use App\Services\Discord\DiscordService;
 use App\Services\Discord\Models\Channel;
+use Carbon\Carbon;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -40,7 +42,7 @@ class DiscordServiceTest extends TestCase
 
         $discord->getChannels();
 
-        Http::assertSent(function(Request $request) {
+        Http::assertSent(function (Request $request) {
             return $request->url() === "https://discord.com/api/guilds/$this->fakeDiscordGuildId/channels";
         });
     }
@@ -112,5 +114,29 @@ class DiscordServiceTest extends TestCase
         $channels = $discord->getChannels();
 
         $this->assertEmpty($channels);
+    }
+
+    public function testItReturnsDiscordChannelThatAreNotReserved()
+    {
+        $discordChannelId = '123buttstaco';
+        Carbon::setTestNow('June 11, 1993');
+        $occupiedGrowthSession = GrowthSession::factory()->create([
+            'date' => Carbon::now(),
+            'discord_channel_id' => $discordChannelId,
+        ]);
+
+        $occupiedGrowthSessionOld = GrowthSession::factory()->create([
+            'date' => Carbon::now(),
+            'discord_channel_id' => $discordChannelId,
+            'created_at' => Carbon::now()->subDay(),
+        ]);
+
+        GrowthSession::factory(2)->create();
+
+        $discordService = new DiscordService();
+
+        $expectedResult = collect($occupiedGrowthSession->discord_channel_id);
+
+        $this->assertEquals($expectedResult, $discordService->filterOccupiedChannels(Carbon::now()->toDateTimeString()));
     }
 }
