@@ -14,23 +14,6 @@ To avoid the registration step, this application uses oauth.
 
 ### Setup
 
-#### Run
-
-The site should be available at http://127.0.0.1:8008
-
-
-## Local Setup without using docker
-
-### Prerequisites
-
- - PHP 8.2
- - Composer
- - Node >= 18 LTS
- - PNPM
- - Mailtrap
-
-### Setup
-
 #### Initial configuration
 
 ##### Option 1 - Via the create script
