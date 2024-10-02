@@ -12,6 +12,11 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication, RefreshDatabase;
 
+    public function setTestNowToASafeWednesday(): void
+    {
+        $this->setTestNow('2020-01-15');
+    }
+
     public function setTestNow($now)
     {
         Carbon::setTestNow($now);

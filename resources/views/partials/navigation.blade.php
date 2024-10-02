@@ -7,9 +7,9 @@
         </div>
         <div class="block lg:hidden">
             <button
-                class="flex items-center px-3 py-2 border rounded text-white border-white hover:text-orange-600 hover:border-orange-200"
-                onclick="document.getElementById('nav-links').classList.toggle('hidden')"
-                @click="isExpanded = !isExpanded">
+                    class="flex items-center px-3 py-2 border rounded text-white border-white hover:text-orange-600 hover:border-orange-200"
+                    onclick="document.getElementById('nav-links').classList.toggle('hidden')"
+                    @click="isExpanded = !isExpanded">
                 <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <title>
                         Menu
@@ -19,17 +19,17 @@
             </button>
         </div>
         <div
-            class="w-full hidden text-xl uppercase lg:flex justify-end lg:items-center lg:w-auto text-center"
-            id="nav-links">
-            <div class="text-xl justify-center items-center flex flex-col lg:flex-row">
+                class="w-full hidden text-xl uppercase lg:flex justify-end lg:items-center lg:w-auto text-center"
+                id="nav-links">
+            <div class="text-xl justify-center items-center flex flex-col lg:flex-row text-white tracking-wider">
                 @guest
                     <a href="{{route('oauth.login.redirect', ['driver' => 'github'])}}"
-                       class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-600 ">
+                       class="flex items-center mt-4 lg:mt-0 mr-6 hover:text-orange-600 ">
                         <i class="fa fa-github text-3xl mr-4" aria-hidden="true"></i> Login with Github
                     </a>
                     @if(config('services.google.client_id'))
                         <a href="{{route('oauth.login.redirect', ['driver' => 'google'])}}"
-                           class="flex items-center mt-4 lg:mt-0 mr-6 text-white hover:text-orange-600 ">
+                           class="flex items-center mt-4 lg:mt-0 mr-6 hover:text-orange-600 ">
                             <i class="fa fa-google text-3xl mr-4" aria-hidden="true"></i> Login with Google
                         </a>
                     @endif
@@ -37,19 +37,29 @@
                 @auth
                     <a href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                       class="mt-4 flex items-center lg:mt-0 text-white hover:text-orange-600 tracking-wider">
+                       class="mt-4 flex items-center lg:mt-0 hover:text-orange-600 tracking-wider">
                         <v-avatar class="mr-4"
                                   src="{{ auth()->user()->avatar }}"
                                   alt="Your Avatar"
                                   :size="6"></v-avatar>
                         Logout
                     </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                         @csrf
                     </form>
+                        @if(\Illuminate\Support\Facades\Route::is('statistics.index'))
+                        <a href="{{route('home')}}" class="mt-4 lg:mt-0 sm:ml-6 hover:text-orange-600">
+                            Board
+                        </a>
+                    @else
+                            <a href="{{route('statistics.index')}}"
+                               class="mt-4 lg:mt-0 sm:ml-6 hover:text-orange-600">
+                            Statistics
+                        </a>
+                    @endif
                 @endauth
                 <a href="{{route('about')}}"
-                   class="mt-4 lg:mt-0 sm:ml-6 text-white hover:text-orange-600 tracking-wider">About
+                   class="mt-4 lg:mt-0 sm:ml-6 hover:text-orange-600">About
                 </a>
             </div>
         </div>

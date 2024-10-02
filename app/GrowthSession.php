@@ -7,14 +7,12 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GrowthSession extends Model
 {
     use HasFactory;
 
     const NO_LIMIT = PHP_INT_MAX;
-    protected $with = ['attendees', 'watchers', 'comments', 'anydesk', 'tags'];
 
     protected $appends = ['owner'];
 
@@ -50,6 +48,11 @@ class GrowthSession extends Model
     public function getOwnerAttribute()
     {
         return $this->owners()->first();
+    }
+
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
     }
 
     public function owners()
@@ -111,6 +114,7 @@ class GrowthSession extends Model
         $endPoint = $startPoint->addDays(4);
 
         $allWeekGrowthSessions = GrowthSession::query()
+            ->with(['attendees', 'watchers', 'comments', 'anydesk', 'tags'])
             ->whereDate('date', '>=', $startPoint)
             ->whereDate('date', '<=', $endPoint)
             ->orderBy('date')

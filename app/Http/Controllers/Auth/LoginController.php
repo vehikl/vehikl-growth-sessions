@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Email;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\User;
@@ -27,7 +28,10 @@ class LoginController extends Controller
     public function redirectToProvider($driver)
     {
         if (App::environment('local') && empty(config('services.github.client_id'))) {
-            Auth::login(User::where('email', 'go@vehikl.com')->first());
+            Auth::login(User::query()
+                ->whereIn('github_nickname', config('auth.vehikl_names'))
+                ->first()
+            );
             return redirect()->back();
         }
         return Socialite::driver($driver)->redirect();
@@ -37,16 +41,18 @@ class LoginController extends Controller
     {
         $socialUser = Socialite::driver($driver)->user();
         $email = $socialUser->getEmail();
-        $growthSessionUser = User::query()->where('email', $email)->first();
+        $githubNickName = $socialUser->getNickname();
+
+        $growthSessionUser = User::query()->where('github_nickname', $githubNickName)->first();
 
         if (! $growthSessionUser) {
             $growthSessionUser = User::query()->create([
                 'name' => $socialUser->getName() ?? Str::before($email, '@'),
                 'github_nickname' => $socialUser->getNickname(),
-                'email' => $email,
                 'avatar' => $socialUser->getAvatar(),
                 'password' => Hash::make(Str::random()),
             ]);
+            Email::query()->create(['address' => $email, 'user_id' => $growthSessionUser->id]);
         }
         auth()->login($growthSessionUser, true);
         return redirect($this->redirectPath());

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,5 +28,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         GrowthSessionResource::withoutWrapping();
+        Model::shouldBeStrict(!$this->app->environment('production'));
     }
 }

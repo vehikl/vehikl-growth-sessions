@@ -7,7 +7,7 @@ return new class extends Migration {
     public function up()
     {
         if (empty(User::where('email', 'go@vehikl.com')->first())) {
-            User::create([
+            User::forceCreate([
                 'name' => 'Vehikl',
                 'avatar' => 'https://avatars.githubusercontent.com/u/6425636?s=200&v=4',
                 'github_nickname' => 'vehikl',
