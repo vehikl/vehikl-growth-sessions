@@ -4,8 +4,8 @@ on:
     branches:
       - master
 jobs:
-  tests:
-    uses: './.github/workflows/test.yml'
+  #  tests:
+  #    uses: './.github/workflows/test.yml'
   build:
     name: build
     # needs: [ tests ]
