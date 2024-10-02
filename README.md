@@ -72,6 +72,18 @@ sail pnpm dev
 # The port may be changed via the APP_PORT env variable  
 ```
 
+## Running Tests
+
+```sh 
+# Frontend
+sail pnpm test
+
+# Backend
+sail artisan test
+
+# To run these tests through the IDE, remember to configure it to use Remote Interpreters (for both PHP and Node)
+```
+
 ## Optional
 
 #### Setup Github OAuth:
