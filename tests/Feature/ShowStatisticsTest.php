@@ -30,47 +30,6 @@ class ShowStatisticsTest extends TestCase
             ->assertForbidden();
     }
 
-    public function testItIncludesAListOfPeopleTheyHaveMobbedWith()
-    {
-        [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
-
-        $this->actingAs($owner)
-            ->getJson(route('statistics.index'))
-            ->assertSuccessful()
-            ->assertJson([
-                'users' => [
-                    [
-                        'name' => $owner->name,
-                        'user_id' => $owner->id,
-                        'has_mobbed_with_count' => 1,
-                        'has_mobbed_with' => [
-                            [
-                                'name' => $attendee->name,
-                                'user_id' => $attendee->id,
-                            ]
-                        ],
-                    ],
-                    [
-                        'name' => $attendee->name,
-                        'user_id' => $attendee->id,
-                        'has_mobbed_with_count' => 1,
-                        'has_mobbed_with' => [
-                            [
-                                'name' => $owner->name,
-                                'user_id' => $owner->id,
-                            ]
-                        ],
-                    ],
-                    [
-                        'name' => $nonParticipant->name,
-                        'user_id' => $nonParticipant->id,
-                        'has_mobbed_with_count' => 0,
-                        'has_mobbed_with' => [],
-                    ],
-                ]
-            ]);
-    }
-
     public function testItAlsoIncludesAListOfPeopleTheyHaveNotMobbedWith()
     {
         [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();

@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\GrowthSession;
-use App\User;
+use App\UserHasNotMobbedWithView;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class ShowStatistics extends Controller
 {
@@ -24,47 +23,35 @@ class ShowStatistics extends Controller
         $end_date = today()->toDateString();
 
         $cacheDurationInSeconds = 60 * 5;
-        $userStatistics = Cache::remember("statistics-{$start_date}-{$end_date}", $cacheDurationInSeconds,
-            function () use ($start_date, $end_date) {
-                $allUsers = User::query()
-                    ->vehikaliens()
-                    ->visibleInStatistics()
-                    ->with('allSessions', fn($query) => $query
-                        ->with('members')
-                    )
-                    ->orderBy('id')
-                    ->get();
 
+        $userStatistics = UserHasNotMobbedWithView::query()
+            ->with('mainUser', 'hasNotMobbedWith')
+            ->get();
 
-                return $allUsers
-                    ->append('has_mobbed_with')
-                    ->map(function (User $user) use ($allUsers) {
-                        $hasMobbedWith = $user->has_mobbed_with
-                            ->map(fn(User $peer) => ['name' => $peer->name, 'user_id' => $peer->id])
-                            ->values();
+        $totalAmountOfUsers = UserHasNotMobbedWithView::query()->distinct('main_user_id')->count();
 
-                        $hasNotMobbedWith = $allUsers
-                            ->whereNotIn('id', $user->has_mobbed_with->pluck('id'))
-                            ->reject(fn(User $peer) => $peer->id === $user->id || !$peer->is_vehikl_member)
-                            ->map(fn(User $peer) => ['name' => $peer->name, 'user_id' => $peer->id])
-                            ->values();
-
-                        return [
-                            'name' => $user->name,
-                            'user_id' => $user->id,
-                            'has_mobbed_with' => $hasMobbedWith,
-                            'has_mobbed_with_count' => count($hasMobbedWith),
-                            'has_not_mobbed_with' => $hasNotMobbedWith,
-                            'has_not_mobbed_with_count' => count($hasNotMobbedWith),
-                        ];
-                    });
-            });
-
+        $formattedStatistics = $userStatistics
+            ->mapToGroups(fn(UserHasNotMobbedWithView $userHasNotMobbedWith) => [
+                $userHasNotMobbedWith->main_user_id => $userHasNotMobbedWith
+            ])->map(function ($grouped) use ($totalAmountOfUsers) {
+                $hasNotMobbedWithCount = count($grouped);
+                return [
+                    'name' => $grouped[0]->mainUser->name,
+                    'user_id' => $grouped[0]->mainUser->id,
+                    'has_mobbed_with_count' => $totalAmountOfUsers - $hasNotMobbedWithCount,
+                    'has_not_mobbed_with_count' => $hasNotMobbedWithCount,
+                    'has_not_mobbed_with' => $grouped->map(fn(UserHasNotMobbedWithView $notMobbedWithDetails) => [
+                        'name' => $notMobbedWithDetails->hasNotMobbedWith->name,
+                        'user_id' => $notMobbedWithDetails->hasNotMobbedWith->id,
+                    ]),
+                ];
+            })
+            ->values();
 
         return response()->json([
             'start_date' => $start_date,
             'end_date' => $end_date,
-            'users' => $userStatistics
+            'users' => $formattedStatistics
         ]);
     }
 }
