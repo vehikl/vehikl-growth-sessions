@@ -129,6 +129,10 @@ class DiscordServiceTest extends TestCase
             'discord_channel_id' => $discordChannelId,
             'date' => Carbon::now()->subDay(),
         ]);
+        GrowthSession::factory()->create([
+            'discord_channel_id' => $discordChannelId,
+            'date' => Carbon::now()->addDay(),
+        ]);
 
         GrowthSession::factory(2)->create();
 
