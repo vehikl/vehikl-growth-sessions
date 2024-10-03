@@ -26,6 +26,7 @@ class ShowStatistics extends Controller
         $loosenParticipationRules = config('statistics.loosen_participation_rules.user_ids')
             ? "OR ((main_user_id IN ({$exceptionUserIds}) OR other_user_id IN ({$exceptionUserIds})) AND growth_session_id IS NOT NULL)"
             : '';
+        $maxMobSize = config('statistics.max_mob_size');
 
         $userStatistics = UserHasMobbedWithView::query()
             ->selectRaw(<<<SelectStatement
@@ -35,7 +36,7 @@ class ShowStatistics extends Controller
                     other_user_name,
                     MAX(CASE 
                     WHEN (
-                         total_number_of_attendees < 10 
+                         total_number_of_attendees < {$maxMobSize} 
                          AND main_user_type_id = 2 
                          AND other_user_type_id = 2
                          ) 
