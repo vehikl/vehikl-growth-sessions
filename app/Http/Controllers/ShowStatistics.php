@@ -21,24 +21,33 @@ class ShowStatistics extends Controller
         );
 
         $end_date = today()->toDateString();
+
+        $exceptionUserIds = implode(',', config('statistics.loosen_participation_rules.user_ids', []));
+        $loosenParticipationRules = config('statistics.loosen_participation_rules.user_ids')
+            ? "OR ((main_user_id IN ({$exceptionUserIds}) OR other_user_id IN ({$exceptionUserIds})) AND growth_session_id IS NOT NULL)"
+            : '';
+
         $userStatistics = UserHasMobbedWithView::query()
-            ->selectRaw('
+            ->selectRaw(<<<SelectStatement
                     main_user_id, 
                     main_user_name,
                     other_user_id, 
                     other_user_name,
                     MAX(CASE 
-                    WHEN total_number_of_attendees < 10 
+                    WHEN (
+                         total_number_of_attendees < 10 
                          AND main_user_type_id = 2 
                          AND other_user_type_id = 2
+                         ) 
+                         {$loosenParticipationRules}
                     THEN 1 
                     ELSE 0 
-                   END) AS has_mobbed')
+                   END) AS has_mobbed
+SelectStatement
+            )
             ->groupBy(['main_user_id', 'main_user_name', 'other_user_id', 'other_user_name'])
-
             ->get();
 
-        $a = 0;
         $formattedStatistics = $userStatistics
             ->mapToGroups(fn(UserHasMobbedWithView $userHasMobbedWithView) => [
                 $userHasMobbedWithView->main_user_id => $userHasMobbedWithView
