@@ -110,7 +110,7 @@ function renderParticipationButton(row: IUserStatistics,
   if (row[otherUserCountKey] === 0) {
     return (`
     <div class="flex justify-center">
-        ${otherUsersKey === 'has_mobbed_with' ? '🎉' : '😔'}
+        ${otherUsersKey === 'has_mobbed_with' ? '😔' : '🎉'}
     </div>
     `);
   }
