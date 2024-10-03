@@ -35,6 +35,11 @@ const columns: ColumnType[] = [
 const startDate = ref<string | null>(null)
 const name = ref<string>("")
 const allData = ref<IUserStatistics[]>([])
+const dialogData = reactive<{ title: string, userNames: string[] }>({
+  title: "You have mobbed with",
+  userNames: [],
+})
+const dialogUserNames = ref<string[]>([])
 
 const table = reactive({
   isLoading: true,
@@ -77,7 +82,13 @@ async function fetchStatistics() {
 
 function displayAlertHandler(event: Event) {
   event.stopPropagation();
-  alert(this.getAttribute('data-payload'));
+  const dialog = document.getElementById('participation-names') as HTMLDialogElement;
+  const userId = Number(this.getAttribute('data-id'));
+  const key = this.getAttribute('data-payload') as 'has_mobbed_with' | 'has_not_mobbed_with';
+
+  dialogData.title = key === 'has_mobbed_with' ? 'You have mobbed with: ' : 'You have not mobbed with: ';
+  dialogData.userNames = table.rows.find(row => row.user_id === userId)?.[key]?.map((member) => member.name) ?? [];
+  dialog.showModal();
 }
 
 function tableLoadingFinish(elements) {
@@ -109,7 +120,7 @@ function renderParticipationButton(row: IUserStatistics,
       <div class="flex justify-center">
          <abbr title="See names" class="whitespace-nowrap">
             <button data-id="${row.user_id}"
-              data-payload="${row[otherUsersKey].map(user => user.name).join(', ')}"
+              data-payload="${otherUsersKey}"
               data-type="alert-button"
               class="is-rows-el quick-btn md:w-1/2 hover:brightness-75 hover:font-bold underline">
                   ${row[otherUserCountKey]}
@@ -131,6 +142,21 @@ function renderMobbedButton(row: IUserStatistics) {
 
 <template>
   <div class="mt-6 mx-auto max-w-[115rem]">
+    <dialog id="participation-names" class="w-full max-w-xl p-0 overflow-auto px-4 py-8">
+      <h2 class="mb-8 text-3xl bg-white text-center tracking-wide text-slate-600 font-bold p-2 pt-4 pb-1 sticky sm:relative top-0 w-full z-20 rounded-t-xl"
+          v-text="dialogData.title"/>
+      <ul class="grid grid-cols-3">
+        <li v-for="(name, index) in dialogData.userNames" :key="index" v-text="name"/>
+      </ul>
+
+      <form class="mt-8" method="dialog">
+        <button
+            class="border-gray-600 hover:bg-gray-600 focus:bg-gray-700 focus:text-white text-gray-600 border-4 bg-white hover:text-white font-bold py-2 px-4 w-full join-button">
+          OK
+        </button>
+      </form>
+    </dialog>
+
     <fieldset class="flex gap-8" title="Filters">
       <label class="flex gap-4 my-4 text-sm items-center font-bold">
         Name
