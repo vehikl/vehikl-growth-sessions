@@ -20,14 +20,14 @@ const columns: ColumnType[] = [
     field: "has_mobbed_with_count",
     width: "15%",
     sortable: true,
-    display: renderMobbedButton
+    display: (row: IUserStatistics) => renderParticipationButton(row, 'has_mobbed_with')
   },
   {
     label: "Not Mobbed",
     field: "has_not_mobbed_with_count",
     width: "15%",
     sortable: true,
-    display: renderNotMobbedButton
+    display: (row: IUserStatistics) => renderParticipationButton(row, 'has_not_mobbed_with')
   }
 ];
 
@@ -129,14 +129,6 @@ function renderParticipationButton(row: IUserStatistics,
       </div>
       `
   );
-}
-
-function renderNotMobbedButton(row: IUserStatistics) {
-  return renderParticipationButton(row, 'has_not_mobbed_with');
-}
-
-function renderMobbedButton(row: IUserStatistics) {
-  return renderParticipationButton(row, 'has_mobbed_with');
 }
 </script>
 
