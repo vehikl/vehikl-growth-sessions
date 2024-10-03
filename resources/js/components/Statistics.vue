@@ -15,7 +15,13 @@ type ColumnType = {
 const columns: ColumnType[] = [
   {label: "ID", field: "user_id", width: "3%", sortable: true, isKey: true},
   {label: "Name", field: "name", width: "10%", sortable: true},
-  {label: "Mobbed", field: "has_mobbed_with_count", width: "15%", sortable: true},
+  {
+    label: "Mobbed",
+    field: "has_mobbed_with_count",
+    width: "15%",
+    sortable: true,
+    display: renderMobbedButton
+  },
   {
     label: "Not Mobbed",
     field: "has_not_mobbed_with_count",
@@ -85,11 +91,15 @@ function tableLoadingFinish(elements) {
   });
 }
 
-function renderNotMobbedButton(row: IUserStatistics) {
-  if (row.has_not_mobbed_with_count === 0) {
+
+function renderParticipationButton(row: IUserStatistics,
+                                   otherUsersKey: has_not_mobbed_with | has_mobbed_with) {
+  const otherUserCountKey = `${otherUsersKey}_count`;
+
+  if (row[otherUserCountKey] === 0) {
     return (`
     <div class="flex justify-center">
-        🎉
+        {{otherUsersKey === 'has_mobbed_with' ? 🎉 : 😔}}
     </div>
     `);
   }
@@ -97,15 +107,25 @@ function renderNotMobbedButton(row: IUserStatistics) {
   return (
       `
       <div class="flex justify-center">
-         <button data-id="${row.user_id}"
-                data-payload="${row.has_not_mobbed_with.map(user => user.name).join(', ')}"
-                data-type="alert-button"
-                class="is-rows-el quick-btn border border-blue-800 bg-blue-100 md:w-1/2 hover:brightness-75">
-          ${row.has_not_mobbed_with_count}
-        </button>
+         <abbr title="See names" class="whitespace-nowrap">
+            <button data-id="${row.user_id}"
+              data-payload="${row[otherUsersKey].map(user => user.name).join(', ')}"
+              data-type="alert-button"
+              class="is-rows-el quick-btn md:w-1/2 hover:brightness-75 hover:font-bold underline">
+                  ${row[otherUserCountKey]}
+            </button>
+          </abbr>
       </div>
       `
   );
+}
+
+function renderNotMobbedButton(row: IUserStatistics) {
+  return renderParticipationButton(row, 'has_not_mobbed_with');
+}
+
+function renderMobbedButton(row: IUserStatistics) {
+  return renderParticipationButton(row, 'has_mobbed_with');
 }
 </script>
 
