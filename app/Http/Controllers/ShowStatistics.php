@@ -26,16 +26,9 @@ class ShowStatistics extends Controller
         $cacheDurationInSeconds = 60 * 5;
         $userStatistics = Cache::remember("statistics-{$start_date}-{$end_date}", $cacheDurationInSeconds,
             function () use ($start_date, $end_date) {
-                $githubUserExclusions = [
-                    config('auth.slack_app_name'),
-                    ...config('auth.vehikl_names'),
-                    'vehikl-morning-mob'
-                ];
-
                 $allUsers = User::query()
                     ->vehikaliens()
                     ->visibleInStatistics()
-                    ->whereNotIn('github_nickname', $githubUserExclusions)
                     ->with('allSessions', fn($query) => $query
                         ->with('members')
                     )
