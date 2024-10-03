@@ -5,19 +5,19 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class UserHasNotMobbedWithView extends Model
+class UserHasMobbedWithView extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'user_has_not_mobbed_with';
+    protected $table = 'user_has_mobbed_with';
 
     public function mainUser(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'main_user_id');
     }
 
-    public function hasNotMobbedWith(): HasOne
+    public function otherUser(): HasOne
     {
-        return $this->hasOne(User::class, 'id', 'has_not_mobbed_with_id');
+        return $this->hasOne(User::class, 'id', 'other_user_id');
     }
 }

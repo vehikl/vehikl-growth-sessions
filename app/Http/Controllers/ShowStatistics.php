@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\GrowthSession;
-use App\UserHasNotMobbedWithView;
+use App\UserHasMobbedWithView;
 use Illuminate\Http\Request;
 
 class ShowStatistics extends Controller
@@ -22,28 +22,29 @@ class ShowStatistics extends Controller
 
         $end_date = today()->toDateString();
 
-        $cacheDurationInSeconds = 60 * 5;
-
-        $userStatistics = UserHasNotMobbedWithView::query()
-            ->with('mainUser', 'hasNotMobbedWith')
+        $userStatistics = UserHasMobbedWithView::query()
+            ->with('mainUser', 'otherUser')
             ->get();
 
-        $totalAmountOfUsers = UserHasNotMobbedWithView::query()->distinct('main_user_id')->count();
-
         $formattedStatistics = $userStatistics
-            ->mapToGroups(fn(UserHasNotMobbedWithView $userHasNotMobbedWith) => [
-                $userHasNotMobbedWith->main_user_id => $userHasNotMobbedWith
-            ])->map(function ($grouped) use ($totalAmountOfUsers) {
-                $hasNotMobbedWithCount = count($grouped);
+            ->mapToGroups(fn(UserHasMobbedWithView $userHasMobbedWithView) => [
+                $userHasMobbedWithView->main_user_id => $userHasMobbedWithView
+            ])->map(function ($grouped) {
+                $hasMobbedWith = $grouped->filter(fn(UserHasMobbedWithView $view) => $view->has_mobbed);
+                $hasNotMobbedWith = $grouped->reject(fn(UserHasMobbedWithView $view) => $view->has_mobbed);
                 return [
                     'name' => $grouped[0]->mainUser->name,
                     'user_id' => $grouped[0]->mainUser->id,
-                    'has_mobbed_with_count' => $totalAmountOfUsers - $hasNotMobbedWithCount,
-                    'has_not_mobbed_with_count' => $hasNotMobbedWithCount,
-                    'has_not_mobbed_with' => $grouped->map(fn(UserHasNotMobbedWithView $notMobbedWithDetails) => [
-                        'name' => $notMobbedWithDetails->hasNotMobbedWith->name,
-                        'user_id' => $notMobbedWithDetails->hasNotMobbedWith->id,
-                    ]),
+                    'has_mobbed_with_count' => $hasMobbedWith->count(),
+                    'has_mobbed_with' => $hasMobbedWith->map(fn(UserHasMobbedWithView $mobbedWith) => [
+                        'user_id' => $mobbedWith->otherUser->id,
+                        'name' => $mobbedWith->otherUser->name,
+                    ])->values(),
+                    'has_not_mobbed_with_count' => $hasNotMobbedWith->count(),
+                    'has_not_mobbed_with' => $hasNotMobbedWith->map(fn(UserHasMobbedWithView $didNotMobWith) => [
+                        'user_id' => $didNotMobWith->otherUser->id,
+                        'name' => $didNotMobWith->otherUser->name,
+                    ])->values(),
                 ];
             })
             ->values();
