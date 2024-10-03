@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\GrowthSession;
-use App\User;
+use App\UserHasMobbedWithView;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class ShowStatistics extends Controller
 {
@@ -23,55 +22,37 @@ class ShowStatistics extends Controller
 
         $end_date = today()->toDateString();
 
-        $cacheDurationInSeconds = 60 * 5;
-        $userStatistics = Cache::remember("statistics-{$start_date}-{$end_date}", $cacheDurationInSeconds,
-            function () use ($start_date, $end_date) {
-                $githubUserExclusions = [
-                    config('auth.slack_app_name'),
-                    ...config('auth.vehikl_names'),
-                    'vehikl-morning-mob'
+        $userStatistics = UserHasMobbedWithView::query()
+            ->with('mainUser', 'otherUser')
+            ->get();
+
+        $formattedStatistics = $userStatistics
+            ->mapToGroups(fn(UserHasMobbedWithView $userHasMobbedWithView) => [
+                $userHasMobbedWithView->main_user_id => $userHasMobbedWithView
+            ])->map(function ($grouped) {
+                $hasMobbedWith = $grouped->filter(fn(UserHasMobbedWithView $view) => $view->has_mobbed);
+                $hasNotMobbedWith = $grouped->reject(fn(UserHasMobbedWithView $view) => $view->has_mobbed);
+                return [
+                    'name' => $grouped[0]->mainUser->name,
+                    'user_id' => $grouped[0]->mainUser->id,
+                    'has_mobbed_with_count' => $hasMobbedWith->count(),
+                    'has_mobbed_with' => $hasMobbedWith->map(fn(UserHasMobbedWithView $mobbedWith) => [
+                        'user_id' => $mobbedWith->otherUser->id,
+                        'name' => $mobbedWith->otherUser->name,
+                    ])->values(),
+                    'has_not_mobbed_with_count' => $hasNotMobbedWith->count(),
+                    'has_not_mobbed_with' => $hasNotMobbedWith->map(fn(UserHasMobbedWithView $didNotMobWith) => [
+                        'user_id' => $didNotMobWith->otherUser->id,
+                        'name' => $didNotMobWith->otherUser->name,
+                    ])->values(),
                 ];
-
-                $allUsers = User::query()
-                    ->vehikaliens()
-                    ->visibleInStatistics()
-                    ->whereNotIn('github_nickname', $githubUserExclusions)
-                    ->with('allSessions', fn($query) => $query
-                        ->with('members')
-                    )
-                    ->orderBy('id')
-                    ->get();
-
-
-                return $allUsers
-                    ->append('has_mobbed_with')
-                    ->map(function (User $user) use ($allUsers) {
-                        $hasMobbedWith = $user->has_mobbed_with
-                            ->map(fn(User $peer) => ['name' => $peer->name, 'user_id' => $peer->id])
-                            ->values();
-
-                        $hasNotMobbedWith = $allUsers
-                            ->whereNotIn('id', $user->has_mobbed_with->pluck('id'))
-                            ->reject(fn(User $peer) => $peer->id === $user->id || !$peer->is_vehikl_member)
-                            ->map(fn(User $peer) => ['name' => $peer->name, 'user_id' => $peer->id])
-                            ->values();
-
-                        return [
-                            'name' => $user->name,
-                            'user_id' => $user->id,
-                            'has_mobbed_with' => $hasMobbedWith,
-                            'has_mobbed_with_count' => count($hasMobbedWith),
-                            'has_not_mobbed_with' => $hasNotMobbedWith,
-                            'has_not_mobbed_with_count' => count($hasNotMobbedWith),
-                        ];
-                    });
-            });
-
+            })
+            ->values();
 
         return response()->json([
             'start_date' => $start_date,
             'end_date' => $end_date,
-            'users' => $userStatistics
+            'users' => $formattedStatistics
         ]);
     }
 }

@@ -118,6 +118,6 @@ return [
     'slack_app_email' => 'slack.social_mob@vehikl.com',
     'slack_app_name' => 'slack',
 
-    'vehikl_names' => ['go-vehikl', 'vehikl'],
+    'vehikl_names' => ['go-vehikl', 'vehikl', 'vehikl-morning-mob'],
 
 ];
