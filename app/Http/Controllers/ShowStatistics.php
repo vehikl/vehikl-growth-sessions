@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\GrowthSession;
 use App\UserHasMobbedWithView;
+use App\UserType;
 use Illuminate\Http\Request;
 
 class ShowStatistics extends Controller
@@ -27,6 +28,7 @@ class ShowStatistics extends Controller
             ? "OR ((main_user_id IN ({$exceptionUserIds}) OR other_user_id IN ({$exceptionUserIds})) AND growth_session_id IS NOT NULL)"
             : '';
         $maxMobSize = config('statistics.max_mob_size');
+        $atendeeId = UserType::ATTENDEE_ID;
 
         $userStatistics = UserHasMobbedWithView::query()
             ->selectRaw(<<<SelectStatement
@@ -37,8 +39,8 @@ class ShowStatistics extends Controller
                     MAX(CASE 
                     WHEN (
                          total_number_of_attendees < {$maxMobSize} 
-                         AND main_user_type_id = 2 
-                         AND other_user_type_id = 2
+                         AND main_user_type_id = {$atendeeId}
+                         AND other_user_type_id = {$atendeeId}
                          ) 
                          {$loosenParticipationRules}
                     THEN 1 
