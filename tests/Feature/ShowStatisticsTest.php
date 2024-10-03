@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\GrowthSession;
+use App\GrowthSessionUser;
 use App\User;
 use App\UserType;
 use Carbon\CarbonInterface;
@@ -121,6 +122,36 @@ class ShowStatisticsTest extends TestCase
             ]);
     }
 
+    public function testItDisregardsGrowthSessionsWithMoreThan10AttendeesWhenConsideringTheHasMobbedWith()
+    {
+        $owner = User::factory()->vehiklMember()->create(['is_visible_in_statistics' => true]);
+        $attendees = User::factory()->vehiklMember()->count(10)->create(['is_visible_in_statistics' => true]);
+
+        $growthSession = GrowthSession::factory()
+            ->hasAttached($owner, ['user_type_id' => UserType::ATTENDEE_ID], 'owners')
+            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'attendees')
+            ->create();
+
+        GrowthSessionUser::query()->insert($attendees->map(fn($attendee) => [
+            'growth_session_id' => $growthSession->id,
+            'user_id' => $attendee->id,
+            'user_type_id' => UserType::ATTENDEE_ID,
+        ])->toArray());
+
+        $this->actingAs($owner)
+            ->getJson(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertJson([
+                'users' => [
+                    [
+                        'name' => $owner->name,
+                        'user_id' => $owner->id,
+                        'has_not_mobbed_with_count' => $attendees->count()
+                    ]
+                ]
+            ]);
+    }
+
     private function makeGrowthSessionWithSingleAttendee(
         User $attendee,
         User $owner,
@@ -128,7 +159,8 @@ class ShowStatisticsTest extends TestCase
     ): GrowthSession {
         return GrowthSession::factory()
             ->hasAttached($attendee, ['user_type_id' => UserType::ATTENDEE_ID], 'attendees')
-            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'watchers')
+            ->hasAttached($owner, ['user_type_id' => UserType::ATTENDEE_ID], 'owners')
+            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'attendees')
             ->create(['date' => $date]);
     }
 
