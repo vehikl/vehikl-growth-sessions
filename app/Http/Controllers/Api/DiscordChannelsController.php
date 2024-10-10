@@ -15,9 +15,8 @@ class DiscordChannelsController extends Controller
         return new DiscordChannelCollection($discord->getChannels());
     }
 
-    public function occupied(Request $request, DiscordService $discord): DiscordChannelCollection
+    public function occupied(string $date, DiscordService $discord): DiscordChannelCollection
     {
-        $date = $request->input('date') ?? Carbon::now()->toDateString();
         return new DiscordChannelCollection($discord->getoccupiedChannels($date));
     }
 }
