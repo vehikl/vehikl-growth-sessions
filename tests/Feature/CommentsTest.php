@@ -14,7 +14,6 @@ class CommentsTest extends TestCase
     {
         $user = User::factory()->create();
         $growthSession = GrowthSession::factory()->create();
-
         $this->actingAs($user)
             ->postJson(route('growth_sessions.comments.store', $growthSession), ['content' => 'Hello world'])
             ->assertSuccessful();
@@ -24,12 +23,26 @@ class CommentsTest extends TestCase
 
     public function testItReturnsGrowthSessionResourceOnCommentSubmission()
     {
-        $user = User::factory()->create();
-        $limitlessSession = GrowthSession::factory()->create(['attendee_limit' => GrowthSession::NO_LIMIT]);
+        $user = User::factory()->create([
+            'is_vehikl_member' => true
+        ]);
+        $watcher = User::factory()->create([
+            'is_vehikl_member' => true
+        ]);
 
-        $this->actingAs($user)
+        $limitlessSession = GrowthSession::factory()->create(['attendee_limit' => GrowthSession::NO_LIMIT]);
+        $limitlessSession->attendees()->attach($user);
+        $limitlessSession->watchers()->attach($watcher, ['user_type_id' => 3]);
+        $existingComment = Comment::factory()->create(['growth_session_id' => $limitlessSession->id]);
+
+        $response = $this->actingAs($user)
             ->postJson(route('growth_sessions.comments.store', $limitlessSession), ['content' => 'Hello world'])
             ->assertJsonMissing(['attendee_limit' => GrowthSession::NO_LIMIT]);
+        $jsonDecoded = json_decode($response->getContent(), true);
+        $this->assertEquals($jsonDecoded['attendees'][0]['id'], $user->id);
+        $this->assertEquals($jsonDecoded['comments'][1]['content'], 'Hello world');
+        $this->assertEquals($jsonDecoded['comments'][0]['content'], $existingComment->content);
+        $this->assertEquals($jsonDecoded['watchers'][0]['id'], $watcher->id);
     }
 
     public function testItReturnsGrowthSessionResourceOnCommentDestroy()

@@ -21,7 +21,8 @@ class CommentController extends Controller
         $comment->user()->associate($request->user());
         $comment->growthSession()->associate($growthSession);
         $comment->save();
-        return new GrowthSessionResource($growthSession->fresh());
+        $growthSession = $growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']);
+        return new GrowthSessionResource($growthSession);
     }
 
     public function destroy(DeleteCommentRequest $request, GrowthSession $growthSession,Comment $comment)
