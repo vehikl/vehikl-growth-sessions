@@ -16,7 +16,7 @@ class RecalculateStatisticsCommandTest extends TestCase
         date_default_timezone_set('America/Toronto');
     }
 
-    public function test_it_clears_statistics_cache()
+    public function test_it_refreshes_statistics()
     {
         $this->setTestNow('2020-01-15');
         User::factory()->create();
@@ -28,8 +28,12 @@ class RecalculateStatisticsCommandTest extends TestCase
         $endDate = today()->toDateString();
         $expectedKey = "statistics-{$startDate}-{$endDate}";
 
+        $oldValue = "No!";
+        Cache::set($expectedKey, $oldValue);
+
         $this->artisan('statistics:recalculate')->assertSuccessful();
 
         $this->assertNotEmpty(Cache::get($expectedKey));
+        $this->assertNotEquals($oldValue, Cache::get($expectedKey));
     }
 }

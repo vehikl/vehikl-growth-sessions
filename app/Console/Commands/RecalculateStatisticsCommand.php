@@ -17,14 +17,17 @@ class RecalculateStatisticsCommand extends Command
     {
         $this->info('Recalculating participation statistics...');
 
-        $start_date = GrowthSession::query()->orderBy('date')->first()?->date?->toDateString();
-        $end_date = today()->toDateString();
+        $oldestGrowthSessionDate = GrowthSession::query()->orderBy('date')->first()?->date;
 
-        if (is_null($start_date) || is_null($end_date)) {
+        if (!$oldestGrowthSessionDate) {
             return CommandCodes::SUCCESS;
         }
 
-        app(Statistics::class)->getFormattedStatisticsFor($start_date, $end_date);
+        $startDate = $oldestGrowthSessionDate->toDateString();
+        $endDate = today()->toDateString();
+
+        \Cache::forget("statistics-{$startDate}-{$endDate}");
+        app(Statistics::class)->getFormattedStatisticsFor($startDate, $endDate);
 
         return CommandCodes::SUCCESS;
     }
