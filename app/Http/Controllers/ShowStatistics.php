@@ -34,24 +34,25 @@ class ShowStatistics extends Controller
                     : '';
                 $maxMobSize = config('statistics.max_mob_size');
                 $atendeeId = UserType::ATTENDEE_ID;
+                $ownerId = UserType::OWNER_ID;
 
                 $userStatistics = UserHasMobbedWithView::query()
                     ->selectRaw(<<<SelectStatement
-                    main_user_id, 
+                    main_user_id,
                     main_user_name,
-                    other_user_id, 
+                    other_user_id,
                     other_user_name,
-                    MAX(CASE 
+                    MAX(CASE
                     WHEN (
-                         total_number_of_attendees < {$maxMobSize} 
+                         total_number_of_attendees < {$maxMobSize}
                          AND (
-                             (main_user_type_id = {$atendeeId} OR main_user_type_id = " . UserType::OWNER_ID . ")
-                             AND (other_user_type_id = {$atendeeId} OR other_user_type_id = " . UserType::OWNER_ID . ")
+                             (main_user_type_id = {$atendeeId} OR main_user_type_id = {$ownerId})
+                             AND (other_user_type_id = {$atendeeId} OR other_user_type_id = {$ownerId})
                          )
-                         ) 
+                         )
                          {$loosenParticipationRules}
-                    THEN 1 
-                    ELSE 0 
+                    THEN 1
+                    ELSE 0
                    END) AS has_mobbed
 SelectStatement
                     )
