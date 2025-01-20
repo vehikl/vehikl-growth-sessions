@@ -59,7 +59,6 @@ class GrowthSessionController extends Controller
         $newGrowthSession = new GrowthSession($request->validated());
         $newGrowthSession->save();
         $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::OWNER_ID]);
-        $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::ATTENDEE_ID]);
         $newGrowthSession->tags()->sync($request->input('tags'));
 
         $newGrowthSession->fresh();
