@@ -44,8 +44,10 @@ class ShowStatistics extends Controller
                     MAX(CASE 
                     WHEN (
                          total_number_of_attendees < {$maxMobSize} 
-                         AND main_user_type_id = {$atendeeId}
-                         AND other_user_type_id = {$atendeeId}
+                         AND (
+                             (main_user_type_id = {$atendeeId} OR main_user_type_id = " . UserType::OWNER_ID . ")
+                             AND (other_user_type_id = {$atendeeId} OR other_user_type_id = " . UserType::OWNER_ID . ")
+                         )
                          ) 
                          {$loosenParticipationRules}
                     THEN 1 
