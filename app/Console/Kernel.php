@@ -16,6 +16,18 @@ class Kernel extends ConsoleKernel
         $schedule
             ->command('create:anydesk-reminder')
             ->twiceMonthly(1, 15);
+
+        $schedule
+            ->command('statistics:recalculate')
+            ->timezone('America/Toronto')
+            ->at('01:00')
+            ->daily();
+
+        $schedule
+            ->command('statistics:recalculate')
+            ->timezone('America/Toronto')
+            ->at('12:30')
+            ->daily();
     }
 
     protected function commands()

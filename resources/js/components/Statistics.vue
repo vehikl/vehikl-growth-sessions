@@ -47,7 +47,7 @@ const table = reactive({
   rows: computed(() => allData.value.filter(row => row.name.toLowerCase().includes(name.value.toLowerCase()))
   ),
   sortable: {
-    order: "user_id",
+    order: "name",
     sort: "asc",
   },
   totalRecordCount: computed(() => table.rows.length)

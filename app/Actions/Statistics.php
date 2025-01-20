@@ -1,57 +1,48 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Actions;
 
-use App\GrowthSession;
 use App\UserHasMobbedWithView;
 use App\UserType;
-use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
-class ShowStatistics extends Controller
+class Statistics
 {
-    public function __invoke(Request $request)
+    public function getFormattedStatisticsFor(string $startDate, string $endDate): Collection
     {
-        if (!$request->expectsJson()) {
-            return view('statistics');
-        }
-
-        $start_date = $request->input(
-            'start_date',
-            GrowthSession::query()->orderBy('date')->first()?->date?->toDateString()
-            ?? today()->toDateString()
-        );
-
-        $end_date = today()->toDateString();
-
-        $cacheDurationInHours = 6;
-        $cacheDurationInSeconds = 60 * 60 * $cacheDurationInHours;
-        $formattedStatistics = Cache::remember("statistics-{$start_date}-{$end_date}", $cacheDurationInSeconds,
-            function () use ($start_date, $end_date) {
+        return Cache::remember(
+            "statistics-{$startDate}-{$endDate}",
+            config('statistics.cache_duration_in_seconds'
+            ),
+            function () {
                 $exceptionUserIds = implode(',', config('statistics.loosen_participation_rules.user_ids', []));
                 $loosenParticipationRules = config('statistics.loosen_participation_rules.user_ids')
                     ? "OR ((main_user_id IN ({$exceptionUserIds}) OR other_user_id IN ({$exceptionUserIds})) AND growth_session_id IS NOT NULL)"
                     : '';
                 $maxMobSize = config('statistics.max_mob_size');
                 $atendeeId = UserType::ATTENDEE_ID;
+                $ownerId = UserType::OWNER_ID;
 
                 $userStatistics = UserHasMobbedWithView::query()
                     ->selectRaw(<<<SelectStatement
-                    main_user_id, 
+                    main_user_id,
                     main_user_name,
-                    other_user_id, 
+                    other_user_id,
                     other_user_name,
-                    MAX(CASE 
+                    MAX(CASE
                     WHEN (
-                         total_number_of_attendees < {$maxMobSize} 
-                         AND main_user_type_id = {$atendeeId}
-                         AND other_user_type_id = {$atendeeId}
-                         ) 
+                         total_number_of_attendees < {$maxMobSize}
+                         AND (
+                             (main_user_type_id = {$atendeeId} OR main_user_type_id = {$ownerId})
+                             AND (other_user_type_id = {$atendeeId} OR other_user_type_id = {$ownerId})
+                         )
+                         )
                          {$loosenParticipationRules}
-                    THEN 1 
-                    ELSE 0 
+                    THEN 1
+                    ELSE 0
                    END) AS has_mobbed
-SelectStatement
+                   SelectStatement
                     )
                     ->groupBy(['main_user_id', 'main_user_name', 'other_user_id', 'other_user_name'])
                     ->get();
@@ -80,12 +71,5 @@ SelectStatement
                     })
                     ->values();
             });
-
-
-        return response()->json([
-            'start_date' => $start_date,
-            'end_date' => $end_date,
-            'users' => $formattedStatistics
-        ]);
     }
 }
