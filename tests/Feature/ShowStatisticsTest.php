@@ -129,7 +129,6 @@ class ShowStatisticsTest extends TestCase
         $attendees = User::factory()->vehiklMember()->count(config('statistics.max_mob_size'))->create(['is_visible_in_statistics' => true]);
 
         $growthSession = GrowthSession::factory()
-            ->hasAttached($owner, ['user_type_id' => UserType::ATTENDEE_ID], 'owners')
             ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'attendees')
             ->create();
 
@@ -160,7 +159,6 @@ class ShowStatisticsTest extends TestCase
         $otherAttendees = User::factory()->vehiklMember()->count(config('statistics.max_mob_size'))->create(['is_visible_in_statistics' => true]);
 
         $growthSession = GrowthSession::factory()
-            ->hasAttached($owner, ['user_type_id' => UserType::ATTENDEE_ID], 'owners')
             ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'attendees')
             ->create();
 
@@ -193,7 +191,6 @@ class ShowStatisticsTest extends TestCase
         $loosenRulesUser = User::factory()->create(['name' => 'Exception', 'is_visible_in_statistics' => true]);
 
         $growthSession = GrowthSession::factory()
-            ->hasAttached($owner, ['user_type_id' => UserType::ATTENDEE_ID], 'owners')
             ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'attendees')
             ->create();
 
@@ -240,7 +237,6 @@ class ShowStatisticsTest extends TestCase
     ): GrowthSession {
         return GrowthSession::factory()
             ->hasAttached($attendee, ['user_type_id' => UserType::ATTENDEE_ID], 'attendees')
-            ->hasAttached($owner, ['user_type_id' => UserType::ATTENDEE_ID], 'owners')
             ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'attendees')
             ->create(['date' => $date]);
     }
