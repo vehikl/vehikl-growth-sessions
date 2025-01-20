@@ -121,14 +121,15 @@ class GrowthSessionsUpdateTest extends TestCase
         $growthSession->attendees()->attach($users->pluck('id'));
 
         $newAttendeeLimit = 4;
-        $this->assertTrue($newAttendeeLimit < $growthSession->attendees()->count());
+        $attendeeCount = $growthSession->attendees()->count();
+        $this->assertTrue($newAttendeeLimit < $attendeeCount);
         $this->actingAs($growthSession->owner)->putJson(route(
             'growth_sessions.update',
             ['growth_session' => $growthSession->id]
         ), [
             'attendee_limit' => $newAttendeeLimit
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 5.']);
+            ->assertJsonValidationErrors(['attendee_limit' => "The attendee limit must be at least {$attendeeCount}."]);
     }
 
     public function testTheOwnerCanChangeTheDateOfAnUpcomingGrowthSession()
