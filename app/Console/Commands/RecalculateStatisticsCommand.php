@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Actions\Statistics;
 use App\GrowthSession;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 use Symfony\Component\Console\Command\Command as CommandCodes;
 
 class RecalculateStatisticsCommand extends Command
