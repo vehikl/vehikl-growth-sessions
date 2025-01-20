@@ -4,12 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Actions\Statistics;
 use App\GrowthSession;
-use App\UserHasMobbedWithView;
-use App\UserType;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
-class ShowStatistics extends Controller
+class ShowStatisticsController extends Controller
 {
     public function __invoke(Request $request)
     {
