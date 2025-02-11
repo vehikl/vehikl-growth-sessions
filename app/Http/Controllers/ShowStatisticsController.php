@@ -20,7 +20,10 @@ class ShowStatisticsController extends Controller
             ?? today()->toDateString()
         );
 
-        $end_date = today()->toDateString();
+        $end_date = $request->input(
+            'end_date',
+            today()->toDateString()
+        );
 
         $formattedStatistics = app(Statistics::class)->getFormattedStatisticsFor($start_date, $end_date);
 

@@ -1,6 +1,6 @@
 <?php
 
-$cacheDurationInHours = 15;
+$cacheDurationInHours = 24 * 3;
 $cacheDurationInSeconds = 60 * 60 * $cacheDurationInHours;
 
 return [

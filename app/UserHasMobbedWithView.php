@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class UserHasMobbedWithView extends Model
@@ -19,5 +20,10 @@ class UserHasMobbedWithView extends Model
     public function otherUser(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'other_user_id');
+    }
+
+    public function growthSession(): BelongsTo
+    {
+        return $this->belongsTo(GrowthSession::class);
     }
 }
