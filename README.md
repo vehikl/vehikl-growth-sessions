@@ -16,18 +16,6 @@ To avoid the registration step, this application uses oauth.
 
 #### Initial configuration
 
-##### Option 1 - Via the create script
-
-```sh
-sh scripts/create.sh
-```
-
-> **Note**
-> The create script populates OAuth credentials through a secure vault. You can skip this through pressing ENTER when
-> prompted.
-
-##### Option 2 - Manually
-
 ```sh
 # PHP Dependencies (This is important just to have sail)
 composer install
@@ -95,3 +83,8 @@ sail artisan test
 For more information, see:
  - [Laravel socialite](https://laravel.com/docs/7.x/socialite#configuration)
 
+## Additional Notes
+
+- Statistics can be seen on `/statistics`
+- By default, the statistics will only reveal which users have a given member has not yet mobbed with.
+- Additional statistics can be shown with `/statistics?full-display`

@@ -25,7 +25,11 @@
           "user_id": 7
         }
       ],
-      "has_not_mobbed_with_count": 4
+      "has_not_mobbed_with_count": 4,
+      "total_sessions_count": 1,
+      "sessions_hosted_count": 1,
+      "sessions_attended_count": 0,
+      "sessions_watched_count": 0
     },
     {
       "name": "Dr. Delbert Deckow PhD",
@@ -50,7 +54,11 @@
           "user_id": 7
         }
       ],
-      "has_not_mobbed_with_count": 4
+      "has_not_mobbed_with_count": 4,
+      "total_sessions_count": 1,
+      "sessions_hosted_count": 1,
+      "sessions_attended_count": 0,
+      "sessions_watched_count": 0
     },
     {
       "name": "Prof. Princess Wiegand Sr.",
@@ -75,7 +83,11 @@
           "user_id": 7
         }
       ],
-      "has_not_mobbed_with_count": 4
+      "has_not_mobbed_with_count": 4,
+      "total_sessions_count": 1,
+      "sessions_hosted_count": 1,
+      "sessions_attended_count": 0,
+      "sessions_watched_count": 0
     },
     {
       "name": "Isaiah Kutch",
@@ -100,7 +112,11 @@
           "user_id": 7
         }
       ],
-      "has_not_mobbed_with_count": 4
+      "has_not_mobbed_with_count": 4,
+      "total_sessions_count": 1,
+      "sessions_hosted_count": 1,
+      "sessions_attended_count": 0,
+      "sessions_watched_count": 0
     },
     {
       "name": "Carroll King",
@@ -125,7 +141,11 @@
           "user_id": 6
         }
       ],
-      "has_not_mobbed_with_count": 4
+      "has_not_mobbed_with_count": 4,
+      "total_sessions_count": 1,
+      "sessions_hosted_count": 1,
+      "sessions_attended_count": 0,
+      "sessions_watched_count": 0
     }
   ]
 }
