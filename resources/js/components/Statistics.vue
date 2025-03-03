@@ -1,22 +1,22 @@
 <script lang="ts" setup>
 import TableLite from "vue3-table-lite/ts";
-import { computed, onBeforeMount, reactive, ref, watch } from "vue";
+import {computed, onBeforeMount, reactive, ref, watch} from "vue";
 import axios from "axios";
-import { IStatistics, IUserStatistics } from "../types";
+import {IStatistics, IUserStatistics} from "../types";
 import {DateTime} from "../classes/DateTime";
 
 type ColumnType = {
     label: string;
     field: keyof IUserStatistics;
     width: string;
-    sortable: string;
+    sortable: boolean;
     isKey?: boolean;
+    display?: (row: IUserStatistics) => void;
 };
 
 const columns: ColumnType[] = [
     { label: "ID", field: "user_id", width: "3%", sortable: true, isKey: true },
     { label: "Name", field: "name", width: "10%", sortable: true },
-
     {
         label: "Mobbed",
         field: "has_mobbed_with_count",
@@ -162,9 +162,9 @@ function setEndDateAsToday() {
 
 function renderParticipationButton(
     row: IUserStatistics,
-    otherUsersKey: has_not_mobbed_with | has_mobbed_with
+    otherUsersKey: 'has_not_mobbed_with' | 'has_mobbed_with'
 ) {
-    const otherUserCountKey = `${otherUsersKey}_count`;
+    const otherUserCountKey: 'has_not_mobbed_with_count' | 'has_mobbed_with_count' = `${otherUsersKey}_count`;
 
     if (row[otherUserCountKey] === 0) {
         return `
