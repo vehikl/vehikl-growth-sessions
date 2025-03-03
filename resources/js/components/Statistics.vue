@@ -49,15 +49,7 @@ const columns: ColumnType[] = [
     {label: "ID", field: "user_id", width: "3%", sortable: true, isKey: true},
     {label: "Name", field: "name", width: "10%", sortable: true},
     {
-        label: "Mobbed",
-        field: "has_mobbed_with_count",
-        width: "15%",
-        sortable: true,
-        display: (row: IUserStatistics) =>
-            renderParticipationButton(row, "has_mobbed_with"),
-    },
-    {
-        label: "Not Mobbed",
+        label: "Yet to Mob With",
         field: "has_not_mobbed_with_count",
         width: "15%",
         sortable: true,
