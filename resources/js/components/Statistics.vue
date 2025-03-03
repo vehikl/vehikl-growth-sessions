@@ -14,26 +14,9 @@ type ColumnType = {
     display?: (row: IUserStatistics) => void;
 };
 
-const columns: ColumnType[] = [
-    { label: "ID", field: "user_id", width: "3%", sortable: true, isKey: true },
-    { label: "Name", field: "name", width: "10%", sortable: true },
-    {
-        label: "Mobbed",
-        field: "has_mobbed_with_count",
-        width: "15%",
-        sortable: true,
-        display: (row: IUserStatistics) =>
-            renderParticipationButton(row, "has_mobbed_with"),
-    },
-    {
-        label: "Not Mobbed",
-        field: "has_not_mobbed_with_count",
-        width: "15%",
-        sortable: true,
-        display: (row: IUserStatistics) =>
-            renderParticipationButton(row, "has_not_mobbed_with"),
-    },
+const fullDisplay = location.search.includes('full-display');
 
+const participationCountColumns: ColumnType[] = [
     {
         label: "# Hosted",
         field: "sessions_hosted_count",
@@ -57,7 +40,31 @@ const columns: ColumnType[] = [
         field: "total_sessions_count",
         width: "15%",
         sortable: true,
+    }
+];
+
+const extraColumns = fullDisplay ? participationCountColumns : [];
+
+const columns: ColumnType[] = [
+    {label: "ID", field: "user_id", width: "3%", sortable: true, isKey: true},
+    {label: "Name", field: "name", width: "10%", sortable: true},
+    {
+        label: "Mobbed",
+        field: "has_mobbed_with_count",
+        width: "15%",
+        sortable: true,
+        display: (row: IUserStatistics) =>
+            renderParticipationButton(row, "has_mobbed_with"),
     },
+    {
+        label: "Not Mobbed",
+        field: "has_not_mobbed_with_count",
+        width: "15%",
+        sortable: true,
+        display: (row: IUserStatistics) =>
+            renderParticipationButton(row, "has_not_mobbed_with"),
+    },
+    ...extraColumns,
 ];
 
 const startDate = ref<string | null>(new DateTime("2020-05-21").toDateString());
@@ -190,7 +197,7 @@ function renderParticipationButton(
 </script>
 
 <template>
-    <div class="mt-6 mx-auto max-w-[115rem]">
+    <div class="mt-6 mx-auto lg:mx-6 max-w-[115rem]">
         <dialog
             id="participation-names"
             class="w-full max-w-xl p-0 overflow-auto px-4 py-8"
@@ -277,5 +284,3 @@ function renderParticipationButton(
         />
     </div>
 </template>
-
-<style lang="scss" scoped></style>

@@ -12,6 +12,7 @@ describe("Statistics", () => {
 
     beforeEach(() => {
         mockBackend = new MockAdapter(axios);
+        location.search = 'full-display'
     });
 
     afterEach(() => {
