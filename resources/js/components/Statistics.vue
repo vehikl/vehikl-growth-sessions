@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import TableLite from "vue3-table-lite/ts";
-import {computed, onBeforeMount, reactive, ref, watch} from "vue";
+import { computed, onBeforeMount, reactive, ref, watch } from "vue";
 import axios from "axios";
-import {IStatistics, IUserStatistics} from "../types";
-import {DateTime} from "../classes/DateTime";
+import { IStatistics, IUserStatistics } from "../types";
+import { DateTime } from "../classes/DateTime";
 
 type ColumnType = {
     label: string;
@@ -14,7 +14,7 @@ type ColumnType = {
     display?: (row: IUserStatistics) => void;
 };
 
-const fullDisplay = location.search.includes('full-display');
+const fullDisplay = location.search.includes("full-display");
 
 const participationCountColumns: ColumnType[] = [
     {
@@ -40,14 +40,14 @@ const participationCountColumns: ColumnType[] = [
         field: "total_sessions_count",
         width: "15%",
         sortable: true,
-    }
+    },
 ];
 
 const extraColumns = fullDisplay ? participationCountColumns : [];
 
 const columns: ColumnType[] = [
-    {label: "ID", field: "user_id", width: "3%", sortable: true, isKey: true},
-    {label: "Name", field: "name", width: "10%", sortable: true},
+    { label: "ID", field: "user_id", width: "3%", sortable: true, isKey: true },
+    { label: "Name", field: "name", width: "10%", sortable: true },
     {
         label: "Yet to Mob With",
         field: "has_not_mobbed_with_count",
@@ -59,7 +59,8 @@ const columns: ColumnType[] = [
     ...extraColumns,
 ];
 
-const startDate = ref<string | null>(new DateTime("2020-05-21").toDateString());
+const FIRST_DAY = "2020-05-21";
+const startDate = ref<string | null>(new DateTime(FIRST_DAY).toDateString());
 const endDate = ref<string | null>(new DateTime().toDateString());
 const name = ref<string>("");
 const allData = ref<IUserStatistics[]>([]);
@@ -155,15 +156,54 @@ function setStartDateToLastMonday() {
     startDate.value = lastMonday.toDateString();
 }
 
+function setStartDateAsFirstDay() {
+    startDate.value = new DateTime(FIRST_DAY).toDateString();
+}
+
 function setEndDateAsToday() {
     endDate.value = new DateTime().toDateString();
 }
 
+function setThisWeekDateRange() {
+    setEndDateAsToday();
+    setStartDateToLastMonday();
+}
+
+function setThisMonthDateRange() {
+    setEndDateAsToday();
+
+    // Get the first day of the current month
+    const today = new DateTime();
+    const firstDayOfMonth = new DateTime(today.format("YYYY-MM-01"));
+
+    // Calculate the first Monday of the month
+    const firstDayWeekday = firstDayOfMonth.weekDayNumber();
+    const daysToAdd = firstDayWeekday === 1 ? 0 : (8 - firstDayWeekday) % 7;
+    const firstMondayOfMonth = firstDayOfMonth.addDays(daysToAdd);
+
+    // If the first Monday is after today, go back to the previous month's last Monday
+    if (
+        daysToAdd > 0 &&
+        firstMondayOfMonth.toDateString() > today.toDateString()
+    ) {
+        setStartDateToLastMonday();
+    } else {
+        startDate.value = firstMondayOfMonth.toDateString();
+    }
+}
+
+function setAllTimeDateRange() {
+    setEndDateAsToday();
+    setStartDateAsFirstDay();
+}
+
 function renderParticipationButton(
     row: IUserStatistics,
-    otherUsersKey: 'has_not_mobbed_with' | 'has_mobbed_with'
+    otherUsersKey: "has_not_mobbed_with" | "has_mobbed_with"
 ) {
-    const otherUserCountKey: 'has_not_mobbed_with_count' | 'has_mobbed_with_count' = `${otherUsersKey}_count`;
+    const otherUserCountKey:
+        | "has_not_mobbed_with_count"
+        | "has_mobbed_with_count" = `${otherUsersKey}_count`;
 
     if (row[otherUserCountKey] === 0) {
         return `
@@ -215,7 +255,7 @@ function renderParticipationButton(
             </form>
         </dialog>
 
-        <fieldset class="flex gap-8" title="Filters">
+        <fieldset class="flex items-start gap-8" title="Filters">
             <label class="flex gap-4 my-4 text-sm items-center font-bold">
                 Name
                 <input
@@ -226,42 +266,70 @@ function renderParticipationButton(
                 />
             </label>
 
-            <div class="relative">
-                <button
-                    class="text-xs absolute right-0 text-blue-500 last-monday-btn"
-                    @click="setStartDateToLastMonday"
-                >
-                    Prior Monday
-                </button>
-                <label class="flex gap-4 my-4 text-sm items-center font-bold">
-                    Start Date
-                    <input
-                        v-model="startDate"
-                        class="max-w-xs border px-2 text-base font-light"
-                        type="date"
-                        name="start-date"
-                    />
-                </label>
-            </div>
+            <section aria-description="date selection">
+                <div class="flex gap-4">
+                    <div class="relative" v-if="fullDisplay">
+                        <button
+                            class="text-xs absolute right-0 text-blue-500"
+                            @click="setStartDateAsFirstDay"
+                        >
+                            First Day
+                        </button>
+                        <label
+                            class="flex gap-4 my-4 text-sm items-center font-bold"
+                        >
+                            Start Date
+                            <input
+                                v-model="startDate"
+                                class="max-w-xs border px-2 text-base font-light"
+                                type="date"
+                                name="start-date"
+                            />
+                        </label>
+                    </div>
 
-            <div class="relative">
-                <button
-                    class="text-xs absolute right-0 text-blue-500 last-monday-btn"
-                    @click="setEndDateAsToday"
-                >
-                    Today
-                </button>
-                <label class="flex gap-4 my-4 text-sm items-center font-bold">
-                    End Date
-                    <input
-                        v-model="endDate"
-                        class="max-w-xs border px-2 text-base font-light"
-                        type="date"
-                        name="end-date"
-                    />
-                </label>
-            </div>
+                    <div class="relative" v-if="fullDisplay">
+                        <button
+                            class="text-xs absolute right-0 text-blue-500"
+                            @click="setEndDateAsToday"
+                        >
+                            Today
+                        </button>
+                        <label
+                            class="flex gap-4 my-4 text-sm items-center font-bold"
+                        >
+                            End Date
+                            <input
+                                v-model="endDate"
+                                class="max-w-xs border px-2 text-base font-light"
+                                type="date"
+                                name="end-date"
+                            />
+                        </label>
+                    </div>
+                </div>
 
+                <div class="flex items-end gap-2 mb-4">
+                    <button
+                        class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                        @click="setThisWeekDateRange"
+                    >
+                        This Week
+                    </button>
+                    <button
+                        class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                        @click="setThisMonthDateRange"
+                    >
+                        This Month
+                    </button>
+                    <button
+                        class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                        @click="setAllTimeDateRange"
+                    >
+                        All Time
+                    </button>
+                </div>
+            </section>
         </fieldset>
 
         <table-lite
