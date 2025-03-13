@@ -10,14 +10,25 @@ import { DateTime } from "../classes/DateTime";
 
 describe("Statistics", () => {
     let mockBackend: MockAdapter;
+    let localStorageMock: { [key: string]: string } = {};
 
     beforeEach(() => {
         mockBackend = new MockAdapter(axios);
         location.search = "full-display";
+
+        localStorageMock = {};
+        Storage.prototype.getItem = vi.fn((key) => localStorageMock[key] || null);
+        Storage.prototype.setItem = vi.fn((key, value) => {
+            localStorageMock[key] = value.toString();
+        });
+        Storage.prototype.removeItem = vi.fn((key) => {
+            delete localStorageMock[key];
+        });
     });
 
     afterEach(() => {
         mockBackend.restore();
+        vi.restoreAllMocks();
     });
 
     test("renders statistics provided by the backend", async () => {
@@ -78,14 +89,140 @@ describe("Statistics", () => {
         expect(wrapper.text()).not.toContain("John Doe");
     });
 
+    describe("Filter list functionality", () => {
+        test("allows adding names to the filter list", async () => {
+            mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
+
+            const wrapper = mount(Statistics);
+            await flushPromises();
+
+            await wrapper.find("input[type=text][name=filter-by-name]").setValue("Geoffrey");
+            await wrapper.findAll("button").filter(btn => btn.text() === "Apply").at(0).trigger("click");
+            await flushPromises();
+
+            expect(wrapper.text()).toContain("Geoffrey");
+
+            expect(wrapper.find("input[type=text][name=filter-by-name]").element.value).toBe("");
+        });
+
+        test("allows removing names from the filter list", async () => {
+            mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
+
+            const wrapper = mount(Statistics);
+            await flushPromises();
+
+            await wrapper.find("input[type=text][name=filter-by-name]").setValue("Geoffrey");
+            await wrapper.findAll("button").filter(btn => btn.text() === "Apply").at(0).trigger("click");
+            await flushPromises();
+
+            expect(wrapper.text()).toContain("Geoffrey");
+
+            await wrapper.find("button.text-red-500").trigger("click");
+            await flushPromises();
+
+            expect(wrapper.find("li.opacity-25").exists()).toBe(true);
+            expect(wrapper.find("li.opacity-25").text()).toContain("-- Empty --");
+        });
+
+        test("allows clearing the entire filter list", async () => {
+            mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
+
+            const wrapper = mount(Statistics);
+            await flushPromises();
+
+            await wrapper.find("input[type=text][name=filter-by-name]").setValue("Geoffrey");
+            await wrapper.findAll("button").filter(btn => btn.text() === "Apply").at(0).trigger("click");
+            await wrapper.find("input[type=text][name=filter-by-name]").setValue("Isaiah");
+            await wrapper.findAll("button").filter(btn => btn.text() === "Apply").at(0).trigger("click");
+            await flushPromises();
+
+            expect(wrapper.text()).toContain("Geoffrey");
+            expect(wrapper.text()).toContain("Isaiah");
+
+            await wrapper.findAll("button").filter(btn => btn.text() === "Clear").at(0).trigger("click");
+            await flushPromises();
+
+            expect(wrapper.find("section[aria-description=Filter by list]").text()).toContain("-- Empty --");
+        });
+
+        test("filters the table based on the filter list when checkbox is checked", async () => {
+            const payload = {
+                start_date: exampleStatisticsResponse.start_date,
+                end_date: exampleStatisticsResponse.end_date,
+                users: [
+                    { ...exampleStatisticsResponse.users[0], name: "Geoffrey Simonis" },
+                    { ...exampleStatisticsResponse.users[1], name: "Isaiah Kutch" },
+                    { ...exampleStatisticsResponse.users[2], name: "Carroll King" }
+                ]
+            };
+
+            mockBackend.onGet(/statistics.*/).reply(200, payload);
+
+            const wrapper = mount(Statistics);
+            await flushPromises();
+
+            expect(wrapper.text()).toContain("Geoffrey Simonis");
+            expect(wrapper.text()).toContain("Isaiah Kutch");
+            expect(wrapper.text()).toContain("Carroll King");
+
+            await wrapper.find("input[type=text][name=filter-by-name]").setValue("Geoffrey");
+            await wrapper.findAll("button").filter(btn => btn.text() === "Apply").at(0).trigger("click");
+            await flushPromises();
+
+            await wrapper.find("input[type=checkbox]").setValue(true);
+            await flushPromises();
+
+            expect(wrapper.text()).toContain("Geoffrey Simonis");
+            expect(wrapper.text()).not.toContain("Isaiah Kutch");
+            expect(wrapper.text()).not.toContain("Carroll King");
+        });
+
+        test("saves filter settings to localStorage", async () => {
+            mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
+
+            const wrapper = mount(Statistics);
+            await flushPromises();
+
+            await wrapper.find("input[type=text][name=filter-by-name]").setValue("Geoffrey");
+            await wrapper.findAll("button").filter(btn => btn.text() === "Apply").at(0).trigger("click");
+            await flushPromises();
+
+            await wrapper.find("input[type=checkbox]").setValue(true);
+            await flushPromises();
+
+            expect(localStorage.setItem).toHaveBeenCalled();
+            expect(localStorageMock["statistics_filter"]).toBeDefined();
+
+            const savedSettings = JSON.parse(localStorageMock["statistics_filter"]);
+            expect(savedSettings.list).toContain("Geoffrey");
+            expect(savedSettings.shouldUseList).toBe(true);
+        });
+
+        test("loads filter settings from localStorage on component mount", async () => {
+            const filterSettings = {
+                list: ["Geoffrey", "Isaiah"],
+                shouldUseList: true
+            };
+            localStorageMock["statistics_filter"] = JSON.stringify(filterSettings);
+
+            mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
+
+            const wrapper = mount(Statistics);
+            await flushPromises();
+
+            expect(wrapper.text()).toContain("Geoffrey");
+            expect(wrapper.text()).toContain("Isaiah");
+
+            expect(wrapper.find("input[type=checkbox]").element.checked).toBe(true);
+        });
+    });
+
     describe("Date range buttons", () => {
         beforeEach(() => {
-            // Set a fixed date for testing (Thursday, March 13, 2025)
             DateTime.setTestNow("2025-03-13");
         });
 
         afterEach(() => {
-            // Reset the date after each test
             DateTime.setTestNow(new Date().toISOString());
         });
 
@@ -109,17 +246,13 @@ describe("Statistics", () => {
                 "input[type=date][name=end-date]"
             ).element as unknown as HTMLInputElement;
 
-            // Should set start date to Monday of this week (March 10, 2025)
             expect(startDateInput.value).toBe("2025-03-10");
-            // Should set end date to today (March 13, 2025)
             expect(endDateInput.value).toBe("2025-03-13");
 
-            // Should update statistics
             expect(mockBackend.history.get.length).toBeGreaterThan(1);
         });
 
         test("'This Week' button sets both start and end date to today when today is Monday", async () => {
-            // Set today to a Monday (March 10, 2025)
             DateTime.setTestNow("2025-03-10");
 
             mockBackend
@@ -141,16 +274,13 @@ describe("Statistics", () => {
                 "input[type=date][name=end-date]"
             ).element as unknown as HTMLInputElement;
 
-            // Both start date and end date should be set to today (March 10, 2025)
             expect(startDateInput.value).toBe("2025-03-10");
             expect(endDateInput.value).toBe("2025-03-10");
 
-            // Should update statistics
             expect(mockBackend.history.get.length).toBeGreaterThan(1);
         });
 
         test("'This Month' button sets date range from first Monday of the month to today", async () => {
-            // Reset to Thursday, March 13, 2025
             DateTime.setTestNow("2025-03-13");
 
             mockBackend
@@ -172,12 +302,9 @@ describe("Statistics", () => {
                 "input[type=date][name=end-date]"
             ).element as unknown as HTMLInputElement;
 
-            // Should set start date to first Monday of month (March 3, 2025)
             expect(startDateInput.value).toBe("2025-03-03");
-            // Should set end date to today (March 13, 2025)
             expect(endDateInput.value).toBe("2025-03-13");
 
-            // Should update statistics
             expect(mockBackend.history.get.length).toBeGreaterThan(1);
         });
 
@@ -188,16 +315,13 @@ describe("Statistics", () => {
             const wrapper = mount(Statistics);
             await flushPromises();
 
-            // First change the start date to something else
             await wrapper
                 .find("input[type=date][name=start-date]")
                 .setValue("2022-01-01");
             await flushPromises();
 
-            // Reset the mock history to have a clean slate
             mockBackend.resetHistory();
 
-            // Now click the All Time button
             await wrapper
                 .findAll("button")
                 .find((btn) => btn.text() === "All Time")
@@ -211,12 +335,9 @@ describe("Statistics", () => {
                 "input[type=date][name=end-date]"
             ).element as unknown as HTMLInputElement;
 
-            // Should set start date to May 21, 2020
             expect(startDateInput.value).toBe("2020-05-21");
-            // Should set end date to today (March 13, 2025)
             expect(endDateInput.value).toBe("2025-03-13");
 
-            // Should have made an API call
             expect(mockBackend.history.get.length).toBeGreaterThan(0);
             expect(mockBackend.history.get[0].url).toContain(
                 "start_date=2020-05-21"
