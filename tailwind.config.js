@@ -9,8 +9,10 @@ module.exports = {
         extend: {
             colors: {
                 vehikl: {
-                    DEFAULT: '#dd5f13',
-                    orange: '#dd5f13'
+                    primary:'#111827',
+                    secondary:'#D95D13',
+                    DEFAULT: '#D95D13',
+                    orange: '#D95D13'
                 }
             },
             spacing: {

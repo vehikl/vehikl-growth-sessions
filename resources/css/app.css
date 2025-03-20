@@ -1,11 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import './vue-select.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
 .break-words-fixed {
     word-break: break-word;
     overflow-wrap: break-word;
+}
+
+body {
+    font-family: "Inter", serif;
 }
