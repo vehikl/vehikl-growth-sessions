@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import TableLite from "vue3-table-lite/ts";
-import {computed, onBeforeMount, reactive, ref, watch} from "vue";
+import { computed, onBeforeMount, reactive, ref, watch } from "vue";
 import axios from "axios";
-import {IStatistics, IUserStatistics} from "../types";
-import {DateTime} from "../classes/DateTime";
+import { IStatistics, IUserStatistics } from "../types";
+import { DateTime } from "../classes/DateTime";
 
 type ColumnType = {
     label: string;
@@ -14,7 +14,18 @@ type ColumnType = {
     display?: (row: IUserStatistics) => void;
 };
 
-const fullDisplay = location.search.includes('full-display');
+type Filter = {
+    name: string;
+    list: string[];
+    shouldUseList: boolean;
+};
+
+type FilterStorage = {
+    list: string[];
+    shouldUseList: boolean;
+};
+
+const fullDisplay = location.search.includes("full-display");
 
 const participationCountColumns: ColumnType[] = [
     {
@@ -40,14 +51,14 @@ const participationCountColumns: ColumnType[] = [
         field: "total_sessions_count",
         width: "15%",
         sortable: true,
-    }
+    },
 ];
 
 const extraColumns = fullDisplay ? participationCountColumns : [];
 
 const columns: ColumnType[] = [
-    {label: "ID", field: "user_id", width: "3%", sortable: true, isKey: true},
-    {label: "Name", field: "name", width: "10%", sortable: true},
+    { label: "ID", field: "user_id", width: "3%", sortable: true, isKey: true },
+    { label: "Name", field: "name", width: "10%", sortable: true },
     {
         label: "Yet to Mob With",
         field: "has_not_mobbed_with_count",
@@ -59,30 +70,106 @@ const columns: ColumnType[] = [
     ...extraColumns,
 ];
 
-const startDate = ref<string | null>(new DateTime("2020-05-21").toDateString());
+const FIRST_DAY = "2020-05-21";
+const startDate = ref<string | null>(new DateTime(FIRST_DAY).toDateString());
 const endDate = ref<string | null>(new DateTime().toDateString());
-const name = ref<string>("");
+
+// Single localStorage key for filter settings
+const FILTER_STORAGE_KEY = "statistics_filter";
+
+// Load initial values from localStorage
+const getStoredFilterSettings = (): FilterStorage => {
+    try {
+        const storedSettings = localStorage.getItem(FILTER_STORAGE_KEY);
+        if (storedSettings) {
+            return JSON.parse(storedSettings);
+        }
+    } catch (e) {
+        console.error("Error loading filter settings from localStorage:", e);
+    }
+
+    // Default values if nothing is stored or there's an error
+    return {
+        list: [],
+        shouldUseList: false,
+    };
+};
+
+// Initialize filter with stored settings
+const storedSettings = getStoredFilterSettings();
+const filter = reactive<Filter>({
+    name: "",
+    list: storedSettings.list,
+    shouldUseList: storedSettings.shouldUseList,
+});
+
+// Save filter settings to localStorage
+const saveFilterSettings = () => {
+    try {
+        const settings: FilterStorage = {
+            list: filter.list,
+            shouldUseList: filter.shouldUseList,
+        };
+        localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(settings));
+    } catch (e) {
+        console.error("Error saving filter settings to localStorage:", e);
+    }
+};
+
+// Watch for changes to filter settings and save to localStorage
+watch([() => filter.list, () => filter.shouldUseList], saveFilterSettings, {
+    deep: true,
+});
+
+const rows = computed(() => {
+    if (!filter.shouldUseList || filter.list.length === 0) {
+        return allData.value.filter((row) =>
+            row.name.toLowerCase().includes(filter.name.toLowerCase())
+        );
+    }
+
+    return allData.value
+        .filter((row) =>
+            filter.list.some((nameToFilterFor) =>
+                row.name.toLowerCase().includes(nameToFilterFor.toLowerCase())
+            )
+        )
+        .filter((row) =>
+            row.name.toLowerCase().includes(filter.name.toLowerCase())
+        );
+});
+
 const allData = ref<IUserStatistics[]>([]);
 const dialogData = reactive<{ title: string; userNames: string[] }>({
     title: "You have mobbed with",
     userNames: [],
 });
 
+const addNameToFilter = () => {
+    if (filter.name.trim() && !filter.list.includes(filter.name.trim())) {
+        filter.list.push(filter.name.trim());
+        filter.name = "";
+    }
+};
+
+const removeNameFromFilter = (nameToRemove: string) => {
+    filter.list = filter.list.filter((name) => name !== nameToRemove);
+};
+
+const clearFilterList = () => {
+    filter.list = [];
+};
+
 const table = reactive({
     isLoading: true,
     columns,
-    rows: computed(() =>
-        allData.value.filter((row) =>
-            row.name.toLowerCase().includes(name.value.toLowerCase())
-        )
-    ),
+    rows,
     sortable: {
         order: "name",
         sort: "asc",
     },
     totalRecordCount: computed(() => table.rows.length),
 });
-
 const apiQuery = computed<string>(() => {
     const query = new URLSearchParams();
     if (startDate.value) {
@@ -155,15 +242,54 @@ function setStartDateToLastMonday() {
     startDate.value = lastMonday.toDateString();
 }
 
+function setStartDateAsFirstDay() {
+    startDate.value = new DateTime(FIRST_DAY).toDateString();
+}
+
 function setEndDateAsToday() {
     endDate.value = new DateTime().toDateString();
 }
 
+function setThisWeekDateRange() {
+    setEndDateAsToday();
+    setStartDateToLastMonday();
+}
+
+function setThisMonthDateRange() {
+    setEndDateAsToday();
+
+    // Get the first day of the current month
+    const today = new DateTime();
+    const firstDayOfMonth = new DateTime(today.format("YYYY-MM-01"));
+
+    // Calculate the first Monday of the month
+    const firstDayWeekday = firstDayOfMonth.weekDayNumber();
+    const daysToAdd = firstDayWeekday === 1 ? 0 : (8 - firstDayWeekday) % 7;
+    const firstMondayOfMonth = firstDayOfMonth.addDays(daysToAdd);
+
+    // If the first Monday is after today, go back to the previous month's last Monday
+    if (
+        daysToAdd > 0 &&
+        firstMondayOfMonth.toDateString() > today.toDateString()
+    ) {
+        setStartDateToLastMonday();
+    } else {
+        startDate.value = firstMondayOfMonth.toDateString();
+    }
+}
+
+function setAllTimeDateRange() {
+    setEndDateAsToday();
+    setStartDateAsFirstDay();
+}
+
 function renderParticipationButton(
     row: IUserStatistics,
-    otherUsersKey: 'has_not_mobbed_with' | 'has_mobbed_with'
+    otherUsersKey: "has_not_mobbed_with" | "has_mobbed_with"
 ) {
-    const otherUserCountKey: 'has_not_mobbed_with_count' | 'has_mobbed_with_count' = `${otherUsersKey}_count`;
+    const otherUserCountKey:
+        | "has_not_mobbed_with_count"
+        | "has_mobbed_with_count" = `${otherUsersKey}_count`;
 
     if (row[otherUserCountKey] === 0) {
         return `
@@ -215,53 +341,131 @@ function renderParticipationButton(
             </form>
         </dialog>
 
-        <fieldset class="flex gap-8" title="Filters">
-            <label class="flex gap-4 my-4 text-sm items-center font-bold">
-                Name
-                <input
-                    v-model="name"
-                    class="max-w-xs border px-2 text-base font-light"
-                    name="filter-by-name"
-                    type="text"
-                />
-            </label>
-
-            <div class="relative">
-                <button
-                    class="text-xs absolute right-0 text-blue-500 last-monday-btn"
-                    @click="setStartDateToLastMonday"
-                >
-                    Prior Monday
-                </button>
+        <fieldset title="Filters">
+            <section
+                class="flex items-start gap-8"
+                aria-description="Filter by Name and Date"
+            >
                 <label class="flex gap-4 my-4 text-sm items-center font-bold">
-                    Start Date
+                    Name
                     <input
-                        v-model="startDate"
+                        v-model="filter.name"
+                        @keydown.enter.prevent="addNameToFilter"
                         class="max-w-xs border px-2 text-base font-light"
-                        type="date"
-                        name="start-date"
+                        name="filter-by-name"
+                        type="text"
                     />
+                    <button
+                        @click="addNameToFilter"
+                        class="border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                    >
+                        Apply
+                    </button>
                 </label>
-            </div>
 
-            <div class="relative">
-                <button
-                    class="text-xs absolute right-0 text-blue-500 last-monday-btn"
-                    @click="setEndDateAsToday"
-                >
-                    Today
-                </button>
-                <label class="flex gap-4 my-4 text-sm items-center font-bold">
-                    End Date
-                    <input
-                        v-model="endDate"
-                        class="max-w-xs border px-2 text-base font-light"
-                        type="date"
-                        name="end-date"
-                    />
-                </label>
-            </div>
+                <section aria-description="date selection">
+                    <div class="flex gap-4">
+                        <div class="relative" v-if="fullDisplay">
+                            <button
+                                class="text-xs absolute right-0 text-blue-500"
+                                @click="setStartDateAsFirstDay"
+                            >
+                                First Day
+                            </button>
+                            <label
+                                class="flex gap-4 my-4 text-sm items-center font-bold"
+                            >
+                                Start Date
+                                <input
+                                    v-model="startDate"
+                                    class="max-w-xs border px-2 text-base font-light"
+                                    type="date"
+                                    name="start-date"
+                                />
+                            </label>
+                        </div>
 
+                        <div class="relative" v-if="fullDisplay">
+                            <button
+                                class="text-xs absolute right-0 text-blue-500"
+                                @click="setEndDateAsToday"
+                            >
+                                Today
+                            </button>
+                            <label
+                                class="flex gap-4 my-4 text-sm items-center font-bold"
+                            >
+                                End Date
+                                <input
+                                    v-model="endDate"
+                                    class="max-w-xs border px-2 text-base font-light"
+                                    type="date"
+                                    name="end-date"
+                                />
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex items-end gap-2 mb-4">
+                        <button
+                            class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                            @click="setThisWeekDateRange"
+                        >
+                            This Week
+                        </button>
+                        <button
+                            class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                            @click="setThisMonthDateRange"
+                        >
+                            This Month
+                        </button>
+                        <button
+                            class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                            @click="setAllTimeDateRange"
+                        >
+                            All Time
+                        </button>
+                    </div>
+                </section>
+            </section>
+
+            <section aria-description="Filter by list" class="my-4">
+                <div class="flex gap-4">
+                    <label>
+                        Apply List to Filter
+                        <input type="checkbox" v-model="filter.shouldUseList" />
+                    </label>
+
+                    <button
+                        class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                        @click="clearFilterList"
+                    >
+                        Clear
+                    </button>
+                </div>
+
+                <ul class="mt-2 border border-gray-200 p-2 w-full">
+                    <li
+                        v-if="filter.list.length === 0"
+                        class="opacity-25 text-center"
+                    >
+                        -- Empty --
+                    </li>
+                    <li
+                        v-for="(selectedName, index) in filter.list"
+                        :key="index"
+                        class="inline-flex min-w-[5rem] mx-4 flex-wrap items-center mb-1 border-r"
+                    >
+                        <span>{{ selectedName }}</span>
+                        <button
+                            @click="removeNameFromFilter(selectedName)"
+                            class="text-red-500 hover:text-red-700 ml-2"
+                        >
+                            ×
+                        </button>
+                    </li>
+                </ul>
+            </section>
         </fieldset>
 
         <table-lite
