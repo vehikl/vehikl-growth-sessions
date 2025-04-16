@@ -14,15 +14,11 @@ type ColumnType = {
     display?: (row: IUserStatistics) => void;
 };
 
-type Filter = {
-    name: string;
+type Settings = {
     list: string[];
     shouldUseList: boolean;
-};
-
-type FilterStorage = {
-    list: string[];
-    shouldUseList: boolean;
+    startDate?: string;
+    endDate?: string;
 };
 
 const fullDisplay = location.search.includes("full-display");
@@ -74,11 +70,61 @@ const FIRST_DAY = "2020-05-21";
 const startDate = ref<string | null>(new DateTime(FIRST_DAY).toDateString());
 const endDate = ref<string | null>(new DateTime().toDateString());
 
-// Single localStorage key for filter settings
 const FILTER_STORAGE_KEY = "statistics_filter";
 
-// Load initial values from localStorage
-const getStoredFilterSettings = (): FilterStorage => {
+const serializeSettings = () => {
+    const settings: Settings = {
+        list: filter.list,
+        shouldUseList: filter.shouldUseList,
+        startDate: startDate.value,
+        endDate: endDate.value,
+    };
+
+    return btoa(JSON.stringify(settings));
+};
+
+const deserializeSettings = (settingsStr: string): Settings => {
+    try {
+        return JSON.parse(atob(settingsStr));
+    } catch (e) {
+        console.error("Error parsing settings from URL:", e);
+        return getDefaultSettings();
+    }
+};
+
+const generateShareableUrl = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("settings", serializeSettings());
+
+    if (fullDisplay && !url.searchParams.has("full-display")) {
+        url.searchParams.set("full-display", "");
+    }
+
+    return url.toString();
+};
+
+const shareUrl = () => {
+    const url = generateShareableUrl();
+    navigator.clipboard
+        .writeText(url)
+        .then(() => {
+            alert("URL copied to clipboard!");
+        })
+        .catch((err) => {
+            console.error("Could not copy URL: ", err);
+        });
+};
+
+function getDefaultSettings() {
+    return {
+        list: [],
+        shouldUseList: false,
+        startDate: new DateTime(FIRST_DAY).toDateString(),
+        endDate: new DateTime().toDateString(),
+    };
+}
+
+function getSettingsFromLocalStorage(): Settings {
     try {
         const storedSettings = localStorage.getItem(FILTER_STORAGE_KEY);
         if (storedSettings) {
@@ -88,25 +134,43 @@ const getStoredFilterSettings = (): FilterStorage => {
         console.error("Error loading filter settings from localStorage:", e);
     }
 
-    // Default values if nothing is stored or there's an error
-    return {
-        list: [],
-        shouldUseList: false,
-    };
+    return getDefaultSettings();
+}
+
+const getFilterSettings = (): Settings => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const settingsParam = urlParams.get("settings");
+
+    if (settingsParam) {
+        try {
+            const settings = deserializeSettings(settingsParam);
+
+            if (settings.startDate) {
+                startDate.value = settings.startDate;
+            }
+            if (settings.endDate) {
+                endDate.value = settings.endDate;
+            }
+
+            return settings;
+        } catch (e) {
+            console.error("Error loading settings from URL:", e);
+        }
+    }
+
+    return getSettingsFromLocalStorage();
 };
 
-// Initialize filter with stored settings
-const storedSettings = getStoredFilterSettings();
-const filter = reactive<Filter>({
+const initialSettings = getFilterSettings();
+const filter = reactive({
     name: "",
-    list: storedSettings.list,
-    shouldUseList: storedSettings.shouldUseList,
+    list: initialSettings.list,
+    shouldUseList: initialSettings.shouldUseList,
 });
 
-// Save filter settings to localStorage
 const saveFilterSettings = () => {
     try {
-        const settings: FilterStorage = {
+        const settings: Settings = {
             list: filter.list,
             shouldUseList: filter.shouldUseList,
         };
@@ -116,7 +180,6 @@ const saveFilterSettings = () => {
     }
 };
 
-// Watch for changes to filter settings and save to localStorage
 watch([() => filter.list, () => filter.shouldUseList], saveFilterSettings, {
     deep: true,
 });
@@ -158,6 +221,12 @@ const removeNameFromFilter = (nameToRemove: string) => {
 
 const clearFilterList = () => {
     filter.list = [];
+
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("settings")) {
+        url.searchParams.delete("settings");
+        window.history.replaceState({}, "", url);
+    }
 };
 
 const table = reactive({
@@ -201,7 +270,7 @@ async function fetchStatistics() {
     table.isLoading = false;
 }
 
-function displayAlertHandler(event: Event) {
+function displayAlertHandler(this: HTMLElement, event: Event) {
     event.stopPropagation();
     const dialog = document.getElementById(
         "participation-names"
@@ -222,9 +291,9 @@ function displayAlertHandler(event: Event) {
     dialog.showModal();
 }
 
-function tableLoadingFinish(elements) {
+function tableLoadingFinish(elements: HTMLElement[]) {
     table.isLoading = false;
-    Array.prototype.forEach.call(elements, function (element) {
+    Array.prototype.forEach.call(elements, function (element: HTMLElement) {
         if (element.getAttribute("data-type") === "alert-button") {
             element.removeEventListener("click", displayAlertHandler);
             element.addEventListener("click", displayAlertHandler);
@@ -286,7 +355,7 @@ function setAllTimeDateRange() {
 function renderParticipationButton(
     row: IUserStatistics,
     otherUsersKey: "has_not_mobbed_with" | "has_mobbed_with"
-) {
+): string {
     const otherUserCountKey:
         | "has_not_mobbed_with_count"
         | "has_mobbed_with_count" = `${otherUsersKey}_count`;
@@ -429,7 +498,11 @@ function renderParticipationButton(
                 </section>
             </section>
 
-            <section aria-description="Filter by list" class="my-4" v-if="fullDisplay">
+            <section
+                aria-description="Filter by list"
+                class="my-4"
+                v-if="fullDisplay"
+            >
                 <div class="flex gap-4">
                     <label>
                         Apply List to Filter
@@ -441,6 +514,14 @@ function renderParticipationButton(
                         @click="clearFilterList"
                     >
                         Clear
+                    </button>
+
+                    <button
+                        class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                        @click="shareUrl"
+                        title="Copy shareable URL to clipboard"
+                    >
+                        Share URL
                     </button>
                 </div>
 
