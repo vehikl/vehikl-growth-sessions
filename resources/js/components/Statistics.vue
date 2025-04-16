@@ -343,7 +343,7 @@ function renderParticipationButton(
 
         <fieldset title="Filters">
             <section
-                class="flex items-start gap-8"
+                class="flex items-start gap-48"
                 aria-description="Filter by Name and Date"
             >
                 <label class="flex gap-4 my-4 text-sm items-center font-bold">
@@ -363,9 +363,9 @@ function renderParticipationButton(
                     </button>
                 </label>
 
-                <section aria-description="date selection">
+                <section aria-description="date selection" v-if="fullDisplay">
                     <div class="flex gap-4">
-                        <div class="relative" v-if="fullDisplay">
+                        <div class="relative">
                             <button
                                 class="text-xs absolute right-0 text-blue-500"
                                 @click="setStartDateAsFirstDay"
@@ -429,7 +429,7 @@ function renderParticipationButton(
                 </section>
             </section>
 
-            <section aria-description="Filter by list" class="my-4">
+            <section aria-description="Filter by list" class="my-4" v-if="fullDisplay">
                 <div class="flex gap-4">
                     <label>
                         Apply List to Filter
