@@ -14,16 +14,12 @@ type ColumnType = {
     display?: (row: IUserStatistics) => void;
 };
 
-type Filter = {
-    name: string;
-    list: string[];
+type Settings = {
+    list: string[],
     shouldUseList: boolean;
-};
-
-type FilterStorage = {
-    list: string[];
-    shouldUseList: boolean;
-};
+    startDate?: string;
+    endDate?: string;
+}
 
 const fullDisplay = location.search.includes("full-display");
 
@@ -77,20 +73,22 @@ const endDate = ref<string | null>(new DateTime().toDateString());
 const FILTER_STORAGE_KEY = "statistics_filter";
 
 const serializeSettings = () => {
-    const settings = {
+    const settings: Settings = {
         list: filter.list,
         shouldUseList: filter.shouldUseList,
+        startDate: startDate.value,
+        endDate: endDate.value,
     };
 
     return btoa(JSON.stringify(settings));
 };
 
-const deserializeSettings = (settingsStr) => {
+const deserializeSettings = (settingsStr: string): Settings => {
     try {
         return JSON.parse(atob(settingsStr));
     } catch (e) {
         console.error("Error parsing settings from URL:", e);
-        return { list: [], shouldUseList: false };
+        return getDefaultSettings();
     }
 };
 
@@ -117,18 +115,16 @@ const shareUrl = () => {
         });
 };
 
-const getFilterSettings = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const settingsParam = urlParams.get("settings");
+function getDefaultSettings() {
+    return {
+        list: [],
+        shouldUseList: false,
+        startDate: new DateTime(FIRST_DAY).toDateString(),
+        endDate: new DateTime().toDateString()
+    };
+}
 
-    if (settingsParam) {
-        try {
-            return deserializeSettings(settingsParam);
-        } catch (e) {
-            console.error("Error loading settings from URL:", e);
-        }
-    }
-
+function getSettingsFromLocalStorage(): Settings {
     try {
         const storedSettings = localStorage.getItem(FILTER_STORAGE_KEY);
         if (storedSettings) {
@@ -138,10 +134,31 @@ const getFilterSettings = () => {
         console.error("Error loading filter settings from localStorage:", e);
     }
 
-    return {
-        list: [],
-        shouldUseList: false,
-    };
+    return getDefaultSettings();
+}
+
+const getFilterSettings = (): Settings => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const settingsParam = urlParams.get("settings");
+
+    if (settingsParam) {
+        try {
+            const settings = deserializeSettings(settingsParam);
+
+            if (settings.startDate) {
+                startDate.value = settings.startDate;
+            }
+            if (settings.endDate) {
+                endDate.value = settings.endDate;
+            }
+
+            return settings;
+        } catch (e) {
+            console.error("Error loading settings from URL:", e);
+        }
+    }
+
+    return getSettingsFromLocalStorage();
 };
 
 const initialSettings = getFilterSettings();
@@ -153,7 +170,7 @@ const filter = reactive({
 
 const saveFilterSettings = () => {
     try {
-        const settings: FilterStorage = {
+        const settings: Settings = {
             list: filter.list,
             shouldUseList: filter.shouldUseList,
         };
