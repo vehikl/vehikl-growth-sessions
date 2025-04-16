@@ -15,11 +15,11 @@ type ColumnType = {
 };
 
 type Settings = {
-    list: string[],
+    list: string[];
     shouldUseList: boolean;
     startDate?: string;
     endDate?: string;
-}
+};
 
 const fullDisplay = location.search.includes("full-display");
 
@@ -120,7 +120,7 @@ function getDefaultSettings() {
         list: [],
         shouldUseList: false,
         startDate: new DateTime(FIRST_DAY).toDateString(),
-        endDate: new DateTime().toDateString()
+        endDate: new DateTime().toDateString(),
     };
 }
 
@@ -221,6 +221,12 @@ const removeNameFromFilter = (nameToRemove: string) => {
 
 const clearFilterList = () => {
     filter.list = [];
+
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("settings")) {
+        url.searchParams.delete("settings");
+        window.history.replaceState({}, "", url);
+    }
 };
 
 const table = reactive({
