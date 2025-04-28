@@ -4,29 +4,43 @@
     "scripts": {
         "build": "vite build",
         "build:ssr": "vite build && vite build --ssr",
+        "prod": "vite build",
         "dev": "vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
-        "lint": "eslint . --fix"
+        "lint": "eslint . --fix",
+        "test": "TZ=America/Toronto vitest --run",
+        "test:ci": "LARAVEL_BYPASS_ENV_CHECK=1 TZ=America/Toronto vitest --run"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
         "@types/node": "^22.13.5",
         "@vue/eslint-config-typescript": "^14.3.0",
+        "@vue/test-utils": "^2.4.6",
+        "axios-mock-adapter": "^2.1.0",
         "eslint": "^9.17.0",
         "eslint-config-prettier": "^10.0.1",
         "eslint-plugin-vue": "^9.32.0",
+        "flush-promises": "^1.0.2",
+        "happy-dom": "^17.4.6",
+        "moment": "^2.30.1",
+        "moment-timezone": "^0.5.48",
         "prettier": "^3.4.2",
         "prettier-plugin-organize-imports": "^4.1.0",
         "prettier-plugin-tailwindcss": "^0.6.11",
+        "sass-embedded": "^1.87.0",
         "typescript-eslint": "^8.23.0",
+        "vitest": "^3.1.3",
         "vue-tsc": "^2.2.4"
     },
     "dependencies": {
+        "@inertiajs/core": "^2.0.8",
         "@inertiajs/vue3": "^2.0.0-beta.3",
         "@tailwindcss/vite": "^4.1.1",
         "@vitejs/plugin-vue": "^5.2.1",
+        "@vueform/multiselect": "^2.6.11",
         "@vueuse/core": "^12.8.2",
+        "axios": "^1.9.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "concurrently": "^9.0.1",
@@ -40,6 +54,8 @@
         "typescript": "^5.2.2",
         "vite": "^6.2.0",
         "vue": "^3.5.13",
+        "vue3-table-lite": "^1.4.3",
+        "vuedraggable": "^2.24.3",
         "ziggy-js": "^2.4.2"
     },
     "optionalDependencies": {

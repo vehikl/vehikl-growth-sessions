@@ -1,0 +1,51 @@
+name: tests
+
+on: [ workflow_call, pull_request ]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql_test:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: growth
+          MYSQL_USER: laravel
+          MYSQL_PASSWORD: secret
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - uses: actions/checkout@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: '18.13.0'
+      - name: Install pnpm
+        run: npm i -g pnpm
+      - name: Install Javascript Dependencies
+        run: pnpm i
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Generate key
+        run: php artisan key:generate
+      - name: Execute Frontend tests
+        run: pnpm test:ci
+      - name: Build Javascript
+        run: pnpm prod
+      - name: Wait for MySQL to be ready
+        run: sudo apt-get install -y mysql-client && until mysql -h 127.0.0.1 -u laravel -psecret -e "show databases;" > /dev/null 2>&1; do sleep 1; done
+      - name: Execute tests (Unit and Feature tests) via PHPUnit
+        run: php artisan test --parallel --configuration=phpunit.ci.xml

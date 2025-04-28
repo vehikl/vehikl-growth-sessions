@@ -2,43 +2,42 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
+    protected $model = User::class;
+    protected static $defaultPassowrd = '';
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
+    public function vehiklMember(bool $vehiklMember = true): static
+    {
+        return $this->state([
+            'is_vehikl_member' => $vehiklMember
+        ]);
+    }
+
+    public function definition()
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'name' => $this->faker->name,
+            'github_nickname' => $this->faker->userName,
+            'avatar' => "https://i.pravatar.cc/50?u={$this->faker->numberBetween()}",
+            'password' => self::getDefaultPassword(),
             'remember_token' => Str::random(10),
+            'is_vehikl_member' => false,
+            'is_visible_in_statistics' => true,
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
+    public static function getDefaultPassword(): string
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        if (!static::$defaultPassowrd) {
+            static::$defaultPassowrd = Hash::make('password');
+        }
+
+        return static::$defaultPassowrd;
     }
 }

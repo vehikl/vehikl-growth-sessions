@@ -112,4 +112,9 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    'slack_token' => env('SLACK_APP_BEARER_TOKEN'),
+    'slack_app_email' => 'slack.social_mob@vehikl.com',
+    'slack_app_name' => 'slack',
+
+    'vehikl_names' => ['go-vehikl', 'vehikl', 'vehikl-morning-mob'],
 ];

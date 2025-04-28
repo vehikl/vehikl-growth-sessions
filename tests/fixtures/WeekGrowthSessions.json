@@ -1,0 +1,212 @@
+{
+    "2020-01-13": [
+        {
+            "id": 1,
+            "owner_id": 1,
+            "is_public": true,
+            "allow_watchers": true,
+            "topic": "Ex eius sint dicta vel.",
+            "location": "At AnyDesk XYZ - abcdefg",
+            "discord_channel_id": null,
+            "date": "2020-01-13",
+            "start_time": "03:30 pm",
+            "end_time": "05:00 pm",
+            "created_at": "2020-01-15T05:00:00.000000Z",
+            "updated_at": "2020-01-15T05:00:00.000000Z",
+            "title": "Voluptas vel distinctio est quos molestiae dolor ex.",
+            "attendee_limit": null,
+            "owner": {
+                "id": 1,
+                "github_nickname": "owner1",
+                "name": "Stephan Klocko",
+                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/1475344512",
+                "email": "kub.jayne@example.com",
+                "email_verified_at": "2020-01-15T05:00:00.000000Z",
+                "is_vehikl_member": true,
+                "created_at": "2020-01-15T05:00:00.000000Z",
+                "updated_at": "2020-01-15T05:00:00.000000Z"
+            },
+            "attendees": [],
+            "watchers": [],
+            "comments": [],
+            "anydesk": null,
+            "tags": [
+                {
+                    "id": 1,
+                    "name": "foo",
+                    "created_at": "2023-10-12T20:53:43.000000Z",
+                    "updated_at": "2023-10-12T20:53:43.000000Z",
+                    "pivot": {
+                        "growth_session_id": 1,
+                        "tag_id": 1
+                    }
+                },
+                {
+                    "id": 2,
+                    "name": "bar",
+                    "created_at": "2023-10-12T20:53:43.000000Z",
+                    "updated_at": "2023-10-12T20:53:43.000000Z",
+                    "pivot": {
+                        "growth_session_id": 1,
+                        "tag_id": 2
+                    }
+                }
+            ]
+        }
+    ],
+    "2020-01-14": [],
+    "2020-01-15": [
+        {
+            "id": 3,
+            "owner_id": 3,
+            "is_public": true,
+            "allow_watchers": true,
+            "topic": "Consequatur deserunt maiores consectetur quia et ab sit.",
+            "location": "At AnyDesk XYZ - abcdefg",
+            "discord_channel_id": null,
+            "date": "2020-01-15",
+            "start_time": "03:30 pm",
+            "end_time": "05:00 pm",
+            "created_at": "2020-01-15T05:00:00.000000Z",
+            "updated_at": "2020-01-15T05:00:00.000000Z",
+            "title": "Maxime voluptas suscipit voluptatibus et debitis et vero.",
+            "attendee_limit": null,
+            "owner": {
+                "id": 3,
+                "is_vehikl_member": true,
+                "github_nickname": "owner3",
+                "name": "Melody Considine",
+                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/37827441",
+                "email": "trevor81@example.com",
+                "email_verified_at": "2020-01-15T05:00:00.000000Z",
+                "created_at": "2020-01-15T05:00:00.000000Z",
+                "updated_at": "2020-01-15T05:00:00.000000Z"
+            },
+            "attendees": [],
+            "watchers": [],
+            "comments": [],
+            "anydesk": null,
+            "tags": [
+                {
+                    "id": 1,
+                    "name": "foo",
+                    "created_at": "2023-10-12T20:53:43.000000Z",
+                    "updated_at": "2023-10-12T20:53:43.000000Z",
+                    "pivot": {
+                        "growth_session_id": 3,
+                        "tag_id": 1
+                    }
+                },
+                {
+                    "id": 3,
+                    "name": "baz",
+                    "created_at": "2023-10-12T20:53:43.000000Z",
+                    "updated_at": "2023-10-12T20:53:43.000000Z",
+                    "pivot": {
+                        "growth_session_id": 3,
+                        "tag_id": 3
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "owner_id": 2,
+            "is_public": true,
+            "allow_watchers": true,
+            "topic": "Et ut laborum dolore ut et earum rem animi.",
+            "location": "At AnyDesk XYZ - abcdefg",
+            "discord_channel_id": null,
+            "date": "2020-01-15",
+            "start_time": "04:30 pm",
+            "end_time": "05:00 pm",
+            "created_at": "2020-01-15T05:00:00.000000Z",
+            "updated_at": "2020-01-15T05:00:00.000000Z",
+            "title": "Quia minima laboriosam quibusdam sit sunt labore.",
+            "attendee_limit": null,
+            "owner": {
+                "id": 2,
+                "is_vehikl_member": true,
+                "github_nickname": "owner2",
+                "name": "Prof. Katheryn Emard MD",
+                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/569245729",
+                "email": "hand.callie@example.com",
+                "email_verified_at": "2020-01-15T05:00:00.000000Z",
+                "created_at": "2020-01-15T05:00:00.000000Z",
+                "updated_at": "2020-01-15T05:00:00.000000Z"
+            },
+            "attendees": [],
+            "watchers": [],
+            "comments": [],
+            "anydesk": null,
+            "tags": []
+        }
+    ],
+    "2020-01-16": [],
+    "2020-01-17": [
+        {
+            "id": 4,
+            "owner_id": 4,
+            "is_public": true,
+            "allow_watchers": true,
+            "topic": "Voluptatum fugit et illo.",
+            "location": "At AnyDesk XYZ - abcdefg",
+            "discord_channel_id": null,
+            "date": "2020-01-17",
+            "start_time": "03:30 pm",
+            "end_time": "05:00 pm",
+            "created_at": "2020-01-15T05:00:00.000000Z",
+            "updated_at": "2020-01-15T05:00:00.000000Z",
+            "title": "Dolorem architecto occaecati beatae odit quis velit corporis.",
+            "attendee_limit": null,
+            "owner": {
+                "id": 4,
+                "is_vehikl_member": true,
+                "github_nickname": "owner4",
+                "name": "Tamia Thompson",
+                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/2117643461",
+                "email": "qgoldner@example.net",
+                "email_verified_at": "2020-01-15T05:00:00.000000Z",
+                "created_at": "2020-01-15T05:00:00.000000Z",
+                "updated_at": "2020-01-15T05:00:00.000000Z"
+            },
+            "attendees": [],
+            "watchers": [],
+            "comments": [],
+            "anydesk": null,
+            "tags": []
+        },
+        {
+            "id": 5,
+            "owner_id": 4,
+            "is_public": false,
+            "allow_watchers": true,
+            "topic": "Tanto faz",
+            "location": "At AnyDesk XYZ - abcdefg",
+            "discord_channel_id": null,
+            "date": "2020-01-17",
+            "start_time": "07:30 pm",
+            "end_time": "08:00 pm",
+            "created_at": "2020-01-15T05:00:00.000000Z",
+            "updated_at": "2020-01-15T05:00:00.000000Z",
+            "title": "This is a private GS",
+            "attendee_limit": null,
+            "owner": {
+                "id": 4,
+                "is_vehikl_member": true,
+                "github_nickname": "owner4",
+                "name": "Tamia Thompson",
+                "avatar": "https:\/\/api.adorable.io\/avatars\/100\/2117643461",
+                "email": "qgoldner@example.net",
+                "email_verified_at": "2020-01-15T05:00:00.000000Z",
+                "created_at": "2020-01-15T05:00:00.000000Z",
+                "updated_at": "2020-01-15T05:00:00.000000Z"
+            },
+            "attendees": [],
+            "watchers": [],
+            "comments": [],
+            "anydesk": null,
+            "tags": []
+        }
+    ]
+}

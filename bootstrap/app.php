@@ -21,6 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->redirectGuestsTo('/');
+
+        $middleware->alias([
+            'vehikl' => \App\Http\Middleware\VehiklMiddleware::class
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -1,0 +1,117 @@
+{
+    "id": 1,
+    "owner_id": 1,
+    "title": "Anything at all",
+    "topic": "Et est dolores quod et sunt est.",
+    "location": "At AnyDesk XYZ - abcdefg",
+    "discord_channel_id": null,
+    "date": "2030-06-11",
+    "is_public": true,
+    "allow_watchers": true,
+    "start_time": "03:00 pm",
+    "end_time": "05:00 pm",
+    "attendee_limit": null,
+    "created_at": "2020-06-13T15:46:28.000000Z",
+    "updated_at": "2020-06-13T15:46:28.000000Z",
+    "owner": {
+        "id": 1,
+        "name": "Tatyana Kohler Jr.",
+        "github_nickname": "owner1",
+        "avatar": "https://api.adorable.io/avatars/100/758927380",
+        "email": "boyer.grace@example.com",
+        "email_verified_at": "2020-06-13T15:46:28.000000Z",
+        "created_at": "2020-06-13T15:46:28.000000Z",
+        "updated_at": "2020-06-13T15:46:28.000000Z",
+        "is_vehikl_member": true
+    },
+    "attendees": [],
+    "watchers": [],
+    "comments": [
+        {
+            "id": 7,
+            "growth_session_id": 1,
+            "user_id": "6",
+            "content": "A last comment",
+            "created_at": "2020-06-13T17:53:57.000000Z",
+            "updated_at": "2020-06-13T17:53:57.000000Z",
+            "time_stamp": "3 minutes ago",
+            "user": {
+                "id": 6,
+                "name": "Commenter's name",
+                "github_nickname": "commenter6",
+                "avatar": "https://avatarurl.test/pic.jpeg",
+                "email": "commenter@email.com",
+                "is_vehikl_member": true,
+                "email_verified_at": null,
+                "created_at": "2020-06-13T15:46:39.000000Z",
+                "updated_at": "2020-06-13T15:46:39.000000Z"
+            }
+        },
+        {
+            "id": 6,
+            "growth_session_id": 1,
+            "user_id": "6",
+            "content": "This comment\n\nIs very special",
+            "created_at": "2020-06-13T17:50:27.000000Z",
+            "updated_at": "2020-06-13T17:50:27.000000Z",
+            "time_stamp": "6 minutes ago",
+            "user": {
+                "id": 6,
+                "name": "Commenter's name",
+                "github_nickname": "commenter6",
+                "avatar": "https://avatarurl.test/pic.jpeg",
+                "email": "commenter@email.com",
+                "is_vehikl_member": true,
+                "email_verified_at": null,
+                "created_at": "2020-06-13T15:46:39.000000Z",
+                "updated_at": "2020-06-13T15:46:39.000000Z"
+            }
+        },
+        {
+            "id": 4,
+            "growth_session_id": 1,
+            "user_id": "6",
+            "content": "I like this",
+            "created_at": "2020-06-13T17:42:30.000000Z",
+            "updated_at": "2020-06-13T17:42:30.000000Z",
+            "time_stamp": "14 minutes ago",
+            "user": {
+                "id": 6,
+                "name": "Commenter's name",
+                "github_nickname": "commenter6",
+                "avatar": "https://avatarurl.test/pic.jpeg",
+                "email": "commenter@email.com",
+                "is_vehikl_member": true,
+                "email_verified_at": null,
+                "created_at": "2020-06-13T15:46:39.000000Z",
+                "updated_at": "2020-06-13T15:46:39.000000Z"
+            }
+        },
+        {
+            "id": 3,
+            "growth_session_id": 1,
+            "user_id": "6",
+            "content": "This is another comment",
+            "created_at": "2020-06-13T17:26:18.000000Z",
+            "updated_at": "2020-06-13T17:26:18.000000Z",
+            "time_stamp": "30 minutes ago",
+            "user": {
+                "id": 6,
+                "name": "Commenter's name",
+                "github_nickname": "commenter6",
+                "avatar": "https://avatarurl.test/pic.jpeg",
+                "email": "commenter@email.com",
+                "is_vehikl_member": true,
+                "email_verified_at": null,
+                "created_at": "2020-06-13T15:46:39.000000Z",
+                "updated_at": "2020-06-13T15:46:39.000000Z"
+            }
+        }
+    ],
+    "tags": [],
+    "anydesk": {
+        "id": 1,
+        "name": "TestoDesko",
+        "remote_desk_id": "123 456 789"
+    }
+}

@@ -3,7 +3,7 @@ import laravel from 'laravel-vite-plugin';
 import path from 'path';
 import tailwindcss from "@tailwindcss/vite";
 import { resolve } from 'node:path';
-import { defineConfig } from 'vite';
+import {defineConfig} from 'vitest/config'
 
 export default defineConfig({
     plugins: [
@@ -27,5 +27,10 @@ export default defineConfig({
             '@': path.resolve(__dirname, './resources/js'),
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
         },
+    },
+    test: {
+        environment: 'happy-dom',
+        setupFiles: ['./setup-vitest.ts'],
+        globals: true
     },
 });
