@@ -28,6 +28,20 @@ const {
     isProcessing
 } = useGrowthSession(props.growthSessionJson)
 
+const parsedTopic = computed(() => {
+    // '$1<a target="_blank" href="$2">$2</a>$3'
+    // growthSession?.value.topic
+    //     .split(" ")
+    //     .map((word => {
+    //
+    //     }))
+    //     .join()
+
+    const [_, first, second, third] =  growthSession?.value.topic.match(/(.+\s)?([^\s]+\.[^\s]+)(.+)?/)
+    const url = !second?.includes('https') ? `https://${second}` : second;
+    const mutatedSecond = `<a target="_blank" href="${url}">${second}</a>`
+    return `${first}${mutatedSecond}${third}`
+})
 const date = computed(() => `${DateTime.parseByDate(growthSession.value.date).format("MMM-DD")}`)
 const time = computed(() => `${growthSession.value.startTime} - ${growthSession.value.endTime}`)
 const mobtimeUrl = computed(() => `https://mobtime.vehikl.com/vgs-${props.growthSessionJson.id}`)
@@ -94,7 +108,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
 
                     <pre
                         class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-600 tracking-wide leading-relaxed"
-                    v-text="growthSession.topic"
+                    v-html="parsedTopic"
                 />
 
                 <div class="grid grid-cols-1 gap-2">
