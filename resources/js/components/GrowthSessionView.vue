@@ -29,23 +29,25 @@ const {
 } = useGrowthSession(props.growthSessionJson)
 
 const parsedTopic = computed(() => {
-    // '$1<a target="_blank" href="$2">$2</a>$3'
-    // growthSession?.value.topic
-    //     .split(" ")
-    //     .map((word => {
-    //
-    //     }))
-    //     .join()
-
-    const [_, first, second, third] =  growthSession?.value.topic.match(/(.+\s)?([^\s]+\.[^\s]+)(.+)?/)
-    const url = !second?.includes('https') ? `https://${second}` : second;
-    const mutatedSecond = `<a target="_blank" href="${url}">${second}</a>`
-    return `${first}${mutatedSecond}${third}`
+    return growthSession?.value.topic
+        .split(" ")
+        .map((word => {
+            if (isURL(word)) {
+                const prefixedUrl = !word.includes('https') ? `https://${word}` : word;
+                word = `<a target="_blank" href="${prefixedUrl}">${word}</a>`
+            }
+            return word
+        }))
+        .join(" ")
 })
 const date = computed(() => `${DateTime.parseByDate(growthSession.value.date).format("MMM-DD")}`)
 const time = computed(() => `${growthSession.value.startTime} - ${growthSession.value.endTime}`)
 const mobtimeUrl = computed(() => `https://mobtime.vehikl.com/vgs-${props.growthSessionJson.id}`)
 const discordChannelUrl = computed(() => `discord://discordapp.com/channels/${props.discordGuildId}/${growthSession.value.discord_channel_id}`)
+
+function isURL(candidate: string): boolean {
+    return candidate.match(/.+\..+/g)
+}
 
 async function deleteGrowthSession() {
     if (confirm("Are you sure you want to delete?")) {
