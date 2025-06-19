@@ -47,4 +47,13 @@ describe('LocationRenderer', () => {
         wrapper = mount(LocationRenderer, {propsData: {locationString: 'Geralt (of Rivia)'}});
         expect(wrapper.text()).toContain('Geralt (of Rivia)');
     });
+
+    it('prepends https on urls that are missing prefix', () => {
+        const url = 'meet.google.com/snickres-asdf-qwer'
+
+        const complexLocation: string = `It is happening at ${url} ... Right now!`;
+        wrapper = mount(LocationRenderer, {propsData: {locationString: complexLocation}});
+
+        expect(wrapper.find("a.underline").attributes("href")).toEqual(`https://${url}`)
+    })
 })

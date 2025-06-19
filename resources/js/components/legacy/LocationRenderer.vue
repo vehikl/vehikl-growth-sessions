@@ -9,11 +9,20 @@ const parts = computed(() => {
     const partRegex = /\b[^\s]+\b/g
     const parts = props.locationString.match(partRegex) ?? []
     const gaps = props.locationString.split(partRegex)
-    const mappedParts = parts.map((part, i) => ({
-        content: part,
-        isURL: isURL(part),
-        gap: gaps[i]
-    }))
+    const mappedParts = parts.map((part, i) => {
+        const isUrl = isURL(part);
+        const stuff = hasHttpPrefix(part)
+
+        if (isUrl && !stuff) {
+            part = `https://${part}`
+        }
+
+        return ({
+            content: part,
+            isURL: isUrl,
+            gap: gaps[i]
+        });
+    })
 
     if (gaps.length > mappedParts.length) {
         mappedParts.push({
@@ -27,13 +36,13 @@ const parts = computed(() => {
 })
 
 function isURL(candidate: string): boolean {
-    try {
-        new URL(candidate)
-        return true
-    } catch {
-        return false
-    }
+    return candidate.match(/.+\..+/g)
 }
+
+function hasHttpPrefix(candidate: string): boolean {
+    return candidate.includes('http://') || candidate.includes('https://')
+}
+
 </script>
 
 <template>
