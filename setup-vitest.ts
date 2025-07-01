@@ -1,4 +1,5 @@
 import {expect, vi} from "vitest"
+import "ziggy-js";
 
 window.alert = vi.fn()
 

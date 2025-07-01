@@ -2,9 +2,9 @@
 
 namespace Tests\Http\Controllers;
 
-use App\GrowthSession;
+use App\Models\GrowthSession;
 use App\Http\Controllers\GrowthSessionController;
-use App\Tag;
+use App\Models\Tag;
 use Carbon\CarbonImmutable;
 use Tests\TestCase;
 

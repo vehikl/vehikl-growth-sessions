@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\AnyDesk;
+use App\Models\AnyDesk;
 use App\Events\GrowthSessionAttendeeChanged;
 use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionUpdated;
 use App\Exceptions\AttendeeLimitReached;
-use App\GrowthSession;
+use App\Models\GrowthSession;
 use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreGrowthSessionRequest;
 use App\Http\Requests\UpdateGrowthSessionRequest;
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
 use App\Policies\GrowthSessionPolicy;
-use App\UserType;
+use App\Models\UserType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
+use Inertia\Inertia;
 
 class GrowthSessionController extends Controller
 {
@@ -30,7 +31,12 @@ class GrowthSessionController extends Controller
         if ($request->expectsJson()) {
             return response()->json(new GrowthSessionResource($growthSession));
         }
-        return view('growth-session', ['growthSession' => new GrowthSessionResource($growthSession)]);
+
+        return Inertia::render('GrowthSessionView', [
+            'growthSessionJson' => new GrowthSessionResource($growthSession),
+            'userJson' => auth()->user(),
+            'discordGuildId' => config('services.discord.guild_id')
+        ]);
     }
 
     public function week(Request $request)

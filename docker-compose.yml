@@ -1,11 +1,11 @@
 services:
     laravel.test:
         build:
-            context: ./vendor/laravel/sail/runtimes/8.2
+            context: './vendor/laravel/sail/runtimes/8.4'
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
-        image: sail-8.2/app
+        image: 'sail-8.4/app'
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
@@ -47,7 +47,6 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
-
     mysql_test:
         image: 'mysql/mysql-server:8.0'
         environment:
@@ -58,7 +57,6 @@ services:
             MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
         networks:
             - sail
-
 networks:
     sail:
         driver: bridge

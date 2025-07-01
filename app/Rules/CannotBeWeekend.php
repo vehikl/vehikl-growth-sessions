@@ -3,17 +3,15 @@
 namespace App\Rules;
 
 use Carbon\CarbonImmutable;
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class CannotBeWeekend implements Rule
+class CannotBeWeekend implements ValidationRule
 {
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        return !CarbonImmutable::parse($value)->isWeekend();
-    }
-
-    public function message()
-    {
-        return 'A growth session can not be hosted on weekends.';
+        if (CarbonImmutable::parse($value)->isWeekend()) {
+            $fail('A growth session can not be hosted on weekends.');
+        }
     }
 }

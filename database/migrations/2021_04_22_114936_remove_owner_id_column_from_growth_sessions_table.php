@@ -1,6 +1,6 @@
 <?php
 
-use App\UserType;
+use App\Models\UserType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 class RemoveOwnerIdColumnFromGrowthSessionsTable extends Migration{
     public function up()
     {
-        \App\GrowthSession::all()->each(function($growthsession) {
+        \App\Models\GrowthSession::all()->each(function($growthsession) {
             DB::table('growth_session_user')->insert([
                 'growth_session_id' => $growthsession->id,
                 'user_id' => $growthsession->owner_id,
@@ -31,7 +31,7 @@ class RemoveOwnerIdColumnFromGrowthSessionsTable extends Migration{
             $table->foreignId('owner_id')->after('id')->nullable()->constrained('users')->cascadeOnDelete();
         });
 
-        \App\GrowthSession::all()->each(function($growthsession) {
+        \App\Models\GrowthSession::all()->each(function($growthsession) {
             $growthsession->update(['owner_id' => $growthsession->owner->id]);
         });
 

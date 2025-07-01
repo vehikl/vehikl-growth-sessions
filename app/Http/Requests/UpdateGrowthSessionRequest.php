@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\AnyDesk;
-use App\GrowthSession;
-use App\Tag;
+use App\Models\AnyDesk;
+use App\Models\GrowthSession;
+use App\Models\Tag;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateGrowthSessionRequest extends FormRequest

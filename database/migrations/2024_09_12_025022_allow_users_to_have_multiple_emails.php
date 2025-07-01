@@ -1,9 +1,9 @@
 <?php
 
-use App\Comment;
-use App\Email;
-use App\GrowthSessionUser;
-use App\User;
+use App\Models\Comment;
+use App\Models\Email;
+use App\Models\GrowthSessionUser;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Collection;

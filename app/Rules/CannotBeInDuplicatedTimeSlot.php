@@ -2,12 +2,13 @@
 
 namespace App\Rules;
 
-use App\User;
-use Illuminate\Contracts\Validation\Rule;
+use App\Models\User;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 
-class CannotBeInDuplicatedTimeSlot implements Rule
+class CannotBeInDuplicatedTimeSlot implements ValidationRule
 {
     private User $user;
     private array $timeValues;
@@ -27,17 +28,14 @@ class CannotBeInDuplicatedTimeSlot implements Rule
         }
     }
 
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $hasGrowthSessionInSameTimeSlot = $this->user->growthSessions()
             ->where($this->timeValues)
             ->exists();
 
-        return !$hasGrowthSessionInSameTimeSlot;
-    }
-
-    public function message()
-    {
-        return 'Another growth session was already created by you in this exact time.';
+        if ($hasGrowthSessionInSameTimeSlot) {
+            $fail('Another growth session was already created by you in this exact time.');
+        }
     }
 }

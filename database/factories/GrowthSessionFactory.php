@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\GrowthSession;
+use App\Models\GrowthSession;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

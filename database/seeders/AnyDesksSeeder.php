@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\AnyDesk;
+use App\Models\AnyDesk;
 use Illuminate\Database\Seeder;
 
 class AnyDesksSeeder extends Seeder

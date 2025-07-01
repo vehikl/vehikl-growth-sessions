@@ -9,7 +9,7 @@ class DiscordChannelCollection extends ResourceCollection
     /** @var string */
     public $collects = DiscordChannel::class;
 
-    public function toArray($request)
+    public function toArray($request): array
     {
         return $this->collection
             ->sortBy(fn(DiscordChannel $discordChannel) => strtolower($discordChannel->resource->name))

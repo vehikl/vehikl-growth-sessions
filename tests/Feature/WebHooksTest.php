@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\GrowthSession;
-use App\User;
-use App\UserType;
+use App\Models\GrowthSession;
+use App\Models\User;
+use App\Models\UserType;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Config;

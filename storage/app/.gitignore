@@ -1,4 +1,4 @@
 *
+!private/
 !public/
 !.gitignore
-!anydeskReminder.json

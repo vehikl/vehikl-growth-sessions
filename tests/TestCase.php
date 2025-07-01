@@ -2,15 +2,14 @@
 
 namespace Tests;
 
-use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use stdClass;
+use Illuminate\Support\Carbon;
 
 abstract class TestCase extends BaseTestCase
 {
-    use CreatesApplication, RefreshDatabase;
+    use RefreshDatabase;
 
     public function setTestNowToASafeWednesday(): void
     {

@@ -2,10 +2,10 @@
 
 namespace Tests\Unit;
 
-use App\AnyDesk;
-use App\GrowthSession;
-use App\User;
-use App\UserType;
+use App\Models\AnyDesk;
+use App\Models\GrowthSession;
+use App\Models\User;
+use App\Models\UserType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

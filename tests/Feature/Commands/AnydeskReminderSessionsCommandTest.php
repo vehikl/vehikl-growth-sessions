@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Commands;
 
-use App\GrowthSession;
+use App\Models\GrowthSession;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;

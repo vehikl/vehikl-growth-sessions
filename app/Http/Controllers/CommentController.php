@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Comment;
+use App\Models\Comment;
 use App\Http\Requests\DeleteCommentRequest;
-use App\GrowthSession;
+use App\Models\GrowthSession;
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use Illuminate\Http\Request;
 

@@ -3,7 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import growthSessionsThisWeekJson from '../../../tests/fixtures/WeekGrowthSessions.json';
 import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
 import {GrowthSessionApi, growthSessionResource} from './GrowthSessionApi';
-import {IGrowthSession, IUpdateGrowthSessionRequest} from '../types';
+import {IGrowthSession, IUpdateGrowthSessionRequest} from '@/types';
 import {DateTime} from '../classes/DateTime';
 import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
 

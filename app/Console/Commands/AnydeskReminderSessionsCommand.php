@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\GrowthSession;
-use App\User;
-use App\UserType;
+use App\Models\GrowthSession;
+use App\Models\User;
+use App\Models\UserType;
 use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;

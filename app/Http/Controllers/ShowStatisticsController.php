@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Statistics;
-use App\GrowthSession;
+use App\Models\GrowthSession;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ShowStatisticsController extends Controller
 {
     public function __invoke(Request $request)
     {
         if (!$request->expectsJson()) {
-            return view('statistics');
+            return Inertia::render('Statistics');
         }
 
         $start_date = $request->input(

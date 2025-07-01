@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Actions\Statistics;
-use App\GrowthSession;
+use App\Models\GrowthSession;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\Command as CommandCodes;
 

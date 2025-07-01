@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Email;
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
-use App\User;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Models\Email;
+use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,16 +13,6 @@ use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
-
-    use AuthenticatesUsers;
-
-    protected $redirectTo = RouteServiceProvider::HOME;
-
-    public function __construct()
-    {
-        $this->middleware('guest')->except('logout');
-    }
-
     public function redirectToProvider($driver)
     {
         if (App::environment('local') && empty(config('services.github.client_id'))) {
@@ -55,6 +43,6 @@ class LoginController extends Controller
             Email::query()->create(['address' => $email, 'user_id' => $growthSessionUser->id]);
         }
         auth()->login($growthSessionUser, true);
-        return redirect($this->redirectPath());
+        return redirect('/');
     }
 }

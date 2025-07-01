@@ -2,11 +2,12 @@
 
 namespace Tests\Feature\GrowthSessions;
 
-use App\GrowthSession;
-use App\Tag;
-use App\User;
-use App\UserType;
+use App\Models\GrowthSession;
+use App\Models\Tag;
+use App\Models\User;
+use App\Models\UserType;
 use Carbon\CarbonImmutable;
+use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class GrowthSessionsShowTest extends TestCase
@@ -15,7 +16,11 @@ class GrowthSessionsShowTest extends TestCase
     {
         $growthSession = GrowthSession::factory()->create();
         $this->get(route('growth_sessions.show', $growthSession))
-            ->assertViewHas(['growthSession.id' => $growthSession->id]);
+            ->assertInertia(function (AssertableInertia $page) use ($growthSession) {
+                return $page
+                    ->where('growthSessionJson.id', $growthSession->id)
+                    ->etc();
+            });
     }
 
     public function testTheGetGrowthSessionEndpointReturnsAJsonPayloadIfTheRequestIsExpectingJson()

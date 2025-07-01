@@ -1,9 +1,4 @@
-@import './vue-select.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import 'tailwindcss';
 
 .break-words-fixed {
     word-break: break-word;

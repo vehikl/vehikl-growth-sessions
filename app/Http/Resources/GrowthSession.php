@@ -7,7 +7,7 @@ use Illuminate\Support\Arr;
 
 class GrowthSession extends JsonResource
 {
-    public function toArray($request)
+    public function toArray($request): array
     {
         $attributes = parent::toArray($request);
 
@@ -22,7 +22,7 @@ class GrowthSession extends JsonResource
             $attributes['location'] = '< Join to see location >';
         }
 
-        if ($attributes['attendee_limit'] === \App\GrowthSession::NO_LIMIT) {
+        if ($attributes['attendee_limit'] === \App\Models\GrowthSession::NO_LIMIT) {
             $attributes['attendee_limit'] = null;
         }
 

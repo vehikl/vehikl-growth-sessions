@@ -1,6 +1,6 @@
-import {IAnyDesk, IComment, IGrowthSession, ITag, IUser} from "../types"
-import {DateTime} from "../classes/DateTime"
-import {GrowthSessionApi} from "../services/GrowthSessionApi"
+import {IAnyDesk, IComment, IGrowthSession, ITag, IUser} from "@/types"
+import {DateTime} from "@/classes/DateTime"
+import {GrowthSessionApi} from "@/services/GrowthSessionApi"
 import {User} from "./User"
 
 export class GrowthSession implements IGrowthSession {

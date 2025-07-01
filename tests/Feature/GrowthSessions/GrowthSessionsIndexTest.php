@@ -3,8 +3,8 @@
 namespace Tests\Feature\GrowthSessions;
 
 
-use App\GrowthSession;
-use App\User;
+use App\Models\GrowthSession;
+use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Arr;

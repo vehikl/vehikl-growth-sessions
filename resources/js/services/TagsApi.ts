@@ -1,5 +1,5 @@
 import BaseApi from './BaseApi';
-import {ITag} from "../types";
+import {ITag} from "@/types";
 
 export class TagsApi extends BaseApi {
     static async index(): Promise<ITag[]> {

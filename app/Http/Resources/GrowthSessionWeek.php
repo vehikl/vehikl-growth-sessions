@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Carbon\CarbonImmutable;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Carbon;
@@ -16,7 +15,7 @@ class GrowthSessionWeek extends ResourceCollection
      * @param \Illuminate\Http\Request $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
 
         $requestedDate = $request->input('date', now()->toDateString());

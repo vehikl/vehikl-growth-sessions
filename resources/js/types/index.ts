@@ -9,3 +9,4 @@ export * from './IStatistics';
 export * from './IStoreGrowthSessionRequest';
 export * from './IUpdateGrowthSessionRequest';
 export * from './IValidationError';
+export * from './IInertia';

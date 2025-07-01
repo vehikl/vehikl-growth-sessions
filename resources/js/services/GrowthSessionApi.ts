@@ -5,7 +5,7 @@ import {
     IStoreGrowthSessionRequest,
     IUpdateGrowthSessionRequest,
     IWeekGrowthSessions
-} from '../types';
+} from '@/types';
 import {DateTime} from '../classes/DateTime';
 import {GrowthSession} from '../classes/GrowthSession';
 import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';

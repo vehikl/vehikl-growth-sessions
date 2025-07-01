@@ -1,6 +1,6 @@
-import {IGrowthSession, IWeekGrowthSessions} from '../types';
+import {IGrowthSession, IWeekGrowthSessions} from '@/types';
 import {GrowthSession} from './GrowthSession';
-import {DateTime} from '../classes/DateTime';
+import {DateTime} from '@/classes/DateTime';
 
 export class WeekGrowthSessions {
     weekGrowthSessions: IWeekGrowthSessions;
