@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,7 +15,13 @@ class Comment extends Model
     protected $fillable = ['content'];
     protected $with = ['user'];
     protected $appends = ['time_stamp'];
-    protected $casts = ['growth_session_id' => 'int'];
+
+    protected function casts(): array
+    {
+        return [
+            'growth_session_id' => 'int',
+        ];
+    }
 
     public function user()
     {
@@ -26,8 +33,10 @@ class Comment extends Model
         return $this->belongsTo(GrowthSession::class);
     }
 
-    public function getTimeStampAttribute()
+    protected function timeStamp(): Attribute
     {
-        return $this->created_at->diffForHumans();
+        return Attribute::make(
+            get: fn () => $this->created_at->diffForHumans(),
+        );
     }
 }

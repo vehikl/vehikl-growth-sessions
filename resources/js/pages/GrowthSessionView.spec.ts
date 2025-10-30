@@ -7,7 +7,9 @@ import {User} from "@/classes/User"
 import {IGrowthSession, ITag, IUser} from "@/types"
 import {GrowthSession} from "@/classes/GrowthSession"
 import {DiscordChannelApi} from "@/services/DiscordChannelApi"
-import {vi} from "vitest"
+import {AnydesksApi} from "@/services/AnydesksApi"
+import {TagsApi} from "@/services/TagsApi"
+import { vi} from "vitest"
 
 const user: IUser = {
     name: 'Alice',
@@ -22,6 +24,8 @@ describe('GrowthSessionView', () => {
     let wrapper: Wrapper<GrowthSessionView>;
 
     beforeEach(() => {
+        AnydesksApi.getAllAnyDesks = vi.fn().mockResolvedValue([])
+        TagsApi.index = vi.fn().mockResolvedValue([])
         wrapper = mount(GrowthSessionView, {propsData: {userJson, growthSessionJson}})
     });
 

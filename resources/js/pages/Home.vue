@@ -29,10 +29,10 @@ const shouldRenderGoogleLogin = computed(() => !! page.props.services.google_cli
     <p v-if="!user" role="alert" class="fixed inset-x-4 bottom-12 z-30 block rounded-xl bg-orange-600 p-4 text-center text-xl text-white sm:bottom-2">
             To join/create growth session or see their location, you must
             <strong>
-                <Link :href="getLoginUrl('github')" class="underline hover:text-orange-400">log in with Github</Link>
+                <a :href="getLoginUrl('github')" class="underline hover:text-orange-400">log in with Github</a>
             </strong>
             <strong v-if="shouldRenderGoogleLogin">
-                <Link :href="getLoginUrl('google')" class="underline hover:text-orange-400">log in with Google</Link>
+                <a :href="getLoginUrl('google')" class="underline hover:text-orange-400">log in with Google</a>
             </strong>
         </p>
 

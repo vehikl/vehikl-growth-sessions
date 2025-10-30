@@ -38,30 +38,32 @@ const isExpanded = ref(false);
             <div class="hidden w-full justify-end text-center text-xl uppercase lg:flex lg:w-auto lg:items-center" id="nav-links">
                 <div class="flex flex-col items-center justify-center text-xl tracking-wider text-white lg:flex-row">
                     <template v-if="!$page.props.auth.user">
-                        <Link
+                        <a
                             :href="route('oauth.login.redirect', { driver: 'github' })"
                             class="mt-4 mr-6 flex items-center hover:text-orange-600 lg:mt-0"
                         >
                             <i class="fa fa-github mr-4 text-3xl" aria-hidden="true"></i> Login with Github
-                        </Link>
+                        </a>
 
-                        <Link
+                        <a
                             v-if="$page.props.services.google_client_id"
                             :href="route('oauth.login.redirect', { driver: 'google' })"
                             class="mt-4 mr-6 flex items-center hover:text-orange-600 lg:mt-0"
                         >
                             <i class="fa fa-google mr-4 text-3xl" aria-hidden="true"></i> Login with Google
-                        </Link>
+                        </a>
                     </template>
                     <template v-else>
-                        <Link :href="route('logout')" class="mt-4 flex items-center tracking-wider hover:text-orange-600 lg:mt-0">
+                        <Link :href="route('logout')" method="post" as="button" class="mt-4 flex items-center tracking-wider hover:text-orange-600 lg:mt-0">
                             <v-avatar class="mr-4" :src="$page.props.auth.user.avatar" alt="Your Avatar" :size="6"></v-avatar>
                             Logout
                         </Link>
-                        <Link v-if="route().current('statistics.index')" :href="route('home')" class="mt-4 hover:text-orange-600 sm:ml-6 lg:mt-0">
-                            Board
-                        </Link>
-                        <Link v-else :href="route('statistics.index')" class="mt-4 hover:text-orange-600 sm:ml-6 lg:mt-0"> Statistics </Link>
+                        <template v-if="$page.props.auth.user.is_vehikl_member">
+                            <Link v-if="route().current('statistics.index')" :href="route('home')" class="mt-4 hover:text-orange-600 sm:ml-6 lg:mt-0">
+                                Board
+                            </Link>
+                            <Link v-else :href="route('statistics.index')" class="mt-4 hover:text-orange-600 sm:ml-6 lg:mt-0"> Statistics </Link>
+                        </template>
                     </template>
                     <Link :href="route('about')" class="mt-4 hover:text-orange-600 sm:ml-6 lg:mt-0">About</Link>
                 </div>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -16,14 +17,17 @@ class GrowthSession extends Model
 
     protected $appends = ['owner'];
 
-    protected $casts = [
-        'start_time' => 'datetime:h:i a',
-        'end_time' => 'datetime:h:i a',
-        'date' => 'datetime:Y-m-d',
-        'attendee_limit' => 'int',
-        'is_public' => 'bool',
-        'allow_watchers' => 'bool'
-    ];
+    protected function casts(): array
+    {
+        return [
+            'start_time' => 'datetime:h:i a',
+            'end_time' => 'datetime:h:i a',
+            'date' => 'datetime:Y-m-d',
+            'attendee_limit' => 'int',
+            'is_public' => 'bool',
+            'allow_watchers' => 'bool',
+        ];
+    }
 
     protected $fillable = [
         'title',
@@ -45,9 +49,11 @@ class GrowthSession extends Model
         'attendee_limit' => self::NO_LIMIT,
     ];
 
-    public function getOwnerAttribute()
+    protected function owner(): Attribute
     {
-        return $this->owners()->first();
+        return Attribute::make(
+            get: fn () => $this->owners()->first(),
+        );
     }
 
     public function members(): BelongsToMany
@@ -86,19 +92,25 @@ class GrowthSession extends Model
         return $this->belongsToMany(Tag::class);
     }
 
-    public function setDateAttribute($value)
+    protected function date(): Attribute
     {
-        $this->attributes['date'] = Carbon::parse($value)->format('Y-m-d');
+        return Attribute::make(
+            set: fn ($value) => Carbon::parse($value)->format('Y-m-d'),
+        );
     }
 
-    public function setStartTimeAttribute($value)
+    protected function startTime(): Attribute
     {
-        $this->attributes['start_time'] = Carbon::parse($value)->format('H:i');
+        return Attribute::make(
+            set: fn ($value) => Carbon::parse($value)->format('H:i'),
+        );
     }
 
-    public function setEndTimeAttribute($value)
+    protected function endTime(): Attribute
     {
-        $this->attributes['end_time'] = Carbon::parse($value)->format('H:i');
+        return Attribute::make(
+            set: fn ($value) => Carbon::parse($value)->format('H:i'),
+        );
     }
 
     public static function allInTheWeekOf(?string $referenceDate)

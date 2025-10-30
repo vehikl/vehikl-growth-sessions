@@ -11,6 +11,7 @@ import VisibilityRadioFieldset from '@/components/legacy/VisibilityRadioFieldset
 import VModal from '@/components/legacy/VModal.vue';
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import GrowthSessionTags from '@/components/legacy/GrowthSessionTags.vue';
+import draggable from 'vuedraggable';
 
 interface IGrowthSessionCardDragChange {
     added?: { element: GrowthSession; index: number };
@@ -48,7 +49,7 @@ async function refreshGrowthSessionsOfTheWeek() {
 }
 
 function growthSessionsVisibleInDate(date: DateTime) {
-    let allGrowthSessionsOnDate = growthSessions.value.getSessionByDate(date);
+    const allGrowthSessionsOnDate = growthSessions.value.getSessionByDate(date);
     return allGrowthSessionsOnDate
         .filter((session) => {
             if (selectedTagIds.value.length == 0) return true;
@@ -74,7 +75,7 @@ function useDateFromUrlAsReference() {
 }
 
 async function onDragEnd(location: any) {
-    let targetDate = location.to.__vueParentComponent.attrs.date;
+    const targetDate = location.to.__vueParentComponent.attrs.date;
     if (!draggedGrowthSession.value) {
         return;
     }
@@ -215,25 +216,30 @@ function onTagClick(id: number) {
                     <p v-text="`${Nothingator.random()}...`" />
                     <p v-show="user && date.isToday()">Why don't you create the first one?</p>
                 </div>
-                <ul
+                <draggable
+                    :model-value="growthSessionsVisibleInDate(date)"
                     :date="date"
                     item-key="id"
+                    tag="ul"
                     class="h-full w-full py-2"
                     group="growth-sessions"
                     handle=".handle"
+                    @end="onDragEnd"
+                    @change="onChange"
                 >
-                    <li v-for="growthSession in growthSessionsVisibleInDate(date)" :key="growthSession.id">
-                        <growth-session-card
-                            :growth-session="growthSession"
-                            :user="user"
-                            @growth-session-updated="getAllGrowthSessionsOfTheWeek"
-                            @copy-requested="onGrowthSessionCopyRequested"
-                            @edit-requested="onGrowthSessionEditRequested"
-                            @delete-requested="getAllGrowthSessionsOfTheWeek"
-                        />
-                    </li>
-
-                </ul>
+                    <template #item="{ element: growthSession }">
+                        <li :key="growthSession.id">
+                            <growth-session-card
+                                :growth-session="growthSession"
+                                :user="user"
+                                @growth-session-updated="getAllGrowthSessionsOfTheWeek"
+                                @copy-requested="onGrowthSessionCopyRequested"
+                                @edit-requested="onGrowthSessionEditRequested"
+                                @delete-requested="getAllGrowthSessionsOfTheWeek"
+                            />
+                        </li>
+                    </template>
+                </draggable>
             </div>
             <div class="fixed inset-x-4 bottom-4 z-50 block md:hidden" v-if="growthSessions.hasCurrentDate">
                 <button

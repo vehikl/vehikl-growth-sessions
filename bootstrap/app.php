@@ -28,6 +28,20 @@ return Application::configure(basePath: dirname(__DIR__))
             'vehikl' => \App\Http\Middleware\VehiklMiddleware::class
         ]);
     })
+    ->withSchedule(function ($schedule) {
+        $schedule->command('create:anydesk-reminder')
+            ->twiceMonthly(1, 15);
+
+        $schedule->command('statistics:recalculate')
+            ->timezone('America/Toronto')
+            ->at('01:00')
+            ->daily();
+
+        $schedule->command('statistics:recalculate')
+            ->timezone('America/Toronto')
+            ->at('12:30')
+            ->daily();
+    })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
