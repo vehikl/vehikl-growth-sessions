@@ -42,3 +42,12 @@ Route::get('/tags', [TagsController::class,'index'])->middleware('auth');
 Route::get('/statistics', ShowStatisticsController::class)
     ->middleware(['auth', 'vehikl'])
     ->name('statistics.index');
+
+Route::prefix('proposals')->middleware('auth')->name('proposals.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\GrowthSessionProposalController::class, 'index'])->name('index');
+    Route::post('/', [\App\Http\Controllers\GrowthSessionProposalController::class, 'store'])->name('store');
+    Route::get('{proposal}', [\App\Http\Controllers\GrowthSessionProposalController::class, 'show'])->name('show');
+    Route::put('{proposal}', [\App\Http\Controllers\GrowthSessionProposalController::class, 'update'])->name('update');
+    Route::delete('{proposal}', [\App\Http\Controllers\GrowthSessionProposalController::class, 'destroy'])->name('destroy');
+    Route::post('{proposal}/approve', [\App\Http\Controllers\GrowthSessionProposalController::class, 'approve'])->name('approve');
+});
