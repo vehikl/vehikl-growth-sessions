@@ -50,9 +50,9 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
 <template>
     <div class="max-w-5xl p-8">
             <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
-                <div class="flex flex-wrap flex-row-reverse overflow-visible relative">
-                    <button class="bg-gray-900 absolute text-white border-4 border-gray-900 rounded-full px-4 py-1 -top-2 right-2 hover:text-gray-900 hover:bg-white x hover:border-gray-900" @click="formModalState = 'closed';">
-                        <i aria-hidden="true" class="fa fa-times text-xl"></i> Close
+                <div class="flex flex-wrap flex-row-reverse overflow-visible relative p-6 bg-white rounded-2xl">
+                    <button class="absolute top-4 right-4 rounded-lg bg-neutral-100 hover:bg-neutral-200 px-4 py-2 text-neutral-700 hover:text-vehikl-dark transition-smooth font-semibold" @click="formModalState = 'closed';">
+                        <i aria-hidden="true" class="fa fa-times mr-2"></i> Close
                     </button>
                     <growth-session-form v-if="formModalState === 'open'"
                                          :growth-session="growthSession"
