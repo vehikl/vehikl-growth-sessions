@@ -144,35 +144,35 @@ function onTagClick(id: number) {
 
 <template>
     <div v-if="growthSessions.isReady">
-        <div class="flex justify-between bg-gray-900 px-4 py-2 text-xl text-white sm:justify-center sm:text-3xl md:text-4xl">
-            <button aria-label="Load previous week" class="load-previous-week pr-8 text-3xl sm:text-3xl" @click="changeReferenceDate(-7)">
+        <div class="flex justify-between bg-vehikl-dark px-4 py-4 text-xl text-white sm:justify-center sm:text-2xl shadow-md">
+            <button aria-label="Load previous week" class="load-previous-week pr-8 text-2xl sm:text-2xl hover:text-vehikl-orange transition-smooth rounded-lg px-3 py-2 hover:bg-white/10" @click="changeReferenceDate(-7)">
                 <i aria-hidden="true" class="fa fa-chevron-left"></i>
             </button>
             <h2
                 v-if="growthSessions.weekDates.length > 0"
-                class="mx-4 flex flex-col items-center justify-center text-center sm:flex-row md:w-full md:max-w-md"
+                class="mx-4 flex flex-col items-center justify-center text-center sm:flex-row md:w-full md:max-w-md font-semibold"
             >
-                {{ growthSessions.firstDay.format('MMMM DD') }} <span class="mx-4 text-slate-600">to</span>
+                {{ growthSessions.firstDay.format('MMMM DD') }} <span class="mx-4 text-neutral-400">to</span>
                 {{ growthSessions.lastDay.format('MMMM DD') }}
             </h2>
-            <button aria-label="Load next week" class="load-next-week pl-8 text-3xl sm:text-3xl" @click="changeReferenceDate(+7)">
+            <button aria-label="Load next week" class="load-next-week pl-8 text-2xl sm:text-2xl hover:text-vehikl-orange transition-smooth rounded-lg px-3 py-2 hover:bg-white/10" @click="changeReferenceDate(+7)">
                 <i aria-hidden="true" class="fa fa-chevron-right"></i>
             </button>
         </div>
 
-        <div class="mx-4 flex flex-row justify-between gap-2 rounded-b-xl bg-slate-200 px-4 py-2 text-sm tracking-wide text-gray-800 sm:text-lg">
+        <div class="mx-4 flex flex-row justify-between gap-2 rounded-b-xl bg-neutral-100 px-4 py-3 text-sm tracking-wide text-neutral-700 shadow-sm sm:text-base border border-t-0 border-neutral-200">
             <GrowthSessionTags :tags="uniqueTags" :selected-tag-ids="selectedTagIds" @tag-click="onTagClick" ref="growthSessionTags" />
             <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters" v-model="visibilityFilter" />
         </div>
 
         <div class="week-grid gap-4 px-4 py-6">
             <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
-                <div class="relative flex flex-row-reverse flex-wrap overflow-visible">
+                <div class="relative flex flex-row-reverse flex-wrap overflow-visible p-6 bg-white rounded-2xl">
                     <button
-                        class="x absolute -top-2 right-2 rounded-full border-4 border-gray-900 bg-gray-900 px-4 py-1 text-white hover:border-gray-900 hover:bg-white hover:text-gray-900"
+                        class="x absolute top-4 right-4 rounded-lg bg-neutral-100 hover:bg-neutral-200 px-4 py-2 text-neutral-700 hover:text-vehikl-dark transition-smooth font-semibold"
                         @click="formModalState = 'closed'"
                     >
-                        <i aria-hidden="true" class="fa fa-times text-xl"></i> Close
+                        <i aria-hidden="true" class="fa fa-times mr-2"></i> Close
                     </button>
                     <growth-session-form
                         v-if="formModalState === 'open'"
@@ -189,32 +189,32 @@ function onTagClick(id: number) {
                 :key="date.toDateString()"
                 :weekDay="date.weekDayString()"
                 :class="{
-                    'bg-slate-100': date.isEvenDate(),
-                    'bg-slate-50': !date.isEvenDate(),
+                    'bg-neutral-50': date.isEvenDate(),
+                    'bg-white': !date.isEvenDate(),
                 }"
-                class="day relative mb-2 flex flex-col items-center bg-slate-100"
+                class="day relative mb-2 flex flex-col items-center rounded-lg overflow-hidden border border-neutral-200 shadow-sm"
             >
                 <h2
-                    class="sticky top-0 z-20 w-full rounded-t-xl bg-white p-2 pt-4 pb-1 text-center text-3xl font-bold tracking-wide text-slate-600 sm:relative"
+                    class="sticky top-0 z-20 w-full bg-gradient-to-b from-white to-neutral-50 p-3 text-center text-2xl font-bold tracking-wide text-vehikl-dark border-b border-neutral-200 sm:relative"
                     v-text="date.weekDayString()"
                     :id="date.weekDayString()"
                 ></h2>
                 <p
                     v-if="date.isInAPastDate()"
-                    class="w-full border-4 bg-slate-200 px-4 py-1 text-center text-lg font-semibold tracking-widest text-slate-600 uppercase"
+                    class="w-full bg-neutral-100 px-4 py-2 text-center text-sm font-semibold tracking-wider text-neutral-500 uppercase border-b border-neutral-200"
                 >
                     Finished
                 </p>
                 <button
                     v-if="user && user.is_vehikl_member && !date.isInAPastDate()"
-                    class="create-growth-session mb-2 block w-full border-4 border-gray-600 bg-white px-4 py-1 text-lg font-semibold tracking-widest text-gray-600 uppercase hover:border-gray-600 hover:bg-gray-600 hover:text-white"
+                    class="create-growth-session mb-2 mx-2 mt-3 block w-[calc(100%-1rem)] rounded-lg bg-vehikl-orange hover:bg-vehikl-orange/90 px-4 py-2.5 text-base font-semibold tracking-wide text-white transition-smooth shadow-sm hover:shadow-md"
                     @click="onCreateNewGrowthSessionClicked(date)"
                 >
-                    <i aria-hidden="true" class="fa fa-plus-circle mr-4"></i><span class="text">Add Session</span>
+                    <i aria-hidden="true" class="fa fa-plus-circle mr-2"></i><span class="text">Add Session</span>
                 </button>
-                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="px-4 py-8 text-center text-xl text-gray-600">
-                    <p v-text="`${Nothingator.random()}...`" />
-                    <p v-show="user && date.isToday()">Why don't you create the first one?</p>
+                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="px-4 py-8 text-center text-lg text-neutral-500">
+                    <p class="mb-2" v-text="`${Nothingator.random()}...`" />
+                    <p v-show="user && date.isToday()" class="text-sm text-neutral-400">Why don't you create the first one?</p>
                 </div>
                 <draggable
                     :model-value="growthSessionsVisibleInDate(date)"
@@ -244,7 +244,7 @@ function onTagClick(id: number) {
             <div class="fixed inset-x-4 bottom-4 z-50 block md:hidden" v-if="growthSessions.hasCurrentDate">
                 <button
                     aria-label="Scroll to today"
-                    class="flex w-full items-center justify-center rounded border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
+                    class="flex w-full items-center justify-center rounded-lg bg-vehikl-orange hover:bg-vehikl-orange/90 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-smooth focus:ring-2 focus:ring-vehikl-orange/50 focus:ring-offset-2 focus:outline-none"
                     @click="scrollToDate(DateTime.today().weekDayString())"
                 >
                     Go to today <i aria-hidden="true" class="fa fa-calendar ml-2"></i>

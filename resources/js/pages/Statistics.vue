@@ -388,67 +388,70 @@ function renderParticipationButton(
     <div class="mt-6 mx-auto lg:mx-6 max-w-[115rem]">
             <dialog
                 id="participation-names"
-                class="w-full max-w-xl p-0 overflow-auto px-4 py-8"
+                class="w-full max-w-2xl p-0 overflow-auto rounded-2xl shadow-2xl border border-neutral-200 backdrop:bg-black/50"
             >
-                <h2
-                    class="mb-8 text-3xl bg-white text-center tracking-wide text-slate-600 font-bold p-2 pt-4 pb-1 sticky sm:relative top-0 w-full z-20 rounded-t-xl"
-                    v-text="dialogData.title"
-                />
-                <ul class="grid grid-cols-3">
-                    <li
-                        v-for="(name, index) in dialogData.userNames"
-                        :key="index"
-                        v-text="name"
+                <div class="px-6 py-8">
+                    <h2
+                        class="mb-6 text-2xl bg-gradient-to-b from-white to-neutral-50 text-center tracking-wide text-vehikl-dark font-bold p-4 sticky sm:relative top-0 w-full z-20 rounded-lg border-b border-neutral-200"
+                        v-text="dialogData.title"
                     />
-                </ul>
+                    <ul class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                        <li
+                            v-for="(name, index) in dialogData.userNames"
+                            :key="index"
+                            class="px-3 py-2 bg-neutral-50 rounded-lg border border-neutral-200 text-sm text-vehikl-dark"
+                            v-text="name"
+                        />
+                    </ul>
 
-                <form class="mt-8" method="dialog">
-                    <button
-                        class="border-gray-600 hover:bg-gray-600 focus:bg-gray-700 focus:text-white text-gray-600 border-4 bg-white hover:text-white font-bold py-2 px-4 w-full join-button"
-                    >
-                        OK
-                    </button>
-                </form>
+                    <form method="dialog">
+                        <button
+                            class="rounded-lg bg-vehikl-dark hover:bg-vehikl-dark/90 text-white font-semibold py-2.5 px-4 w-full transition-smooth shadow-sm"
+                        >
+                            OK
+                        </button>
+                    </form>
+                </div>
             </dialog>
 
-            <fieldset title="Filters">
+            <fieldset title="Filters" class="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mb-6">
                 <section
-                    class="flex items-start gap-48"
+                    class="flex items-start gap-8 flex-wrap"
                     aria-description="Filter by Name and Date"
                 >
-                    <label class="flex gap-4 my-4 text-sm items-center font-bold">
+                    <label class="flex gap-3 my-2 text-sm items-center font-semibold text-vehikl-dark">
                         Name
                         <input
                             v-model="filter.name"
                             @keydown.enter.prevent="addNameToFilter"
-                            class="max-w-xs border px-2 text-base font-light"
+                            class="max-w-xs rounded-lg border border-neutral-300 px-3 py-2 text-base font-normal focus:outline-none focus:ring-2 focus:ring-vehikl-orange/50 focus:border-vehikl-orange transition-smooth"
                             name="filter-by-name"
                             type="text"
                         />
                         <button
                             @click="addNameToFilter"
-                            class="border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                            class="rounded-lg bg-vehikl-orange hover:bg-vehikl-orange/90 text-white px-4 py-2 font-semibold transition-smooth shadow-sm"
                         >
                             Apply
                         </button>
                     </label>
 
-                    <section aria-description="date selection" v-if="fullDisplay">
-                        <div class="flex gap-4">
+                    <section aria-description="date selection" v-if="fullDisplay" class="flex-1">
+                        <div class="flex gap-4 flex-wrap">
                             <div class="relative">
                                 <button
-                                    class="text-xs absolute right-0 text-blue-500"
+                                    class="text-xs absolute -top-5 right-0 text-vehikl-orange hover:text-vehikl-orange/80 font-medium transition-smooth"
                                     @click="setStartDateAsFirstDay"
                                 >
                                     First Day
                                 </button>
                                 <label
-                                    class="flex gap-4 my-4 text-sm items-center font-bold"
+                                    class="flex gap-3 my-2 text-sm items-center font-semibold text-vehikl-dark"
                                 >
                                     Start Date
                                     <input
                                         v-model="startDate"
-                                        class="max-w-xs border px-2 text-base font-light"
+                                        class="rounded-lg border border-neutral-300 px-3 py-2 text-base font-normal focus:outline-none focus:ring-2 focus:ring-vehikl-orange/50 focus:border-vehikl-orange transition-smooth"
                                         type="date"
                                         name="start-date"
                                     />
@@ -457,18 +460,18 @@ function renderParticipationButton(
 
                             <div class="relative" v-if="fullDisplay">
                                 <button
-                                    class="text-xs absolute right-0 text-blue-500"
+                                    class="text-xs absolute -top-5 right-0 text-vehikl-orange hover:text-vehikl-orange/80 font-medium transition-smooth"
                                     @click="setEndDateAsToday"
                                 >
                                     Today
                                 </button>
                                 <label
-                                    class="flex gap-4 my-4 text-sm items-center font-bold"
+                                    class="flex gap-3 my-2 text-sm items-center font-semibold text-vehikl-dark"
                                 >
                                     End Date
                                     <input
                                         v-model="endDate"
-                                        class="max-w-xs border px-2 text-base font-light"
+                                        class="rounded-lg border border-neutral-300 px-3 py-2 text-base font-normal focus:outline-none focus:ring-2 focus:ring-vehikl-orange/50 focus:border-vehikl-orange transition-smooth"
                                         type="date"
                                         name="end-date"
                                     />
@@ -476,21 +479,21 @@ function renderParticipationButton(
                             </div>
                         </div>
 
-                        <div class="flex items-end gap-2 mb-4">
+                        <div class="flex items-end gap-2 mb-4 mt-2">
                             <button
-                                class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                                class="text-sm rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-vehikl-dark px-4 py-2 font-medium transition-smooth"
                                 @click="setThisWeekDateRange"
                             >
                                 This Week
                             </button>
                             <button
-                                class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                                class="text-sm rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-vehikl-dark px-4 py-2 font-medium transition-smooth"
                                 @click="setThisMonthDateRange"
                             >
                                 This Month
                             </button>
                             <button
-                                class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                                class="text-sm rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-vehikl-dark px-4 py-2 font-medium transition-smooth"
                                 @click="setAllTimeDateRange"
                             >
                                 All Time
@@ -501,24 +504,24 @@ function renderParticipationButton(
 
                 <section
                     aria-description="Filter by list"
-                    class="my-4"
+                    class="my-4 pt-4 border-t border-neutral-200"
                     v-if="fullDisplay"
                 >
-                    <div class="flex gap-4">
-                        <label>
+                    <div class="flex gap-4 items-center mb-3">
+                        <label class="flex items-center gap-2 text-sm font-semibold text-vehikl-dark">
+                            <input type="checkbox" v-model="filter.shouldUseList" class="rounded border-neutral-300 text-vehikl-orange focus:ring-vehikl-orange/50" />
                             Apply List to Filter
-                            <input type="checkbox" v-model="filter.shouldUseList" />
                         </label>
 
                         <button
-                            class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                            class="text-sm rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-vehikl-dark px-4 py-2 font-medium transition-smooth"
                             @click="clearFilterList"
                         >
                             Clear
                         </button>
 
                         <button
-                            class="text-xs border border-gray-700 bg-gray-50 text-gray-900 px-4 hover:brightness-90 hover:font-bold"
+                            class="text-sm rounded-lg bg-vehikl-orange hover:bg-vehikl-orange/90 text-white px-4 py-2 font-semibold transition-smooth shadow-sm"
                             @click="shareUrl"
                             title="Copy shareable URL to clipboard"
                         >
@@ -526,22 +529,22 @@ function renderParticipationButton(
                         </button>
                     </div>
 
-                    <ul class="mt-2 border border-gray-200 p-2 w-full">
+                    <ul class="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 w-full min-h-[3rem]">
                         <li
                             v-if="filter.list.length === 0"
-                            class="opacity-25 text-center"
+                            class="opacity-40 text-center text-sm text-neutral-500"
                         >
                             -- Empty --
                         </li>
                         <li
                             v-for="(selectedName, index) in filter.list"
                             :key="index"
-                            class="inline-flex min-w-[5rem] mx-4 flex-wrap items-center mb-1 border-r"
+                            class="inline-flex items-center gap-2 mr-3 mb-2 px-3 py-1.5 bg-white rounded-lg border border-neutral-200 shadow-sm"
                         >
-                            <span>{{ selectedName }}</span>
+                            <span class="text-sm text-vehikl-dark">{{ selectedName }}</span>
                             <button
                                 @click="removeNameFromFilter(selectedName)"
-                                class="text-red-500 hover:text-red-700 ml-2"
+                                class="text-red-500 hover:text-red-700 hover:bg-red-50 rounded px-1 transition-smooth"
                             >
                                 ×
                             </button>

@@ -26,26 +26,26 @@ const shouldRenderGoogleLogin = computed(() => !! page.props.services.google_cli
 </script>
 
 <template>
-    <p v-if="!user" role="alert" class="fixed inset-x-4 bottom-12 z-30 block rounded-xl bg-orange-600 p-4 text-center text-xl text-white sm:bottom-2">
+    <div v-if="!user" role="alert" class="fixed inset-x-4 bottom-4 z-30 block rounded-xl bg-vehikl-orange shadow-xl border border-vehikl-orange/20 p-5 text-center text-base text-white sm:bottom-4 backdrop-blur-sm">
             To join/create growth session or see their location, you must
             <strong>
-                <a :href="getLoginUrl('github')" class="underline hover:text-orange-400">log in with Github</a>
+                <a :href="getLoginUrl('github')" class="underline hover:text-white/80 transition-smooth font-bold">log in with Github</a>
             </strong>
             <strong v-if="shouldRenderGoogleLogin">
-                <a :href="getLoginUrl('google')" class="underline hover:text-orange-400">log in with Google</a>
+                or <a :href="getLoginUrl('google')" class="underline hover:text-white/80 transition-smooth font-bold">log in with Google</a>
             </strong>
-        </p>
+        </div>
 
     <week-view :user="$page.props.auth.user"/>
 
-    <div class="bg-gray-800">
+    <div class="bg-vehikl-dark">
         <About />
 
-        <section class="flex flex-col justify-between bg-gray-600 px-6 pt-8 pb-12 text-gray-100 sm:px-24 lg:flex-row">
-            <div class="h-64 py-16 text-center">
-                <p class="mt-4 mb-4 text-4xl tracking-wide">Have <span class="font-semibold text-white italic">suggestions</span> for this app?</p>
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 px-6 py-12 sm:px-12 lg:px-24 bg-gradient-to-b from-vehikl-dark to-black">
+            <div class="text-center lg:text-left p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-vehikl-orange/50 transition-smooth">
+                <p class="mb-6 text-3xl font-semibold text-white leading-tight">Have <span class="text-vehikl-orange italic">suggestions</span> for this app?</p>
                 <a
-                    class="mt-2 inline-block transform border-4 border-white bg-gray-600 px-4 py-2 text-2xl font-bold text-white hover:-skew-y-2 hover:bg-gray-700 hover:text-5xl focus:bg-gray-700"
+                    class="inline-block rounded-lg bg-vehikl-orange hover:bg-vehikl-orange/90 px-6 py-3 text-lg font-semibold text-white transition-smooth shadow-lg hover:shadow-xl hover-lift"
                     target="_blank"
                     href="https://github.com/vehikl/vehikl-growth-sessions/issues"
                 >
@@ -53,16 +53,16 @@ const shouldRenderGoogleLogin = computed(() => !! page.props.services.google_cli
                 </a>
             </div>
 
-            <div class="h-64 py-16 text-center">
-                <p class="mt-4 mb-4 text-4xl tracking-wide">
-                    Have <span class="font-semibold text-white italic">feedback</span> on our
-                    <span class="font-semibold text-white italic">growth sessions</span>?
+            <div class="text-center lg:text-left p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-vehikl-orange/50 transition-smooth">
+                <p class="mb-6 text-3xl font-semibold text-white leading-tight">
+                    Have <span class="text-vehikl-orange italic">feedback</span> on our <span class="text-vehikl-orange italic">growth sessions</span>?
                 </p>
-                <p
-                    class="mt-2 inline-block transform border-4 border-white bg-gray-600 px-4 py-2 text-2xl font-bold text-white hover:-skew-y-2 hover:bg-gray-700 hover:text-5xl focus:bg-gray-700"
+                <a
+                    href="mailto:gsfeedback@vehikl.com"
+                    class="inline-block rounded-lg bg-white hover:bg-neutral-100 px-6 py-3 text-lg font-semibold text-vehikl-dark transition-smooth shadow-lg hover:shadow-xl hover-lift"
                 >
-                    <a href="mailto:gsfeedback@vehikl.com">Send it to us!</a>
-                </p>
+                    Send it to us!
+                </a>
             </div>
         </section>
     </div>

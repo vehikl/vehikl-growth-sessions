@@ -16,15 +16,15 @@ const props = defineProps<IProps>()
 </script>
 
 <template>
-    <div class="flex gap-x-3 gap-y-1 flex-wrap h-min">
+    <div class="flex gap-2 flex-wrap h-min">
         <div
             v-for="tag in tags"
             :id="tag.name"
             @click="buttonClick(tag.id)"
-            class="tag text-xs inline-flex items-center font-bold leading-sm uppercase px-3 py-1 bg-white border-gray-600 border-4 text-gray-600 rounded-md"
+            class="tag text-xs inline-flex items-center font-semibold leading-sm uppercase px-3 py-1.5 bg-white border border-neutral-300 text-neutral-700 rounded-lg shadow-sm transition-smooth"
             :class="{
-                '!bg-gray-600 text-white': (selectedTagIds ?? []).includes(tag.id),
-                'hover:bg-gray-600 hover:text-white cursor-pointer': !!selectedTagIds
+                '!bg-vehikl-orange !border-vehikl-orange text-white shadow-md': (selectedTagIds ?? []).includes(tag.id),
+                'hover:bg-vehikl-orange/10 hover:border-vehikl-orange/50 hover:text-vehikl-orange cursor-pointer': !!selectedTagIds
             }"
             >
             {{tag.name}}
