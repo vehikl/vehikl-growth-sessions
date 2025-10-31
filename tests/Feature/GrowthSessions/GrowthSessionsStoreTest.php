@@ -44,7 +44,7 @@ class GrowthSessionsStoreTest extends TestCase
         $this->assertDatabaseHas(GrowthSession::class, ['anydesk_id' => $anyDesk->id]);
     }
 
-    public function provideWatcherPayload()
+    public static function provideWatcherPayload()
     {
         return [
             'allows watchers' => [true],

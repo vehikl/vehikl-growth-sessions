@@ -17,8 +17,9 @@ class GrowthSession extends JsonResource
             ($this->resource->hasAttendee($user) || $this->resource->hasWatcher($user));
 
         $isSlackbot = $user?->github_nickname === config('auth.slack_app_name');
+        $isOwner = $user && $user->is($this->resource->owner);
 
-        if (!$isSlackbot && !$isParticipatingInGrowthSession) {
+        if (!$isSlackbot && !$isParticipatingInGrowthSession && !$isOwner) {
             $attributes['location'] = '< Join to see location >';
         }
 
@@ -29,11 +30,11 @@ class GrowthSession extends JsonResource
         $attributes['attendees'] = $attributes['attendees'] ?? [];
         $isPersonNotAVehiklMember = auth()->guest() || !auth()->user()->is_vehikl_member;
 
-        if ($isPersonNotAVehiklMember) {
+        if ($isPersonNotAVehiklMember && !$isOwner) {
             $attributes['anydesk'] = null;
         }
 
-        if ($isPersonNotAVehiklMember) {
+        if ($isPersonNotAVehiklMember && !$isOwner) {
             $attributes = $this->hideGuestInformationFromPayload('attendees', $attributes, $user);
             $attributes = $this->hideGuestInformationFromPayload('watchers', $attributes, $user);
         }

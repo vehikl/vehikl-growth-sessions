@@ -162,7 +162,7 @@ class WebHooksTest extends TestCase
         Http::assertNothingSent();
     }
 
-    public function providesActionsOutsideOfWebHookTimes()
+    public static function providesActionsOutsideOfWebHookTimes()
     {
         $startTime = '09:30 am';
         $endTime = '05:00 pm';

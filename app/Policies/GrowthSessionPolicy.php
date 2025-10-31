@@ -19,7 +19,9 @@ class GrowthSessionPolicy
 
     public function view(?User $user, GrowthSession $growthSession): bool
     {
-        return $growthSession->is_public || optional($user)->is_vehikl_member;
+        return $growthSession->is_public
+            || optional($user)->is_vehikl_member
+            || ($user && $user->is($growthSession->owner));
     }
 
     public function create(User $user): bool
