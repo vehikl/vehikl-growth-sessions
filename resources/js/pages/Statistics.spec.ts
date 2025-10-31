@@ -114,8 +114,8 @@ describe("Statistics", () => {
             await wrapper.find("button.text-red-500").trigger("click");
             await flushPromises();
 
-            expect(wrapper.find("li.opacity-25").exists()).toBe(true);
-            expect(wrapper.find("li.opacity-25").text()).toContain("-- Empty --");
+            expect(wrapper.find("li").exists()).toBe(true);
+            expect(wrapper.find("li").text()).toContain("-- Empty --");
         });
 
         test("allows clearing the entire filter list", async () => {

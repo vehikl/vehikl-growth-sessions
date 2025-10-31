@@ -65,7 +65,7 @@ async function onDeleteClicked() {
             <div class="flex items-center gap-1.5 attendees-count">
                 <i class="fa fa-user-circle text-base" aria-hidden="true"></i>
                 <span class="font-semibold" v-text="growthSession.attendees.length"/>
-                <span v-if="growthSession.attendee_limit" class="text-neutral-500">/ {{ growthSession.attendee_limit }}</span>
+                <span v-if="growthSession.attendee_limit" class="text-neutral-500 attendee-limit">/ {{ growthSession.attendee_limit }}</span>
             </div>
         </div>
 
