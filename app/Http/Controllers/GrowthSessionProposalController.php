@@ -20,19 +20,16 @@ class GrowthSessionProposalController extends Controller
     {
         $user = $request->user();
 
-        $proposals = GrowthSessionProposal::query()
-            ->with(['creator', 'timePreferences', 'tags'])
-            ->where(function ($query) use ($user) {
-                // Show user's own proposals
-                $query->where('creator_id', $user->id);
+        $query = GrowthSessionProposal::query()
+            ->with(['creator', 'timePreferences', 'tags']);
 
-                // Or all proposals if user is Vehikl member
-                if ($user && $user->is_vehikl_member) {
-                    $query->orWhereNotNull('id');
-                }
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Non-Vehikl members can only see their own proposals
+        if (!$user->is_vehikl_member) {
+            $query->where('creator_id', $user->id);
+        }
+        // Vehikl members see all proposals (no filter needed)
+
+        $proposals = $query->orderBy('created_at', 'desc')->get();
 
         return Inertia::render('ProposalsPage', [
             'proposals' => GrowthSessionProposalResource::collection($proposals),

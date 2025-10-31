@@ -83,9 +83,16 @@ function handleApproved() {
         </div>
 
         <div class="mb-8">
-            <h2 class="text-2xl font-bold text-slate-700 mb-4">Pending Proposals ({{ pendingProposals.length }})</h2>
+            <h2 class="text-2xl font-bold text-slate-700 mb-4" v-if="$page.props.auth.user.is_vehikl_member">Pending Proposals ({{ pendingProposals.length }})</h2>
+            <h2 class="text-2xl font-bold text-slate-700 mb-4" v-else>Need help with your codebase?</h2>
             <div v-if="pendingProposals.length === 0" class="text-slate-600 italic">
-                No pending proposals.
+                <template v-if="$page.props.auth.user.is_vehikl_member">
+                    No pending proposals.
+                </template>
+                <template v-else>
+                    <p>Our team specializes in Laravel, Vue, React, and other modern web technologies.</p>
+                    <p>Tell us what you're working on and what you’d like to achieve — we’ll jump in and collaborate with you through a mob programming session.</p>
+                </template>
             </div>
             <GrowthSessionProposalCard
                 v-for="proposal in pendingProposals"
@@ -98,7 +105,7 @@ function handleApproved() {
             />
         </div>
 
-        <div>
+        <div v-if="$page.props.auth.user.is_vehikl_member">
             <h2 class="text-2xl font-bold text-slate-700 mb-4">Approved Proposals ({{ approvedProposals.length }})</h2>
             <div v-if="approvedProposals.length === 0" class="text-slate-600 italic">
                 No approved proposals yet.

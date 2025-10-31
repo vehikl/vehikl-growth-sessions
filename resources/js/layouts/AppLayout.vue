@@ -66,7 +66,10 @@ const isExpanded = ref(false);
                             </Link>
                             <Link v-else :href="route('statistics.index')" class="mt-4 hover:text-vehikl-orange transition-smooth sm:ml-6 lg:mt-0"> Statistics </Link>
                         </template>
-                        <Link :href="route('proposals.index')" class="mt-4 hover:text-vehikl-orange transition-smooth sm:ml-6 lg:mt-0">Proposals</Link>
+                        <Link v-if="route().current('proposals.index')" :href="route('home')" class="mt-4 hover:text-vehikl-orange transition-smooth sm:ml-6 lg:mt-0">
+                            Board
+                        </Link>
+                        <Link v-else :href="route('proposals.index')" class="mt-4 hover:text-vehikl-orange transition-smooth sm:ml-6 lg:mt-0">Proposals</Link>
                     </template>
                     <Link v-if="route().current('about')" :href="route('home')" class="mt-4 hover:text-vehikl-orange transition-smooth sm:ml-6 lg:mt-0">
                         Board
