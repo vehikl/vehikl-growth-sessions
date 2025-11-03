@@ -15,11 +15,15 @@ class ApproveGrowthSessionProposalRequest extends FormRequest
         return $this->user()->can('approve', $proposal);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
+    protected function prepareForValidation()
+    {
+        if ($this->has('title') && is_string($this->title)) {
+            $this->merge([
+                'title' => substr($this->title, 0, 45),
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -31,7 +35,7 @@ class ApproveGrowthSessionProposalRequest extends FormRequest
             'date' => 'required|date|after_or_equal:today',
             'attendee_limit' => 'sometimes|integer|min:2',
             'discord_channel_id' => 'sometimes|string',
-            'anydesk_id' => 'sometimes|integer|exists:any_desks,id',
+            'anydesk_id' => 'sometimes|integer|exists:anydesks,id',
             'is_public' => 'sometimes|boolean',
             'allow_watchers' => 'sometimes|boolean',
         ];
