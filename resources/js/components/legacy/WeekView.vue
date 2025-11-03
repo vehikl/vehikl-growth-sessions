@@ -10,6 +10,7 @@ import { Nothingator } from '@/classes/Nothingator';
 import VisibilityRadioFieldset from '@/components/legacy/VisibilityRadioFieldset.vue';
 import VModal from '@/components/legacy/VModal.vue';
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue';
+import { watchDebounced } from '@vueuse/core';
 import GrowthSessionTags from '@/components/legacy/GrowthSessionTags.vue';
 import draggable from 'vuedraggable';
 
@@ -27,12 +28,18 @@ const draggedGrowthSession = ref<GrowthSession | null>(null);
 const visibilityFilter = ref<'all' | 'public' | 'private'>('all');
 const formModalState = ref<'open' | 'closed'>('closed');
 const selectedTagIds = ref<number[]>([]);
+const searchQuery = ref('');
+const debouncedSearchQuery = ref('');
 
 const uniqueTags = computed(() => {
     const allTags = growthSessions.value.allGrowthSessions.flatMap((gs) => gs.tags);
 
     return allTags.filter((tag, index, allTags) => allTags.map((t) => t.id).indexOf(tag.id) == index);
 });
+
+watchDebounced(searchQuery, (newValue) => {
+    debouncedSearchQuery.value = newValue;
+}, { debounce: 300 });
 
 onBeforeMount(async () => {
     await refreshGrowthSessionsOfTheWeek();
@@ -66,6 +73,16 @@ function growthSessionsVisibleInDate(date: DateTime) {
             }
 
             return true;
+        })
+        .filter((session) => {
+            if (!debouncedSearchQuery.value) return true;
+
+            const query = debouncedSearchQuery.value.toLowerCase();
+            const title = session.title.toLowerCase();
+            const topic = session.topic.toLowerCase();
+            const ownerName = session.owner.name.toLowerCase();
+
+            return title.includes(query) || topic.includes(query) || ownerName.includes(query);
         });
 }
 
@@ -160,9 +177,29 @@ function onTagClick(id: number) {
             </button>
         </div>
 
-        <div class="mx-4 flex flex-row justify-between gap-2 rounded-b-xl bg-neutral-100 px-4 py-3 text-sm tracking-wide text-neutral-700 shadow-sm sm:text-base border border-t-0 border-neutral-200">
-            <GrowthSessionTags :tags="uniqueTags" :selected-tag-ids="selectedTagIds" @tag-click="onTagClick" ref="growthSessionTags" />
-            <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters" v-model="visibilityFilter" />
+        <div class="mx-4 flex flex-col gap-3 rounded-b-xl bg-neutral-100 px-4 py-3 text-sm tracking-wide text-neutral-700 shadow-sm sm:text-base border border-t-0 border-neutral-200 md:flex-row md:items-center">
+            <div class="relative flex-shrink-0 md:w-64">
+                <i aria-hidden="true" class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+                <input
+                    v-model="searchQuery"
+                    type="text"
+                    placeholder="Search sessions..."
+                    class="search-input w-full rounded-lg border border-neutral-300 bg-white py-2 pl-10 pr-10 text-sm text-neutral-700 placeholder-neutral-400 transition-smooth focus:border-vehikl-orange focus:outline-none focus:ring-2 focus:ring-vehikl-orange/20"
+                    aria-label="Search growth sessions by title, description, or host name"
+                />
+                <button
+                    v-if="searchQuery"
+                    @click="searchQuery = ''"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-neutral-400 hover:text-neutral-600 transition-smooth"
+                    aria-label="Clear search"
+                >
+                    <i aria-hidden="true" class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:flex-1">
+                <GrowthSessionTags :tags="uniqueTags" :selected-tag-ids="selectedTagIds" @tag-click="onTagClick" ref="growthSessionTags" />
+                <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters" v-model="visibilityFilter" />
+            </div>
         </div>
 
         <div class="week-grid gap-4 px-4 py-6">
@@ -213,7 +250,7 @@ function onTagClick(id: number) {
                     <i aria-hidden="true" class="fa fa-plus-circle mr-2"></i><span class="text">Add Session</span>
                 </button>
                 <div v-show="growthSessionsVisibleInDate(date).length === 0" class="px-4 py-8 text-center text-lg text-neutral-500">
-                    <p class="mb-2" v-text="`${Nothingator.random()}...`" />
+                    <p class="mb-2" v-text="`${Nothingator.random(date.toDateString())}...`" />
                     <p v-show="user && date.isToday()" class="text-sm text-neutral-400">Why don't you create the first one?</p>
                 </div>
                 <draggable

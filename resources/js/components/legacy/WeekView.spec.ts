@@ -353,4 +353,218 @@ describe('WeekView', () => {
             expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
         })
     })
+
+    describe('Text Search Filter', () => {
+        beforeEach(async () => {
+            wrapper = mount(WeekView, {propsData: {user: authNonVehiklUser}})
+            await flushPromises()
+        });
+
+        it('renders a search input field', () => {
+            const searchInput = wrapper.find('input.search-input');
+            expect(searchInput.exists()).toBeTruthy();
+            expect(searchInput.attributes('placeholder')).toBe('Search sessions...');
+        });
+
+        it('shows all sessions when search is empty', async () => {
+            let growthSessions = wrapper.findAllComponents(GrowthSessionCard);
+            expect(growthSessions.length).toBe(5);
+        });
+
+        it('filters sessions by title', async () => {
+            const searchInput = wrapper.find('input.search-input');
+            await searchInput.setValue('voluptas');
+
+            // Wait for debounce (300ms) plus a bit more
+            await new Promise(resolve => setTimeout(resolve, 350));
+            await flushPromises();
+
+            const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+
+            // Sessions 1 and 3 have "voluptas" in their titles
+            expect(visibleSessions.length).toBe(2);
+            expect(visibleSessions.some(card => card.text().includes('Voluptas vel distinctio'))).toBe(true);
+            expect(visibleSessions.some(card => card.text().includes('Maxime voluptas suscipit'))).toBe(true);
+        });
+
+        it('filters sessions by topic/description', async () => {
+            const searchInput = wrapper.find('input.search-input');
+            await searchInput.setValue('laborum');
+
+            // Wait for debounce
+            await new Promise(resolve => setTimeout(resolve, 350));
+            await flushPromises();
+
+            const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+
+            // Session 2 has "laborum" in topic: "Et ut laborum dolore ut et earum rem animi."
+            expect(visibleSessions.length).toBe(1);
+            expect(visibleSessions[0].text()).toContain('Et ut laborum dolore ut et earum rem animi.');
+        });
+
+        it('filters sessions by owner/host name', async () => {
+            const searchInput = wrapper.find('input.search-input');
+            await searchInput.setValue('Tamia');
+
+            // Wait for debounce
+            await new Promise(resolve => setTimeout(resolve, 350));
+            await flushPromises();
+
+            const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+
+            // Sessions 4 and 5 are owned by "Tamia Thompson"
+            expect(visibleSessions.length).toBe(2);
+            expect(visibleSessions.every(card => card.text().includes('Tamia Thompson'))).toBe(true);
+        });
+
+        it('performs case-insensitive search', async () => {
+            const searchInput = wrapper.find('input.search-input');
+
+            // Test with uppercase
+            await searchInput.setValue('VOLUPTAS');
+            await new Promise(resolve => setTimeout(resolve, 350));
+            await flushPromises();
+
+            let visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+            expect(visibleSessions.length).toBe(2);
+
+            // Test with mixed case
+            await searchInput.setValue('StEpHaN');
+            await new Promise(resolve => setTimeout(resolve, 350));
+            await flushPromises();
+
+            visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+            // Session 1 is owned by "Stephan Klocko"
+            expect(visibleSessions.length).toBe(1);
+            expect(visibleSessions[0].text()).toContain('Stephan Klocko');
+        });
+
+        it('combines search with tag filter', async () => {
+            const searchInput = wrapper.find('input.search-input');
+            const tagsFilter = wrapper.findComponent({ref: 'growthSessionTags'});
+
+            // First apply tag filter (foo tag)
+            await tagsFilter.find('div#foo').trigger('click');
+            await flushPromises();
+
+            let visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+            // Sessions 1 and 3 have the 'foo' tag
+            expect(visibleSessions.length).toBe(2);
+
+            // Then apply search filter for "Stephan" (only session 1 has this owner)
+            await searchInput.setValue('Stephan');
+            await new Promise(resolve => setTimeout(resolve, 350));
+            await flushPromises();
+
+            visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+            // Only session 1 matches both filters (has 'foo' tag AND owned by Stephan)
+            expect(visibleSessions.length).toBe(1);
+            expect(visibleSessions[0].text()).toContain('Stephan Klocko');
+        });
+
+        it('shows clear button when search has text', async () => {
+            const searchInput = wrapper.find('input.search-input');
+
+            // Initially no clear button
+            expect(wrapper.find('button[aria-label="Clear search"]').exists()).toBe(false);
+
+            // After typing, clear button appears
+            await searchInput.setValue('test');
+            await flushPromises();
+
+            expect(wrapper.find('button[aria-label="Clear search"]').exists()).toBe(true);
+        });
+
+        it('clears search when clear button is clicked', async () => {
+            const searchInput = wrapper.find('input.search-input');
+
+            await searchInput.setValue('voluptas');
+            await new Promise(resolve => setTimeout(resolve, 350));
+            await flushPromises();
+
+            let visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+            expect(visibleSessions.length).toBe(2);
+
+            // Click clear button
+            const clearButton = wrapper.find('button[aria-label="Clear search"]');
+            await clearButton.trigger('click');
+
+            // Wait for debounce after clearing
+            await new Promise(resolve => setTimeout(resolve, 350));
+            await flushPromises();
+
+            // All sessions should be visible again
+            visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+            expect(visibleSessions.length).toBe(5);
+            expect((searchInput.element as HTMLInputElement).value).toBe('');
+        });
+
+        it('shows no sessions when search matches nothing', async () => {
+            const searchInput = wrapper.find('input.search-input');
+            await searchInput.setValue('nonexistent search term that matches nothing');
+
+            await new Promise(resolve => setTimeout(resolve, 350));
+            await flushPromises();
+
+            const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+            expect(visibleSessions.length).toBe(0);
+        });
+
+        it('debounces search input to avoid excessive filtering', async () => {
+            const searchInput = wrapper.find('input.search-input');
+
+            // Type quickly without waiting
+            await searchInput.setValue('v');
+            await flushPromises();
+            // Should still show all sessions since debounce hasn't triggered
+            let visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+            expect(visibleSessions.length).toBe(5);
+
+            await searchInput.setValue('vo');
+            await flushPromises();
+            visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+            expect(visibleSessions.length).toBe(5);
+
+            await searchInput.setValue('voluptas');
+            await flushPromises();
+            visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+            expect(visibleSessions.length).toBe(5);
+
+            // Now wait for debounce to trigger
+            await new Promise(resolve => setTimeout(resolve, 350));
+            await flushPromises();
+
+            // After debounce, filter should be applied
+            visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+            expect(visibleSessions.length).toBe(2); // Sessions with "voluptas" in title
+        });
+
+        describe('with visibility filter for Vehikl users', () => {
+            beforeEach(async () => {
+                wrapper = mount(WeekView, {propsData: {user: authVehiklUser}})
+                await flushPromises()
+            });
+
+            it('combines search with visibility filter', async () => {
+                const searchInput = wrapper.find('input.search-input');
+
+                // Search for "Tamia" (sessions 4 and 5)
+                await searchInput.setValue('Tamia');
+                await new Promise(resolve => setTimeout(resolve, 350));
+                await flushPromises();
+
+                let visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+                expect(visibleSessions.length).toBe(2); // Both sessions by Tamia
+
+                // Apply private filter (only session 5 is private)
+                const radioButton = wrapper.find('#visibility-filters input[type=radio][id=private]');
+                await radioButton.setChecked();
+                await flushPromises();
+
+                visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+                expect(visibleSessions.length).toBe(1); // Only private session by Tamia
+                expect(visibleSessions[0].text()).toContain('This is a private GS');
+            });
+        });
+    });
 });
