@@ -121,7 +121,7 @@ composer prod              # Alias for pnpm build
 - `resources/js/components/legacy/` - Growth session components (WeekView, GrowthSessionCard, GrowthSessionForm, etc.)
 - `resources/js/classes/` - TypeScript domain classes (GrowthSession, User, DateTime, WeekGrowthSessions)
 - `resources/js/services/` - API service layer (GrowthSessionApi, DiscordChannelApi, etc.)
-- `resources/js/composables/` - Vue composables (useAppearance for theme management)
+- `resources/js/composables/` - Vue composables for reusable stateful logic
 
 **Type Safety**: Full TypeScript setup with strict type checking. Types in `resources/js/types/`
 
@@ -175,5 +175,4 @@ API services in `resources/js/services/` follow consistent patterns:
 - **Authentication**: OAuth-based only (Slack/Discord). No traditional email/password auth.
 - **Docker Test Database**: PHPUnit configured to use `mysql_test` container for isolated test environment.
 - **Ziggy Routes**: Laravel routes available in Vue via Ziggy. Import from `ziggy-js`.
-- **Theme System**: Light/dark mode managed via `useAppearance` composable, initialized on page load.
 - **Refactoring Welcome**: Given the migration context, improvements to code quality, better TypeScript types, cleaner Inertia patterns, and Laravel 12 best practices are encouraged.
