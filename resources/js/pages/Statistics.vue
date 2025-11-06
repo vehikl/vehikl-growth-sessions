@@ -5,6 +5,7 @@ import axios from "axios";
 import { IStatistics, IUserStatistics } from "@/types";
 import { DateTime } from "@/classes/DateTime";
 import AppLayout from '@/layouts/AppLayout.vue';
+import { Head } from '@inertiajs/vue3';
 
 type ColumnType = {
     label: string;
@@ -385,6 +386,8 @@ function renderParticipationButton(
 </script>
 
 <template>
+    <Head title="Statistics" />
+
     <div class="mt-6 mx-auto lg:mx-6 max-w-[115rem]">
             <dialog
                 id="participation-names"

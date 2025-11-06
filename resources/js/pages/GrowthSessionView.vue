@@ -12,6 +12,7 @@ import {computed, ref} from "vue"
 import {useGrowthSession} from "@/composables/useGrowthSession"
 import GrowthSessionTags from "@/components/legacy/GrowthSessionTags.vue";
 import AppLayout from '@/layouts/AppLayout.vue';
+import { Head } from '@inertiajs/vue3';
 
 interface IProps {
     userJson?: IUser;
@@ -48,6 +49,8 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
 </script>
 
 <template>
+    <Head title="Session" />
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
                 <div class="flex flex-wrap flex-row-reverse overflow-visible relative p-6 bg-white rounded-2xl">

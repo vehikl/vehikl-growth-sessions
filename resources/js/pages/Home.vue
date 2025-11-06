@@ -26,6 +26,8 @@ const shouldRenderGoogleLogin = computed(() => !! page.props.services.google_cli
 </script>
 
 <template>
+    <Head title="Week" />
+
     <div v-if="!user" role="alert" class="fixed inset-x-4 bottom-4 z-30 block rounded-xl bg-vehikl-orange shadow-xl border border-vehikl-orange/20 p-5 text-center text-base text-white sm:bottom-4 backdrop-blur-sm">
             To join/create growth session or see their location, you must
             <strong>

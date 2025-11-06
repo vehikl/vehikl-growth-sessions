@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { IGrowthSessionProposal, IUser } from '@/types';
 import { ref, computed } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, Head } from '@inertiajs/vue3';
 import GrowthSessionProposalCard from '@/components/legacy/GrowthSessionProposalCard.vue';
 import GrowthSessionProposalForm from '@/components/legacy/GrowthSessionProposalForm.vue';
 import ApproveProposalForm from '@/components/legacy/ApproveProposalForm.vue';
@@ -74,6 +74,8 @@ function handleApproved() {
 </script>
 
 <template>
+    <Head title="Proposals" />
+
     <div class="proposals-page max-w-7xl mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-bold text-slate-800">Growth Session Proposals</h1>
