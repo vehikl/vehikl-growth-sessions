@@ -196,9 +196,9 @@ function onTagClick(id: number) {
                     <i aria-hidden="true" class="fa fa-times"></i>
                 </button>
             </div>
-            <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:flex-1">
-                <GrowthSessionTags :tags="uniqueTags" :selected-tag-ids="selectedTagIds" @tag-click="onTagClick" ref="growthSessionTags" />
-                <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters" v-model="visibilityFilter" />
+            <div class="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:justify-between md:flex-1">
+                <GrowthSessionTags :tags="uniqueTags" :selected-tag-ids="selectedTagIds" @tag-click="onTagClick" ref="growthSessionTags" class="flex-shrink min-w-0" />
+                <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters" v-model="visibilityFilter" class="flex-shrink-0" />
             </div>
         </div>
 
