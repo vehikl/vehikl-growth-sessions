@@ -16,7 +16,7 @@ const props = defineProps<IProps>()
 </script>
 
 <template>
-    <div class="flex gap-2 flex-wrap h-min">
+    <div class="flex gap-2 h-min">
         <div
             v-for="tag in tags"
             :id="tag.name"
