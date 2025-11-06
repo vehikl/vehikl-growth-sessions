@@ -11,6 +11,12 @@ use Tests\TestCase;
 
 class GrowthSessionProposalApproveTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->setTestNow('2020-01-15');
+    }
+
     public function testVehiklMemberCanApproveProposal(): void
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
