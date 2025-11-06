@@ -48,7 +48,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
 </script>
 
 <template>
-    <div class="max-w-5xl p-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
                 <div class="flex flex-wrap flex-row-reverse overflow-visible relative p-6 bg-white rounded-2xl">
                     <button class="absolute top-4 right-4 rounded-lg bg-neutral-100 hover:bg-neutral-200 px-4 py-2 text-neutral-700 hover:text-vehikl-dark transition-smooth font-semibold" @click="formModalState = 'closed';">
