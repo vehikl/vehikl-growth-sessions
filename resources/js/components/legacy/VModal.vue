@@ -34,31 +34,18 @@ onMounted(() => {
 </template>
 
 <style scoped>
-dialog::backdrop {
-    animation: fadeIn 0.2s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
+dialog::backdrop { animation: fadeIn 0.2s ease-out }
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
 
 dialog {
+    margin: 2rem auto;
+    max-height: calc(100dvh - 4rem);
+    overflow-y: auto;
     animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px) }
+    to { opacity: 1; transform: translateY(0) }
 }
 </style>

@@ -186,7 +186,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
 </script>
 
 <template>
-    <form @submit.prevent class="create-growth-session edit-growth-session-form bg-white w-full p-4 pt-10 text-left overflow-y-auto max-h-[95vh]">
+    <form @submit.prevent class="create-growth-session edit-growth-session-form bg-white w-full p-4 pt-10 text-left">
         <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-6">
             Title
             <input
