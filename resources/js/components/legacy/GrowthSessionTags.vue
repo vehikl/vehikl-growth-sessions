@@ -18,8 +18,9 @@ const props = defineProps<IProps>()
 <template>
     <div class="flex gap-2 h-min">
         <div
-            v-for="tag in tags"
+            v-for="(tag,i) in tags"
             :id="tag.name"
+            :key="`tag.name.${i}`"
             @click="buttonClick(tag.id)"
             class="tag text-xs inline-flex items-center font-semibold leading-sm uppercase px-3 py-1.5 bg-white border border-neutral-300 text-neutral-700 rounded-lg shadow-sm transition-smooth"
             :class="{

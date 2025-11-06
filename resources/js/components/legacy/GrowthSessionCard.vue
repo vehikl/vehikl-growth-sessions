@@ -69,7 +69,7 @@ async function onDeleteClicked() {
             </div>
         </div>
 
-        <GrowthSessionTags class="mb-4" :tags="growthSession.tags" />
+        <GrowthSessionTags class="mb-4 flex-wrap max-h-20 overflow-y-scroll" minimal :tags="growthSession.tags" />
 
         <pre
             class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-48 overflow-y-auto overflow-x-hidden font-sans text-neutral-700 text-sm leading-relaxed"
