@@ -92,13 +92,13 @@ function useDateFromUrlAsReference() {
 }
 
 async function onDragEnd(location: any) {
-    const targetDate = location.to.__vueParentComponent.attrs.date;
-    if (!draggedGrowthSession.value) {
+    const targetDateString = location.to.dataset.date;
+    if (!draggedGrowthSession.value || !targetDateString) {
         return;
     }
     try {
         await GrowthSessionApi.update(draggedGrowthSession.value, {
-            date: targetDate.toDateString(),
+            date: targetDateString,
             attendee_limit: draggedGrowthSession.value.attendee_limit,
         });
     } catch (e) {}
@@ -255,7 +255,7 @@ function onTagClick(id: number) {
                 </div>
                 <draggable
                     :model-value="growthSessionsVisibleInDate(date)"
-                    :date="date"
+                    :data-date="date.toDateString()"
                     item-key="id"
                     tag="ul"
                     class="h-full w-full py-2"
