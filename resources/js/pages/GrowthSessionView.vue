@@ -106,7 +106,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                             :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
                             :disabled="isProcessing"
                             class="join-button"
-                            color="blue"
+                            color="orange"
                             @click="joinGrowthSession"
                             v-show="growthSession.canJoin(userJson)"
                             text="Join"/>
@@ -114,7 +114,8 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                             :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
                             :disabled="isProcessing"
                             class="watch-button"
-                            color="orange"
+                            color="blue"
+                            variant='outlined'
                             @click="watchGrowthSession"
                             v-show="growthSession.canWatch(userJson)"
                             text="Spectate"/>
@@ -122,6 +123,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                             :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
                             :disabled="isProcessing"
                             class="leave-button"
+                            variant='outlined'
                             color="red"
                             @click="leaveGrowthSession"
                             v-show="growthSession.canLeave(userJson)"
@@ -138,6 +140,7 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
                             :class="isProcessing? 'opacity-75 cursor-not-allowed' : 'opacity-100'"
                             :disabled="isProcessing"
                             color="red"
+                            variant='outlined'
                             class="delete-button"
                             @click="deleteGrowthSession"
                             v-if="growthSession.canEditOrDelete(userJson)"
