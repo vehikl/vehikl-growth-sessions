@@ -1,4 +1,5 @@
-import {mount, Wrapper} from "@vue/test-utils"
+import { Wrapper } from "@vue/test-utils"
+import { mountWithInertia } from "@/test-utils/inertia-test-helper"
 import GrowthSessionView from "./GrowthSessionView.vue"
 import userJson from "../../../tests/fixtures/User.json"
 import growthSessionJson from "../../../tests/fixtures/GrowthSessionWithComments.json"
@@ -26,7 +27,7 @@ describe('GrowthSessionView', () => {
     beforeEach(() => {
         AnydesksApi.getAllAnyDesks = vi.fn().mockResolvedValue([])
         TagsApi.index = vi.fn().mockResolvedValue([])
-        wrapper = mount(GrowthSessionView, {propsData: {userJson, growthSessionJson}})
+        wrapper = mountWithInertia(GrowthSessionView, {propsData: {userJson, growthSessionJson}})
     });
 
     it('redirects to the owners GitHub page when clicked on the profile', async () => {
@@ -62,7 +63,7 @@ describe('GrowthSessionView', () => {
             }
         ]
         const growthSession = new GrowthSession({...dummyGrowthSession, tags});
-        wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+        wrapper = mountWithInertia(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
 
         const tagElements = wrapper.findAll('.tag')
         expect(tagElements.length).toBe(tags.length);
@@ -83,20 +84,20 @@ describe('GrowthSessionView', () => {
 
         it('can display the attendee limit', () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, attendee_limit: 42});
-            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+            wrapper = mountWithInertia(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
             expect(wrapper.text()).toContain("Attendee Limit")
             expect(wrapper.find('.attendee_limit').text()).toContain(growthSession.attendee_limit);
         });
 
         it('can hide the attendee limit', () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, attendee_limit: null});
-            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+            wrapper = mountWithInertia(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
             expect(wrapper.text()).not.toContain("Attendee Limit")
         });
 
         it('renders a direct link to the Discord channel', () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, discord_channel_id: '1234567890'});
-            wrapper = mount(GrowthSessionView, {
+            wrapper = mountWithInertia(GrowthSessionView, {
                 propsData: {
                     growthSessionJson: growthSession,
                     discordGuildId: '1234567890'
@@ -107,7 +108,7 @@ describe('GrowthSessionView', () => {
 
         it('display the list of attendees', () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, attendees: [user]});
-            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+            wrapper = mountWithInertia(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
 
             expect(wrapper.text()).toContain(user.name);
         })
@@ -117,7 +118,7 @@ describe('GrowthSessionView', () => {
     describe('watchers section', () => {
         it('displays the list of watchers', () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, watchers: [user]});
-            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+            wrapper = mountWithInertia(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
 
             expect(wrapper.text()).toContain(user.name);
             expect(wrapper.text()).toContain('Watchers');
@@ -125,7 +126,7 @@ describe('GrowthSessionView', () => {
 
         it('does not display the watcher section if there are no watchers',  () => {
             let growthSession = new GrowthSession({...dummyGrowthSession, watchers: []});
-            wrapper = mount(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+            wrapper = mountWithInertia(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
 
             expect(wrapper.text()).not.toContain('Watchers');
         });
@@ -135,7 +136,7 @@ describe('GrowthSessionView', () => {
         beforeEach(() => {
             const owner = growthSessionJson.owner;
             DiscordChannelApi.index = vi.fn().mockResolvedValue([])
-            wrapper = mount(GrowthSessionView, {
+            wrapper = mountWithInertia(GrowthSessionView, {
                 propsData: {userJson: owner, growthSessionJson}
             })
         });

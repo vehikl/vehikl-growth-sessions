@@ -28,7 +28,7 @@ describe("Statistics", () => {
     test("renders statistics provided by the backend", async () => {
         mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
 
-        const wrapper = mount(Statistics);
+        const wrapper = mountWithInertia(Statistics);
         await flushPromises();
 
         expect(mockBackend.history.get.length).toEqual(1);
@@ -42,7 +42,7 @@ describe("Statistics", () => {
     test("re-fetches information with the updated start date when the user interacts with the calendar", async () => {
         mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
 
-        const wrapper = mount(Statistics);
+        const wrapper = mountWithInertia(Statistics);
         await flushPromises();
 
         await wrapper.find("input[type=date]").setValue("2020-01-01");
@@ -71,7 +71,7 @@ describe("Statistics", () => {
 
         mockBackend.onGet(/statistics.*/).reply(200, payload);
 
-        const wrapper = mount(Statistics);
+        const wrapper = mountWithInertia(Statistics);
         await flushPromises();
 
         await wrapper
@@ -87,7 +87,7 @@ describe("Statistics", () => {
         test("allows adding names to the filter list", async () => {
             mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
 
-            const wrapper = mount(Statistics);
+            const wrapper = mountWithInertia(Statistics);
             await flushPromises();
 
             await wrapper.find("input[type=text][name=filter-by-name]").setValue("Geoffrey");
@@ -102,7 +102,7 @@ describe("Statistics", () => {
         test("allows removing names from the filter list", async () => {
             mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
 
-            const wrapper = mount(Statistics);
+            const wrapper = mountWithInertia(Statistics);
             await flushPromises();
 
             await wrapper.find("input[type=text][name=filter-by-name]").setValue("Geoffrey");
@@ -121,7 +121,7 @@ describe("Statistics", () => {
         test("allows clearing the entire filter list", async () => {
             mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
 
-            const wrapper = mount(Statistics);
+            const wrapper = mountWithInertia(Statistics);
             await flushPromises();
 
             await wrapper.find("input[type=text][name=filter-by-name]").setValue("Geoffrey");
@@ -152,7 +152,7 @@ describe("Statistics", () => {
 
             mockBackend.onGet(/statistics.*/).reply(200, payload);
 
-            const wrapper = mount(Statistics);
+            const wrapper = mountWithInertia(Statistics);
             await flushPromises();
 
             expect(wrapper.text()).toContain("Geoffrey Simonis");
@@ -174,7 +174,7 @@ describe("Statistics", () => {
         test("saves filter settings to localStorage", async () => {
             mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
 
-            const wrapper = mount(Statistics);
+            const wrapper = mountWithInertia(Statistics);
             await flushPromises();
 
             await wrapper.find("input[type=text][name=filter-by-name]").setValue("Geoffrey");
@@ -198,7 +198,7 @@ describe("Statistics", () => {
 
             mockBackend.onGet(/statistics.*/).reply(200, exampleStatisticsResponse);
 
-            const wrapper = mount(Statistics);
+            const wrapper = mountWithInertia(Statistics);
             await flushPromises();
 
             expect(wrapper.text()).toContain("Geoffrey");
@@ -221,7 +221,7 @@ describe("Statistics", () => {
             mockBackend
                 .onGet(/statistics.*/)
                 .reply(200, exampleStatisticsResponse);
-            const wrapper = mount(Statistics);
+            const wrapper = mountWithInertia(Statistics);
             await flushPromises();
 
             await wrapper
@@ -249,7 +249,7 @@ describe("Statistics", () => {
             mockBackend
                 .onGet(/statistics.*/)
                 .reply(200, exampleStatisticsResponse);
-            const wrapper = mount(Statistics);
+            const wrapper = mountWithInertia(Statistics);
             await flushPromises();
 
             await wrapper
@@ -277,7 +277,7 @@ describe("Statistics", () => {
             mockBackend
                 .onGet(/statistics.*/)
                 .reply(200, exampleStatisticsResponse);
-            const wrapper = mount(Statistics);
+            const wrapper = mountWithInertia(Statistics);
             await flushPromises();
 
             await wrapper
@@ -303,7 +303,7 @@ describe("Statistics", () => {
             mockBackend
                 .onGet(/statistics.*/)
                 .reply(200, exampleStatisticsResponse);
-            const wrapper = mount(Statistics);
+            const wrapper = mountWithInertia(Statistics);
             await flushPromises();
 
             await wrapper

@@ -88,13 +88,14 @@ async function onDeleteClicked() {
         <div class="grid gap-2 mb-2">
             <v-button
                 class="join-button"
-                color="blue"
+                color="orange"
                 @click="joinGrowthSession"
                 text="Join Mob"
                 v-show="growthSession.canJoin(user)"/>
             <v-button
                 class="watch-button"
-                color="orange"
+                color="blue"
+                variant='outlined'
                 @click="watchGrowthSession"
                 text="Spectate"
                 v-show="growthSession.canWatch(user)"/>
