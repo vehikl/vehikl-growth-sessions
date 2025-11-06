@@ -17,7 +17,11 @@ class CommentController extends Controller
 
     public function store(Request $request, GrowthSession $growthSession)
     {
-        $comment = new Comment($request->all());
+        $validated = $request->validate([
+            'content' => 'required|string',
+        ]);
+
+        $comment = new Comment($validated);
         $comment->user()->associate($request->user());
         $comment->growthSession()->associate($growthSession);
         $comment->save();

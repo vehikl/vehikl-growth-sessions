@@ -12,5 +12,4 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__.'/legacy-web.php';
-require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

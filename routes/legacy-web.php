@@ -3,7 +3,6 @@
 
 use App\Http\Controllers\AnyDesksController;
 use App\Http\Controllers\Api\DiscordChannelsController;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\GrowthSessionController;
 use App\Http\Controllers\ShowStatisticsController;
@@ -11,10 +10,6 @@ use App\Http\Controllers\TagsController;
 use App\Http\Middleware\AuthenticateSlackApp;
 
 Route::inertia('about', 'AboutPage')->name('about');
-Route::get('login/{driver}', [LoginController::class, 'redirectToProvider'])->name('oauth.login.redirect');
-Route::get('oauth/callback', [LoginController::class, 'handleProviderCallback']);
-Route::get('oauth/{driver}/callback', [LoginController::class, 'handleProviderCallback']);
-Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::prefix('growth_sessions')->middleware(AuthenticateSlackApp::class)->name('growth_sessions.')->group(function() {
     Route::get('week', [GrowthSessionController::class, 'week'])->name('week');
