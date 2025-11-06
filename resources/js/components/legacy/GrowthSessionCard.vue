@@ -102,6 +102,7 @@ async function onDeleteClicked() {
             <v-button
                 class="leave-button"
                 color="red"
+                variant='outlined'
                 @click="leaveGrowthSession"
                 v-show="growthSession.canLeave(user)"
                 text="Leave"/>
