@@ -388,7 +388,7 @@ function renderParticipationButton(
     <div class="mt-6 mx-auto lg:mx-6 max-w-[115rem]">
             <dialog
                 id="participation-names"
-                class="w-full max-w-2xl p-0 overflow-auto rounded-2xl shadow-2xl border border-neutral-200 backdrop:bg-black/50"
+                class="w-full max-w-2xl p-0 mx-auto my-12 overflow-auto rounded-2xl shadow-2xl border border-neutral-200 backdrop:bg-black/50"
             >
                 <div class="px-6 py-8">
                     <h2
