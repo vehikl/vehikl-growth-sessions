@@ -25,6 +25,10 @@ const discordChannels: Array<IDiscordChannel> = [
     {
         name: 'Chat Two',
         id: '1234567891',
+    },
+    {
+        name: 'Chat Three',
+        id: '1321321312',
     }
 ];
 const anyDesks: Array<IAnyDesk> = [
@@ -49,6 +53,7 @@ describe('GrowthSessionForm', () => {
         GrowthSessionApi.store = vi.fn().mockImplementation(growthSession => growthSession)
         GrowthSessionApi.update = vi.fn().mockImplementation(growthSession => growthSession)
         DiscordChannelApi.index = vi.fn().mockImplementation(() => discordChannels)
+        DiscordChannelApi.occupied = vi.fn().mockImplementation(() => [])
         AnydesksApi.getAllAnyDesks = vi.fn().mockImplementation(() => anyDesks)
         wrapper = mount(GrowthSessionForm, {propsData: {owner: user, startDate}})
     });
@@ -156,7 +161,7 @@ describe('GrowthSessionForm', () => {
                     wrapper.find("#discord-channel").setValue(discordChannel.id)
                 }
 
-                if(anyDesk) {
+                if (anyDesk) {
                     wrapper.find("#anydesks-toggle").setChecked()
                     await wrapper.vm.$nextTick()
 
