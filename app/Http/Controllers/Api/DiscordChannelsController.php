@@ -17,6 +17,6 @@ class DiscordChannelsController extends Controller
 
     public function occupied(string $date, DiscordService $discord): DiscordChannelCollection
     {
-        return new DiscordChannelCollection($discord->getoccupiedChannels($date));
+        return new DiscordChannelCollection($discord->getOccupiedChannels($date));
     }
 }
