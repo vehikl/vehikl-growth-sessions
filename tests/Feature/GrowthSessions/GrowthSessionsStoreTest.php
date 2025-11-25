@@ -6,6 +6,7 @@ use App\AnyDesk;
 use App\GrowthSession;
 use App\Tag;
 use App\User;
+use App\UserType;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
@@ -199,5 +200,24 @@ class GrowthSessionsStoreTest extends TestCase
         $this->actingAs($vehiklMember)
             ->postJson(route('growth_sessions.store'), $growthSessionsAttributes)
             ->assertUnprocessable();
+    }
+
+    public function testTheOwnerIsOnlyStoredOnceInTheDatabase()
+    {
+        $newGrowthSession = GrowthSession::factory()->make()->toArray();
+        $host = User::factory()->vehiklMember()->create();
+
+        $this->actingAs($host)
+            ->post(route('growth_sessions.store', $newGrowthSession))
+            ->assertSuccessful();
+
+        $growthSession = GrowthSession::first();
+        $ownerEntries = $growthSession->members()
+            ->withPivot('user_type_id')
+            ->wherePivot('user_id', $host->id)
+            ->get();
+
+        $this->assertCount(1, $ownerEntries);
+        $this->assertEquals(UserType::OWNER_ID, $ownerEntries->first()->pivot->user_type_id);
     }
 }

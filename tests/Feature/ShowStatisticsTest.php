@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\GrowthSession;
+use App\GrowthSessionUser;
 use App\User;
 use App\UserType;
 use Carbon\CarbonInterface;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class ShowStatisticsTest extends TestCase
@@ -30,7 +32,47 @@ class ShowStatisticsTest extends TestCase
             ->assertForbidden();
     }
 
-    public function testItIncludesAListOfPeopleTheyHaveMobbedWith()
+    public function testItReturnsParticipationCountStatisticsForAllUsersInTheSystem()
+    {
+        [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->getJson(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertJson([
+                'start_date' => today()->subDays(7)->toDateString(),
+                'end_date' => today()->toDateString(),
+                'users' => [
+                    [
+                        'name' => $owner->name,
+                        'user_id' => $owner->id,
+                        'total_sessions_count' => 5,
+                        'sessions_hosted_count' => 5,
+                        'sessions_attended_count' => 0,
+                        'sessions_watched_count' => 0,
+
+                    ],
+                    [
+                        'name' => $attendee->name,
+                        'user_id' => $attendee->id,
+                        'total_sessions_count' => 5,
+                        'sessions_hosted_count' => 0,
+                        'sessions_attended_count' => 5,
+                        'sessions_watched_count' => 0,
+                    ],
+                    [
+                        'name' => $nonParticipant->name,
+                        'user_id' => $nonParticipant->id,
+                        'total_sessions_count' => 0,
+                        'sessions_hosted_count' => 0,
+                        'sessions_attended_count' => 0,
+                        'sessions_watched_count' => 0,
+                    ],
+                ]
+            ]);
+    }
+
+    public function testItIncludesAListOfPeopleTheyHaveMobbedWithAsAttendees()
     {
         [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -71,7 +113,7 @@ class ShowStatisticsTest extends TestCase
             ]);
     }
 
-    public function testItAlsoIncludesAListOfPeopleTheyHaveNotMobbedWith()
+    public function testItAlsoIncludesAListOfPeopleTheyHaveNotMobbedWithAsAttendees()
     {
         [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -121,6 +163,153 @@ class ShowStatisticsTest extends TestCase
             ]);
     }
 
+    public function testItDisregardsGrowthSessionsWithMoreThan10AttendeesWhenConsideringTheHasMobbedWith()
+    {
+        $owner = User::factory()->vehiklMember()->create(['is_visible_in_statistics' => true]);
+        $attendees = User::factory()->vehiklMember()->count(config('statistics.max_mob_size'))->create(['is_visible_in_statistics' => true]);
+
+        $growthSession = GrowthSession::factory()
+            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->create();
+
+        GrowthSessionUser::query()->insert($attendees->map(fn($attendee) => [
+            'growth_session_id' => $growthSession->id,
+            'user_id' => $attendee->id,
+            'user_type_id' => UserType::ATTENDEE_ID,
+        ])->toArray());
+
+        $this->actingAs($owner)
+            ->getJson(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertJson([
+                'users' => [
+                    [
+                        'name' => $owner->name,
+                        'user_id' => $owner->id,
+                        'has_not_mobbed_with_count' => $attendees->count()
+                    ]
+                ]
+            ]);
+    }
+
+    public function testItAllowsSomeDevelopersToHaveParticipationValidatedEvenOnLargerGrowthSessions()
+    {
+        $owner = User::factory()->vehiklMember()->create(['is_visible_in_statistics' => true]);
+        $loosenRulesUser = User::factory()->create(['name' => 'Exception', 'is_visible_in_statistics' => true]);
+        $otherAttendees = User::factory()->vehiklMember()->count(config('statistics.max_mob_size'))->create(['is_visible_in_statistics' => true]);
+
+        $growthSession = GrowthSession::factory()
+            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->create();
+
+        GrowthSessionUser::query()->insert($otherAttendees->map(fn($attendee) => [
+            'growth_session_id' => $growthSession->id,
+            'user_id' => $attendee->id,
+            'user_type_id' => UserType::ATTENDEE_ID,
+        ])->toArray());
+
+        GrowthSessionUser::query()->forceCreate([
+            'user_id' => $loosenRulesUser->id,
+            'growth_session_id' => $growthSession->id,
+            'user_type_id' => UserType::ATTENDEE_ID,
+        ]);
+
+        config()->set(['statistics.loosen_participation_rules.user_ids' => [$loosenRulesUser->id]]);
+
+        $this->actingAs($owner)
+            ->getJson(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertJson(fn(AssertableJson $json) => $json
+                ->where('users.0.has_mobbed_with.0.user_id', $loosenRulesUser->id)
+                ->etc()
+            );
+    }
+
+    public function testItAllowsSomeDevelopersToHaveParticipationValidatedEvenWhenTheyAttendAsWatchers()
+    {
+        $owner = User::factory()->vehiklMember()->create(['is_visible_in_statistics' => true]);
+        $loosenRulesUser = User::factory()->create(['name' => 'Exception', 'is_visible_in_statistics' => true]);
+
+        $growthSession = GrowthSession::factory()
+            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->create();
+
+        GrowthSessionUser::query()->forceCreate([
+            'user_id' => $loosenRulesUser->id,
+            'growth_session_id' => $growthSession->id,
+            'user_type_id' => UserType::WATCHER_ID,
+        ]);
+
+        config()->set(['statistics.loosen_participation_rules.user_ids' => [$loosenRulesUser->id]]);
+
+        $this->actingAs($owner)
+            ->getJson(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertJson(fn(AssertableJson $json) => $json
+                ->where('users.0.has_mobbed_with.0.user_id', $loosenRulesUser->id)
+                ->etc()
+            );
+    }
+
+    public function testTheDevelopersThatHaveLooseParticipationRulesStillNeedToBeInTheGrowthSessionToCountAsValid()
+    {
+        $nonParticipatingUser = User::factory()->vehiklMember()->create([
+            'name' => 'Regular', 'is_visible_in_statistics' => true
+        ]);
+        $loosenRulesUser = User::factory()->create(['name' => 'Exception', 'is_visible_in_statistics' => true]);
+
+        config()->set(['statistics.loosen_participation_rules.user_ids' => [$loosenRulesUser->id]]);
+
+        $this->actingAs($nonParticipatingUser)
+            ->getJson(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertJson(fn(AssertableJson $json) => $json
+                ->where('users.0.has_mobbed_with', [])
+                ->where('users.1.has_mobbed_with', [])
+                ->etc()
+            );
+    }
+
+    public function testItAllowsFilteringByStartTime()
+    {
+        [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->getJson(route('statistics.index', ['start_date' => today()->subDay()->toDateString()]))
+            ->assertSuccessful()
+            ->assertJson([
+                'start_date' => today()->subDay()->toDateString(),
+                'end_date' => today()->toDateString(),
+                'users' => [
+                    [
+                        'name' => $owner->name,
+                        'user_id' => $owner->id,
+                        'total_sessions_count' => 1,
+                        'sessions_hosted_count' => 1,
+                        'sessions_attended_count' => 0,
+                        'sessions_watched_count' => 0,
+
+                    ],
+                    [
+                        'name' => $attendee->name,
+                        'user_id' => $attendee->id,
+                        'total_sessions_count' => 1,
+                        'sessions_hosted_count' => 0,
+                        'sessions_attended_count' => 1,
+                        'sessions_watched_count' => 0,
+                    ],
+                    [
+                        'name' => $nonParticipant->name,
+                        'user_id' => $nonParticipant->id,
+                        'total_sessions_count' => 0,
+                        'sessions_hosted_count' => 0,
+                        'sessions_attended_count' => 0,
+                        'sessions_watched_count' => 0,
+                    ],
+                ]
+            ]);
+    }
+
     private function makeGrowthSessionWithSingleAttendee(
         User $attendee,
         User $owner,
@@ -128,7 +317,7 @@ class ShowStatisticsTest extends TestCase
     ): GrowthSession {
         return GrowthSession::factory()
             ->hasAttached($attendee, ['user_type_id' => UserType::ATTENDEE_ID], 'attendees')
-            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'watchers')
+            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')
             ->create(['date' => $date]);
     }
 
@@ -141,7 +330,7 @@ class ShowStatisticsTest extends TestCase
                 ['name' => 'Owner'],
                 ['name' => 'Attendee'],
                 ['name' => 'Non-Participant'],
-                ['name' => 'Opt-out of stats', 'is_visible_in_statistics' => false]
+                ['name' => 'Opt-out of stats', 'is_visible_in_statistics' => false],
             )
             ->create();
 
