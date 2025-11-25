@@ -29,6 +29,6 @@ class CommentController extends Controller
     {
         $comment->delete();
 
-        return new GrowthSessionResource($growthSession->fresh());
+        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
 }
