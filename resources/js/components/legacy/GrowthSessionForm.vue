@@ -134,13 +134,16 @@ async function updateGrowthSession() {
 
 async function getDiscordChannels() {
     try {
-        const discordChannelsFromApi = await DiscordChannelApi.index()
+        const discordChannelsFromApi = await DiscordChannelApi.index();
+        const occupiedFromApi = await DiscordChannelApi.occupied(date.value);
+        const occupiedChannelIds = occupiedFromApi.map(discordChannel => discordChannel.id);
+
         discordChannels.value = discordChannelsFromApi.map(discordChannel => {
             return {
                 label: discordChannel.name,
                 value: discordChannel.id
             }
-        })
+        }).filter(discordChannel => !occupiedChannelIds.includes(discordChannel.value))
     } catch (e) {
         onRequestFailed(e)
     }

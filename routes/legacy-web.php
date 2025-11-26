@@ -29,6 +29,7 @@ Route::resource('growth_sessions.comments', CommentController::class)->middlewar
 
 Route::prefix('api')->name('api.')->middleware('auth')->group(function () {
     Route::get('discord-channels',  [DiscordChannelsController::class, 'index']);
+    Route::get('discord-channels/{date}/occupied', [DiscordChannelsController::class, 'occupied']);
 });
 
 Route::get('/anydesks', [AnyDesksController::class, 'index'])->middleware('auth');

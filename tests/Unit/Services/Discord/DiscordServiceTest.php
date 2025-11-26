@@ -2,8 +2,10 @@
 
 namespace Tests\Unit\Services\Discord;
 
+use App\Models\GrowthSession;
 use App\Services\Discord\DiscordService;
 use App\Services\Discord\Models\Channel;
+use Carbon\Carbon;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -112,5 +114,36 @@ class DiscordServiceTest extends TestCase
         $channels = $discord->getChannels();
 
         $this->assertEmpty($channels);
+    }
+
+    public function testItReturnsDiscordChannelThatAreNotReserved()
+    {
+        $discordChannelId = fake()->numerify('#####');
+
+        $occupiedGrowthSession = GrowthSession::factory()->create([
+            'date' => Carbon::now(),
+            'discord_channel_id' => $discordChannelId,
+        ]);
+
+        GrowthSession::factory()->create([
+            'discord_channel_id' => $discordChannelId,
+            'date' => Carbon::now()->subDay(),
+        ]);
+        GrowthSession::factory()->create([
+            'discord_channel_id' => $discordChannelId,
+            'date' => Carbon::now()->addDay(),
+        ]);
+
+        GrowthSession::factory(2)->create();
+
+        $discordService = new DiscordService();
+
+        $result = $discordService->getOccupiedChannels(Carbon::now()->toDateString());
+
+        $this->assertCount(1, $result);
+        $this->assertEquals(
+            $occupiedGrowthSession->discord_channel_id,
+            $result->first()->id
+        );
     }
 }
