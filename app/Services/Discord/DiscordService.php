@@ -2,6 +2,7 @@
 
 namespace App\Services\Discord;
 
+use App\Models\GrowthSession;
 use App\Services\Discord\Models\Channel;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
@@ -24,5 +25,14 @@ class DiscordService
                     && $channel['id'] !== config('services.discord.vidya_id');
             })
             ->map(fn(array $channel) => new Channel($channel['id'], $channel['name']));
+    }
+
+    public function getOccupiedChannels(string $toDateString): Collection
+    {
+        return GrowthSession::query()
+            ->where('date', "=", $toDateString)
+            ->whereNotNull('discord_channel_id')
+            ->get()
+            ->map(fn(GrowthSession $gs) => new Channel($gs->discord_channel_id, ''));
     }
 }

@@ -50,6 +50,7 @@ describe('GrowthSessionForm', () => {
         GrowthSessionApi.store = vi.fn().mockImplementation(growthSession => growthSession)
         GrowthSessionApi.update = vi.fn().mockImplementation(growthSession => growthSession)
         DiscordChannelApi.index = vi.fn().mockImplementation(() => discordChannels)
+        DiscordChannelApi.occupied = vi.fn().mockImplementation(() => [])
         TagsApi.index = vi.fn().mockImplementation(() => []);
         AnydesksApi.getAllAnyDesks = vi.fn().mockImplementation(() => anyDesks)
         wrapper = mount(GrowthSessionForm, {propsData: {owner: user, startDate}})
