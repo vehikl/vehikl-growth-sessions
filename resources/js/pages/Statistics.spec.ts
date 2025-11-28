@@ -1,10 +1,10 @@
 import { describe } from "vitest";
-import { mount } from "@vue/test-utils";
 import Statistics from "./Statistics.vue";
 import MockAdapter from "axios-mock-adapter";
 import axios from "axios";
 import flushPromises from "flush-promises";
 import exampleStatisticsResponse from "../../../tests/fixtures/Statistics.json";
+import {mountWithInertia} from '@/test-utils/inertia-test-helper';
 import { HTMLInputElement } from "happy-dom";
 import { DateTime } from "@/classes/DateTime";
 
