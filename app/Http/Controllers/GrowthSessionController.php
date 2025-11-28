@@ -82,14 +82,14 @@ class GrowthSessionController extends Controller
         $growthSession->attendees()->attach($request->user(), ['user_type_id' => UserType::ATTENDEE_ID]);
         event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
 
-        return new GrowthSessionResource($growthSession);
+        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
 
     public function watch(GrowthSession $growthSession, Request $request)
     {
         $growthSession->watchers()->attach($request->user(), ['user_type_id' => UserType::WATCHER_ID]);
 
-        return new GrowthSessionResource($growthSession->refresh());
+        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
 
     public function leave(GrowthSession $growthSession, Request $request)
@@ -99,7 +99,7 @@ class GrowthSessionController extends Controller
 
         event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
 
-        return new GrowthSessionResource($growthSession);
+        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
@@ -121,7 +121,7 @@ class GrowthSessionController extends Controller
 
         event(new GrowthSessionUpdated($originalValues, $growthSession->toArray()));
 
-        return new GrowthSessionResource($growthSession);
+        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
 
     public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $growthSession)
