@@ -13,7 +13,7 @@ class SessionCreated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public GrowthSession $gs)
+    public function __construct(public GrowthSession $growthSession)
     {
         //
     }
