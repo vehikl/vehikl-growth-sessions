@@ -7,7 +7,7 @@ import {useEcho} from "@laravel/echo-vue";
 import {GrowthSession} from "@/classes/GrowthSession";
 
 useEcho('gs-channel', '.session.created', (data: GrowthSession) => {
-    alert(data);
+    console.log(data);
 }, [], "public");
 
 const page = usePage<{
