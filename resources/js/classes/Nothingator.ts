@@ -9,13 +9,29 @@ export class Nothingator {
         'Nothing at all'
     ];
 
-    private static wordsAvailable: string[] = Object.values(Nothingator.nothingInDifferentLanguages);
+    static random(seed?: number | string): string {
+        const words = [...Nothingator.nothingInDifferentLanguages];
 
-    static random(): string {
-        if (Nothingator.wordsAvailable.length === 0) {
-            Nothingator.wordsAvailable = Object.values(Nothingator.nothingInDifferentLanguages);
+        let randomValue: number;
+        if (seed !== undefined) {
+            // Use seed for deterministic selection
+            const hash = this.simpleHash(seed.toString());
+            randomValue = (hash % words.length) / words.length;
+        } else {
+            randomValue = Math.random();
         }
-        let randomIndex = Math.floor(Math.random() * Nothingator.wordsAvailable.length);
-        return Nothingator.wordsAvailable.splice(randomIndex, 1)[0];
+
+        const index = Math.floor(randomValue * words.length);
+        return words[index];
+    }
+
+    private static simpleHash(str: string): number {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32-bit integer
+        }
+        return Math.abs(hash);
     }
 }

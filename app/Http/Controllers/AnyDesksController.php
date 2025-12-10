@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\AnyDesk;
+use App\Models\AnyDesk;
 use App\Policies\GrowthSessionPolicy;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 

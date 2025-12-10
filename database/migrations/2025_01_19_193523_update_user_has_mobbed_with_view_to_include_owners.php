@@ -1,6 +1,6 @@
 <?php
 
-use App\UserType;
+use App\Models\UserType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 

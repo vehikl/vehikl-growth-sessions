@@ -1,6 +1,26 @@
 import {expect, vi} from "vitest"
+import "ziggy-js";
+import { defineComponent, h } from 'vue';
 
 window.alert = vi.fn()
+
+// Mock Inertia's Head component to prevent provider errors in tests
+const HeadStub = defineComponent({
+    name: 'Head',
+    props: ['title'],
+    setup(props, { slots }) {
+        return () => h('div', { 'data-testid': 'inertia-head' }, slots.default?.());
+    }
+});
+
+// Mock the @inertiajs/vue3 module
+vi.mock('@inertiajs/vue3', async () => {
+    const actual = await vi.importActual('@inertiajs/vue3');
+    return {
+        ...actual,
+        Head: HeadStub,
+    };
+});
 
 expect.extend({
     toBeVisible: (received, expected) => {

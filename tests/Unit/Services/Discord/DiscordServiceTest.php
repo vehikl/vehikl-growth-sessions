@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\Discord;
 
-use App\GrowthSession;
+use App\Models\GrowthSession;
 use App\Services\Discord\DiscordService;
 use App\Services\Discord\Models\Channel;
 use Carbon\Carbon;
@@ -42,7 +42,7 @@ class DiscordServiceTest extends TestCase
 
         $discord->getChannels();
 
-        Http::assertSent(function (Request $request) {
+        Http::assertSent(function(Request $request) {
             return $request->url() === "https://discord.com/api/guilds/$this->fakeDiscordGuildId/channels";
         });
     }

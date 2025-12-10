@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\User;
 use App\Services\Discord\DiscordService;
 use App\Services\Discord\Models\Channel;
-use App\User;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tests\TestCase;
 
@@ -58,25 +58,26 @@ class DiscordChannelsTest extends TestCase
         $this->mockedDiscord->method('getChannels')
             ->willReturn($fakeChannels);
 
-        $response = $this->actingAs(User::factory()->create())->get('/api/discord-channels');
-        $response->assertExactJson([
-            [
-                'id' => '1234567890',
-                'name' => 'Alpha',
-            ],
-            [
-                'id' => '1234567892',
-                'name' => 'bravo',
-            ],
-            [
-                'id' => '1234567891',
-                'name' => 'Charlie',
-            ],
-            [
-                'id' => '1234567893',
-                'name' => 'Delta',
-            ],
-        ]);
+        $this->actingAs(User::factory()->create())
+            ->get('/api/discord-channels')
+            ->assertJson([
+                [
+                    'id' => '1234567890',
+                    'name' => 'Alpha',
+                ],
+                [
+                    'id' => '1234567892',
+                    'name' => 'bravo',
+                ],
+                [
+                    'id' => '1234567891',
+                    'name' => 'Charlie',
+                ],
+                [
+                    'id' => '1234567893',
+                    'name' => 'Delta',
+                ],
+            ]);
     }
 
     public function testItRedirectsIfUserIsNotLoggedIn(): void

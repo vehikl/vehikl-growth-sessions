@@ -1,4 +1,4 @@
-import {IUser} from "../types";
+import {IUser} from "@/types";
 
 export class User implements IUser {
     avatar!: string;

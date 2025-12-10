@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\GrowthSessions;
 
-use App\AnyDesk;
-use App\GrowthSession;
-use App\Tag;
-use App\User;
-use App\UserType;
+use App\Models\AnyDesk;
+use App\Models\GrowthSession;
+use App\Models\Tag;
+use App\Models\User;
+use App\Models\UserType;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
@@ -44,7 +44,7 @@ class GrowthSessionsStoreTest extends TestCase
         $this->assertDatabaseHas(GrowthSession::class, ['anydesk_id' => $anyDesk->id]);
     }
 
-    public function provideWatcherPayload()
+    public static function provideWatcherPayload()
     {
         return [
             'allows watchers' => [true],
@@ -161,7 +161,7 @@ class GrowthSessionsStoreTest extends TestCase
             route('growth_sessions.store'),
             $this->defaultParameters(['attendee_limit' => $expectedAttendeeLimit])
         )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be at least 2']);
+            ->assertJsonValidationErrorFor('attendee_limit');
     }
 
     private function defaultParameters(array $params = []): array

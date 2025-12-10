@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\AnyDesk;
-use App\GrowthSession;
+use App\Models\AnyDesk;
+use App\Models\GrowthSession;
 use App\Rules\CannotBeInDuplicatedTimeSlot;
 use App\Rules\CannotBeWeekend;
 use Illuminate\Foundation\Http\FormRequest;

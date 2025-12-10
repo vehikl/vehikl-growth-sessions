@@ -7,7 +7,7 @@ use Illuminate\Support\Arr;
 
 class GrowthSession extends JsonResource
 {
-    public function toArray($request)
+    public function toArray($request): array
     {
         $attributes = parent::toArray($request);
 
@@ -17,23 +17,24 @@ class GrowthSession extends JsonResource
             ($this->resource->hasAttendee($user) || $this->resource->hasWatcher($user));
 
         $isSlackbot = $user?->github_nickname === config('auth.slack_app_name');
+        $isOwner = $user && $user->is($this->resource->owner);
 
-        if (!$isSlackbot && !$isParticipatingInGrowthSession) {
+        if (!$isSlackbot && !$isParticipatingInGrowthSession && !$isOwner) {
             $attributes['location'] = '< Join to see location >';
         }
 
-        if ($attributes['attendee_limit'] === \App\GrowthSession::NO_LIMIT) {
+        if ($attributes['attendee_limit'] === \App\Models\GrowthSession::NO_LIMIT) {
             $attributes['attendee_limit'] = null;
         }
 
         $attributes['attendees'] = $attributes['attendees'] ?? [];
         $isPersonNotAVehiklMember = auth()->guest() || !auth()->user()->is_vehikl_member;
 
-        if ($isPersonNotAVehiklMember) {
+        if ($isPersonNotAVehiklMember && !$isOwner) {
             $attributes['anydesk'] = null;
         }
 
-        if ($isPersonNotAVehiklMember) {
+        if ($isPersonNotAVehiklMember && !$isOwner) {
             $attributes = $this->hideGuestInformationFromPayload('attendees', $attributes, $user);
             $attributes = $this->hideGuestInformationFromPayload('watchers', $attributes, $user);
         }

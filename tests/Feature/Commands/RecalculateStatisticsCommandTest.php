@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Commands;
 
-use App\GrowthSession;
-use App\User;
+use App\Models\GrowthSession;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;

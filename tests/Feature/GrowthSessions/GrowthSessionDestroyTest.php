@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\GrowthSessions;
 
-use App\GrowthSession;
-use App\User;
-use App\UserType;
+use App\Models\GrowthSession;
+use App\Models\User;
+use App\Models\UserType;
 use Tests\TestCase;
 
 class GrowthSessionDestroyTest extends TestCase

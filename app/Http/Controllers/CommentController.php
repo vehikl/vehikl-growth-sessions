@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Comment;
+use App\Models\Comment;
 use App\Http\Requests\DeleteCommentRequest;
-use App\GrowthSession;
+use App\Models\GrowthSession;
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use Illuminate\Http\Request;
 
@@ -17,7 +17,11 @@ class CommentController extends Controller
 
     public function store(Request $request, GrowthSession $growthSession)
     {
-        $comment = new Comment($request->all());
+        $validated = $request->validate([
+            'content' => 'required|string',
+        ]);
+
+        $comment = new Comment($validated);
         $comment->user()->associate($request->user());
         $comment->growthSession()->associate($growthSession);
         $comment->save();

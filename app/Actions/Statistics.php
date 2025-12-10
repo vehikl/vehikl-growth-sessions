@@ -2,9 +2,9 @@
 
 namespace App\Actions;
 
-use App\User;
-use App\UserHasMobbedWithView;
-use App\UserType;
+use App\Models\User;
+use App\Models\UserHasMobbedWithView;
+use App\Models\UserType;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 

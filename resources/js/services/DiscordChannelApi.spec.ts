@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import {DiscordChannelApi, discordChannelResource} from './DiscordChannelApi';
-import {IDiscordChannel} from "../types/IDiscordChannel";
+import {IDiscordChannel} from "@/types/IDiscordChannel";
 
 const discordChannelsJson: Array<IDiscordChannel> = [
     {

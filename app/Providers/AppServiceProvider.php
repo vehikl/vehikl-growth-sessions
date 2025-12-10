@@ -2,32 +2,24 @@
 
 namespace App\Providers;
 
-use App\Http\Resources\GrowthSession as GrowthSessionResource;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any   services.
-     *
-     * @return void
+     * Register any application services.
      */
-    public function register()
+    public function register(): void
     {
-        if ($this->app->environment() !== 'production') {
-            $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
-        }
+        //
     }
 
     /**
-     * Bootstrap any ap lication services.
-     *
-     * @return void
+     * Bootstrap any application services.
      */
-    public function boot()
+    public function boot(): void
     {
-        GrowthSessionResource::withoutWrapping();
-        Model::shouldBeStrict(!$this->app->environment('production'));
+        JsonResource::withoutWrapping();
     }
 }

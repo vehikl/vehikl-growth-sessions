@@ -3,7 +3,7 @@
 namespace Tests\Unit\Resources;
 
 use App\Http\Resources\GrowthSessionWeek;
-use App\GrowthSession;
+use App\Models\GrowthSession;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Tests\TestCase;

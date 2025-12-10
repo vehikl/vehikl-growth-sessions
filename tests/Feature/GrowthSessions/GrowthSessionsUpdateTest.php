@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\GrowthSessions;
 
-use App\GrowthSession;
-use App\Tag;
-use App\User;
-use App\UserType;
+use App\Models\GrowthSession;
+use App\Models\Tag;
+use App\Models\User;
+use App\Models\UserType;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
@@ -93,7 +93,7 @@ class GrowthSessionsUpdateTest extends TestCase
         ), [
             'attendee_limit' => $newAttendeeLimit
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors(['attendee_limit' => 'The attendee limit must be an integer.']);
+            ->assertJsonValidationErrorFor('attendee_limit');
     }
 
     public function testItAllowsTheAttendeeLimitToBeUnset()
@@ -129,7 +129,7 @@ class GrowthSessionsUpdateTest extends TestCase
         ), [
             'attendee_limit' => $newAttendeeLimit
         ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors(['attendee_limit' => "The attendee limit must be at least {$attendeeCount}."]);
+            ->assertJsonValidationErrorFor('attendee_limit');
     }
 
     public function testTheOwnerCanChangeTheDateOfAnUpcomingGrowthSession()

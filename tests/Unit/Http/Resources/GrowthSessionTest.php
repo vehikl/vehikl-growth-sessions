@@ -3,7 +3,7 @@
 namespace Tests\Unit\Http\Resources;
 
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
-use App\GrowthSession;
+use App\Models\GrowthSession;
 use Illuminate\Http\Request;
 use Tests\TestCase;
 

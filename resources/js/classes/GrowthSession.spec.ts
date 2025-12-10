@@ -1,5 +1,5 @@
 import {GrowthSession} from './GrowthSession';
-import {IGrowthSession, IUser} from '../types';
+import {IGrowthSession, IUser} from '@/types';
 import {User} from './User';
 
 describe('GrowthSession', () => {

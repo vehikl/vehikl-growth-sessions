@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Comment;
-use App\GrowthSession;
-use App\User;
+use App\Models\Comment;
+use App\Models\GrowthSession;
+use App\Models\User;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 

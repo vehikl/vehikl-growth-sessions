@@ -2,7 +2,7 @@
 
 namespace App\Services\Discord;
 
-use App\GrowthSession;
+use App\Models\GrowthSession;
 use App\Services\Discord\Models\Channel;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
@@ -11,7 +11,7 @@ class DiscordService
 {
     public function getChannels(): Collection
     {
-        if (!config('services.discord.bot_token') || !config('services.discord.guild_id')) {
+        if(!config('services.discord.bot_token') || ! config('services.discord.guild_id')) {
             return new Collection();
         }
 

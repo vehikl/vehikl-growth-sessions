@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Email;
-use App\User;
+use App\Models\Email;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class EmailFactory extends Factory

@@ -1,6 +1,6 @@
-import {IGrowthSession} from "../types"
+import {IGrowthSession} from "@/types"
 import {ref} from "vue"
-import {GrowthSession} from "../classes/GrowthSession"
+import {GrowthSession} from "@/classes/GrowthSession"
 
 export function useGrowthSession(growthSessionJson: IGrowthSession) {
     const growthSession = ref<GrowthSession>(new GrowthSession(growthSessionJson))

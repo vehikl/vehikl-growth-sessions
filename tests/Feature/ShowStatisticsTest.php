@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\GrowthSession;
-use App\GrowthSessionUser;
-use App\User;
-use App\UserType;
+use App\Models\GrowthSession;
+use App\Models\GrowthSessionUser;
+use App\Models\User;
+use App\Models\UserType;
 use Carbon\CarbonInterface;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;

@@ -1,5 +1,5 @@
 import BaseApi from './BaseApi';
-import {IDiscordChannel} from "../types/IDiscordChannel";
+import {IDiscordChannel} from "@/types/IDiscordChannel";
 
 export const discordChannelResource = 'api/discord-channels';
 

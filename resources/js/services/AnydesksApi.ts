@@ -1,5 +1,5 @@
 import BaseApi from './BaseApi';
-import {IAnyDesk} from "../types";
+import {IAnyDesk} from "@/types";
 
 export class AnydesksApi extends BaseApi {
     static async getAllAnyDesks(): Promise<IAnyDesk[]> {
