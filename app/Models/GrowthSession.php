@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Observers\GrowthSessionObserver;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+#[ObservedBy(GrowthSessionObserver::class)]
 class GrowthSession extends Model
 {
     use HasFactory;

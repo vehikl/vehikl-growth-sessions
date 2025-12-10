@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import WeekView from '@/components/legacy/WeekView.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import About from '@/components/About.vue';
+import {useEcho} from "@laravel/echo-vue";
+import {GrowthSession} from "@/classes/GrowthSession";
+
+useEcho('gs-channel', '.session.created', (data: GrowthSession) => {
+    alert(data);
+}, [], "public");
 
 const page = usePage<{
     auth: {
