@@ -13,6 +13,8 @@ import {useGrowthSession} from "@/composables/useGrowthSession"
 import GrowthSessionTags from "@/components/legacy/GrowthSessionTags.vue";
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import {GrowthSessionApi} from "@/services/GrowthSessionApi";
+import {useEcho} from "@laravel/echo-vue";
 
 interface IProps {
     userJson?: IUser;
@@ -46,6 +48,14 @@ async function onGrowthSessionUpdated(newValues: GrowthSession) {
     growthSession.value.refresh(newValues)
     formModalState.value = "closed"
 }
+
+async function refetchGrowthSession() {
+    let value = await GrowthSessionApi.showJson(growthSession.value);
+    growthSession.value = new GrowthSession(value);
+}
+
+useEcho('gs-channel', '.session.modified', refetchGrowthSession, [], "public");
+
 </script>
 
 <template>
