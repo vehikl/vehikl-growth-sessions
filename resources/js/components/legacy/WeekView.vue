@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { IUser } from '@/types';
+import {IGrowthSession, IUser} from '@/types';
 import GrowthSessionCard from '@/components/legacy/GrowthSessionCard.vue';
 import GrowthSessionForm from '@/components/legacy/GrowthSessionForm.vue';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
@@ -13,6 +13,7 @@ import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { watchDebounced } from '@vueuse/core';
 import GrowthSessionTags from '@/components/legacy/GrowthSessionTags.vue';
 import draggable from 'vuedraggable';
+import {useEcho} from "@laravel/echo-vue";
 
 interface IGrowthSessionCardDragChange {
     added?: { element: GrowthSession; index: number };
@@ -157,6 +158,8 @@ function onTagClick(id: number) {
         selectedTagIds.value.push(id);
     }
 }
+
+useEcho('gs-channel', '.session.created', refreshGrowthSessionsOfTheWeek, [], "public");
 </script>
 
 <template>
