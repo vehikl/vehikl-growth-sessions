@@ -59,7 +59,7 @@ async function refetchGrowthSession(data: {action: string}) {
     growthSession.value = new GrowthSession(value);
 }
 
-useEcho('gs-channel', '.session.modified', refetchGrowthSession, [], "public");
+useEcho(`gs-channel.${growthSession.value.id}`, ".session.modified", refetchGrowthSession, [], "public");
 
 </script>
 

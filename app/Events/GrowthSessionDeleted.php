@@ -22,7 +22,8 @@ class GrowthSessionDeleted implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('gs-channel')
+            new Channel('gs-channel'),
+            new Channel(sprintf('gs-channel.%s', $this->growthSession->id)),
         ];
     }
 
