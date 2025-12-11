@@ -3,18 +3,30 @@
 namespace App\Events;
 
 use App\Models\GrowthSession;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class GrowthSessionDeleted
+class GrowthSessionDeleted implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable, InteractsWithSockets;
 
-    public GrowthSession $growthSession;
-
-    public function __construct(GrowthSession $growthSession)
+    public function __construct(public GrowthSession $growthSession)
     {
-        $this->growthSession = $growthSession;
+        //
+    }
+
+    public function broadcastOn(): array
+    {
+        return [
+            new Channel('gs-channel')
+        ];
+    }
+
+    public static function broadcastAs()
+    {
+        return 'session.modified';
     }
 }

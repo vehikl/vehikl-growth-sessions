@@ -9,7 +9,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class SessionCreated implements ShouldBroadcast
+class GrowthSessionModified implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -27,6 +27,6 @@ class SessionCreated implements ShouldBroadcast
 
     public static function broadcastAs()
     {
-        return 'session.created';
+        return 'session.modified';
     }
 }
