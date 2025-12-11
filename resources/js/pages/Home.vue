@@ -3,12 +3,6 @@ import { Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import WeekView from '@/components/legacy/WeekView.vue';
 import About from '@/components/About.vue';
-import {useEcho} from "@laravel/echo-vue";
-import {GrowthSession} from "@/classes/GrowthSession";
-
-useEcho('gs-channel', '.session.created', (data: GrowthSession) => {
-    console.log(data);
-}, [], "public");
 
 const page = usePage<{
     auth: {
