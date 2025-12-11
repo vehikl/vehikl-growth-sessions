@@ -13,7 +13,11 @@ class GrowthSessionModified implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public GrowthSession $growthSession)
+    const ACTION_CREATED = 'created';
+    const ACTION_UPDATED = 'updated';
+    const ACTION_RESTORED = 'restored';
+
+    public function __construct(public GrowthSession $growthSession, public string $action)
     {
         //
     }

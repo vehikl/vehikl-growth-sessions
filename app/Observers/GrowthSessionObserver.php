@@ -13,7 +13,7 @@ class GrowthSessionObserver
      */
     public function created(GrowthSession $growthSession): void
     {
-        broadcast(new GrowthSessionModified($growthSession));
+        broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_CREATED));
     }
 
     /**
@@ -21,7 +21,7 @@ class GrowthSessionObserver
      */
     public function updated(GrowthSession $growthSession): void
     {
-        broadcast(new GrowthSessionModified($growthSession));
+        broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_UPDATED));
     }
 
     /**
@@ -37,7 +37,7 @@ class GrowthSessionObserver
      */
     public function restored(GrowthSession $growthSession): void
     {
-        broadcast(new GrowthSessionModified($growthSession));
+        broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_RESTORED));
     }
 
     /**

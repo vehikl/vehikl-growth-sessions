@@ -7,13 +7,14 @@ use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
 
 class GrowthSessionDeleted implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets;
 
-    public function __construct(public GrowthSession $growthSession)
+    const ACTION_DELETED = 'deleted';
+
+    public function __construct(public GrowthSession $growthSession, public string $action = self::ACTION_DELETED)
     {
         //
     }
