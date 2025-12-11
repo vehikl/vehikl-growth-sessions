@@ -38,8 +38,15 @@ async function leaveGrowthSession() {
 
 async function onDeleteClicked() {
     if (confirm("Are you sure you want to delete?")) {
-        await props.growthSession.delete()
-        emit("delete-requested", props.growthSession)
+        try {
+            await props.growthSession.delete()
+        } catch (error: any) {
+            if (error.response?.status !== 404) {
+                console.error('Failed to delete growth session:', error)
+            }
+        } finally {
+            emit("delete-requested", props.growthSession)
+        }
     }
 }
 

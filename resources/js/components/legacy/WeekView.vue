@@ -159,7 +159,8 @@ function onTagClick(id: number) {
     }
 }
 
-useEcho('gs-channel', '.session.created', refreshGrowthSessionsOfTheWeek, [], "public");
+useEcho('gs-channel', '.session.modified', getAllGrowthSessionsOfTheWeek, [], "public");
+
 </script>
 
 <template>
