@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\GrowthSessionModified;
 use App\Models\Comment;
 use App\Http\Requests\DeleteCommentRequest;
 use App\Models\GrowthSession;
@@ -26,12 +27,17 @@ class CommentController extends Controller
         $comment->growthSession()->associate($growthSession);
         $comment->save();
         $growthSession = $growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']);
+
+        broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_UPDATED));
+
         return new GrowthSessionResource($growthSession);
     }
 
     public function destroy(DeleteCommentRequest $request, GrowthSession $growthSession,Comment $comment)
     {
         $comment->delete();
+
+        broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_UPDATED));
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
