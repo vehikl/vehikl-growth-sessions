@@ -13,7 +13,6 @@ use App\Http\Requests\StoreGrowthSessionRequest;
 use App\Http\Requests\UpdateGrowthSessionRequest;
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
-use App\Models\AnyDesk;
 use App\Models\GrowthSession;
 use App\Models\UserType;
 use App\Policies\GrowthSessionPolicy;
@@ -83,7 +82,7 @@ class GrowthSessionController extends Controller
         if (!$growthSession->attendees()->where('user_id', $request->user()->id)->exists()) {
             $growthSession->attendees()->attach($request->user(), ['user_type_id' => UserType::ATTENDEE_ID]);
             event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
-            broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_UPDATED));
+            broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
         }
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
@@ -94,7 +93,7 @@ class GrowthSessionController extends Controller
         // Check if user is already a watcher (idempotency)
         if (!$growthSession->watchers()->where('user_id', $request->user()->id)->exists()) {
             $growthSession->watchers()->attach($request->user(), ['user_type_id' => UserType::WATCHER_ID]);
-            broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_UPDATED));
+            broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
         }
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
@@ -106,7 +105,7 @@ class GrowthSessionController extends Controller
         $growthSession->attendees()->detach($request->user());
 
         event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
-        broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_UPDATED));
+        broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
