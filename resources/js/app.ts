@@ -6,16 +6,6 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { configureEcho } from '@laravel/echo-vue';
-import { configureEcho } from '@laravel/echo-vue';
-import { configureEcho } from '@laravel/echo-vue';
-
-configureEcho({
-    broadcaster: 'reverb',
-});
-
-configureEcho({
-    broadcaster: 'reverb',
-});
 import AppLayout from "@/layouts/AppLayout.vue"
 
 // Extend ImportMeta interface for Vite...
