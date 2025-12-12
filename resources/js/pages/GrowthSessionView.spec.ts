@@ -21,6 +21,11 @@ const user: IUser = {
 };
 const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
 
+vi.mock("@laravel/echo-vue", () => ({
+    default: vi.fn(),
+    useEcho: vi.fn()
+}));
+
 describe('GrowthSessionView', () => {
     let wrapper: Wrapper<GrowthSessionView>;
 
