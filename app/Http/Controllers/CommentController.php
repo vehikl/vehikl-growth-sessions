@@ -28,7 +28,7 @@ class CommentController extends Controller
         $comment->save();
         $growthSession = $growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']);
 
-        broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_UPDATED));
+        broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
 
         return new GrowthSessionResource($growthSession);
     }
@@ -37,7 +37,7 @@ class CommentController extends Controller
     {
         $comment->delete();
 
-        broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_UPDATED));
+        broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }

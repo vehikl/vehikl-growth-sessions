@@ -13,7 +13,7 @@ class GrowthSessionObserver
      */
     public function created(GrowthSession $growthSession): void
     {
-        broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_CREATED));
+        broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_CREATED));
     }
 
     /**
@@ -21,7 +21,7 @@ class GrowthSessionObserver
      */
     public function updated(GrowthSession $growthSession): void
     {
-        broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_UPDATED));
+        broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
     }
 
     /**
@@ -29,7 +29,7 @@ class GrowthSessionObserver
      */
     public function deleted(GrowthSession $growthSession): void
     {
-        broadcast(new GrowthSessionDeleted($growthSession));
+        broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_DELETED));
     }
 
     /**
@@ -37,7 +37,7 @@ class GrowthSessionObserver
      */
     public function restored(GrowthSession $growthSession): void
     {
-        broadcast(new GrowthSessionModified($growthSession, GrowthSessionModified::ACTION_RESTORED));
+        broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_RESTORED));
     }
 
     /**
@@ -45,6 +45,6 @@ class GrowthSessionObserver
      */
     public function forceDeleted(GrowthSession $growthSession): void
     {
-        broadcast(new GrowthSessionDeleted($growthSession));
+        broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_DELETED));
     }
 }

@@ -16,8 +16,9 @@ class GrowthSessionModified implements ShouldBroadcast
     const ACTION_CREATED = 'created';
     const ACTION_UPDATED = 'updated';
     const ACTION_RESTORED = 'restored';
+    const ACTION_DELETED = 'deleted';
 
-    public function __construct(public GrowthSession $growthSession, public string $action)
+    public function __construct(public int $growthSessionId, public string $action)
     {
         //
     }
@@ -26,7 +27,7 @@ class GrowthSessionModified implements ShouldBroadcast
     {
         return [
             new Channel('gs-channel'),
-            new Channel(sprintf('gs-channel.%s', $this->growthSession->id)),
+            new Channel(sprintf('gs-channel.%s', $this->growthSessionId)),
         ];
     }
 
