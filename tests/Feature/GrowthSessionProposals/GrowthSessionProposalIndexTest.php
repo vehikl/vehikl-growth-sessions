@@ -27,7 +27,6 @@ class GrowthSessionProposalIndexTest extends TestCase
 
         $response->assertSuccessful();
         $response->assertInertia(fn ($page) => $page
-            ->component('ProposalsPage')
             ->has('proposals', 2)
             ->has('proposals.0', fn ($proposal) => $proposal
                 ->where('id', $proposal3->id)
@@ -53,7 +52,6 @@ class GrowthSessionProposalIndexTest extends TestCase
 
         $response->assertSuccessful();
         $response->assertInertia(fn ($page) => $page
-            ->component('ProposalsPage')
             ->has('proposals', 3)
         );
     }

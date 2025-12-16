@@ -98,7 +98,7 @@ class GrowthSessionProposalApproveTest extends TestCase
             'end_time' => '05:00 pm',
         ]);
 
-        $growthSession = GrowthSession::where('title', $proposal->title)->first();
+        $growthSession = GrowthSession::where('title', $proposal->title)->firstOrFail();
 
         $this->assertCount(3, $growthSession->tags);
         $this->assertEqualsCanonicalizing(
