@@ -135,5 +135,6 @@ class GrowthSessionController extends Controller
     public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $growthSession)
     {
         $growthSession->delete();
+        event(new GrowthSessionDeleted($growthSession));
     }
 }
