@@ -13,6 +13,7 @@ import GrowthSessionCard from "./GrowthSessionCard.vue"
 import {AnydesksApi} from "@/services/AnydesksApi"
 import {vi} from "vitest"
 import { TagsApi } from '@/services/TagsApi';
+import {useEcho} from "@laravel/echo-vue";
 
 const authVehiklUser: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -39,6 +40,11 @@ const metadataForGrowthSessionsFixture = {
 };
 
 const todayDate: string = metadataForGrowthSessionsFixture.today.date;
+
+vi.mock("@laravel/echo-vue", () => ({
+    default: vi.fn(),
+    useEcho: vi.fn()
+}));
 
 describe('WeekView', () => {
     let wrapper: Wrapper<WeekView>;

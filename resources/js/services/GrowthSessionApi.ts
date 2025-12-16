@@ -29,6 +29,15 @@ export class GrowthSessionApi extends BaseApi {
         return new GrowthSession(response.data);
     }
 
+    static async showJson(target: IGrowthSession): Promise<IGrowthSession> {
+        let response = await BaseApi.httpRequest.get<IGrowthSession>(`/${growthSessionResource}/${target.id}`, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        return response.data;
+    }
+
     static async delete(target: IGrowthSession): Promise<boolean> {
         await BaseApi.httpRequest.delete(`/${growthSessionResource}/${target.id}`);
         return true;

@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import WeekView from '@/components/legacy/WeekView.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import About from '@/components/About.vue';
 
 const page = usePage<{
