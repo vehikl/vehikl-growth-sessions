@@ -79,15 +79,21 @@ class GrowthSessionController extends Controller
             throw new AttendeeLimitReached;
         }
 
-        $growthSession->attendees()->attach($request->user(), ['user_type_id' => UserType::ATTENDEE_ID]);
-        event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
+        // Check if user is already an attendee (idempotency)
+        if (!$growthSession->attendees()->where('user_id', $request->user()->id)->exists()) {
+            $growthSession->attendees()->attach($request->user(), ['user_type_id' => UserType::ATTENDEE_ID]);
+            event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
+        }
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
 
     public function watch(GrowthSession $growthSession, Request $request)
     {
-        $growthSession->watchers()->attach($request->user(), ['user_type_id' => UserType::WATCHER_ID]);
+        // Check if user is already a watcher (idempotency)
+        if (!$growthSession->watchers()->where('user_id', $request->user()->id)->exists()) {
+            $growthSession->watchers()->attach($request->user(), ['user_type_id' => UserType::WATCHER_ID]);
+        }
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
