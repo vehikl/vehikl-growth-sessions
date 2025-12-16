@@ -8,6 +8,7 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserType;
 use Illuminate\Http\Response;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class GrowthSessionsStoreTest extends TestCase
@@ -52,7 +53,7 @@ class GrowthSessionsStoreTest extends TestCase
         ];
     }
 
-    /** @dataProvider provideWatcherPayload */
+    #[DataProvider('provideWatcherPayload')]
     public function testAGrowthSessionCanBeCreatedWithAllowWatchers($watcherFlag)
     {
         $this->setTestNow('2020-01-15');

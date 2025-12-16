@@ -142,9 +142,7 @@ class GrowthSessionsShowTest extends TestCase
         $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
     }
 
-    /**
-     * @dataProvider providesGrowthSessionGuests
-     */
+    #[DataProvider('providesGrowthSessionGuests')]
     public function testItDoesNotShowGuestDetailsToNonVehiklUsers($guestUserType, $guestRelationship)
     {
         /** @var User $nonVehiklMember */
@@ -164,9 +162,7 @@ class GrowthSessionsShowTest extends TestCase
             ->assertDontSee($guestMember->github_nickname);
     }
 
-    /**
-     * @dataProvider providesGrowthSessionGuests
-     */
+    #[DataProvider('providesGrowthSessionGuests')]
     public function testItCanShowGuestDetailsForVehiklUsers($guestUserType, $guestRelationship)
     {
         $vehiklMember = User::factory()->vehiklMember()->create();

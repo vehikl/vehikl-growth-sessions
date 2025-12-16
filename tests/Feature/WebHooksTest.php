@@ -9,6 +9,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class WebHooksTest extends TestCase
@@ -137,9 +138,7 @@ class WebHooksTest extends TestCase
     }
 
 
-    /**
-     * @dataProvider providesActionsOutsideOfWebHookTimes
-     */
+    #[DataProvider('providesActionsOutsideOfWebHookTimes')]
     public function testItDoesNotSendWebHookNotificationsOutsideOfTheSetStartAndEndTimes(
         $startTime,
         $endTime,
