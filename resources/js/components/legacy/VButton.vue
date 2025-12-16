@@ -33,7 +33,7 @@ const colorClasses = computed(() => {
 <template>
     <button
         :class="`${colorClasses} transition-smooth font-semibold py-2.5 px-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2`"
-        @click.prevent="() => $emit('click')"
+        @click.stop.prevent="() => $emit('click')"
     >
         {{ text }}
     </button>
