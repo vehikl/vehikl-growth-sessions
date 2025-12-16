@@ -18,7 +18,12 @@ class GrowthSessionModified implements ShouldBroadcast
     const ACTION_RESTORED = 'restored';
     const ACTION_DELETED = 'deleted';
 
-    public function __construct(public int $growthSessionId, public string $action)
+    const TYPE_SESSION = 'session';
+    const TYPE_COMMENT = 'comment';
+    const TYPE_ATTENDEES = 'attendees';
+    const TYPE_WATCHERS = 'watchers';
+
+    public function __construct(public int $growthSessionId, public string $action, public string $type = self::TYPE_SESSION)
     {
         //
     }

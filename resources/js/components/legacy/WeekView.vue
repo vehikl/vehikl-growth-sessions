@@ -159,7 +159,15 @@ function onTagClick(id: number) {
     }
 }
 
-useEcho('gs-channel', '.session.modified', getAllGrowthSessionsOfTheWeek, [], "public");
+async function refreshGrowthSessions(data: {type: string}) {
+    const ignoredEvents = ['comment', 'watchers'];
+
+    if (!ignoredEvents.includes(data.type)) {
+        await getAllGrowthSessionsOfTheWeek();
+    }
+}
+
+useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], "public");
 
 </script>
 
