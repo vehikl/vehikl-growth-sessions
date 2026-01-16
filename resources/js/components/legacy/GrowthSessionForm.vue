@@ -10,6 +10,7 @@ import {computed, onBeforeMount, ref, watch} from "vue"
 import VSelect from "./VSelect.vue"
 import Multiselect from "@vueform/multiselect"
 import {TagsApi} from "@/services/TagsApi";
+import ConfirmationModal from "./ConfirmationModal.vue"
 
 interface IProps {
     owner: IUser;
@@ -38,8 +39,14 @@ const anyDesks = ref<IDropdownOption[]>([])
 const anydesksToggle = ref<boolean>(false)
 const tagIds = ref<string[]>([])
 const tagOptions = ref<any>({})
+const publicConfirmationModalState = ref<"open" | "closed">("closed")
 
 const isCreating = computed(() => !props.growthSession?.id)
+const requiresPublicConfirmation = computed(() => {
+    const isNewPublicSession = isCreating.value && isPublic.value
+    const isBeingMadePublic = !isCreating.value && isPublic.value && !props.growthSession?.is_public
+    return isNewPublicSession || isBeingMadePublic
+})
 const isReadyToSubmit = computed(() => !!startTime.value
     && !!endTime.value
     && !!date.value
@@ -90,10 +97,27 @@ onBeforeMount(() => {
 })
 
 function onSubmit() {
+    if (requiresPublicConfirmation.value) {
+        publicConfirmationModalState.value = "open"
+        return
+    }
+    proceedWithSubmit()
+}
+
+function proceedWithSubmit() {
     if (isCreating.value) {
         return createGrowthSession()
     }
     updateGrowthSession()
+}
+
+function onPublicConfirmed() {
+    publicConfirmationModalState.value = "closed"
+    proceedWithSubmit()
+}
+
+function onPublicDismissed() {
+    publicConfirmationModalState.value = "closed"
 }
 
 function onRequestFailed(exception: any) {
@@ -333,6 +357,16 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                     ref="submit-button"
                     v-text="isCreating ? 'Create' : 'Update'">
                 </button>
+
+        <ConfirmationModal
+            v-if="publicConfirmationModalState === 'open'"
+            state="open"
+            title="Make Session Public?"
+            message="Public sessions are visible to anyone outside Vehikl. Are you sure you want to make this session public?"
+            confirm-label="Yes, make public"
+            @confirmed="onPublicConfirmed"
+            @dismissed="onPublicDismissed"
+        />
     </form>
 </template>
 <style src="@vueform/multiselect/themes/default.css"></style>
