@@ -47,6 +47,8 @@ describe('GrowthSessionForm', () => {
     let wrapper:  ReturnType<typeof mount>;
 
     beforeEach(() => {
+        HTMLDialogElement.prototype.showModal = vi.fn()
+        HTMLDialogElement.prototype.close = vi.fn()
         GrowthSessionApi.store = vi.fn().mockImplementation(growthSession => growthSession)
         GrowthSessionApi.update = vi.fn().mockImplementation(growthSession => growthSession)
         DiscordChannelApi.index = vi.fn().mockImplementation(() => discordChannels)
@@ -314,8 +316,68 @@ describe('GrowthSessionForm', () => {
             await wrapper.find("#is-public").setChecked(true)
 
             wrapper.find("button[type=submit]").trigger("click")
+            await wrapper.vm.$nextTick()
+
+            await wrapper.find(".confirm-button").trigger("click")
+            await flushPromises()
 
             expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining({is_public: true}))
+        })
+
+        it('shows confirmation modal when creating a public growth session', async () => {
+            await wrapper.find("#title").setValue("Test Title")
+            await wrapper.find("#topic").setValue("Test Topic")
+            await wrapper.find("#location").setValue("Test Location")
+            await wrapper.find("#is-public").setChecked(true)
+
+            await wrapper.find("button[type=submit]").trigger("click")
+            await wrapper.vm.$nextTick()
+
+            expect(wrapper.find("dialog").exists()).toBe(true)
+            expect(wrapper.text()).toContain("Make Session Public?")
+        })
+
+        it('creates growth session after user confirms in modal', async () => {
+            await wrapper.find("#title").setValue("Test Title")
+            await wrapper.find("#topic").setValue("Test Topic")
+            await wrapper.find("#location").setValue("Test Location")
+            await wrapper.find("#is-public").setChecked(true)
+
+            await wrapper.find("button[type=submit]").trigger("click")
+            await wrapper.vm.$nextTick()
+
+            await wrapper.find(".confirm-button").trigger("click")
+            await flushPromises()
+
+            expect(GrowthSessionApi.store).toHaveBeenCalled()
+        })
+
+        it('does not create growth session when user cancels in modal', async () => {
+            await wrapper.find("#title").setValue("Test Title")
+            await wrapper.find("#topic").setValue("Test Topic")
+            await wrapper.find("#location").setValue("Test Location")
+            await wrapper.find("#is-public").setChecked(true)
+
+            await wrapper.find("button[type=submit]").trigger("click")
+            await wrapper.vm.$nextTick()
+
+            const cancelButton = wrapper.findAll("button").find(btn => btn.text() === "Cancel")
+            await cancelButton?.trigger("click")
+            await flushPromises()
+
+            expect(GrowthSessionApi.store).not.toHaveBeenCalled()
+        })
+
+        it('does not show confirmation modal when creating a private growth session', async () => {
+            await wrapper.find("#title").setValue("Test Title")
+            await wrapper.find("#topic").setValue("Test Topic")
+            await wrapper.find("#location").setValue("Test Location")
+
+            await wrapper.find("button[type=submit]").trigger("click")
+            await wrapper.vm.$nextTick()
+
+            expect(wrapper.find("dialog").exists()).toBe(false)
+            expect(GrowthSessionApi.store).toHaveBeenCalled()
         })
     })
 
@@ -333,6 +395,41 @@ describe('GrowthSessionForm', () => {
         it('allows is public field to be editable', () => {
             expect(wrapper.find("#is-public").exists()).toBe(true)
         });
+
+        it('shows confirmation modal when updating a private session to public', async () => {
+            const privateGrowthSession = { ...growthSessionWithCommentsJson, is_public: false }
+            wrapper = mount(GrowthSessionForm, {
+                propsData: {
+                    owner: user,
+                    startDate,
+                    growthSession: privateGrowthSession
+                }
+            })
+
+            await wrapper.find("#is-public").setChecked(true)
+            await wrapper.find("button[type=submit]").trigger("click")
+            await wrapper.vm.$nextTick()
+
+            expect(wrapper.find("dialog").exists()).toBe(true)
+            expect(wrapper.text()).toContain("Make Session Public?")
+        })
+
+        it('does not show confirmation modal when updating an already public session', async () => {
+            const publicGrowthSession = { ...growthSessionWithCommentsJson, is_public: true }
+            wrapper = mount(GrowthSessionForm, {
+                propsData: {
+                    owner: user,
+                    startDate,
+                    growthSession: publicGrowthSession
+                }
+            })
+
+            await wrapper.find("button[type=submit]").trigger("click")
+            await wrapper.vm.$nextTick()
+
+            expect(wrapper.find("dialog").exists()).toBe(false)
+            expect(GrowthSessionApi.update).toHaveBeenCalled()
+        })
     });
 
 });

@@ -10,6 +10,8 @@ const props = withDefaults(defineProps<{
     variant: "filled"
 })
 
+defineEmits(['click'])
+
 const colorClasses = computed(() => {
     const base = {
         blue: {
