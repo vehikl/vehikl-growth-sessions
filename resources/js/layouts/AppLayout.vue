@@ -22,7 +22,7 @@ const isExpanded = ref(false);
             <div class="mr-6 flex flex-shrink-0 items-center">
                 <Link :href="route('home')" class="transition-smooth hover:opacity-80 flex gap-4 items-center">
                     <VehiklLogo />
-                    <span class="hidden lg:block text-2xl font-bold text-white tracking-wider leading-none">GROWTH SESSIONS</span>
+                    <span class="hidden lg:block text-2xl font-bold text-white uppercase tracking-wider leading-none">Growth Sessions</span>
                 </Link>
             </div>
             <div class="block lg:hidden">
@@ -56,7 +56,7 @@ const isExpanded = ref(false);
                         </a>
                     </template>
                     <template v-else>
-                        <Link :href="route('logout')" method="post" as="button" class="mt-4 flex items-center tracking-wider hover:text-vehikl-orange transition-smooth lg:mt-0">
+                        <Link :href="route('logout')" method="post" as="button" class="mt-4 flex items-center uppercase tracking-wider hover:text-vehikl-orange transition-smooth lg:mt-0">
                             <v-avatar class="mr-3" :src="$page.props.auth.user.avatar" alt="Your Avatar" :size="6"></v-avatar>
                             Logout
                         </Link>
