@@ -55,5 +55,6 @@ return [
         'guild_id' => env('DISCORD_GUILD_ID'),
         'bot_token' => env('DISCORD_BOT_TOKEN'),
         'vidya_id' => env('DISCORD_VIDYA_ID'),
+        'use_fake' => env('DISCORD_USE_FAKE', false),
     ],
 ];
