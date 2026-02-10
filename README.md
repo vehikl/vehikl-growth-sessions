@@ -83,6 +83,38 @@ sail artisan test
 For more information, see:
  - [Laravel socialite](https://laravel.com/docs/7.x/socialite#configuration)
 
+### Setting up the Slack Integration
+
+You will need slack admin privileges, as far as I can tell.
+
+#### Setup Bot OAuth
+
+1. Open Slack `Admin` gear on the furthest right drawer menu (under Home, DMs, Activity, Files, Later, and More button-tabs)
+2. Click Apps & Workflows (will open slack in the browser)
+3. In the browser, on the top navigation, click `Build`
+4. Click `Create New App` and pick `From Scratch`
+5. Click `OAuth & Permissions` in the left menu
+6. Copy `Bot User OAuth Token` and put it in the env as `SLACK_CHAT_TOKEN`
+7. Under `Bot Token Scopes`, you will need to add `chat:write`
+
+#### Get the channel ID
+
+Using `#channel-name` works for posting new messages, but not for updating those messages, so it's better to get the internal slack id.
+
+1. In slack, open the channel you want to use
+2. In the vertical ellipsis menu on the top right of the channel view, click `Open channel details`
+3. At the very bottom of the modal, there is some text `Channel ID: C________`, copy that ID, and use it in env `SLACK_CHAT_CHANNEL`
+
+#### Send the bot into your channel
+
+If you don't do this step, it's possible your messages will send failing with an error about the channel being invalid
+
+1. In slack, open the channel you want to use
+2. In the vertical ellipsis menu on the top right of the channel view, click `Open channel details`
+3. In the modal, click the `Integrations` tab
+4. In the `Apps` section, click `Add apps`
+5. Find your app in the list, and click `Add`
+
 ## Additional Notes
 
 - Statistics can be seen on `/statistics`
