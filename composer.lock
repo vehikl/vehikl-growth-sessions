@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1231362b7a0f9733e42f502d240c0d33",
+    "content-hash": "8dbbc8eab6ea38012401f0513e43022c",
     "packages": [
         {
             "name": "brick/math",
@@ -4804,6 +4804,53 @@
                 }
             ],
             "time": "2024-06-11T12:45:25+00:00"
+        },
+        {
+            "name": "slack-php/slack-block-kit",
+            "version": "2.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/slack-php/slack-php-block-kit.git",
+                "reference": "ecc1d732c5e90e9b43fc0fee4ac22de407ca3e5e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/slack-php/slack-php-block-kit/zipball/ecc1d732c5e90e9b43fc0fee4ac22de407ca3e5e",
+                "reference": "ecc1d732c5e90e9b43fc0fee4ac22de407ca3e5e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "ext-mbstring": "*",
+                "friendsofphp/php-cs-fixer": "^3.6",
+                "phpstan/phpstan": "^1.4",
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SlackPhp\\BlockKit\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "OOP interface for writing Slack Block Kit messages and modals",
+            "support": {
+                "issues": "https://github.com/slack-php/slack-php-block-kit/issues",
+                "source": "https://github.com/slack-php/slack-php-block-kit/tree/2.3.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/jeremeamia",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-04-07T09:48:18+00:00"
         },
         {
             "name": "symfony/clock",
@@ -10177,5 +10224,5 @@
         "php": "^8.2"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
