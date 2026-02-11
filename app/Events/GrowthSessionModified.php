@@ -23,9 +23,22 @@ class GrowthSessionModified implements ShouldBroadcast
     const TYPE_ATTENDEES = 'attendees';
     const TYPE_WATCHERS = 'watchers';
 
+    public static function fire(GrowthSession $growthSession, string $action, string $type): self
+    {
+        $event = new self($growthSession->id, $action, $type);
+        event($event);
+        broadcast($event);
+        return $event;
+    }
+
     public function __construct(public int $growthSessionId, public string $action, public string $type = self::TYPE_SESSION)
     {
         //
+    }
+
+    public function growthSession(): ?GrowthSession
+    {
+        return GrowthSession::find($this->growthSessionId);
     }
 
     public function broadcastOn(): array

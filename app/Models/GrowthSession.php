@@ -44,7 +44,8 @@ class GrowthSession extends Model
         'discord_channel_id',
         'is_public',
         'anydesk_id',
-        'allow_watchers'
+        'allow_watchers',
+        'slack_thread_ts',
     ];
 
     protected $attributes = [
