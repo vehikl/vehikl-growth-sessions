@@ -33,6 +33,10 @@ return [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
+        'chat' => [
+            'token' => env('SLACK_CHAT_TOKEN'),
+            'channel' => env('SLACK_CHAT_CHANNEL'),
+        ]
     ],
 
     'github' => [
@@ -51,5 +55,6 @@ return [
         'guild_id' => env('DISCORD_GUILD_ID'),
         'bot_token' => env('DISCORD_BOT_TOKEN'),
         'vidya_id' => env('DISCORD_VIDYA_ID'),
+        'use_fake' => env('DISCORD_USE_FAKE', false),
     ],
 ];

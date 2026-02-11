@@ -15,6 +15,7 @@
         "laravel/reverb": "^1.6",
         "laravel/socialite": "^5.20",
         "laravel/tinker": "^2.10.1",
+        "slack-php/slack-block-kit": "^2.3",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {
