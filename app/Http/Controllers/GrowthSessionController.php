@@ -97,7 +97,6 @@ class GrowthSessionController extends Controller
         // Check if user is already a watcher (idempotency)
         if (!$growthSession->watchers()->where('user_id', $request->user()->id)->exists()) {
             $growthSession->watchers()->attach($request->user(), ['user_type_id' => UserType::WATCHER_ID]);
-//            broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED, GrowthSessionModified::TYPE_WATCHERS));
             GrowthSessionModified::fire($growthSession, GrowthSessionModified::ACTION_UPDATED, GrowthSessionModified::TYPE_WATCHERS);
 
         }
@@ -111,12 +110,10 @@ class GrowthSessionController extends Controller
         $attendeesDetachResult = $growthSession->attendees()->detach($request->user());
 
         if ($watchersDetachResult) {
-//            broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED, GrowthSessionModified::TYPE_WATCHERS));
             GrowthSessionModified::fire($growthSession, GrowthSessionModified::ACTION_DELETED, GrowthSessionModified::TYPE_WATCHERS);
         }
 
         if ($attendeesDetachResult) {
-//            broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED, GrowthSessionModified::TYPE_ATTENDEES));
             GrowthSessionModified::fire($growthSession, GrowthSessionModified::ACTION_DELETED, GrowthSessionModified::TYPE_ATTENDEES);
         }
 
