@@ -40,6 +40,11 @@ return Application::configure(basePath: dirname(__DIR__))
             ->timezone('America/Toronto')
             ->at('12:30')
             ->daily();
+
+        $schedule->command('slack:post-daily-sessions')
+            ->timezone('America/Toronto')
+            ->at('09:00')
+            ->daily();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
