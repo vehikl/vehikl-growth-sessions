@@ -54,8 +54,6 @@ class Messenger
             'blocks' => $blocks,
         ];
 
-        info('Messenger.updateMessage', $body);
-
         return Message::fromResponse(
             Http::acceptJson()
                 ->contentType('application/json; charset=utf-8')

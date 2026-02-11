@@ -14,6 +14,11 @@ class SlackPostListener
     {
     }
 
+    /**
+     * @throws CircularDependencyException
+     * @throws BindingResolutionException
+     * @throws ConnectionException
+     */
     protected function postGrowthSessionOnSlack(GrowthSessionModified $event): void
     {
         $this->slack->post($event->growthSession());
@@ -25,9 +30,6 @@ class SlackPostListener
     }
 
     /**
-     * @throws CircularDependencyException
-     * @throws ConnectionException
-     * @throws BindingResolutionException
      */
     public function handle(GrowthSessionModified $event): void
     {
