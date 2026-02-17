@@ -28,16 +28,12 @@ class CommentController extends Controller
         $comment->save();
         $growthSession = $growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']);
 
-        GrowthSessionModified::fire($growthSession, GrowthSessionModified::ACTION_UPDATED, GrowthSessionModified::TYPE_COMMENT);
-
         return new GrowthSessionResource($growthSession);
     }
 
     public function destroy(DeleteCommentRequest $request, GrowthSession $growthSession,Comment $comment)
     {
         $comment->delete();
-
-        GrowthSessionModified::fire($growthSession, GrowthSessionModified::ACTION_DELETED, GrowthSessionModified::TYPE_COMMENT);
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
