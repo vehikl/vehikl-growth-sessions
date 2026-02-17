@@ -155,4 +155,21 @@ class GrowthSession extends Model
     {
         return ! ! $this->watchers->find($watcher);
     }
+
+    public function hasUnlimitedSlots(): bool
+    {
+        return $this->attendee_limit === self::NO_LIMIT;
+    }
+
+    public function hasOpenSlots(): bool
+    {
+        return $this->remainingSlots() != 0;
+    }
+
+    public function remainingSlots(): int
+    {
+        return $this->hasUnlimitedSlots()
+            ? -1
+            : max(0, $this->attendee_limit - $this->attendees()->count());
+    }
 }
