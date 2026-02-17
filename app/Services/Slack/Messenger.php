@@ -4,7 +4,9 @@ namespace App\Services\Slack;
 
 use App\Services\Slack\Responses\Message;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class Messenger
 {
@@ -32,10 +34,7 @@ class Messenger
         }
 
         return Message::fromResponse(
-            Http::acceptJson()
-                ->contentType('application/json; charset=utf-8')
-                ->withToken(config('services.slack.chat.token'))
-                ->post('https://slack.com/api/chat.postMessage', $data)
+            $this->postJson('https://slack.com/api/chat.postMessage', $data)
         );
     }
 
@@ -55,10 +54,24 @@ class Messenger
         ];
 
         return Message::fromResponse(
-            Http::acceptJson()
-                ->contentType('application/json; charset=utf-8')
-                ->withToken(config('services.slack.chat.token'))
-                ->post('https://slack.com/api/chat.update', $body)
+            $this->postJson('https://slack.com/api/chat.update', $body)
         );
+    }
+
+    /**
+     * @throws ConnectionException
+     */
+    protected function postJson(string $uri, array $body): Response
+    {
+        Log::debug('Messenger.postJson.request ' . $uri, $body);
+
+        $response = Http::acceptJson()
+            ->contentType('application/json; charset=utf-8')
+            ->withToken(config('services.slack.chat.token'))
+            ->post($uri, $body);
+
+        Log::debug('Messenger.postJson.response ' . $uri, $response->json());
+
+        return $response;
     }
 }
