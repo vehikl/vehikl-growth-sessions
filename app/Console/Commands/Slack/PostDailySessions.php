@@ -29,8 +29,9 @@ class PostDailySessions extends Command
     {
         GrowthSession::query()
             ->where('date', now()->timezone('America/Toronto')->toDateString())
-            ->orderBy('start_at')
+            ->orderBy('start_time')
             ->each(function (GrowthSession $session) use ($slack) {
+
                 $slack->post($session);
             });
     }
