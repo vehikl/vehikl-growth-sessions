@@ -47,15 +47,22 @@ class Messenger
             return new Message(['ok' => false, 'error' => 'Not configured']);
         }
 
-        $body = [
+        return Message::fromResponse(
+            $this->postJson('https://slack.com/api/chat.update', [
+                'channel' => config('services.slack.chat.channel'),
+                'ts' => $message_ts,
+                'blocks' => $blocks,
+            ])
+        );
+    }
+
+    public function deleteMessage(string $message_ts): bool
+    {
+        $response = $this->postJson('https://slack.com/api/chat.delete', [
             'channel' => config('services.slack.chat.channel'),
             'ts' => $message_ts,
-            'blocks' => $blocks,
-        ];
-
-        return Message::fromResponse(
-            $this->postJson('https://slack.com/api/chat.update', $body)
-        );
+        ]);
+        return $response->ok() && $response->json('ok');
     }
 
     /**

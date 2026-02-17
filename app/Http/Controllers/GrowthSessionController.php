@@ -71,8 +71,7 @@ class GrowthSessionController extends Controller
             $newGrowthSession->tags()->sync($request->input('tags'));
         });
 
-        $newGrowthSession->fresh();
-        event(new GrowthSessionCreated($newGrowthSession));
+        event(new AnnounceGrowthSession($newGrowthSession->refresh()));
 
         return new GrowthSessionResource($newGrowthSession);
     }

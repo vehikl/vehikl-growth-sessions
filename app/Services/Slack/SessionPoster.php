@@ -53,6 +53,20 @@ class SessionPoster extends Messenger
         $growthSession->update([
             'slack_thread_ts' => $message->id(),
         ]);
+    }
 
+    public function delete(GrowthSession $growthSession): void
+    {
+        if (!$this->canSendMessage($growthSession) || !$growthSession->slack_thread_ts) {
+            return;
+        }
+
+        if (!$this->deleteMessage($growthSession->slack_thread_ts)) {
+            return;
+        }
+
+        $growthSession->update([
+            'slack_thread_ts' => null,
+        ]);
     }
 }
