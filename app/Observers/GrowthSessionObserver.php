@@ -2,8 +2,10 @@
 
 namespace App\Observers;
 
+use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionModified;
+use App\Events\GrowthSessionUpdated;
 use App\Models\GrowthSession;
 
 class GrowthSessionObserver
@@ -14,6 +16,7 @@ class GrowthSessionObserver
     public function created(GrowthSession $growthSession): void
     {
         broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_CREATED));
+        event(new GrowthSessionCreated($growthSession));
     }
 
     /**
@@ -22,6 +25,7 @@ class GrowthSessionObserver
     public function updated(GrowthSession $growthSession): void
     {
         broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
+        event(new GrowthSessionUpdated($growthSession->getOriginal(), $growthSession->toArray()));
     }
 
     /**
@@ -30,6 +34,7 @@ class GrowthSessionObserver
     public function deleted(GrowthSession $growthSession): void
     {
         broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_DELETED));
+        event(new GrowthSessionDeleted($growthSession));
     }
 
     /**

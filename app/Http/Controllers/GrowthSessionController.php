@@ -7,6 +7,7 @@ use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionModified;
 use App\Events\GrowthSessionUpdated;
+use App\Events\Slack\AnnounceGrowthSession;
 use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreGrowthSessionRequest;
@@ -85,8 +86,6 @@ class GrowthSessionController extends Controller
         // Check if user is already an attendee (idempotency)
         if (!$growthSession->attendees()->where('user_id', $request->user()->id)->exists()) {
             $growthSession->attendees()->attach($request->user(), ['user_type_id' => UserType::ATTENDEE_ID]);
-            event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
-            GrowthSessionModified::fire($growthSession, GrowthSessionModified::ACTION_UPDATED, GrowthSessionModified::TYPE_ATTENDEES);
         }
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
@@ -97,8 +96,6 @@ class GrowthSessionController extends Controller
         // Check if user is already a watcher (idempotency)
         if (!$growthSession->watchers()->where('user_id', $request->user()->id)->exists()) {
             $growthSession->watchers()->attach($request->user(), ['user_type_id' => UserType::WATCHER_ID]);
-            GrowthSessionModified::fire($growthSession, GrowthSessionModified::ACTION_UPDATED, GrowthSessionModified::TYPE_WATCHERS);
-
         }
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
@@ -106,25 +103,15 @@ class GrowthSessionController extends Controller
 
     public function leave(GrowthSession $growthSession, Request $request)
     {
-        $watchersDetachResult = $growthSession->watchers()->detach($request->user());
-        $attendeesDetachResult = $growthSession->attendees()->detach($request->user());
-
-        if ($watchersDetachResult) {
-            GrowthSessionModified::fire($growthSession, GrowthSessionModified::ACTION_DELETED, GrowthSessionModified::TYPE_WATCHERS);
-        }
-
-        if ($attendeesDetachResult) {
-            GrowthSessionModified::fire($growthSession, GrowthSessionModified::ACTION_DELETED, GrowthSessionModified::TYPE_ATTENDEES);
-        }
-
-        event(new GrowthSessionAttendeeChanged($growthSession->refresh()));
+        $growthSession->watchers()->detach($request->user());
+        $growthSession->attendees()->detach($request->user());
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
     {
-        $originalValues = $growthSession->toArray();
+//        $originalValues = $growthSession->toArray();
         $growthSession->update(Arr::except($request->validated(), 'tags'));
         $growthSession->tags()->sync($request->input('tags'));
 
@@ -137,16 +124,12 @@ class GrowthSessionController extends Controller
             $growthSession->save();
         }
 
-        $growthSession->refresh();
-
-        event(new GrowthSessionUpdated($originalValues, $growthSession->toArray()));
-
-        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
+        return new GrowthSessionResource($growthSession->refresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
 
     public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $growthSession)
     {
         $growthSession->delete();
-        event(new GrowthSessionDeleted($growthSession));
+//        event(new GrowthSessionDeleted($growthSession));
     }
 }
