@@ -7,6 +7,10 @@ class AddSlackUser extends Migration
 {
     public function up()
     {
+        if (!config('auth.slack_app_email')) {
+            return;
+        }
+
         if (empty(User::where('email', config('auth.slack_app_email'))->first())) {
             User::forceCreate([
                 'name' => 'Slack App',
@@ -20,6 +24,10 @@ class AddSlackUser extends Migration
 
     public function down()
     {
+        if (!config('auth.slack_app_email')) {
+            return;
+        }
+
         User::where('email', config('auth.slack_app_email'))->first()->forceDelete();
     }
 }

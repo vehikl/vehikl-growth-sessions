@@ -7,11 +7,10 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\GrowthSessionController;
 use App\Http\Controllers\ShowStatisticsController;
 use App\Http\Controllers\TagsController;
-use App\Http\Middleware\AuthenticateSlackApp;
 
 Route::inertia('about', 'AboutPage')->name('about');
 
-Route::prefix('growth_sessions')->middleware(AuthenticateSlackApp::class)->name('growth_sessions.')->group(function() {
+Route::prefix('growth_sessions')->name('growth_sessions.')->group(function() {
     Route::get('week', [GrowthSessionController::class, 'week'])->name('week');
     Route::get('day', [GrowthSessionController::class, 'day'])->name('day');
     Route::get('{growth_session}', [GrowthSessionController::class, 'show'])->name('show');
