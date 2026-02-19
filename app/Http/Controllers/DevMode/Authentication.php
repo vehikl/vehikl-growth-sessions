@@ -19,7 +19,7 @@ class Authentication
         $user = User::findOrFail($userId);
         Auth::login($user);
 
-        return response()->redirectTo(route('dashboard'));
+        return response()->redirectTo(route('home'));
     }
 
 }
