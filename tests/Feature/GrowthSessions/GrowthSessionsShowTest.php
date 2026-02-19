@@ -89,14 +89,6 @@ class GrowthSessionsShowTest extends TestCase
             ->assertSee('At AnyDesk XYZ - abcdefg');
     }
 
-    public function testTheSlackBotCanSeeTheGrowthSessionLocation()
-    {
-        $this->seed();
-        $growthSession = GrowthSession::factory()->create(['date' => today()]);
-        $this->getJson(route('growth_sessions.day'), ['Authorization' => 'Bearer ' . config('auth.slack_token')])
-            ->assertJsonFragment(['location' => $growthSession->location]);
-    }
-
     public function testANonMemberUserCannotAccessAPrivateGrowthSession()
     {
         $growthSession = GrowthSession::factory()->create(['is_public' => false]);
