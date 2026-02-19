@@ -81,6 +81,11 @@ class GrowthSession extends Model
         return $this->belongsToMany(User::class)->wherePivot('user_type_id', UserType::WATCHER_ID);
     }
 
+    public function attendeeAndWatchers()
+    {
+        return $this->belongsToMany(User::class)->wherePivotIn('user_type_id', [UserType::ATTENDEE_ID, UserType::WATCHER_ID]);
+    }
+
     public function comments()
     {
         return $this->hasMany(Comment::class)->orderByDesc('created_at');
