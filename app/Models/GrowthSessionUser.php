@@ -6,6 +6,7 @@ use App\Observers\GrowthSessionUserObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 #[ObservedBy(GrowthSessionUserObserver::class)]
 class GrowthSessionUser extends Model
@@ -13,6 +14,12 @@ class GrowthSessionUser extends Model
     public $timestamps = false;
 
     protected $table = 'growth_session_user';
+
+    protected $fillable = [
+        'growth_session_id',
+        'user_id',
+        'user_type_id',
+    ];
 
     public function user(): BelongsTo
     {
