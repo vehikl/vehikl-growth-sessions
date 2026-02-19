@@ -88,6 +88,8 @@ class GrowthSessionController extends Controller
             $growthSession->attendees()->attach($request->user(), ['user_type_id' => UserType::ATTENDEE_ID]);
         }
 
+        event(new GrowthSessionAttendeeChanged($growthSession));
+
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
 
@@ -105,6 +107,8 @@ class GrowthSessionController extends Controller
     {
         $growthSession->watchers()->detach($request->user());
         $growthSession->attendees()->detach($request->user());
+
+        event(new GrowthSessionAttendeeChanged($growthSession));
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
