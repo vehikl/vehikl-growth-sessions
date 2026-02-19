@@ -10,11 +10,14 @@
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
         "test": "TZ=America/Toronto vitest --run",
-        "test:ci": "LARAVEL_BYPASS_ENV_CHECK=1 TZ=America/Toronto vitest --run"
+        "test:ci": "LARAVEL_BYPASS_ENV_CHECK=1 TZ=America/Toronto vitest --run",
+        "test:e2e": "playwright test",
+        "test:e2e:ui": "playwright test --ui"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
         "@laravel/echo-vue": "^2.2.6",
+        "@playwright/test": "^1.58.2",
         "@types/node": "^22.13.5",
         "@vue/eslint-config-typescript": "^14.3.0",
         "@vue/test-utils": "^2.4.6",
