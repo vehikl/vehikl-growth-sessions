@@ -128,9 +128,11 @@ class WebHooksTest extends TestCase
         $growthSession = GrowthSession::factory()->create();
         /** @var GrowthSession $growthSession */
         $attendee = User::factory()->create();
-        $growthSession->attendees()->attach($attendee);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
 
-        $this->actingAs($attendee)->postJson(route('growth_sessions.leave', $growthSession))->assertSuccessful();
+        $this->actingAs($attendee)
+            ->postJson(route('growth_sessions.leave', $growthSession))
+            ->assertSuccessful();
 
         Http::assertSent(function (Request $request) {
             return $request->url() === config('webhooks.attendees_today');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\GrowthSessionCreated;
+use App\Events\Slack\AnnounceGrowthSession;
 use App\Http\Requests\ApproveGrowthSessionProposalRequest;
 use App\Http\Requests\StoreGrowthSessionProposalRequest;
 use App\Http\Requests\UpdateGrowthSessionProposalRequest;
@@ -113,7 +114,7 @@ class GrowthSessionProposalController extends Controller
         $proposal->status = 'approved';
         $proposal->save();
 
-        event(new GrowthSessionCreated($growthSession->fresh()));
+        event(new AnnounceGrowthSession($growthSession->refresh()));
 
         return new GrowthSessionProposalResource($proposal->load(['creator', 'timePreferences', 'tags']));
     }

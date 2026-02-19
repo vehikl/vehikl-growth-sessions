@@ -63,7 +63,7 @@ class GrowthSessionParticipationTest extends TestCase
             ->postJson(route('growth_sessions.leave', ['growth_session' => $existingGrowthSession->id]))
             ->assertSuccessful();
 
-        $this->assertEmpty($existingGrowthSession->attendees);
+        $this->assertEmpty($existingGrowthSession->refresh()->attendees);
     }
 
     public function testAGrowthSessionCannotBeJoinedIfTheAttendeeLimitIsMet()

@@ -63,7 +63,8 @@ class GrowthSessionProposalApproveTest extends TestCase
         $proposalCreator = User::factory()->create(['is_vehikl_member' => false]);
         $proposal = GrowthSessionProposal::factory()->create(['creator_id' => $proposalCreator->id]);
 
-        $this->actingAs($vehiklMember)->postJson(route('proposals.approve', $proposal), [
+        $this->actingAs($vehiklMember)
+            ->postJson(route('proposals.approve', $proposal), [
             'title' => $proposal->title,
             'topic' => $proposal->topic,
             'location' => 'Discord',

@@ -3,11 +3,12 @@
 namespace App\Listeners;
 
 use App\Events\GrowthSessionCreated;
+use App\Events\Slack\AnnounceGrowthSession;
 use Illuminate\Support\Facades\Http;
 
 class NotifyGrowthSessionCreation extends WebHookNotificationEventListener
 {
-    public function handle(GrowthSessionCreated $event)
+    public function handle(AnnounceGrowthSession $event)
     {
         if ($this->isWithinWebHookNotificationWindow()
             && config('webhooks.created_today')
