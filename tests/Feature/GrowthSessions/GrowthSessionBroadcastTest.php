@@ -13,14 +13,16 @@ use Tests\TestCase;
 
 class GrowthSessionBroadcastTest extends TestCase
 {
-    use RefreshDatabase;
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Event::fake([GrowthSessionModified::class]);
+    }
 
     public function testAddingAWatcherBroadcastsAWatcherChange(): void
     {
         $growthSession = GrowthSession::factory()->create();
         $user = User::factory()->create();
-
-        Event::fake([GrowthSessionModified::class]);
 
         $pivot = new GrowthSessionUser;
         $pivot->growth_session_id = $growthSession->id;
@@ -39,8 +41,6 @@ class GrowthSessionBroadcastTest extends TestCase
     {
         $growthSession = GrowthSession::factory()->create();
         $user = User::factory()->create();
-
-        Event::fake([GrowthSessionModified::class]);
 
         $pivot = new GrowthSessionUser;
         $pivot->growth_session_id = $growthSession->id;
