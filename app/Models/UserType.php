@@ -10,4 +10,15 @@ class UserType
     const OWNER = 'owner';
     const ATTENDEE = 'attendee';
     const WATCHER = 'watcher';
+
+    const LOOKUP = [
+        self::OWNER_ID => self::OWNER_ID,
+        self::ATTENDEE_ID => self::ATTENDEE_ID,
+        self::WATCHER_ID => self::WATCHER_ID,
+    ];
+
+    public static function getTypeById(int $id): ?string
+    {
+        return self::LOOKUP[$id] ?? null;
+    }
 }

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Observers\CommentObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy(CommentObserver::class)]
 class Comment extends Model
 {
     protected $table = 'comments';
@@ -36,7 +39,7 @@ class Comment extends Model
     protected function timeStamp(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->created_at->diffForHumans(),
+            get: fn() => $this->created_at->diffForHumans(),
         );
     }
 }

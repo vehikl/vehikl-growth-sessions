@@ -3,13 +3,20 @@
 namespace App\Slack\Messages;
 
 use App\Models\GrowthSession;
+use App\Models\User;
 use App\Services\LocationUrls;
 use Carbon\Carbon;
+use SlackPhp\BlockKit\Blocks\Actions;
 use SlackPhp\BlockKit\Blocks\Block;
+use SlackPhp\BlockKit\Blocks\Context;
+use SlackPhp\BlockKit\Blocks\Divider;
 use SlackPhp\BlockKit\Blocks\Header;
 use SlackPhp\BlockKit\Blocks\Section;
 use SlackPhp\BlockKit\Elements\Button;
 use SlackPhp\BlockKit\Elements\Image;
+use SlackPhp\BlockKit\Parts\MrkdwnText;
+use SlackPhp\BlockKit\Parts\PlainText;
+use SlackPhp\BlockKit\Parts\Text;
 use SlackPhp\BlockKit\Surfaces\Message;
 
 class GrowthSessionThreadParent implements MessageInterface
@@ -21,45 +28,50 @@ class GrowthSessionThreadParent implements MessageInterface
     {
         $links = app(LocationUrls::class)->get($growthSession);
 
-        $startHour = Carbon::parse($growthSession->start_time)->hour % 12;
-        $clockEmoji = ":clock{$startHour}:";
+        $startTimestamp = Carbon::parse($growthSession->start_time)->timestamp;
+        $endTimestamp = Carbon::parse($growthSession->end_time)->timestamp;
 
-        $topicMarkdown = collect(explode(PHP_EOL, $growthSession->topic))
-            ->map(fn(string $line) => "> $line")
-            ->join(PHP_EOL);
+        $locationLinks = collect($links)
+            ->map(function (string $link) {
+                $host = parse_url($link, PHP_URL_HOST);
+                return "<{$link}|{$host}>";
+            })
+            ->join(" | ");
 
-        $blocks = [
-            new Header(text: $growthSession->title),
-            new Section(text: sprintf(<<<DETAILS
-:bust_in_silhouette: %s
-{$clockEmoji} %s - %s
-:busts_in_silhouette: %d/%d Attendees
+        $contextElements = $growthSession->attendees
+            ->map(function (User $attendee) {
+                return new Image(imageUrl: $attendee->avatar, altText: $attendee->name);
+            })
+            ->slice(0, 9);
 
-{$topicMarkdown}
-DETAILS,
-                $growthSession->owner?->name ?? 'Anonymous',
-                Carbon::parse($growthSession->start_time)->toTimeString('minute'),
-                Carbon::parse($growthSession->end_time)->toTimeString('minute'),
-                $growthSession->attendees()->count(),
-                $growthSession->attendee_limit
-            ),
-                accessory: $growthSession->owner?->avatar ? new Image($growthSession->owner->avatar, altText: $growthSession->owner->name) : null,
-            ),
-        ];
-
-        if (count($links) > 0) {
-            $blocks []= new Section(text: implode(PHP_EOL, $links));
+        $trailingStrings = [];
+        $andOthersCount = $growthSession->attendees()->count() - $contextElements->count();
+        if ($andOthersCount > 0) {
+            $trailingStrings []= "and {$andOthersCount} others";
         }
+        $trailingStrings []= $growthSession->hasUnlimitedSlots()
+            ? "{$growthSession->attendees()->count()} / :infinity: Attendees"
+            : "{$growthSession->attendees()->count()} / {$growthSession->attendee_limit} Attendees";
+
+        $contextElements->push(new PlainText(text: implode('. ', $trailingStrings), emoji: true));
 
         return (new Message(
             blocks: [
-                ...$blocks,
-                new Section(
-                    text: 'Interested?',
-                    accessory: new Button(text: 'View session', value: route('growth_sessions.show', $growthSession->id))
-                ),
+                new Header(text: $growthSession->title),
+                new Section(text: $growthSession->topic),
 
-            ]
+                new Context(elements: $contextElements->toArray()),
+
+                new Section(fields: [
+                    new MrkdwnText("*:alarm_clock: Time*\n<!date^{$startTimestamp}^{time}|{$growthSession->start_time}>-<!date^{$endTimestamp}^{time}|{$growthSession->end_time}>"),
+                    new MrkdwnText("*:round_pushpin: Location*\n{$locationLinks}"),
+                ]),
+                new Divider(),
+                new Actions([
+                    new Button(actionId: 'details', text: 'View Details', url: route('growth_sessions.show', $growthSession->id)),
+                    new Button(actionId: 'join', text: 'Join', style: 'primary'),
+                ])
+            ],
         ))->toArray()['blocks'];
     }
 
