@@ -4,10 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Events\GrowthSessionAttendeeChanged;
 use App\Events\GrowthSessionCreated;
-use App\Events\GrowthSessionDeleted;
-use App\Events\GrowthSessionModified;
-use App\Events\GrowthSessionUpdated;
-use App\Events\Slack\AnnounceGrowthSession;
 use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreGrowthSessionRequest;
@@ -115,7 +111,6 @@ class GrowthSessionController extends Controller
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
     {
-//        $originalValues = $growthSession->toArray();
         $growthSession->update(Arr::except($request->validated(), 'tags'));
         $growthSession->tags()->sync($request->input('tags'));
 
@@ -134,6 +129,5 @@ class GrowthSessionController extends Controller
     public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $growthSession)
     {
         $growthSession->delete();
-//        event(new GrowthSessionDeleted($growthSession));
     }
 }
