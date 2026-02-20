@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,6 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
+        then: function () {
+            if (in_array(app()->environment(), ['local', 'testing'])) {
+                Route::middleware('web')
+                    ->group(base_path('routes/testing.php'));
+            }
+        },
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->encryptCookies(except: ['sidebar_state']);
