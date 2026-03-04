@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[ObservedBy(GrowthSessionUserObserver::class)]
 class GrowthSessionUser extends Model
 {
+    protected $fillable = [
+        'growth_session_id',
+        'user_id',
+        'user_type_id',
+    ];
     public $timestamps = false;
 
     protected $table = 'growth_session_user';
