@@ -16,7 +16,6 @@ use SlackPhp\BlockKit\Elements\Button;
 use SlackPhp\BlockKit\Elements\Image;
 use SlackPhp\BlockKit\Parts\MrkdwnText;
 use SlackPhp\BlockKit\Parts\PlainText;
-use SlackPhp\BlockKit\Parts\Text;
 use SlackPhp\BlockKit\Surfaces\Message;
 
 class GrowthSessionThreadParent implements MessageInterface
@@ -28,8 +27,11 @@ class GrowthSessionThreadParent implements MessageInterface
     {
         $links = app(LocationUrls::class)->get($growthSession);
 
-        $startTimestamp = Carbon::parse($growthSession->start_time)->timestamp;
-        $endTimestamp = Carbon::parse($growthSession->end_time)->timestamp;
+        $startTime = Carbon::parse($growthSession->start_time)->timezone('America/Toronto');
+        $endTime = Carbon::parse($growthSession->start_time)->timezone('America/Toronto');
+
+        $startTimestamp = $startTime->timestamp;
+        $endTimestamp = $endTime->timestamp;
 
         $locationLinks = collect($links)
             ->map(function (string $link) {
@@ -47,9 +49,9 @@ class GrowthSessionThreadParent implements MessageInterface
         $trailingStrings = [];
         $andOthersCount = $growthSession->attendees()->count() - $contextElements->count();
         if ($andOthersCount > 0) {
-            $trailingStrings []= "and {$andOthersCount} others";
+            $trailingStrings [] = "and {$andOthersCount} others";
         }
-        $trailingStrings []= $growthSession->hasUnlimitedSlots()
+        $trailingStrings [] = $growthSession->hasUnlimitedSlots()
             ? "{$growthSession->attendees()->count()} / :infinity: Attendees"
             : "{$growthSession->attendees()->count()} / {$growthSession->attendee_limit} Attendees";
 
@@ -63,7 +65,7 @@ class GrowthSessionThreadParent implements MessageInterface
                 new Context(elements: $contextElements->toArray()),
 
                 new Section(fields: [
-                    new MrkdwnText("*:alarm_clock: Time*\n<!date^{$startTimestamp}^{time}|{$growthSession->start_time}>-<!date^{$endTimestamp}^{time}|{$growthSession->end_time}>"),
+                    new MrkdwnText("*:alarm_clock: Time*\n<!date^{$startTimestamp}^{time}|{$startTime->toDateTimeLocalString('minute')}>-<!date^{$endTimestamp}^{time}|{$startTime->toDateTimeLocalString('minute')}>"),
                     new MrkdwnText("*:round_pushpin: Location*\n{$locationLinks}"),
                 ]),
                 new Divider(),
