@@ -115,6 +115,11 @@ If you don't do this step, it's possible your messages will send failing with an
 4. In the `Apps` section, click `Add apps`
 5. Find your app in the list, and click `Add`
 
+### Authentication in local environment
+
+You can use `php artisan dev-mode:login-as` to generate a login link for a user while in the local development environment.
+There is an optional argument that accepts the github nickname, and without the argument, you are presented with a list of current users.
+
 ## Additional Notes
 
 - Statistics can be seen on `/statistics`
