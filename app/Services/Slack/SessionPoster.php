@@ -28,6 +28,8 @@ class SessionPoster extends Messenger
             return;
         }
 
+        $growthSession->refresh();
+
         $blocks = app(GrowthSessionThreadParent::class)->build($growthSession);
 
         if (isset($growthSession->slack_thread_ts)) {
