@@ -2,12 +2,8 @@
 
 namespace App\Observers;
 
-use App\Events\GrowthSessionCreated;
-use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionModified;
-use App\Events\GrowthSessionUpdated;
 use App\Models\Comment;
-use App\Models\GrowthSession;
 
 class CommentObserver
 {
