@@ -15,10 +15,10 @@ class GrowthSessionObserver
     /**
      * Handle the GrowthSession "updated" event.
      */
-    public function updated(GrowthSession $growthSession): void
+    public function updating(GrowthSession $growthSession): void
     {
         broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
-        event(new GrowthSessionUpdated($growthSession->getOriginal(), $growthSession->toArray()));
+        event(new GrowthSessionUpdated($growthSession, $growthSession->getOriginal()));
     }
 
     /**
