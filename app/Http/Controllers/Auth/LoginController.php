@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Email;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,15 +14,19 @@ use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
-    public function redirectToProvider($driver)
+    public function redirectToProvider(Request $request, $driver)
     {
         if (App::environment('local') && empty(config('services.github.client_id'))) {
+            $githubUser = $request->input('github_user', config('auth.vehikl_names'));
+
             Auth::login(User::query()
-                ->whereIn('github_nickname', config('auth.vehikl_names'))
-                ->first()
+                ->where('github_nickname', $githubUser)
+                ->firstOrFail()
             );
-            return redirect()->back();
+
+            return redirect()->route('home');
         }
+
         return Socialite::driver($driver)->redirect();
     }
 
