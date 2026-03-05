@@ -53,6 +53,5 @@ class SessionPoster extends Messenger
         $growthSession->update([
             'slack_thread_ts' => $message->id(),
         ]);
-
     }
 }
