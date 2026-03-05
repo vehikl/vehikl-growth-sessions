@@ -11,7 +11,7 @@ class GrowthSessionUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public GrowthSession $growthSession, public array $previousAttributes)
+    public function __construct(public GrowthSession $growthSession, public array $previousAttributes, public array $dirtyKeys = [])
     {
     }
 }
