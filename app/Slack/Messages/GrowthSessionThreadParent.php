@@ -6,6 +6,8 @@ use App\Models\GrowthSession;
 use App\Models\User;
 use App\Services\LocationUrls;
 use Carbon\Carbon;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use SlackPhp\BlockKit\Blocks\Actions;
 use SlackPhp\BlockKit\Blocks\Block;
 use SlackPhp\BlockKit\Blocks\Context;
@@ -21,7 +23,10 @@ use SlackPhp\BlockKit\Surfaces\Message;
 class GrowthSessionThreadParent implements MessageInterface
 {
     /**
+     * @param GrowthSession $growthSession
      * @return array{Block}
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function build(GrowthSession $growthSession): array
     {
@@ -39,6 +44,7 @@ class GrowthSessionThreadParent implements MessageInterface
                 return "<{$link}|{$host}>";
             })
             ->join(" | ");
+        $locationLinks = $locationLinks ?: $growthSession->location;
 
         $contextElements = $growthSession->attendees
             ->map(function (User $attendee) {
