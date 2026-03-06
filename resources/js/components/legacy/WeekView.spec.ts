@@ -1,19 +1,18 @@
-import {mount, Wrapper} from "@vue/test-utils"
-import WeekView from "./WeekView.vue"
-import flushPromises from "flush-promises"
-import growthSessionsThisWeekJson from "@/../../tests/fixtures/WeekGrowthSessions.json"
-import {IUser} from "@/types"
-import {GrowthSessionApi} from "@/services/GrowthSessionApi"
-import {DateTime} from "@/classes/DateTime"
-import {WeekGrowthSessions} from "@/classes/WeekGrowthSessions"
-import {GrowthSession} from "@/classes/GrowthSession"
-import {Nothingator} from "@/classes/Nothingator"
-import {DiscordChannelApi} from "@/services/DiscordChannelApi"
-import GrowthSessionCard from "./GrowthSessionCard.vue"
-import {AnydesksApi} from "@/services/AnydesksApi"
-import {vi} from "vitest"
+import { mount, Wrapper } from '@vue/test-utils';
+import WeekView from './WeekView.vue';
+import flushPromises from 'flush-promises';
+import growthSessionsThisWeekJson from '@/../../tests/fixtures/WeekGrowthSessions.json';
+import { IUser } from '@/types';
+import { GrowthSessionApi } from '@/services/GrowthSessionApi';
+import { DateTime } from '@/classes/DateTime';
+import { WeekGrowthSessions } from '@/classes/WeekGrowthSessions';
+import { GrowthSession } from '@/classes/GrowthSession';
+import { Nothingator } from '@/classes/Nothingator';
+import { DiscordChannelApi } from '@/services/DiscordChannelApi';
+import GrowthSessionCard from './GrowthSessionCard.vue';
+import { AnydesksApi } from '@/services/AnydesksApi';
+import { vi } from 'vitest';
 import { TagsApi } from '@/services/TagsApi';
-import {useEcho} from "@laravel/echo-vue";
 
 const authVehiklUser: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -56,6 +55,7 @@ describe('WeekView', () => {
         GrowthSessionApi.leave = vi.fn().mockImplementation(growthSession => growthSession)
         GrowthSessionApi.delete = vi.fn().mockImplementation(growthSession => growthSession)
         DiscordChannelApi.index = vi.fn()
+        DiscordChannelApi.occupied = vi.fn()
         TagsApi.index = vi.fn()
         AnydesksApi.getAllAnyDesks = vi.fn()
         wrapper = mount(WeekView)
@@ -362,8 +362,13 @@ describe('WeekView', () => {
 
     describe('Text Search Filter', () => {
         beforeEach(async () => {
+            vi.useFakeTimers();
             wrapper = mount(WeekView, {propsData: {user: authNonVehiklUser}})
             await flushPromises()
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
         });
 
         it('renders a search input field', () => {
@@ -381,8 +386,7 @@ describe('WeekView', () => {
             const searchInput = wrapper.find('input.search-input');
             await searchInput.setValue('voluptas');
 
-            // Wait for debounce (300ms) plus a bit more
-            await new Promise(resolve => setTimeout(resolve, 350));
+            vi.advanceTimersByTime(300);
             await flushPromises();
 
             const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
@@ -397,8 +401,7 @@ describe('WeekView', () => {
             const searchInput = wrapper.find('input.search-input');
             await searchInput.setValue('laborum');
 
-            // Wait for debounce
-            await new Promise(resolve => setTimeout(resolve, 350));
+            vi.advanceTimersByTime(300);
             await flushPromises();
 
             const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
@@ -412,8 +415,7 @@ describe('WeekView', () => {
             const searchInput = wrapper.find('input.search-input');
             await searchInput.setValue('Tamia');
 
-            // Wait for debounce
-            await new Promise(resolve => setTimeout(resolve, 350));
+            vi.advanceTimersByTime(300);
             await flushPromises();
 
             const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
@@ -423,12 +425,26 @@ describe('WeekView', () => {
             expect(visibleSessions.every(card => card.text().includes('Tamia Thompson'))).toBe(true);
         });
 
+        it('filters sessions by attendee name', async () => {
+            const searchInput = wrapper.find('input.search-input');
+            await searchInput.setValue('Alejandro');
+
+            vi.advanceTimersByTime(300);
+            await flushPromises();
+
+            const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+
+            // Session 2 has "Alejandro Rivera" as an attendee
+            expect(visibleSessions.length).toBe(1);
+            expect(visibleSessions[0].text()).toContain('Et ut laborum dolore ut et earum rem animi.');
+        });
+
         it('performs case-insensitive search', async () => {
             const searchInput = wrapper.find('input.search-input');
 
             // Test with uppercase
             await searchInput.setValue('VOLUPTAS');
-            await new Promise(resolve => setTimeout(resolve, 350));
+            vi.advanceTimersByTime(300);
             await flushPromises();
 
             let visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
@@ -436,7 +452,7 @@ describe('WeekView', () => {
 
             // Test with mixed case
             await searchInput.setValue('StEpHaN');
-            await new Promise(resolve => setTimeout(resolve, 350));
+            vi.advanceTimersByTime(300);
             await flushPromises();
 
             visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
@@ -459,7 +475,7 @@ describe('WeekView', () => {
 
             // Then apply search filter for "Stephan" (only session 1 has this owner)
             await searchInput.setValue('Stephan');
-            await new Promise(resolve => setTimeout(resolve, 350));
+            vi.advanceTimersByTime(300);
             await flushPromises();
 
             visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
@@ -485,7 +501,7 @@ describe('WeekView', () => {
             const searchInput = wrapper.find('input.search-input');
 
             await searchInput.setValue('voluptas');
-            await new Promise(resolve => setTimeout(resolve, 350));
+            vi.advanceTimersByTime(300);
             await flushPromises();
 
             let visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
@@ -496,7 +512,7 @@ describe('WeekView', () => {
             await clearButton.trigger('click');
 
             // Wait for debounce after clearing
-            await new Promise(resolve => setTimeout(resolve, 350));
+            vi.advanceTimersByTime(300);
             await flushPromises();
 
             // All sessions should be visible again
@@ -509,7 +525,7 @@ describe('WeekView', () => {
             const searchInput = wrapper.find('input.search-input');
             await searchInput.setValue('nonexistent search term that matches nothing');
 
-            await new Promise(resolve => setTimeout(resolve, 350));
+            vi.advanceTimersByTime(300);
             await flushPromises();
 
             const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
@@ -537,7 +553,7 @@ describe('WeekView', () => {
             expect(visibleSessions.length).toBe(5);
 
             // Now wait for debounce to trigger
-            await new Promise(resolve => setTimeout(resolve, 350));
+            vi.advanceTimersByTime(300);
             await flushPromises();
 
             // After debounce, filter should be applied
@@ -556,7 +572,7 @@ describe('WeekView', () => {
 
                 // Search for "Tamia" (sessions 4 and 5)
                 await searchInput.setValue('Tamia');
-                await new Promise(resolve => setTimeout(resolve, 350));
+                vi.advanceTimersByTime(300);
                 await flushPromises();
 
                 let visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
