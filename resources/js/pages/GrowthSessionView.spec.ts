@@ -1,16 +1,16 @@
-import { Wrapper } from "@vue/test-utils"
-import { mountWithInertia } from "@/test-utils/inertia-test-helper"
-import GrowthSessionView from "./GrowthSessionView.vue"
-import userJson from "../../../tests/fixtures/User.json"
-import growthSessionJson from "../../../tests/fixtures/GrowthSessionWithComments.json"
-import growthSessionWithComments from "../../../tests/fixtures/GrowthSessionWithComments.json"
-import {User} from "@/classes/User"
-import {IGrowthSession, ITag, IUser} from "@/types"
-import {GrowthSession} from "@/classes/GrowthSession"
-import {DiscordChannelApi} from "@/services/DiscordChannelApi"
-import {AnydesksApi} from "@/services/AnydesksApi"
-import {TagsApi} from "@/services/TagsApi"
-import { vi} from "vitest"
+import { Wrapper } from '@vue/test-utils';
+import { mountWithInertia } from '@/test-utils/inertia-test-helper';
+import GrowthSessionView from './GrowthSessionView.vue';
+import userJson from '../../../tests/fixtures/User.json';
+import growthSessionJson from '../../../tests/fixtures/GrowthSessionWithComments.json';
+import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
+import { User } from '@/classes/User';
+import { IGrowthSession, ITag, IUser } from '@/types';
+import { GrowthSession } from '@/classes/GrowthSession';
+import { DiscordChannelApi } from '@/services/DiscordChannelApi';
+import { AnydesksApi } from '@/services/AnydesksApi';
+import { TagsApi } from '@/services/TagsApi';
+import { vi } from 'vitest';
 
 const user: IUser = {
     name: 'Alice',
@@ -141,6 +141,7 @@ describe('GrowthSessionView', () => {
         beforeEach(() => {
             const owner = growthSessionJson.owner;
             DiscordChannelApi.index = vi.fn().mockResolvedValue([])
+            DiscordChannelApi.occupied = vi.fn().mockResolvedValue([])
             wrapper = mountWithInertia(GrowthSessionView, {
                 propsData: {userJson: owner, growthSessionJson}
             })

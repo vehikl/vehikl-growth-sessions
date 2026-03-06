@@ -55,6 +55,7 @@ describe('WeekView', () => {
         GrowthSessionApi.leave = vi.fn().mockImplementation(growthSession => growthSession)
         GrowthSessionApi.delete = vi.fn().mockImplementation(growthSession => growthSession)
         DiscordChannelApi.index = vi.fn()
+        DiscordChannelApi.occupied = vi.fn()
         TagsApi.index = vi.fn()
         AnydesksApi.getAllAnyDesks = vi.fn()
         wrapper = mount(WeekView)
