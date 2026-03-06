@@ -118,7 +118,8 @@ class GrowthSessionController extends Controller
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
     {
-        $growthSession->update(Arr::except($request->validated(), 'tags'));
+        $growthSession->fill(Arr::except($request->validated(), 'tags'));
+
         $growthSession->tags()->sync($request->input('tags'));
 
         if ($request->input('anydesk_id')) {
@@ -126,9 +127,9 @@ class GrowthSessionController extends Controller
             $growthSession->anydesk()->associate($anyDesk);
         } else {
             $growthSession->anydesk()->dissociate();
-
-            $growthSession->save();
         }
+
+        $growthSession->save();
 
         return new GrowthSessionResource($growthSession->refresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
