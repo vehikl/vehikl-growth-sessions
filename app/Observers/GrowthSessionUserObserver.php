@@ -30,4 +30,9 @@ class GrowthSessionUserObserver
             ?? GrowthSessionModified::TYPE_ATTENDEES
         ));
     }
+
+    public function forceDeleted(GrowthSessionUser $growthSessionUser): void
+    {
+        $this->deleted($growthSessionUser);
+    }
 }
