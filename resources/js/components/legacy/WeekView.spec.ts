@@ -1,19 +1,18 @@
-import {mount, Wrapper} from "@vue/test-utils"
-import WeekView from "./WeekView.vue"
-import flushPromises from "flush-promises"
-import growthSessionsThisWeekJson from "@/../../tests/fixtures/WeekGrowthSessions.json"
-import {IUser} from "@/types"
-import {GrowthSessionApi} from "@/services/GrowthSessionApi"
-import {DateTime} from "@/classes/DateTime"
-import {WeekGrowthSessions} from "@/classes/WeekGrowthSessions"
-import {GrowthSession} from "@/classes/GrowthSession"
-import {Nothingator} from "@/classes/Nothingator"
-import {DiscordChannelApi} from "@/services/DiscordChannelApi"
-import GrowthSessionCard from "./GrowthSessionCard.vue"
-import {AnydesksApi} from "@/services/AnydesksApi"
-import {vi} from "vitest"
+import { mount, Wrapper } from '@vue/test-utils';
+import WeekView from './WeekView.vue';
+import flushPromises from 'flush-promises';
+import growthSessionsThisWeekJson from '@/../../tests/fixtures/WeekGrowthSessions.json';
+import { IUser } from '@/types';
+import { GrowthSessionApi } from '@/services/GrowthSessionApi';
+import { DateTime } from '@/classes/DateTime';
+import { WeekGrowthSessions } from '@/classes/WeekGrowthSessions';
+import { GrowthSession } from '@/classes/GrowthSession';
+import { Nothingator } from '@/classes/Nothingator';
+import { DiscordChannelApi } from '@/services/DiscordChannelApi';
+import GrowthSessionCard from './GrowthSessionCard.vue';
+import { AnydesksApi } from '@/services/AnydesksApi';
+import { vi } from 'vitest';
 import { TagsApi } from '@/services/TagsApi';
-import {useEcho} from "@laravel/echo-vue";
 
 const authVehiklUser: IUser = {
     avatar: 'lastAirBender.jpg',
@@ -421,6 +420,21 @@ describe('WeekView', () => {
             // Sessions 4 and 5 are owned by "Tamia Thompson"
             expect(visibleSessions.length).toBe(2);
             expect(visibleSessions.every(card => card.text().includes('Tamia Thompson'))).toBe(true);
+        });
+
+        it('filters sessions by attendee name', async () => {
+            const searchInput = wrapper.find('input.search-input');
+            await searchInput.setValue('Alejandro');
+
+            // Wait for debounce
+            await new Promise(resolve => setTimeout(resolve, 350));
+            await flushPromises();
+
+            const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
+
+            // Session 2 has "Alejandro Rivera" as an attendee
+            expect(visibleSessions.length).toBe(1);
+            expect(visibleSessions[0].text()).toContain('Et ut laborum dolore ut et earum rem animi.');
         });
 
         it('performs case-insensitive search', async () => {

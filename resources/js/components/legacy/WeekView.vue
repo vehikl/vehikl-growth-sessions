@@ -1,16 +1,16 @@
 <script lang="ts" setup>
-import {IGrowthSession, IUser} from '@/types';
+import {IUser} from '@/types';
 import GrowthSessionCard from '@/components/legacy/GrowthSessionCard.vue';
 import GrowthSessionForm from '@/components/legacy/GrowthSessionForm.vue';
-import { GrowthSessionApi } from '@/services/GrowthSessionApi';
-import { DateTime } from '@/classes/DateTime';
-import { GrowthSession } from '@/classes/GrowthSession';
-import { WeekGrowthSessions } from '@/classes/WeekGrowthSessions';
-import { Nothingator } from '@/classes/Nothingator';
+import {GrowthSessionApi} from '@/services/GrowthSessionApi';
+import {DateTime} from '@/classes/DateTime';
+import {GrowthSession} from '@/classes/GrowthSession';
+import {WeekGrowthSessions} from '@/classes/WeekGrowthSessions';
+import {Nothingator} from '@/classes/Nothingator';
 import VisibilityRadioFieldset from '@/components/legacy/VisibilityRadioFieldset.vue';
 import VModal from '@/components/legacy/VModal.vue';
-import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue';
-import { watchDebounced } from '@vueuse/core';
+import {computed, onBeforeMount, onBeforeUnmount, ref} from 'vue';
+import {watchDebounced} from '@vueuse/core';
 import GrowthSessionTags from '@/components/legacy/GrowthSessionTags.vue';
 import draggable from 'vuedraggable';
 import {useEcho} from "@laravel/echo-vue";
@@ -82,8 +82,9 @@ function growthSessionsVisibleInDate(date: DateTime) {
             const title = session.title.toLowerCase();
             const topic = session.topic.toLowerCase();
             const ownerName = session.owner.name.toLowerCase();
+            const attendeeMatch = session.attendees.some((attendee) => attendee.name.toLowerCase().includes(query));
 
-            return title.includes(query) || topic.includes(query) || ownerName.includes(query);
+            return title.includes(query) || topic.includes(query) || ownerName.includes(query) || attendeeMatch;
         });
 }
 
