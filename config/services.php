@@ -36,6 +36,7 @@ return [
         'chat' => [
             'token' => env('SLACK_CHAT_TOKEN'),
             'channel' => env('SLACK_CHAT_CHANNEL'),
+            'post-mode' => env('SLACK_CHAT_POST_MODE', 'today'), // Either 'today' (don't post future gs yet) or 'all' (post today and future gs as they are added)
         ]
     ],
 
