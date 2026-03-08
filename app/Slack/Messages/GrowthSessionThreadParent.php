@@ -32,11 +32,8 @@ class GrowthSessionThreadParent implements MessageInterface
     {
         $links = app(LocationUrls::class)->get($growthSession);
 
-        $startTime = Carbon::parse($growthSession->start_time)->timezone('America/Toronto');
-        $endTime = Carbon::parse($growthSession->start_time)->timezone('America/Toronto');
-
-        $startTimestamp = $startTime->timestamp;
-        $endTimestamp = $endTime->timestamp;
+        $startTime = Carbon::parse($growthSession->start_time);
+        $endTime = Carbon::parse($growthSession->start_time);
 
         $locationLinks = collect($links)
             ->map(function (string $link) {
@@ -71,7 +68,7 @@ class GrowthSessionThreadParent implements MessageInterface
                 new Context(elements: $contextElements->toArray()),
 
                 new Section(fields: [
-                    new MrkdwnText("*:alarm_clock: Time*\n<!date^{$startTimestamp}^{time}|{$startTime->toDateTimeLocalString('minute')}>-<!date^{$endTimestamp}^{time}|{$startTime->toDateTimeLocalString('minute')}>"),
+                    new MrkdwnText("*:alarm_clock: Time*\n{$startTime->format('g:i a')} - {$endTime->format('g:i a')}"),
                     new MrkdwnText("*:round_pushpin: Location*\n{$locationLinks}"),
                 ]),
                 new Divider(),
