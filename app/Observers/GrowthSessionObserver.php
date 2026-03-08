@@ -10,14 +10,7 @@ use App\Models\GrowthSession;
 
 class GrowthSessionObserver
 {
-    /**
-     * Handle the GrowthSession "created" event.
-     */
-    public function created(GrowthSession $growthSession): void
-    {
-        broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_CREATED));
-        event(new GrowthSessionCreated($growthSession));
-    }
+    // No create, since events/broadcast need both the growth session and an owner assigned
 
     /**
      * Handle the GrowthSession "updated" event.
@@ -25,7 +18,7 @@ class GrowthSessionObserver
     public function updated(GrowthSession $growthSession): void
     {
         broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
-        event(new GrowthSessionUpdated($growthSession->getOriginal(), $growthSession->toArray()));
+        event(new GrowthSessionUpdated($growthSession, $growthSession->getOriginal(), $growthSession->getDirty()));
     }
 
     /**
@@ -50,6 +43,6 @@ class GrowthSessionObserver
      */
     public function forceDeleted(GrowthSession $growthSession): void
     {
-        broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_DELETED));
+        $this->deleted($growthSession);
     }
 }

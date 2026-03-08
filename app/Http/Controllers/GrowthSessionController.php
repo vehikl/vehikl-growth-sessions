@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\GrowthSessionAttendeeChanged;
 use App\Events\GrowthSessionCreated;
+use App\Events\GrowthSessionModified;
 use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreGrowthSessionRequest;
@@ -12,6 +12,7 @@ use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
 use App\Models\AnyDesk;
 use App\Models\GrowthSession;
+use App\Models\GrowthSessionUser;
 use App\Models\UserType;
 use App\Policies\GrowthSessionPolicy;
 use Illuminate\Http\Request;
@@ -68,6 +69,8 @@ class GrowthSessionController extends Controller
         });
 
         $newGrowthSession->fresh();
+
+        broadcast(new GrowthSessionModified($newGrowthSession->id, GrowthSessionModified::ACTION_CREATED));
         event(new GrowthSessionCreated($newGrowthSession));
 
         return new GrowthSessionResource($newGrowthSession);
@@ -79,39 +82,44 @@ class GrowthSessionController extends Controller
             throw new AttendeeLimitReached;
         }
 
-        // Check if user is already an attendee (idempotency)
-        if (!$growthSession->attendees()->where('user_id', $request->user()->id)->exists()) {
-            $growthSession->attendees()->attach($request->user(), ['user_type_id' => UserType::ATTENDEE_ID]);
-        }
-
-        event(new GrowthSessionAttendeeChanged($growthSession));
+        // Switched from attach flow so the observer would run properly
+        GrowthSessionUser::query()->updateOrCreate([
+            'growth_session_id' => $growthSession->id,
+            'user_id' => $request->user()->id,
+        ], [
+            'user_type_id' => UserType::ATTENDEE_ID
+        ]);
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
 
     public function watch(GrowthSession $growthSession, Request $request)
     {
-        // Check if user is already a watcher (idempotency)
-        if (!$growthSession->watchers()->where('user_id', $request->user()->id)->exists()) {
-            $growthSession->watchers()->attach($request->user(), ['user_type_id' => UserType::WATCHER_ID]);
-        }
+        // Switched from attach flow so the observer would run properly
+        GrowthSessionUser::query()->updateOrCreate([
+            'growth_session_id' => $growthSession->id,
+            'user_id' => $request->user()->id,
+        ], [
+            'user_type_id' => UserType::WATCHER_ID
+        ]);
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
 
     public function leave(GrowthSession $growthSession, Request $request)
     {
-        $growthSession->watchers()->detach($request->user());
-        $growthSession->attendees()->detach($request->user());
-
-        event(new GrowthSessionAttendeeChanged($growthSession));
+        GrowthSessionUser::query()
+            ->where('growth_session_id', $growthSession->id)
+            ->where('user_id', $request->user()->id)
+            ->delete();
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
     {
-        $growthSession->update(Arr::except($request->validated(), 'tags'));
+        $growthSession->fill(Arr::except($request->validated(), 'tags'));
+
         $growthSession->tags()->sync($request->input('tags'));
 
         if ($request->input('anydesk_id')) {
@@ -119,9 +127,9 @@ class GrowthSessionController extends Controller
             $growthSession->anydesk()->associate($anyDesk);
         } else {
             $growthSession->anydesk()->dissociate();
-
-            $growthSession->save();
         }
+
+        $growthSession->save();
 
         return new GrowthSessionResource($growthSession->refresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
     }
