@@ -52,7 +52,7 @@ class SessionPoster extends Messenger
             ]);
             return;
         }
-        $growthSession->update([
+        $growthSession->updateQuietly([
             'slack_thread_ts' => $message->id(),
         ]);
     }
