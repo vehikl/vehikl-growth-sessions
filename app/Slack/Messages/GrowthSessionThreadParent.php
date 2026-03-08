@@ -33,7 +33,7 @@ class GrowthSessionThreadParent implements MessageInterface
         $links = app(LocationUrls::class)->get($growthSession);
 
         $startTime = Carbon::parse($growthSession->start_time);
-        $endTime = Carbon::parse($growthSession->start_time);
+        $endTime = Carbon::parse($growthSession->end_time);
 
         $locationLinks = collect($links)
             ->map(function (string $link) {
