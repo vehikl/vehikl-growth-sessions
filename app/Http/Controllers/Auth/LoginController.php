@@ -17,10 +17,14 @@ class LoginController extends Controller
     public function redirectToProvider(Request $request, $driver)
     {
         if (App::environment('local') && empty(config('services.github.client_id'))) {
-            $githubUser = $request->input('github_user', config('auth.vehikl_names'));
+            $githubUser = $request->input('github_user');
 
             Auth::login(User::query()
-                ->where('github_nickname', $githubUser)
+                ->when(
+                    $githubUser,
+                    fn($query) => $query->where('github_nickname', $githubUser),
+                    fn($query) => $query->where('is_vehikl_member', true),
+                )
                 ->firstOrFail()
             );
 
