@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -28,6 +29,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'calendar_token',
     ];
 
     protected function casts(): array
@@ -68,6 +70,14 @@ class User extends Authenticatable
     public function sessionsWatched(): BelongsToMany
     {
         return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', UserType::WATCHER_ID);
+    }
+
+    public function generateCalendarToken(): string
+    {
+        $this->calendar_token = Str::random(64);
+        $this->save();
+
+        return $this->calendar_token;
     }
 
     public function comments(): HasMany

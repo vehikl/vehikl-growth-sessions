@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\AnyDesksController;
 use App\Http\Controllers\Api\DiscordChannelsController;
+use App\Http\Controllers\CalendarFeedController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\GrowthSessionController;
 use App\Http\Controllers\ShowStatisticsController;
@@ -37,6 +38,14 @@ Route::get('/tags', [TagsController::class,'index'])->middleware('auth');
 Route::get('/statistics', ShowStatisticsController::class)
     ->middleware(['auth', 'vehikl'])
     ->name('statistics.index');
+
+Route::get('/calendar/{token}.ics', [CalendarFeedController::class, 'show'])
+    ->name('calendar.feed')
+    ->where('token', '[a-zA-Z0-9]{64}');
+
+Route::post('/calendar/generate-token', [CalendarFeedController::class, 'generateToken'])
+    ->middleware('auth')
+    ->name('calendar.generate-token');
 
 Route::prefix('proposals')->middleware('auth')->name('proposals.')->group(function () {
     Route::get('/', [\App\Http\Controllers\GrowthSessionProposalController::class, 'index'])->name('index');

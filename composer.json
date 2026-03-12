@@ -16,6 +16,7 @@
         "laravel/socialite": "^5.20",
         "laravel/tinker": "^2.10.1",
         "slack-php/slack-block-kit": "^2.3",
+        "spatie/icalendar-generator": "^3.2",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CalendarFeedButton from '@/components/CalendarFeedButton.vue';
 import VAvatar from '@/components/legacy/VAvatar.vue';
 import VehiklLogo from '@/svgs/VehiklLogo.vue';
 import type { BreadcrumbItemType } from '@/types';
@@ -56,7 +57,8 @@ const isExpanded = ref(false);
                         </a>
                     </template>
                     <template v-else>
-                        <Link :href="route('logout')" method="post" as="button" class="mt-4 flex items-center uppercase tracking-wider hover:text-vehikl-orange transition-smooth lg:mt-0">
+                        <CalendarFeedButton />
+                        <Link :href="route('logout')" method="post" as="button" class="mt-4 flex items-center uppercase tracking-wider hover:text-vehikl-orange transition-smooth lg:mt-0 sm:ml-6">
                             <v-avatar class="mr-3" :src="$page.props.auth.user.avatar" alt="Your Avatar" :size="6"></v-avatar>
                             Logout
                         </Link>

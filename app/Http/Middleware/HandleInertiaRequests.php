@@ -45,6 +45,9 @@ class HandleInertiaRequests extends Middleware
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
+                'calendar_url' => $request->user()?->calendar_token
+                    ? route('calendar.feed', ['token' => $request->user()->calendar_token])
+                    : null,
             ],
             'ziggy' => [
                 ...(new Ziggy)->toArray(),
