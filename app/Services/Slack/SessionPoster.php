@@ -27,6 +27,8 @@ class SessionPoster extends Messenger
      */
     public function post(GrowthSession $growthSession): void
     {
+        $growthSession->refresh();
+
         if (!$this->canSendMessage($growthSession)) {
             return;
         }

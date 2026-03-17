@@ -32,9 +32,6 @@ class GrowthSessionThreadParent implements MessageInterface
     {
         $links = app(LocationUrls::class)->get($growthSession);
 
-        $startTime = Carbon::parse($growthSession->start_time);
-        $endTime = Carbon::parse($growthSession->end_time);
-
         $locationLinks = collect($links)
             ->map(function (string $link) {
                 $host = parse_url($link, PHP_URL_HOST);
@@ -44,10 +41,10 @@ class GrowthSessionThreadParent implements MessageInterface
         $locationLinks = $locationLinks ?: $growthSession->location;
 
         $contextElements = $growthSession->attendees
+            ->slice(0, 9)
             ->map(function (User $attendee) {
                 return new Image(imageUrl: $attendee->avatar, altText: $attendee->name);
-            })
-            ->slice(0, 9);
+            });
 
         $trailingStrings = [];
         $andOthersCount = $growthSession->attendees()->count() - $contextElements->count();
@@ -68,7 +65,7 @@ class GrowthSessionThreadParent implements MessageInterface
                 new Context(elements: $contextElements->toArray()),
 
                 new Section(fields: [
-                    new MrkdwnText("*:alarm_clock: Time*\n{$startTime->format('g:i a')} - {$endTime->format('g:i a')}"),
+                    new MrkdwnText("*:alarm_clock: Time*\n{$growthSession->start_time->format('g:i a')} - {$growthSession->end_time->format('g:i a')}"),
                     new MrkdwnText("*:round_pushpin: Location*\n{$locationLinks}"),
                 ]),
                 new Divider(),
