@@ -6,6 +6,8 @@ use App\Models\GrowthSession;
 use App\Models\User;
 use App\Services\LocationUrls;
 use Carbon\Carbon;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use SlackPhp\BlockKit\Blocks\Actions;
 use SlackPhp\BlockKit\Blocks\Block;
 use SlackPhp\BlockKit\Blocks\Context;
@@ -16,20 +18,19 @@ use SlackPhp\BlockKit\Elements\Button;
 use SlackPhp\BlockKit\Elements\Image;
 use SlackPhp\BlockKit\Parts\MrkdwnText;
 use SlackPhp\BlockKit\Parts\PlainText;
-use SlackPhp\BlockKit\Parts\Text;
 use SlackPhp\BlockKit\Surfaces\Message;
 
 class GrowthSessionThreadParent implements MessageInterface
 {
     /**
+     * @param GrowthSession $growthSession
      * @return array{Block}
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function build(GrowthSession $growthSession): array
     {
         $links = app(LocationUrls::class)->get($growthSession);
-
-        $startTimestamp = Carbon::parse($growthSession->start_time)->timestamp;
-        $endTimestamp = Carbon::parse($growthSession->end_time)->timestamp;
 
         $locationLinks = collect($links)
             ->map(function (string $link) {
@@ -37,19 +38,20 @@ class GrowthSessionThreadParent implements MessageInterface
                 return "<{$link}|{$host}>";
             })
             ->join(" | ");
+        $locationLinks = $locationLinks ?: $growthSession->location;
 
         $contextElements = $growthSession->attendees
+            ->slice(0, 9)
             ->map(function (User $attendee) {
                 return new Image(imageUrl: $attendee->avatar, altText: $attendee->name);
-            })
-            ->slice(0, 9);
+            });
 
         $trailingStrings = [];
         $andOthersCount = $growthSession->attendees()->count() - $contextElements->count();
         if ($andOthersCount > 0) {
-            $trailingStrings []= "and {$andOthersCount} others";
+            $trailingStrings [] = "and {$andOthersCount} others";
         }
-        $trailingStrings []= $growthSession->hasUnlimitedSlots()
+        $trailingStrings [] = $growthSession->hasUnlimitedSlots()
             ? "{$growthSession->attendees()->count()} / :infinity: Attendees"
             : "{$growthSession->attendees()->count()} / {$growthSession->attendee_limit} Attendees";
 
@@ -63,7 +65,7 @@ class GrowthSessionThreadParent implements MessageInterface
                 new Context(elements: $contextElements->toArray()),
 
                 new Section(fields: [
-                    new MrkdwnText("*:alarm_clock: Time*\n<!date^{$startTimestamp}^{time}|{$growthSession->start_time}>-<!date^{$endTimestamp}^{time}|{$growthSession->end_time}>"),
+                    new MrkdwnText("*:alarm_clock: Time*\n{$growthSession->start_time->format('g:i a')} - {$growthSession->end_time->format('g:i a')}"),
                     new MrkdwnText("*:round_pushpin: Location*\n{$locationLinks}"),
                 ]),
                 new Divider(),

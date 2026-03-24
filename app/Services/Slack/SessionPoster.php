@@ -13,8 +13,11 @@ class SessionPoster extends Messenger
 {
     protected function canSendMessage(GrowthSession $growthSession): bool
     {
-        return $this->isConfigured()
-            && Carbon::now()->isSameDay($growthSession->start_time);
+        $isValidDay = config('services.slack.chat.post-mode') === 'today'
+            ? Carbon::now()->isSameDay($growthSession->date)
+            : Carbon::now()->endOfDay()->lte($growthSession->date);
+
+        return $this->isConfigured() && $isValidDay;
     }
 
     /**
@@ -24,6 +27,8 @@ class SessionPoster extends Messenger
      */
     public function post(GrowthSession $growthSession): void
     {
+        $growthSession->refresh();
+
         if (!$this->canSendMessage($growthSession)) {
             return;
         }
@@ -50,9 +55,8 @@ class SessionPoster extends Messenger
             ]);
             return;
         }
-        $growthSession->update([
+        $growthSession->updateQuietly([
             'slack_thread_ts' => $message->id(),
         ]);
-
     }
 }
