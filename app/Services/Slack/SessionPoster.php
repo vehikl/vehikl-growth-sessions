@@ -14,9 +14,9 @@ class SessionPoster extends Messenger
     protected function canSendMessage(GrowthSession $growthSession): bool
     {
         $isValidDay = config('services.slack.chat.post-mode') === 'today'
-            ? Carbon::now()->isSameDay($growthSession->start_time)
-            : Carbon::now()->endOfDay()->gte($growthSession->start_time);
-        
+            ? Carbon::now()->isSameDay($growthSession->date)
+            : Carbon::now()->endOfDay()->gte($growthSession->date);
+
         return $this->isConfigured() && $isValidDay;
     }
 
