@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import {IGrowthSession, IUser} from "@/types"
-import {DateTime} from "@/classes/DateTime"
 import {GrowthSession} from "@/classes/GrowthSession"
 import CommentList from "@/components/legacy/CommentList.vue"
 import VAvatar from "@/components/legacy/VAvatar.vue"
@@ -11,11 +10,9 @@ import VModal from "@/components/legacy/VModal.vue"
 import {computed, ref} from "vue"
 import {useGrowthSession} from "@/composables/useGrowthSession"
 import GrowthSessionTags from "@/components/legacy/GrowthSessionTags.vue";
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import {GrowthSessionApi} from "@/services/GrowthSessionApi";
 import {useEcho} from "@laravel/echo-vue";
-import {AxiosError} from "axios";
 
 interface IProps {
     userJson?: IUser;
@@ -33,8 +30,6 @@ const {
     isProcessing
 } = useGrowthSession(props.growthSessionJson)
 
-const date = computed(() => `${DateTime.parseByDate(growthSession.value.date).format("MMM-DD")}`)
-const time = computed(() => `${growthSession.value.startTime} - ${growthSession.value.endTime}`)
 const mobtimeUrl = computed(() => `https://mobtime.vehikl.com/vgs-${props.growthSessionJson.id}`)
 const discordChannelUrl = computed(() => `discord://discordapp.com/channels/${props.discordGuildId}/${growthSession.value.discord_channel_id}`)
 
@@ -109,7 +104,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, ".session.modified", refetchGrow
                         </div>
                     </div>
 
-                    <GrowthSessionTags :tags="growthSession.tags" class="mb-4" />
+                    <GrowthSessionTags :tags="growthSession.tags" class="mb-4 flex-wrap" />
 
                     <pre
                         class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-64 overflow-y-auto overflow-x-hidden font-sans text-slate-600 tracking-wide leading-relaxed"

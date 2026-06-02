@@ -30,7 +30,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.1.4
         with:
-          node-version: '18.13.0'
+          node-version: '22.13.0'
       - name: Install pnpm
         run: npm i -g pnpm
       - name: Install Javascript Dependencies
