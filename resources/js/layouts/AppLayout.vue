@@ -40,7 +40,14 @@ const navLinkClass = 'text-sm font-medium uppercase tracking-[0.06em] text-white
                 <Link v-if="route().current('about')" :href="route('home')" :class="navLinkClass">Board</Link>
                 <Link v-else :href="route('about')" :class="navLinkClass">About</Link>
 
-                <Link :href="route('logout')" method="post" as="button" :class="navLinkClass">Logout</Link>
+                <Link
+                    :href="route('logout')"
+                    method="post"
+                    as="button"
+                    :class="[navLinkClass, 'flex items-center gap-2']"
+                >
+                    <i class="fa fa-sign-out text-base" aria-hidden="true"></i> Logout
+                </Link>
             </template>
 
             <template v-else>
