@@ -5,7 +5,7 @@ import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 
 interface IProps {
     growthSession: GrowthSession;
@@ -14,6 +14,15 @@ interface IProps {
 
 const props = defineProps<IProps>();
 const emit = defineEmits(['close', 'edit-requested', 'delete-requested', 'refresh']);
+
+function onKeydown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+        emit('close');
+    }
+}
+
+onMounted(() => document.addEventListener('keydown', onKeydown));
+onUnmounted(() => document.removeEventListener('keydown', onKeydown));
 
 const { getInitials } = useInitials();
 
