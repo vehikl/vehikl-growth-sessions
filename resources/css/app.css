@@ -1,9 +1,28 @@
 @import 'tailwindcss';
 
+/* Inter + Oswald are loaded via <link> in app.blade.php (keeps @import rules valid). */
+
+/* Enable class-based dark mode (toggled on <html> by the theme composable). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
     /* Vehikl Brand Colors */
     --color-vehikl-orange: #e26701;
     --color-vehikl-dark: #101827;
+
+    /* Design accent (Growth Sessions redesign) */
+    --color-gs-accent: #e0632a;
+    --color-gs-accent-hover: #c94f1e;
+    --color-gs-header: #171a24;
+
+    /* Status colors */
+    --color-gs-live: #e0632a;
+    --color-gs-upcoming: #3fb56d;
+    --color-gs-finished: #9aa0ab;
+
+    /* Fonts */
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Oswald', 'Inter', system-ui, sans-serif;
 
     /* Modern Neutral Palette */
     --color-neutral-50: #fafaf9;
@@ -32,6 +51,153 @@
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
+/*
+ * Semantic theme tokens for the Growth Sessions redesign.
+ * These switch automatically when the `.dark` class is present on <html>,
+ * so components can use the `.gs-*` helper classes below without `dark:` variants.
+ */
+:root {
+    --gs-page: #f5f3ee;
+    --gs-bar: #ffffff;
+    --gs-card: #ffffff;
+    --gs-seg: #f4f2ec;
+    --gs-col: #f9f8f4;
+    --gs-secondary: #f4f2ec;
+    --gs-border: rgba(23, 26, 36, 0.08);
+    --gs-divider: rgba(23, 26, 36, 0.06);
+    --gs-strong: #171a24;
+    --gs-sub: rgba(23, 26, 36, 0.4);
+    --gs-muted: rgba(23, 26, 36, 0.4);
+    --gs-body: rgba(23, 26, 36, 0.6);
+    --gs-input: #171a24;
+    --gs-ph: rgba(23, 26, 36, 0.35);
+    --gs-overlay: rgba(23, 26, 36, 0.45);
+}
+
+.dark {
+    --gs-page: #14161c;
+    --gs-bar: #1b1e26;
+    --gs-card: #232733;
+    --gs-seg: #2a2e38;
+    --gs-col: #1b1e26;
+    --gs-secondary: #2f3440;
+    --gs-border: rgba(255, 255, 255, 0.1);
+    --gs-divider: rgba(255, 255, 255, 0.06);
+    --gs-strong: #f2f1ee;
+    --gs-sub: rgba(242, 241, 238, 0.55);
+    --gs-muted: rgba(242, 241, 238, 0.4);
+    --gs-body: rgba(242, 241, 238, 0.7);
+    --gs-input: #f2f1ee;
+    --gs-ph: rgba(242, 241, 238, 0.35);
+    --gs-overlay: rgba(0, 0, 0, 0.6);
+}
+
+body {
+    font-family: var(--font-sans);
+}
+
+::placeholder {
+    color: var(--gs-ph);
+}
+
+/* Surface backgrounds */
+.gs-page {
+    background-color: var(--gs-page);
+}
+.gs-bar {
+    background-color: var(--gs-bar);
+}
+.gs-card {
+    background-color: var(--gs-card);
+}
+.gs-seg {
+    background-color: var(--gs-seg);
+}
+.gs-col {
+    background-color: var(--gs-col);
+}
+.gs-secondary-bg {
+    background-color: var(--gs-secondary);
+}
+.gs-header-bg {
+    background-color: var(--color-gs-header);
+}
+.gs-overlay-bg {
+    background-color: var(--gs-overlay);
+}
+
+/* Borders */
+.gs-border {
+    border-color: var(--gs-border);
+}
+.gs-divider-color {
+    border-color: var(--gs-divider);
+}
+
+/* Text */
+.gs-text-strong {
+    color: var(--gs-strong);
+}
+.gs-text-sub {
+    color: var(--gs-sub);
+}
+.gs-text-muted {
+    color: var(--gs-muted);
+}
+.gs-text-body {
+    color: var(--gs-body);
+}
+.gs-text-input {
+    color: var(--gs-input);
+}
+
+/* Accent */
+.gs-accent-text {
+    color: var(--color-gs-accent);
+}
+.gs-accent-bg {
+    background-color: var(--color-gs-accent);
+}
+
+.font-display {
+    font-family: var(--font-display);
+}
+
+/* Primary (orange) action button */
+.gs-btn-primary {
+    background-color: var(--color-gs-accent);
+    color: #ffffff;
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.gs-btn-primary:hover {
+    background-color: var(--color-gs-accent-hover);
+}
+
+/* Secondary (neutral surface) button */
+.gs-btn-secondary {
+    background-color: var(--gs-secondary);
+    color: var(--gs-strong);
+    transition: filter 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.gs-btn-secondary:hover {
+    filter: brightness(0.96);
+}
+.dark .gs-btn-secondary:hover {
+    filter: brightness(1.12);
+}
+
+/* Themed form controls */
+.gs-input {
+    background-color: var(--gs-seg);
+    color: var(--gs-input);
+    border: 1px solid var(--gs-border);
+    transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.gs-input:focus {
+    outline: none;
+    border-color: var(--color-gs-accent);
+}
+
 .break-words-fixed {
     word-break: break-word;
     overflow-wrap: break-word;
@@ -54,4 +220,28 @@
     .hover-scale:hover {
         transform: scale(1.02);
     }
+}
+
+/* Drawer + modal animations */
+@keyframes gs-slide-in-right {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+@keyframes gs-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+.gs-drawer-panel {
+    animation: gs-slide-in-right 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.gs-fade-in {
+    animation: gs-fade-in 0.2s ease-out;
 }

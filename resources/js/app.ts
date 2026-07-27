@@ -1,12 +1,13 @@
 import '../css/app.css';
 
+import { initTheme } from '@/composables/useTheme';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { createInertiaApp } from '@inertiajs/vue3';
+import { configureEcho } from '@laravel/echo-vue';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
-import { configureEcho } from '@laravel/echo-vue';
-import AppLayout from "@/layouts/AppLayout.vue"
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -20,6 +21,9 @@ declare module 'vite/client' {
         readonly glob: <T>(pattern: string) => Record<string, () => Promise<T>>;
     }
 }
+
+// Sync the reactive theme state with the class the blade template already applied.
+initTheme();
 
 configureEcho({
     broadcaster: 'reverb',
@@ -45,6 +49,6 @@ createInertiaApp({
             .mount(el);
     },
     progress: {
-        color: '#4B5563',
+        color: '#e0632a',
     },
 });
