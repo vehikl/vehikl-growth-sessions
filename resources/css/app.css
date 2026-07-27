@@ -7,7 +7,8 @@
 
 @theme {
     /* Vehikl Brand Colors */
-    --color-vehikl-orange: #ff731f;
+    --color-vehikl-orange: #dd5f13;
+    --color-vehikl-light: #ff731f;
     --color-vehikl-dark: #b44e10;
 
     /* Design accent (Growth Sessions redesign) */
@@ -15,7 +16,7 @@
     --color-gs-header: #171a24;
 
     /* Status colors */
-    --color-gs-live: var(--color-vehikl-orange);
+    --color-gs-live: var(--color-vehikl-light);
     --color-gs-upcoming: #3fb56d;
     --color-gs-finished: #9aa0ab;
 
@@ -155,16 +156,16 @@ body {
     color: var(--color-vehikl-orange);
 }
 .gs-accent-bg {
-    background-color: var(--color-vehikl-orange);
+    background-color: var(--color-vehikl-light);
 }
 
 .font-display {
-    font-family: var(--font-display);
+    font-family: var(--font-display), serif;
 }
 
 /* Primary (orange) action button */
 .gs-btn-primary {
-    background-color: var(--color-vehikl-orange);
+    background-color: var(--color-vehikl-light);
     color: #ffffff;
     transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
