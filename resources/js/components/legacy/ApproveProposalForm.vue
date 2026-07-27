@@ -210,7 +210,7 @@ async function getAnyDesks() {
         </div>
 
         <button
-            :class="{ 'opacity-25 cursor-not-allowed': !isReadyToSubmit }"
+            :class="{ 'cursor-pointer': isReadyToSubmit, 'cursor-not-allowed opacity-25': !isReadyToSubmit }"
             :disabled="!isReadyToSubmit"
             class="border-green-600 hover:bg-green-600 focus:bg-green-700 text-green-600 border-4 bg-white hover:text-white font-bold py-2 px-4 w-full"
             type="submit"

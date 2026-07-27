@@ -376,7 +376,7 @@ function renderParticipationButton(
             <button data-id="${row.user_id}"
               data-payload="${otherUsersKey}"
               data-type="alert-button"
-              class="is-rows-el quick-btn md:w-1/2 hover:brightness-75 hover:font-bold underline">
+              class="cursor-pointer is-rows-el quick-btn md:w-1/2 hover:brightness-75 hover:font-bold underline">
                   ${row[otherUserCountKey]}
             </button>
           </abbr>
@@ -409,7 +409,7 @@ function renderParticipationButton(
 
                     <form method="dialog">
                         <button
-                            class="rounded-lg bg-vehikl-dark hover:bg-vehikl-dark/90 text-white font-semibold py-2.5 px-4 w-full transition-smooth shadow-sm"
+                            class="cursor-pointer rounded-lg bg-vehikl-dark hover:bg-vehikl-dark/90 text-white font-semibold py-2.5 px-4 w-full transition-smooth shadow-sm"
                         >
                             OK
                         </button>
@@ -433,7 +433,7 @@ function renderParticipationButton(
                         />
                         <button
                             @click="addNameToFilter"
-                            class="rounded-lg bg-vehikl-orange hover:bg-vehikl-orange/90 text-white px-4 py-2 font-semibold transition-smooth shadow-sm"
+                            class="cursor-pointer rounded-lg bg-vehikl-orange hover:bg-vehikl-orange/90 text-white px-4 py-2 font-semibold transition-smooth shadow-sm"
                         >
                             Apply
                         </button>
@@ -443,7 +443,7 @@ function renderParticipationButton(
                         <div class="flex gap-4 flex-wrap">
                             <div class="relative">
                                 <button
-                                    class="text-xs absolute -top-5 right-0 text-vehikl-orange hover:text-vehikl-orange/80 font-medium transition-smooth"
+                                    class="cursor-pointer text-xs absolute -top-5 right-0 text-vehikl-orange hover:text-vehikl-orange/80 font-medium transition-smooth"
                                     @click="setStartDateAsFirstDay"
                                 >
                                     First Day
@@ -463,7 +463,7 @@ function renderParticipationButton(
 
                             <div class="relative" v-if="fullDisplay">
                                 <button
-                                    class="text-xs absolute -top-5 right-0 text-vehikl-orange hover:text-vehikl-orange/80 font-medium transition-smooth"
+                                    class="cursor-pointer text-xs absolute -top-5 right-0 text-vehikl-orange hover:text-vehikl-orange/80 font-medium transition-smooth"
                                     @click="setEndDateAsToday"
                                 >
                                     Today
@@ -484,19 +484,19 @@ function renderParticipationButton(
 
                         <div class="flex items-end gap-2 mb-4 mt-2">
                             <button
-                                class="text-sm rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-vehikl-dark px-4 py-2 font-medium transition-smooth"
+                                class="cursor-pointer text-sm rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-vehikl-dark px-4 py-2 font-medium transition-smooth"
                                 @click="setThisWeekDateRange"
                             >
                                 This Week
                             </button>
                             <button
-                                class="text-sm rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-vehikl-dark px-4 py-2 font-medium transition-smooth"
+                                class="cursor-pointer text-sm rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-vehikl-dark px-4 py-2 font-medium transition-smooth"
                                 @click="setThisMonthDateRange"
                             >
                                 This Month
                             </button>
                             <button
-                                class="text-sm rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-vehikl-dark px-4 py-2 font-medium transition-smooth"
+                                class="cursor-pointer text-sm rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-vehikl-dark px-4 py-2 font-medium transition-smooth"
                                 @click="setAllTimeDateRange"
                             >
                                 All Time
@@ -517,14 +517,14 @@ function renderParticipationButton(
                         </label>
 
                         <button
-                            class="text-sm rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-vehikl-dark px-4 py-2 font-medium transition-smooth"
+                            class="cursor-pointer text-sm rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-vehikl-dark px-4 py-2 font-medium transition-smooth"
                             @click="clearFilterList"
                         >
                             Clear
                         </button>
 
                         <button
-                            class="text-sm rounded-lg bg-vehikl-orange hover:bg-vehikl-orange/90 text-white px-4 py-2 font-semibold transition-smooth shadow-sm"
+                            class="cursor-pointer text-sm rounded-lg bg-vehikl-orange hover:bg-vehikl-orange/90 text-white px-4 py-2 font-semibold transition-smooth shadow-sm"
                             @click="shareUrl"
                             title="Copy shareable URL to clipboard"
                         >
@@ -547,7 +547,7 @@ function renderParticipationButton(
                             <span class="text-sm text-vehikl-dark">{{ selectedName }}</span>
                             <button
                                 @click="removeNameFromFilter(selectedName)"
-                                class="text-red-500 hover:text-red-700 hover:bg-red-50 rounded px-1 transition-smooth"
+                                class="cursor-pointer text-red-500 hover:text-red-700 hover:bg-red-50 rounded px-1 transition-smooth"
                             >
                                 ×
                             </button>

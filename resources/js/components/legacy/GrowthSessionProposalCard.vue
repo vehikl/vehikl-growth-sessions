@@ -49,21 +49,21 @@ function formatTimePreferences(): string {
                 <button
                     v-if="canEdit"
                     @click="emit('edit', proposal)"
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 >
                     Edit
                 </button>
                 <button
                     v-if="canApprove"
                     @click="emit('approve', proposal)"
-                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                    class="cursor-pointer bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
                 >
                     Approve
                 </button>
                 <button
                     v-if="canEdit"
                     @click="emit('delete', proposal)"
-                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                    class="cursor-pointer bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                 >
                     Delete
                 </button>

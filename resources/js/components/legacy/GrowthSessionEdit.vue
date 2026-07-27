@@ -68,12 +68,12 @@ function getError(field: string): string {
             <div>
                 <button
                     @click.stop="updateGrowthSession"
-                    class="update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded">
+                    class="cursor-pointer update-button w-32 bg-orange-500 hover:bg-orange-700 focus:bg-orange-700 text-white font-bold py-2 px-4 rounded">
                     Save
                 </button>
                 <button
                     @click.stop="deleteGrowthSession"
-                    class="delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                    class="cursor-pointer delete-button w-16 bg-red-500 hover:bg-red-700 focus:bg-red-700 text-white font-bold py-2 px-4 rounded">
                     <i aria-hidden="true" class="fa fa-trash"></i>
                 </button>
             </div>

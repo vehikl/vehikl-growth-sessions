@@ -362,7 +362,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
             </div>
 
             <div class="gs-border border-t pt-3.5">
-                <button type="button" class="gs-text-sub inline-flex items-center gap-1.5 text-xs font-semibold uppercase">
+                <button type="button" class="cursor-pointer gs-text-sub inline-flex items-center gap-1.5 text-xs font-semibold uppercase">
                     + Add tags
                     <span class="gs-text-muted font-normal lowercase">(optional)</span>
                     <span
@@ -390,7 +390,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
             </div>
 
             <button
-                :class="{ 'cursor-not-allowed opacity-40': !isReadyToSubmit }"
+                :class="{ 'cursor-pointer': isReadyToSubmit, 'cursor-not-allowed opacity-40': !isReadyToSubmit }"
                 :disabled="!isReadyToSubmit"
                 class="gs-btn-primary mt-1.5 w-full rounded-md py-3 text-sm font-bold"
                 type="submit"

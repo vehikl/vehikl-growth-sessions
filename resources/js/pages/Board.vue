@@ -275,7 +275,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             <div class="flex flex-none items-center gap-2.5">
                 <button
                     aria-label="Load previous week"
-                    class="load-previous-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-8 w-8 items-center justify-center rounded-md text-xl leading-none"
+                    class="cursor-pointer load-previous-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-8 w-8 items-center justify-center rounded-md text-xl leading-none"
                     @click="changeReferenceDate(-7)"
                 >
                     ‹
@@ -283,7 +283,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 <span class="gs-text-strong text-sm font-semibold whitespace-nowrap">{{ weekLabel }}</span>
                 <button
                     aria-label="Load next week"
-                    class="load-next-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-8 w-8 items-center justify-center rounded-md text-xl leading-none"
+                    class="cursor-pointer load-next-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-8 w-8 items-center justify-center rounded-md text-xl leading-none"
                     @click="changeReferenceDate(7)"
                 >
                     ›
@@ -294,7 +294,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 <button
                     type="button"
                     aria-keyshortcuts="D"
-                    class="transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
+                    class="cursor-pointer transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
                     :class="view === 'day' ? 'gs-header-bg text-white' : 'gs-text-sub'"
                     @click="view = 'day'"
                 >
@@ -303,7 +303,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 <button
                     type="button"
                     aria-keyshortcuts="W"
-                    class="transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
+                    class="cursor-pointer transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
                     :class="view === 'week' ? 'gs-header-bg text-white' : 'gs-text-sub'"
                     @click="view = 'week'"
                 >
@@ -321,7 +321,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 />
                 <button
                     v-if="searchQuery"
-                    class="gs-text-muted transition-smooth hover:text-gs-accent absolute top-1/2 right-2 -translate-y-1/2 rounded-md px-2 py-1"
+                    class="cursor-pointer gs-text-muted transition-smooth hover:text-gs-accent absolute top-1/2 right-2 -translate-y-1/2 rounded-md px-2 py-1"
                     aria-label="Clear search"
                     @click="searchQuery = ''"
                 >
@@ -332,7 +332,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             <button
                 v-if="allTags.length"
                 type="button"
-                class="gs-seg gs-text-strong transition-smooth flex flex-none items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold whitespace-nowrap"
+                class="cursor-pointer gs-seg gs-text-strong transition-smooth flex flex-none items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold whitespace-nowrap"
                 @click="filtersOpen = !filtersOpen"
             >
                 Filters
@@ -351,7 +351,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
         <div v-show="filtersOpen" class="gs-col gs-border w-full border-b px-5 py-4 sm:px-7">
             <div class="mb-3 flex items-center justify-between">
                 <span class="gs-text-sub text-xs font-bold tracking-[0.04em]">FILTER BY TAG</span>
-                <button type="button" class="gs-accent-text text-sm font-semibold" @click="selectedTagIds = []">Clear</button>
+                <button type="button" class="cursor-pointer gs-accent-text text-sm font-semibold" @click="selectedTagIds = []">Clear</button>
             </div>
             <GrowthSessionTags ref="growthSessionTags" :tags="allTags" :selected-tag-ids="selectedTagIds" class="flex-wrap" @tag-click="onTagClick" />
         </div>
@@ -393,7 +393,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
         <div v-if="growthSessions.hasCurrentDate" class="fixed inset-x-4 bottom-4 z-40 block md:hidden">
             <button
                 aria-label="Scroll to today"
-                class="gs-btn-primary flex w-full items-center justify-center rounded-md px-4 py-3 text-sm font-semibold shadow-lg"
+                class="cursor-pointer gs-btn-primary flex w-full items-center justify-center rounded-md px-4 py-3 text-sm font-semibold shadow-lg"
                 @click="scrollToDate(DateTime.today().weekDayString())"
             >
                 Go to today
@@ -404,7 +404,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
         <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
             <div class="gs-card relative rounded-2xl p-6">
                 <button
-                    class="gs-text-muted transition-smooth hover:text-gs-accent absolute top-5 right-5 text-xs font-semibold tracking-[0.04em]"
+                    class="cursor-pointer gs-text-muted transition-smooth hover:text-gs-accent absolute top-5 right-5 text-xs font-semibold tracking-[0.04em]"
                     @click="formModalState = 'closed'"
                 >
                     CLOSE ✕

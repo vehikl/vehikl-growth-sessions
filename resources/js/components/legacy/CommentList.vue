@@ -54,7 +54,7 @@ function shortTimestamp(timeStamp: string): string {
                         <span class="gs-text-muted flex-none text-xs" v-text="shortTimestamp(comment.time_stamp)"></span>
                         <button
                             v-show="growthSession.canDeleteComment(user, comment)"
-                            class="transition-smooth ml-auto flex-none text-red-500 hover:text-red-600"
+                            class="cursor-pointer transition-smooth ml-auto flex-none text-red-500 hover:text-red-600"
                             aria-label="delete-comment"
                             @click="growthSession.deleteComment(comment)"
                         >
@@ -78,7 +78,10 @@ function shortTimestamp(timeStamp: string): string {
             <button
                 id="submit-new-comment"
                 class="gs-btn-secondary mt-2 w-full rounded-md py-2.5 text-sm font-semibold"
-                :class="{ 'cursor-not-allowed opacity-50': !allowsNewCommentSubmission }"
+                :class="{
+                    'cursor-pointer': allowsNewCommentSubmission,
+                    'cursor-not-allowed opacity-50': !allowsNewCommentSubmission,
+                }"
                 :disabled="!allowsNewCommentSubmission"
             >
                 <i class="fa fa-commenting-o mr-2" aria-hidden="true"></i> Submit

@@ -81,7 +81,7 @@ function removePreference(index: number) {
             <button
                 type="button"
                 @click="removePreference(index)"
-                class="mt-6 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                class="cursor-pointer mt-6 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
             >
                 Remove
             </button>
@@ -90,7 +90,7 @@ function removePreference(index: number) {
         <button
             type="button"
             @click="addPreference"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+            class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
         >
             Add Time Preference
         </button>

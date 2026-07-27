@@ -106,7 +106,7 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canJoin(user)"
                 type="button"
-                class="join-button gs-btn-primary flex-3 rounded-sm py-1.5 px-4 text-sm font-medium"
+                class="cursor-pointer join-button gs-btn-primary flex-3 rounded-sm py-1.5 px-4 text-sm font-medium"
                 @click.stop="joinGrowthSession"
             >
                 Join
@@ -114,7 +114,7 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canWatch(user)"
                 type="button"
-                class="watch-button gs-btn-secondary flex-1 rounded-sm py-1.5 px-4 text-sm font-medium"
+                class="cursor-pointer watch-button gs-btn-secondary flex-1 rounded-sm py-1.5 px-4 text-sm font-medium"
                 @click.stop="watchGrowthSession"
             >
                 Spectate
@@ -122,7 +122,7 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canLeave(user)"
                 type="button"
-                class="leave-button transition-smooth flex-1 rounded-sm border border-red-500 py-1.5 px-4 text-sm font-medium text-red-500 hover:bg-red-500 hover:text-white"
+                class="cursor-pointer leave-button transition-smooth flex-1 rounded-sm border border-red-500 py-1.5 px-4 text-sm font-medium text-red-500 hover:bg-red-500 hover:text-white"
                 @click.stop="leaveGrowthSession"
             >
                 Leave
@@ -145,7 +145,7 @@ async function onDeleteClicked() {
                 <button
                     v-show="growthSession.canEditOrDelete(user)"
                     type="button"
-                    class="update-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-9 w-9 items-center justify-center rounded-md leading-none"
+                    class="cursor-pointer update-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-9 w-9 items-center justify-center rounded-md leading-none"
                     title="Edit"
                     @click.stop="emit('edit-requested', growthSession)"
                 >
@@ -154,7 +154,7 @@ async function onDeleteClicked() {
                 <button
                     v-show="user && user.is_vehikl_member"
                     type="button"
-                    class="copy-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-9 w-9 items-center justify-center rounded-md leading-none"
+                    class="cursor-pointer copy-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-9 w-9 items-center justify-center rounded-md leading-none"
                     title="Duplicate"
                     @click.stop="emit('copy-requested', growthSession)"
                 >
@@ -163,7 +163,7 @@ async function onDeleteClicked() {
                 <button
                     v-show="growthSession.canEditOrDelete(user)"
                     type="button"
-                    class="delete-button gs-text-muted transition-smooth inline-flex h-9 w-9 items-center justify-center rounded-md leading-none hover:text-red-500"
+                    class="cursor-pointer delete-button gs-text-muted transition-smooth inline-flex h-9 w-9 items-center justify-center rounded-md leading-none hover:text-red-500"
                     title="Delete"
                     @click.stop="onDeleteClicked"
                 >

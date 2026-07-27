@@ -79,7 +79,7 @@ function handleApproved() {
     <div class="proposals-page max-w-7xl mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-bold text-slate-800">Growth Session Proposals</h1>
-            <button @click="openCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <button @click="openCreateModal" class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Create Proposal
             </button>
         </div>
@@ -126,7 +126,7 @@ function handleApproved() {
         <!-- Create Modal -->
         <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="closeCreateModal">
             <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative">
-                <button @click="closeCreateModal" class="absolute top-4 right-4 text-slate-600 hover:text-slate-900 text-2xl font-bold">
+                <button @click="closeCreateModal" class="cursor-pointer absolute top-4 right-4 text-slate-600 hover:text-slate-900 text-2xl font-bold">
                     &times;
                 </button>
                 <GrowthSessionProposalForm :user="userJson" @submitted="handleSubmitted" />
@@ -136,7 +136,7 @@ function handleApproved() {
         <!-- Edit Modal -->
         <div v-if="showEditModal && selectedProposal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="closeEditModal">
             <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative">
-                <button @click="closeEditModal" class="absolute top-4 right-4 text-slate-600 hover:text-slate-900 text-2xl font-bold">
+                <button @click="closeEditModal" class="cursor-pointer absolute top-4 right-4 text-slate-600 hover:text-slate-900 text-2xl font-bold">
                     &times;
                 </button>
                 <GrowthSessionProposalForm :user="userJson" :proposal="selectedProposal" @submitted="handleSubmitted" />
@@ -146,7 +146,7 @@ function handleApproved() {
         <!-- Approve Modal -->
         <div v-if="showApproveModal && selectedProposal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="closeApproveModal">
             <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 relative">
-                <button @click="closeApproveModal" class="absolute top-4 right-4 text-slate-600 hover:text-slate-900 text-2xl font-bold">
+                <button @click="closeApproveModal" class="cursor-pointer absolute top-4 right-4 text-slate-600 hover:text-slate-900 text-2xl font-bold">
                     &times;
                 </button>
                 <ApproveProposalForm :proposal="selectedProposal" @submitted="handleApproved" />
