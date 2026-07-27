@@ -353,13 +353,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 <span class="gs-text-sub text-xs font-bold tracking-[0.04em]">FILTER BY TAG</span>
                 <button type="button" class="gs-accent-text text-sm font-semibold" @click="selectedTagIds = []">Clear</button>
             </div>
-            <GrowthSessionTags
-                ref="growthSessionTags"
-                :tags="allTags"
-                :selected-tag-ids="selectedTagIds"
-                class="flex-wrap"
-                @tag-click="onTagClick"
-            />
+            <GrowthSessionTags ref="growthSessionTags" :tags="allTags" :selected-tag-ids="selectedTagIds" class="flex-wrap" @tag-click="onTagClick" />
         </div>
 
         <!-- Week view -->

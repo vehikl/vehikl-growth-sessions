@@ -57,7 +57,7 @@ function tagline(session: GrowthSession): string {
                 <button
                     v-if="user && user.is_vehikl_member && !days[selectedIndex]?.isInAPastDate()"
                     type="button"
-                    class="create-growth-session gs-btn-primary flex h-6 w-6 flex-none items-center justify-center rounded-full text-base leading-none font-bold cursor-pointer"
+                    class="create-growth-session gs-btn-primary flex h-6 w-6 flex-none cursor-pointer items-center justify-center rounded-full text-base leading-none font-bold"
                     title="Add a session"
                     aria-label="Add a session"
                     @click="emit('create')"
@@ -143,7 +143,7 @@ function tagline(session: GrowthSession): string {
                         <button
                             v-show="session.canJoin(user)"
                             type="button"
-                            class="join-button gs-btn-primary rounded-md px-4 md:px-20 py-2 text-sm font-semibold max-w-48"
+                            class="join-button gs-btn-primary max-w-48 rounded-md px-4 py-2 text-sm font-semibold md:px-20"
                             @click.stop="emit('join', session)"
                         >
                             Join
