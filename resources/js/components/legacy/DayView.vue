@@ -47,7 +47,7 @@ async function leave(session: GrowthSession) {
                 v-for="(day, i) in days"
                 :key="day.toDateString()"
                 type="button"
-                class="transition-smooth flex w-[86%] flex-col items-center gap-0.5 rounded-[10px] py-2.5"
+                class="transition-smooth flex w-[86%] flex-col items-center rounded-[10px] py-2.5"
                 :class="i === selectedIndex ? 'gs-accent-bg text-white' : 'hover:bg-black/5 dark:hover:bg-white/5'"
                 @click="emit('select-day', i)"
             >

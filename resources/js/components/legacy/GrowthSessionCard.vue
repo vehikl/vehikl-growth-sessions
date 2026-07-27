@@ -91,9 +91,8 @@ async function onDeleteClicked() {
         <div class="gs-text-sub mb-2 flex items-center justify-between text-sm font-medium">
             <span>{{ growthSession.startTime }}–{{ growthSession.endTime }}</span>
             <span class="attendees-count">
-                {{ growthSession.attendees.length
-                }}<span v-if="growthSession.attendee_limit" class="attendee-limit">/{{ growthSession.attendee_limit }}</span
-                ><span v-else> joined</span>
+                <span v-if="growthSession.attendee_limit" class="attendee-limit">{{ growthSession.attendees.length }}/{{ growthSession.attendee_limit }}</span
+                ><span v-else>{{ growthSession.attendees.length }}</span>
             </span>
         </div>
 

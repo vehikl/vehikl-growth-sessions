@@ -48,5 +48,5 @@ export function statusMeta(status: SessionStatus): {
 /** Human capacity label, e.g. "2/4" or "3 joined" when limitless. */
 export function capacityLabel(session: GrowthSession): string {
     const joined = session.attendees.length;
-    return session.isLimitless ? `${joined} joined` : `${joined}/${session.attendee_limit}`;
+    return session.isLimitless ? `${joined}` : `${joined}/${session.attendee_limit}`;
 }

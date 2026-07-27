@@ -319,7 +319,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 class="day gs-col gs-border flex flex-col border-r p-4"
             >
                 <div class="mb-3.5 flex items-center justify-between">
-                    <span :id="date.weekDayString()" class="gs-text-strong font-display text-base font-bold tracking-[0.04em]">{{
+                    <span :id="date.weekDayString()" class="gs-text-strong uppercase font-display text-base font-bold tracking-[0.04em]">{{
                         date.weekDayString()
                     }}</span>
                     <span class="gs-text-sub text-xs font-semibold tracking-[0.06em]">{{ date.format('MMM D').toUpperCase() }}</span>
