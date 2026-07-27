@@ -257,6 +257,21 @@ async function onDaySessionLeave(session: GrowthSession) {
     await onDrawerRefresh();
 }
 
+async function onGrowthSessionDeleteRequested(session: GrowthSession) {
+    if (!confirm('Are you sure you want to delete?')) return;
+
+    try {
+        await session.delete();
+    } catch (error: any) {
+        if (error.response?.status !== 404) {
+            console.error('Failed to delete growth session:', error);
+        }
+    } finally {
+        selectedSession.value = null;
+        await getAllGrowthSessionsOfTheWeek();
+    }
+}
+
 async function refreshGrowthSessions(data: { type: string }) {
     const ignoredEvents = ['comment', 'watchers'];
 
@@ -385,6 +400,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             @watch="onDaySessionWatch"
             @leave="onDaySessionLeave"
             @edit-requested="onGrowthSessionEditRequested"
+            @delete-requested="onGrowthSessionDeleteRequested"
             @copy-requested="onGrowthSessionCopyRequested"
             @create="onCreateNewGrowthSessionClicked(selectedDate)"
         />
@@ -427,6 +443,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             :user="user"
             @close="selectedSession = null"
             @edit-requested="onGrowthSessionEditRequested"
+            @delete-requested="onGrowthSessionDeleteRequested"
             @refresh="onDrawerRefresh"
         />
     </div>

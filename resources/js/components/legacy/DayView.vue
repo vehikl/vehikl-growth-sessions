@@ -16,7 +16,17 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['select-day', 'open-detail', 'join', 'watch', 'leave', 'edit-requested', 'copy-requested', 'create']);
+const emit = defineEmits([
+    'select-day',
+    'open-detail',
+    'join',
+    'watch',
+    'leave',
+    'edit-requested',
+    'delete-requested',
+    'copy-requested',
+    'create',
+]);
 
 const { getInitials } = useInitials();
 
@@ -164,6 +174,22 @@ function tagline(session: GrowthSession): string {
                         >
                             Leave
                         </button>
+                        <button
+                            v-show="session.canEditOrDelete(user)"
+                            type="button"
+                            class="cursor-pointer update-button gs-btn-primary max-w-48 rounded-md px-4 py-2 text-sm font-semibold md:px-20"
+                            @click.stop="emit('edit-requested', session)"
+                        >
+                            Edit
+                        </button>
+                        <button
+                            v-show="session.canEditOrDelete(user)"
+                            type="button"
+                            class="cursor-pointer delete-button transition-smooth rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
+                            @click.stop="emit('delete-requested', session)"
+                        >
+                            Delete
+                        </button>
 
                         <a
                             aria-label="add-to-calendar"
@@ -183,15 +209,6 @@ function tagline(session: GrowthSession): string {
                             @click.stop="emit('copy-requested', session)"
                         >
                             <i class="fa fa-copy text-sm" aria-hidden="true"></i>
-                        </button>
-                        <button
-                            v-show="session.canEditOrDelete(user)"
-                            type="button"
-                            class="cursor-pointer update-button gs-text-muted gs-border transition-smooth hover:text-gs-accent inline-flex h-9 w-9 items-center justify-center rounded-md border"
-                            title="Edit session"
-                            @click.stop="emit('edit-requested', session)"
-                        >
-                            <i class="fa fa-edit text-sm" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>

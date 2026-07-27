@@ -122,10 +122,26 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canLeave(user)"
                 type="button"
-                class="cursor-pointer leave-button transition-smooth flex-1 rounded-sm border border-red-500 py-1.5 px-4 text-sm font-medium text-red-500 hover:bg-red-500 hover:text-white"
+                class="cursor-pointer leave-button transition-smooth flex-1 rounded-sm border border-red-600 py-1.5 px-4 text-sm font-medium text-red-600 hover:bg-red-700 hover:text-white"
                 @click.stop="leaveGrowthSession"
             >
                 Leave
+            </button>
+            <button
+                v-show="growthSession.canEditOrDelete(user)"
+                type="button"
+                class="cursor-pointer join-button gs-btn-primary flex-3 rounded-sm py-1.5 px-4 text-sm font-medium"
+                @click.stop="emit('edit-requested', growthSession)"
+            >
+                Edit
+            </button>
+            <button
+                v-show="growthSession.canEditOrDelete(user)"
+                type="button"
+                class="cursor-pointer delete-button transition-smooth flex-1 rounded-sm border border-red-600 px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-700 hover:text-white"
+                @click.stop="onDeleteClicked"
+            >
+                Delete
             </button>
         </div>
 
@@ -143,15 +159,6 @@ async function onDeleteClicked() {
                     <i aria-hidden="true" class="fa fa-calendar text-sm"></i>
                 </a>
                 <button
-                    v-show="growthSession.canEditOrDelete(user)"
-                    type="button"
-                    class="cursor-pointer update-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-9 w-9 items-center justify-center rounded-md leading-none"
-                    title="Edit"
-                    @click.stop="emit('edit-requested', growthSession)"
-                >
-                    <i aria-hidden="true" class="fa fa-edit text-sm"></i>
-                </button>
-                <button
                     v-show="user && user.is_vehikl_member"
                     type="button"
                     class="cursor-pointer copy-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-9 w-9 items-center justify-center rounded-md leading-none"
@@ -159,15 +166,6 @@ async function onDeleteClicked() {
                     @click.stop="emit('copy-requested', growthSession)"
                 >
                     <i aria-hidden="true" class="fa fa-copy text-sm"></i>
-                </button>
-                <button
-                    v-show="growthSession.canEditOrDelete(user)"
-                    type="button"
-                    class="cursor-pointer delete-button gs-text-muted transition-smooth inline-flex h-9 w-9 items-center justify-center rounded-md leading-none hover:text-red-500"
-                    title="Delete"
-                    @click.stop="onDeleteClicked"
-                >
-                    <i class="fa fa-trash text-sm" aria-hidden="true"></i>
                 </button>
                 <div
                     v-if="isDraggable"

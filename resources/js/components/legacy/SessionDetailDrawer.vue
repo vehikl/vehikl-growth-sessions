@@ -13,7 +13,7 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['close', 'edit-requested', 'refresh']);
+const emit = defineEmits(['close', 'edit-requested', 'delete-requested', 'refresh']);
 
 const { getInitials } = useInitials();
 
@@ -113,10 +113,18 @@ async function leave() {
                 <button
                     v-if="growthSession.canEditOrDelete(user)"
                     type="button"
-                    class="cursor-pointer update-button gs-btn-secondary rounded-md py-3 text-sm font-semibold"
+                    class="cursor-pointer update-button gs-btn-primary rounded-md py-3 text-sm font-semibold"
                     @click="emit('edit-requested', growthSession)"
                 >
-                    Edit session
+                    Edit
+                </button>
+                <button
+                    v-if="growthSession.canEditOrDelete(user)"
+                    type="button"
+                    class="cursor-pointer delete-button transition-smooth rounded-md border border-red-500 py-3 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
+                    @click="emit('delete-requested', growthSession)"
+                >
+                    Delete
                 </button>
             </div>
 
