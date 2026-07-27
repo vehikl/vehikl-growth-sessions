@@ -39,7 +39,7 @@ async function leave() {
 
 <template>
     <div class="gs-overlay-bg gs-fade-in fixed inset-0 z-30 flex justify-end" @click="emit('close')">
-        <div class="gs-card gs-drawer-panel h-full w-[420px] max-w-[92vw] overflow-y-auto p-7 shadow-2xl" @click.stop>
+        <div class="gs-card gs-drawer-panel h-full max-w-2xl overflow-y-auto p-7 shadow-2xl" @click.stop>
             <div class="mb-2 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <span

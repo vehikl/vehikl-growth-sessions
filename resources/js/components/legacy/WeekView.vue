@@ -318,20 +318,27 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 :weekDay="date.weekDayString()"
                 class="day gs-col gs-border flex flex-col border-r p-4"
             >
-                <div class="mb-3.5 flex items-center justify-between">
-                    <span :id="date.weekDayString()" class="gs-text-strong uppercase font-display text-base font-bold tracking-[0.04em]">{{
-                        date.weekDayString()
-                    }}</span>
-                    <span class="gs-text-sub text-xs font-semibold tracking-[0.06em]">{{ date.format('MMM D').toUpperCase() }}</span>
+                <div class="mb-3.5 flex items-center justify-between gap-2">
+                    <div class="flex min-w-0 items-center gap-2.5">
+                        <span
+                            :id="date.weekDayString()"
+                            class="gs-text-strong font-display truncate text-base font-bold tracking-[0.04em] uppercase"
+                        >
+                            {{ date.weekDayString() }}
+                        </span>
+                        <button
+                            v-if="user && user.is_vehikl_member && !date.isInAPastDate()"
+                            type="button"
+                            class="create-growth-session gs-btn-primary flex h-6 w-6 flex-none items-center justify-center rounded-full text-base leading-none font-bold"
+                            title="Add a session"
+                            aria-label="Add a session"
+                            @click="onCreateNewGrowthSessionClicked(date)"
+                        >
+                            +
+                        </button>
+                    </div>
+                    <span class="gs-text-sub flex-none text-xs font-semibold tracking-[0.06em]">{{ date.format('MMM D').toUpperCase() }}</span>
                 </div>
-
-                <button
-                    v-if="user && user.is_vehikl_member && !date.isInAPastDate()"
-                    class="create-growth-session gs-btn-primary mx-2 mb-3 rounded-md px-4 py-2.5 text-sm font-semibold"
-                    @click="onCreateNewGrowthSessionClicked(date)"
-                >
-                    + Add Session
-                </button>
 
                 <div v-show="growthSessionsVisibleInDate(date).length === 0" class="gs-text-muted px-2 py-6 text-center text-sm">
                     <p class="mb-1" v-text="`${Nothingator.random(date.toDateString())}...`" />
@@ -379,6 +386,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             @refresh="onDrawerRefresh"
             @edit-requested="onGrowthSessionEditRequested"
             @copy-requested="onGrowthSessionCopyRequested"
+            @create="onCreateNewGrowthSessionClicked(selectedDate)"
         />
 
         <!-- Scroll to today (mobile) -->
@@ -434,7 +442,6 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
     grid-auto-flow: row;
     grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
     gap: 0;
-    align-items: start;
 }
 
 @media (max-width: 767px) {

@@ -5,6 +5,7 @@ import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
+import { computed } from 'vue';
 
 interface IProps {
     days: DateTime[];
@@ -14,10 +15,16 @@ interface IProps {
     user?: IUser;
 }
 
-defineProps<IProps>();
-const emit = defineEmits(['select-day', 'open-detail', 'refresh', 'edit-requested', 'copy-requested']);
+const props = defineProps<IProps>();
+const emit = defineEmits(['select-day', 'open-detail', 'refresh', 'edit-requested', 'copy-requested', 'create']);
 
 const { getInitials } = useInitials();
+
+const isSelectedToday = computed<boolean>(() => !!props.days[props.selectedIndex]?.isToday());
+const userIsInASession = computed<boolean>(
+    () => !!props.user && props.sessions.some((s) => s.isOwner(props.user!) || s.isAttendeeOrWatcher(props.user!)),
+);
+const showCreateCta = computed<boolean>(() => !!props.user?.is_vehikl_member && isSelectedToday.value && !userIsInASession.value);
 
 function tagline(session: GrowthSession): string {
     return session.tags.map((t) => (t.name.includes('&') ? t.name : t.name.charAt(0).toUpperCase() + t.name.slice(1).toLowerCase())).join(', ');
@@ -47,7 +54,7 @@ async function leave(session: GrowthSession) {
                 v-for="(day, i) in days"
                 :key="day.toDateString()"
                 type="button"
-                class="transition-smooth flex w-[86%] flex-col items-center rounded-[10px] py-2.5"
+                class="transition-smooth flex w-[86%] flex-col items-center gap-0.5 rounded-[10px] py-2.5"
                 :class="i === selectedIndex ? 'gs-accent-bg text-white' : 'hover:bg-black/5 dark:hover:bg-white/5'"
                 @click="emit('select-day', i)"
             >
@@ -62,7 +69,28 @@ async function leave(session: GrowthSession) {
         <div class="min-w-0 flex-1 px-[clamp(12px,4vw,28px)] py-5">
             <div class="gs-text-strong font-display mb-4 text-base font-bold tracking-[0.03em] uppercase">{{ currentLabel }}</div>
 
-            <p v-if="!sessions.length" class="gs-text-muted py-10 text-center text-sm">No growth sessions scheduled for this day.</p>
+            <!-- Call to action when the logged-in member isn't in any session today -->
+            <button
+                v-if="showCreateCta"
+                type="button"
+                class="transition-smooth mb-5 flex w-full items-center gap-4 rounded-xl border-2 border-dashed px-5 py-4 text-left hover:bg-black/5 dark:hover:bg-white/5"
+                :style="{ borderColor: 'var(--color-gs-accent)' }"
+                @click="emit('create')"
+            >
+                <span
+                    class="gs-accent-bg flex h-10 w-10 flex-none items-center justify-center rounded-full text-xl leading-none font-bold text-white"
+                >
+                    +
+                </span>
+                <span class="min-w-0">
+                    <span class="gs-text-strong block text-base font-semibold">You're not in a session today</span>
+                    <span class="gs-text-sub block text-sm">Start a Growth Session and invite others to join</span>
+                </span>
+            </button>
+
+            <p v-if="!sessions.length && !showCreateCta" class="gs-text-muted py-10 text-center text-sm">
+                No growth sessions scheduled for this day.
+            </p>
 
             <div v-for="session in sessions" :key="session.id" class="gs-divider-color flex flex-wrap gap-x-3.5 gap-y-1.5 border-b py-3">
                 <div class="gs-text-sub w-[92px] flex-none pt-3.5 text-sm font-semibold">{{ session.startTime }}–{{ session.endTime }}</div>
@@ -107,9 +135,11 @@ async function leave(session: GrowthSession) {
                                 </div>
                             </div>
                         </div>
-                        <span class="gs-secondary-bg gs-text-muted ml-3.5 flex-none rounded-full px-3 py-1 text-xs font-semibold">{{
-                            capacityLabel(session)
-                        }}</span>
+                        <span
+                            class="gs-secondary-bg gs-text-muted ml-3.5 inline-flex flex-none items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
+                        >
+                            <i class="fa fa-user" aria-hidden="true"></i>{{ capacityLabel(session) }}
+                        </span>
                     </div>
 
                     <div class="gs-divider-color flex flex-wrap items-center gap-2 border-t pt-2.5" @click.stop>

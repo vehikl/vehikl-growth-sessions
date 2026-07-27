@@ -16,25 +16,22 @@ export function avatarColor(name: string): string {
 
 /** Derive a live/upcoming/finished status from a session's date and time window. */
 export function sessionStatus(session: GrowthSession): SessionStatus {
-    if (session.hasAlreadyHappened) {
-        return 'finished';
-    }
-
     const now = moment();
     const start = moment(`${session.date} ${session.start_time}`, ['YYYY-MM-DD hh:mm a', 'YYYY-MM-DD HH:mm']);
     const end = moment(`${session.date} ${session.end_time}`, ['YYYY-MM-DD hh:mm a', 'YYYY-MM-DD HH:mm']);
 
-    if (start.isValid() && end.isValid() && now.isSameOrAfter(start) && now.isSameOrBefore(end)) {
-        return 'live';
+    // A session is finished once its end time has passed — including earlier today, not just past days.
+    if (end.isValid()) {
+        if (now.isAfter(end)) return 'finished';
+        if (start.isValid() && now.isSameOrAfter(start)) return 'live';
+        return 'upcoming';
     }
 
-    return 'upcoming';
+    // Fallback when the times can't be parsed: fall back to the date only.
+    return session.hasAlreadyHappened ? 'finished' : 'upcoming';
 }
 
-export function statusMeta(status: SessionStatus): {
-    color: string;
-    label: string;
-} {
+export function statusMeta(status: SessionStatus): { color: string; label: string } {
     switch (status) {
         case 'live':
             return { color: 'var(--color-gs-live)', label: 'LIVE' };
@@ -45,7 +42,7 @@ export function statusMeta(status: SessionStatus): {
     }
 }
 
-/** Human capacity label, e.g. "2/4" or "3 joined" when limitless. */
+/** Human capacity label: just the count when limitless, otherwise "2/4". */
 export function capacityLabel(session: GrowthSession): string {
     const joined = session.attendees.length;
     return session.isLimitless ? `${joined}` : `${joined}/${session.attendee_limit}`;

@@ -60,7 +60,7 @@ async function onDeleteClicked() {
 
 <template>
     <div
-        class="group gs-card gs-border transition-smooth mx-2 mb-3 cursor-pointer rounded-xl border p-4 hover:shadow-md"
+        class="group gs-card gs-border transition-smooth mb-3 cursor-pointer rounded-lg border p-4 hover:shadow-md"
         :style="{ opacity: cardOpacity }"
         role="button"
         tabindex="0"
@@ -86,13 +86,14 @@ async function onDeleteClicked() {
             <span class="h-2 w-2 flex-none rounded-full" :style="{ backgroundColor: statusColor }" :title="statusMeta(status).label"></span>
         </div>
 
-        <h3 class="gs-text-strong mb-3 text-lg leading-snug font-semibold break-words" v-text="growthSession.title" />
+        <h3 class="gs-text-strong mb-3 text-lg leading-snug font-semibold wrap-break-word" v-text="growthSession.title" />
 
         <div class="gs-text-sub mb-2 flex items-center justify-between text-sm font-medium">
             <span>{{ growthSession.startTime }}–{{ growthSession.endTime }}</span>
-            <span class="attendees-count">
-                <span v-if="growthSession.attendee_limit" class="attendee-limit">{{ growthSession.attendees.length }}/{{ growthSession.attendee_limit }}</span
-                ><span v-else>{{ growthSession.attendees.length }}</span>
+            <span class="attendees-count inline-flex items-center gap-1">
+                <i class="fa fa-user text-xs" aria-hidden="true"></i>
+                {{ growthSession.attendees.length
+                }}<span v-if="growthSession.attendee_limit" class="attendee-limit">/{{ growthSession.attendee_limit }}</span>
             </span>
         </div>
 
@@ -101,11 +102,11 @@ async function onDeleteClicked() {
             <template v-else>&lt; Join to see location &gt;</template>
         </div>
 
-        <div class="flex gap-2 empty:hidden" @click.stop>
+        <div class="flex gap-1.5 empty:hidden" @click.stop>
             <button
                 v-show="growthSession.canJoin(user)"
                 type="button"
-                class="join-button gs-btn-primary flex-[3] rounded-md py-2 text-sm font-semibold"
+                class="join-button gs-btn-primary flex-3 rounded-sm py-1.5 px-4 text-sm font-medium"
                 @click.stop="joinGrowthSession"
             >
                 Join
@@ -113,7 +114,7 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canWatch(user)"
                 type="button"
-                class="watch-button gs-btn-secondary flex-1 rounded-md py-2 text-sm font-semibold"
+                class="watch-button gs-btn-secondary flex-1 rounded-sm py-1.5 px-4 text-sm font-medium"
                 @click.stop="watchGrowthSession"
             >
                 Spectate
@@ -121,7 +122,7 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canLeave(user)"
                 type="button"
-                class="leave-button transition-smooth flex-1 rounded-md border border-red-500 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
+                class="leave-button transition-smooth flex-1 rounded-sm border border-red-500 py-1.5 px-4 text-sm font-medium text-red-500 hover:bg-red-500 hover:text-white"
                 @click.stop="leaveGrowthSession"
             >
                 Leave

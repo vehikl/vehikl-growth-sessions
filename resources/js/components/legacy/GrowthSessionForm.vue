@@ -6,7 +6,6 @@ import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
 import { IGrowthSession, IStoreGrowthSessionRequest, IUser, IValidationError } from '@/types';
 import { IDropdownOption } from '@/types/IDropdownOption';
-import Multiselect from '@vueform/multiselect';
 import { computed, onBeforeMount, ref, watch } from 'vue';
 import ConfirmationModal from './ConfirmationModal.vue';
 import TimePicker from './TimePicker.vue';
@@ -38,7 +37,11 @@ const selectedAnydeskId = ref<string | null>(null);
 const anyDesks = ref<IDropdownOption[]>([]);
 const anydesksToggle = ref<boolean>(false);
 const tagIds = ref<string[]>([]);
-const tagOptions = ref<any>({});
+const tagOptions = ref<{ label: string; value: string }[]>([]);
+
+function toggleTag(value: string) {
+    tagIds.value = tagIds.value.includes(value) ? tagIds.value.filter((v) => v !== value) : [...tagIds.value, value];
+}
 const tagsOpen = ref<boolean>(false);
 const publicConfirmationModalState = ref<'open' | 'closed'>('closed');
 
@@ -269,56 +272,104 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                 </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-x-5 gap-y-2.5">
-                <label class="gs-text-strong flex cursor-pointer items-center gap-1.5 text-xs font-medium">
-                    <input id="is-public" v-model="isPublic" type="checkbox" class="accent-gs-accent" /> Public
-                </label>
-                <label class="gs-text-strong flex cursor-pointer items-center gap-1.5 text-xs font-medium">
-                    <input id="no-limit" v-model="isLimitless" type="checkbox" class="accent-gs-accent" /> No limit
-                </label>
-                <label class="gs-text-strong flex cursor-pointer items-center gap-1.5 text-xs font-medium">
-                    <input id="allow-watchers" v-model="allowWatchers" type="checkbox" class="accent-gs-accent" /> Allow watchers
-                </label>
-                <div v-if="!isLimitless" class="ml-auto flex items-center gap-1.5">
-                    <label class="gs-text-sub text-xs font-bold tracking-[0.05em] uppercase" for="attendee-limit">Limit</label>
+            <div class="grid gap-2.5" :class="discordChannels.length > 0 ? 'sm:grid-cols-2' : 'grid-cols-1'">
+                <div v-if="discordChannels.length > 0">
+                    <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">Discord Channel</label>
+                    <v-select id="discord-channel" v-model="selectedDiscordChannelId" :options="discordChannels" class="w-full" />
+                </div>
+                <div>
+                    <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="location">Location</label>
                     <input
-                        id="attendee-limit"
-                        v-model.number="attendeeLimit"
-                        :class="{ 'error-outline': getError('limit') }"
-                        class="gs-input w-14 rounded-md px-2 py-1.5 text-center text-xs"
-                        min="2"
-                        placeholder="Limit"
-                        type="number"
+                        id="location"
+                        v-model="location"
+                        :class="{ 'error-outline': getError('location') }"
+                        class="gs-input w-full rounded-lg px-3 py-2.5 text-sm"
+                        placeholder="Where do people go?"
+                        type="text"
                     />
                 </div>
             </div>
 
-            <div v-if="anyDesks.length > 0" class="flex flex-wrap items-center justify-between gap-3">
-                <label class="gs-text-strong flex cursor-pointer items-center gap-1.5 text-xs font-medium">
-                    <input id="anydesks-toggle" v-model="anydesksToggle" type="checkbox" class="accent-gs-accent" @input="selectedAnydeskId = null" />
-                    Plan to use an AnyDesk?
-                </label>
-                <label v-if="anydesksToggle" class="gs-text-sub flex items-center gap-2 text-xs font-bold tracking-[0.05em] uppercase">
-                    AnyDesk
-                    <v-select id="anydesk-selection" v-model="selectedAnydeskId" :options="anyDesks" class="w-32" />
-                </label>
-            </div>
+            <div class="gs-border border-t pt-4">
+                <div class="gs-text-muted mb-3.5 text-xs font-bold tracking-[0.06em] uppercase">Session Options</div>
+                <div class="flex flex-col gap-3.5">
+                    <label class="flex cursor-pointer items-center justify-between">
+                        <span class="gs-text-strong text-sm font-medium">Public</span>
+                        <span class="relative inline-flex flex-none">
+                            <input id="is-public" v-model="isPublic" type="checkbox" class="peer sr-only" />
+                            <span
+                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
+                            ></span>
+                            <span
+                                class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
+                            ></span>
+                        </span>
+                    </label>
 
-            <div v-if="discordChannels.length > 0">
-                <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">Discord Channel</label>
-                <v-select id="discord-channel" v-model="selectedDiscordChannelId" :options="discordChannels" class="w-full" />
-            </div>
+                    <label class="flex cursor-pointer items-center justify-between">
+                        <span class="gs-text-strong text-sm font-medium">Allow watchers</span>
+                        <span class="relative inline-flex flex-none">
+                            <input id="allow-watchers" v-model="allowWatchers" type="checkbox" class="peer sr-only" />
+                            <span
+                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
+                            ></span>
+                            <span
+                                class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
+                            ></span>
+                        </span>
+                    </label>
 
-            <div>
-                <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="location">Location</label>
-                <textarea
-                    id="location"
-                    v-model="location"
-                    :class="{ 'error-outline': getError('location') }"
-                    class="gs-input w-full rounded-lg px-3 py-2.5 text-sm"
-                    placeholder="Where do people go?"
-                    rows="2"
-                />
+                    <template v-if="anyDesks.length > 0">
+                        <label class="flex cursor-pointer items-center justify-between">
+                            <span class="gs-text-strong text-sm font-medium">Plan to use an AnyDesk</span>
+                            <span class="relative inline-flex flex-none">
+                                <input
+                                    id="anydesks-toggle"
+                                    v-model="anydesksToggle"
+                                    type="checkbox"
+                                    class="peer sr-only"
+                                    @input="selectedAnydeskId = null"
+                                />
+                                <span
+                                    class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
+                                ></span>
+                                <span
+                                    class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
+                                ></span>
+                            </span>
+                        </label>
+                        <label v-if="anydesksToggle" class="flex items-center justify-between gap-2">
+                            <span class="gs-text-sub text-xs font-bold tracking-[0.05em] uppercase">AnyDesk</span>
+                            <v-select id="anydesk-selection" v-model="selectedAnydeskId" :options="anyDesks" class="w-40" />
+                        </label>
+                    </template>
+
+                    <label class="flex cursor-pointer items-center justify-between">
+                        <span class="gs-text-strong text-sm font-medium">No limit</span>
+                        <span class="relative inline-flex flex-none">
+                            <input id="no-limit" v-model="isLimitless" type="checkbox" class="peer sr-only" />
+                            <span
+                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
+                            ></span>
+                            <span
+                                class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
+                            ></span>
+                        </span>
+                    </label>
+
+                    <div v-if="!isLimitless" class="flex items-center justify-between">
+                        <span class="gs-text-strong text-sm font-medium">Attendee limit</span>
+                        <input
+                            id="attendee-limit"
+                            v-model.number="attendeeLimit"
+                            :class="{ 'error-outline': getError('limit') }"
+                            class="gs-input w-16 rounded-md px-2 py-1.5 text-center text-sm"
+                            min="2"
+                            placeholder="Limit"
+                            type="number"
+                        />
+                    </div>
+                </div>
             </div>
 
             <div class="gs-border border-t pt-3.5">
@@ -330,17 +381,21 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                         >{{ tagIds.length }}</span
                     >
                 </button>
-                <div v-show="tagsOpen" class="mt-2.5">
-                    <Multiselect
-                        v-model="tagIds"
-                        mode="tags"
-                        :close-on-select="false"
-                        :searchable="true"
-                        :options="tagOptions"
-                        :classes="{
-                            tag: 'bg-slate-100 text-slate-700 text-sm font-semibold py-0.5 pl-2 rounded mr-1 mb-1 flex items-center whitespace-nowrap min-w-0 rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1',
-                        }"
-                    />
+                <div v-show="tagsOpen" class="mt-3 flex flex-wrap gap-2">
+                    <button
+                        v-for="option in tagOptions"
+                        :key="option.value"
+                        type="button"
+                        class="transition-smooth cursor-pointer rounded-full border px-3.5 py-2 text-xs font-semibold tracking-[0.05em] uppercase"
+                        :class="
+                            tagIds.includes(option.value)
+                                ? 'gs-header-bg border-transparent text-white'
+                                : 'gs-border gs-text-sub hover:text-gs-accent'
+                        "
+                        @click="toggleTag(option.value)"
+                    >
+                        {{ option.label }}
+                    </button>
                 </div>
             </div>
 
@@ -365,11 +420,21 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
         />
     </form>
 </template>
-<style src="@vueform/multiselect/themes/default.css"></style>
-
 <style lang="scss" scoped>
 .error-outline {
     outline: red solid 2px;
+}
+
+/* Hide the native number-input spinner arrows on the attendee limit field */
+#attendee-limit::-webkit-inner-spin-button,
+#attendee-limit::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#attendee-limit {
+    -moz-appearance: textfield;
+    appearance: textfield;
 }
 </style>
 
