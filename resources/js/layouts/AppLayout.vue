@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import VAvatar from '@/components/legacy/VAvatar.vue';
+import { useTheme } from '@/composables/useTheme';
 import VehiklLogo from '@/svgs/VehiklLogo.vue';
 import type { BreadcrumbItemType } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed } from 'vue';
 
 interface Props {
     breadcrumbs?: BreadcrumbItemType[];
@@ -13,74 +13,85 @@ withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
 });
 
-const isExpanded = ref(false);
+const { theme, toggleTheme } = useTheme();
+const isDark = computed(() => theme.value === 'dark');
+
+const isHome = computed(() => {
+    try {
+        return route().current('home');
+    } catch {
+        return false;
+    }
+});
+
+function requestCreateSession() {
+    window.dispatchEvent(new CustomEvent('gs:create-session'));
+}
+
+const navLinkClass = 'text-[11px] font-medium uppercase tracking-[0.06em] text-white/55 transition-smooth hover:text-white';
 </script>
 
 <template>
-    <nav class="border-b-2 border-vehikl-dark bg-vehikl-dark px-6 py-3">
-        <div class="flex flex-wrap items-center justify-between">
-            <div class="mr-6 flex flex-shrink-0 items-center">
-                <Link :href="route('home')" class="transition-smooth hover:opacity-80 flex gap-4 items-center">
-                    <VehiklLogo />
-                    <span class="hidden lg:block text-2xl font-bold text-white uppercase tracking-wider leading-none">Growth Sessions</span>
-                </Link>
-            </div>
-            <div class="block lg:hidden">
-                <button
-                    class="flex items-center rounded border border-white px-3 py-2 text-white hover:border-vehikl-orange hover:text-vehikl-orange transition-smooth"
-                    onclick="document.getElementById('nav-links').classList.toggle('hidden')"
-                    @click="isExpanded = !isExpanded"
-                >
-                    <svg class="h-3 w-3 fill-current" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <title>Menu</title>
-                        <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
-                    </svg>
-                </button>
-            </div>
-            <div class="hidden w-full justify-end text-center text-base uppercase lg:flex lg:w-auto lg:items-center" id="nav-links">
-                <div class="flex flex-col items-center justify-center text-base tracking-wider text-white lg:flex-row">
-                    <template v-if="!$page.props.auth.user">
-                        <a
-                            :href="route('oauth.login.redirect', { driver: 'github' })"
-                            class="mt-4 mr-6 flex items-center hover:text-vehikl-orange transition-smooth lg:mt-0"
-                        >
-                            <i class="fa fa-github mr-3 text-2xl" aria-hidden="true"></i> Login with Github
-                        </a>
-
-                        <a
-                            v-if="$page.props.services.google_client_id"
-                            :href="route('oauth.login.redirect', { driver: 'google' })"
-                            class="mt-4 mr-6 flex items-center hover:text-vehikl-orange transition-smooth lg:mt-0"
-                        >
-                            <i class="fa fa-google mr-3 text-2xl" aria-hidden="true"></i> Login with Google
-                        </a>
-                    </template>
-                    <template v-else>
-                        <Link :href="route('logout')" method="post" as="button" class="mt-4 flex items-center uppercase tracking-wider hover:text-vehikl-orange transition-smooth lg:mt-0">
-                            <v-avatar class="mr-3" :src="$page.props.auth.user.avatar" alt="Your Avatar" :size="6"></v-avatar>
-                            Logout
-                        </Link>
-                        <template v-if="$page.props.auth.user.is_vehikl_member">
-                            <Link v-if="route().current('statistics.index')" :href="route('home')" class="mt-4 hover:text-vehikl-orange transition-smooth sm:ml-6 lg:mt-0">
-                                Board
-                            </Link>
-                            <Link v-else :href="route('statistics.index')" class="mt-4 hover:text-vehikl-orange transition-smooth sm:ml-6 lg:mt-0"> Statistics </Link>
-                        </template>
-
-                        <template v-if="false">
-                            <Link v-if="route().current('proposals.index')" :href="route('home')" class="mt-4 hover:text-vehikl-orange transition-smooth sm:ml-6 lg:mt-0">
-                                Board
-                            </Link>
-                            <Link v-else :href="route('proposals.index')" class="mt-4 hover:text-vehikl-orange transition-smooth sm:ml-6 lg:mt-0">Proposals</Link>
-                        </template>
-                    </template>
-                    <Link v-if="route().current('about')" :href="route('home')" class="mt-4 hover:text-vehikl-orange transition-smooth sm:ml-6 lg:mt-0">
-                        Board
-                    </Link>
-                    <Link v-else :href="route('about')" class="mt-4 hover:text-vehikl-orange transition-smooth sm:ml-6 lg:mt-0">About</Link>
-                </div>
-            </div>
+    <header class="gs-header-bg flex flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-7">
+        <div class="flex items-center gap-3.5">
+            <Link :href="route('home')" class="transition-smooth flex items-center hover:opacity-80">
+                <VehiklLogo />
+            </Link>
+            <span class="hidden h-[22px] w-px bg-white/15 sm:block"></span>
+            <span class="hidden text-[10px] leading-none font-medium tracking-[0.28em] text-white/50 uppercase sm:block"> Growth Sessions </span>
         </div>
-    </nav>
+
+        <div class="flex flex-wrap items-center justify-end gap-x-5 gap-y-2 sm:gap-x-6">
+            <template v-if="$page.props.auth.user">
+                <button
+                    v-if="isHome && $page.props.auth.user.is_vehikl_member"
+                    type="button"
+                    class="gs-btn-primary rounded-lg px-4 py-2 text-xs font-semibold whitespace-nowrap"
+                    @click="requestCreateSession"
+                >
+                    + Add Session
+                </button>
+
+                <template v-if="$page.props.auth.user.is_vehikl_member">
+                    <Link v-if="route().current('statistics.index')" :href="route('home')" :class="navLinkClass">Board</Link>
+                    <Link v-else :href="route('statistics.index')" :class="navLinkClass">Statistics</Link>
+                </template>
+
+                <Link v-if="route().current('about')" :href="route('home')" :class="navLinkClass">Board</Link>
+                <Link v-else :href="route('about')" :class="navLinkClass">About</Link>
+
+                <Link :href="route('logout')" method="post" as="button" :class="navLinkClass">Logout</Link>
+            </template>
+
+            <template v-else>
+                <a
+                    :href="route('oauth.login.redirect', { driver: 'github' })"
+                    class="transition-smooth flex items-center gap-2 text-[11px] font-medium tracking-[0.06em] text-white/70 uppercase hover:text-white"
+                >
+                    <i class="fa fa-github text-base" aria-hidden="true"></i> Login with GitHub
+                </a>
+                <a
+                    v-if="$page.props.services?.google_client_id"
+                    :href="route('oauth.login.redirect', { driver: 'google' })"
+                    class="transition-smooth flex items-center gap-2 text-[11px] font-medium tracking-[0.06em] text-white/70 uppercase hover:text-white"
+                >
+                    <i class="fa fa-google text-base" aria-hidden="true"></i> Login with Google
+                </a>
+                <Link v-if="route().current('about')" :href="route('home')" :class="navLinkClass">Board</Link>
+                <Link v-else :href="route('about')" :class="navLinkClass">About</Link>
+            </template>
+
+            <button
+                type="button"
+                aria-label="Toggle light and dark theme"
+                :title="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
+                class="transition-smooth flex h-[26px] w-[26px] items-center justify-center rounded-md bg-white/10 text-sm text-white hover:bg-white/20"
+                @click="toggleTheme"
+            >
+                <span aria-hidden="true">{{ isDark ? '☀' : '☾' }}</span>
+            </button>
+        </div>
+    </header>
+
     <slot />
 </template>
