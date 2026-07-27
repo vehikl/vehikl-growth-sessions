@@ -1,18 +1,23 @@
 <script lang="ts" setup>
-import {computed} from "vue"
-import {IDropdownOption} from "@/types/IDropdownOption"
+import { IDropdownOption } from '@/types/IDropdownOption';
+import { computed } from 'vue';
 
-const props = defineProps<{ modelValue: string | number | null, options: IDropdownOption[] }>()
-const emit = defineEmits(["update:modelValue"])
+const props = withDefaults(defineProps<{ modelValue: string | number | null; options: IDropdownOption[]; placeholder?: string }>(), {
+    placeholder: 'Select an option',
+});
+const emit = defineEmits(['update:modelValue']);
 const selectModel = computed({
     get: () => props.modelValue,
-    set: (value) => emit("update:modelValue", value)
-})
+    set: (value) => emit('update:modelValue', value),
+});
 </script>
 
 <template>
-    <select v-model="selectModel" class="rounded-lg border border-neutral-300 px-3 py-2 bg-white text-vehikl-dark focus:outline-none focus:ring-2 focus:ring-vehikl-orange/50 focus:border-vehikl-orange transition-smooth cursor-pointer">
-        <option disabled selected value="">Select an option</option>
+    <select
+        v-model="selectModel"
+        class="text-vehikl-dark focus:ring-vehikl-orange/50 focus:border-vehikl-orange transition-smooth cursor-pointer rounded-lg border border-neutral-300 bg-white px-3 py-2 focus:ring-2 focus:outline-none"
+    >
+        <option disabled selected value="">{{ placeholder }}</option>
         <option v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</option>
     </select>
 </template>

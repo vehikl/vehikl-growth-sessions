@@ -35,7 +35,6 @@ const selectedDiscordChannelId = ref<string | null>(null);
 const discordChannels = ref<IDropdownOption[]>([]);
 const selectedAnydeskId = ref<string | null>(null);
 const anyDesks = ref<IDropdownOption[]>([]);
-const anydesksToggle = ref<boolean>(false);
 const tagIds = ref<string[]>([]);
 const tagOptions = ref<{ label: string; value: string }[]>([]);
 
@@ -67,8 +66,6 @@ const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
 }));
 
 onBeforeMount(() => {
-    anydesksToggle.value = !!props.growthSession?.anydesk;
-
     date.value = props.startDate;
 
     getDiscordChannels();
@@ -204,9 +201,9 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
     if (!selectedId) {
         return;
     }
-    if (!location.value || location.value.startsWith('Discord Channel: ')) {
+    if (!location.value || location.value.startsWith('Discord: ')) {
         const discordChannelName = discordChannels.value.find((channel) => channel.value === selectedId)?.label;
-        location.value = `Discord Channel: ${discordChannelName}`;
+        location.value = `Discord: ${discordChannelName}`;
     }
 });
 </script>
@@ -270,21 +267,40 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                 </div>
             </div>
 
-            <div class="grid gap-2.5" :class="discordChannels.length > 0 ? 'sm:grid-cols-2' : 'grid-cols-1'">
-                <div v-if="discordChannels.length > 0">
-                    <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">Discord Channel</label>
-                    <v-select id="discord-channel" v-model="selectedDiscordChannelId" :options="discordChannels" class="w-full" />
-                </div>
-                <div>
-                    <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="location">Location</label>
-                    <input
-                        id="location"
-                        v-model="location"
-                        :class="{ 'error-outline': getError('location') }"
-                        class="gs-input w-full rounded-lg px-3 py-2.5 text-sm"
-                        placeholder="Where do people go?"
-                        type="text"
-                    />
+            <div class="gs-border border-t pt-4">
+                <div class="gs-text-muted mb-3.5 text-xs font-bold tracking-[0.06em] uppercase">Where to meet</div>
+                <div class="grid gap-2.5 sm:grid-cols-3">
+                    <div v-if="anyDesks.length > 0">
+                        <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="anydesk-selection">AnyDesk</label>
+                        <v-select
+                            id="anydesk-selection"
+                            v-model="selectedAnydeskId"
+                            :options="anyDesks"
+                            placeholder="None"
+                            class="w-full"
+                        />
+                    </div>
+                    <div v-if="discordChannels.length > 0">
+                        <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">Discord</label>
+                        <v-select
+                            id="discord-channel"
+                            v-model="selectedDiscordChannelId"
+                            :options="discordChannels"
+                            placeholder="No channel"
+                            class="w-full"
+                        />
+                    </div>
+                    <div>
+                        <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="location">Location</label>
+                        <input
+                            id="location"
+                            v-model="location"
+                            :class="{ 'error-outline': getError('location') }"
+                            class="gs-input w-full rounded-lg px-3 py-2.5 text-sm"
+                            placeholder="Where do people go?"
+                            type="text"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -317,31 +333,6 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                         </span>
                     </label>
 
-                    <template v-if="anyDesks.length > 0">
-                        <label class="flex cursor-pointer items-center justify-between">
-                            <span class="gs-text-strong text-sm font-medium">Plan to use an AnyDesk</span>
-                            <span class="relative inline-flex flex-none">
-                                <input
-                                    id="anydesks-toggle"
-                                    v-model="anydesksToggle"
-                                    type="checkbox"
-                                    class="peer sr-only"
-                                    @input="selectedAnydeskId = null"
-                                />
-                                <span
-                                    class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
-                                ></span>
-                                <span
-                                    class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
-                                ></span>
-                            </span>
-                        </label>
-                        <label v-if="anydesksToggle" class="flex items-center justify-between gap-2">
-                            <span class="gs-text-sub text-xs font-bold tracking-[0.05em] uppercase">AnyDesk</span>
-                            <v-select id="anydesk-selection" v-model="selectedAnydeskId" :options="anyDesks" class="w-40" />
-                        </label>
-                    </template>
-
                     <label class="flex cursor-pointer items-center justify-between">
                         <span class="gs-text-strong text-sm font-medium">No limit</span>
                         <span class="relative inline-flex flex-none">
@@ -371,8 +362,9 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
             </div>
 
             <div class="gs-border border-t pt-3.5">
-                <button type="button" class="gs-text-sub inline-flex items-center gap-1.5 text-xs font-semibold">
-                    + Add tags <span class="gs-text-muted font-normal">(optional)</span>
+                <button type="button" class="gs-text-sub inline-flex items-center gap-1.5 text-xs font-semibold uppercase">
+                    + Add tags
+                    <span class="gs-text-muted font-normal lowercase">(optional)</span>
                     <span
                         v-if="tagIds.length"
                         class="gs-header-bg inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-xs font-bold text-white"
@@ -388,7 +380,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                         :class="
                             tagIds.includes(option.value)
                                 ? 'gs-header-bg border-transparent text-white'
-                                : 'gs-border gs-text-sub hover:text-gs-accent'
+                                : 'gs-border hover:border-gs-accent hover:bg-gs-accent/10 hover:text-gs-accent text-gs-header/70 dark:text-[#f2f1ee]/55'
                         "
                         @click="toggleTag(option.value)"
                     >

@@ -34,7 +34,10 @@ onMounted(() => {
 </script>
 
 <template>
-    <dialog ref="dialog" class="mx-auto w-full max-w-2xl overflow-visible rounded-2xl p-0 shadow-2xl backdrop:bg-black/50 backdrop:backdrop-blur-sm">
+    <dialog
+        ref="dialog"
+        class="mx-auto w-full max-w-2xl overflow-visible rounded-2xl bg-transparent p-0 shadow-2xl backdrop:bg-black/50 backdrop:backdrop-blur-sm"
+    >
         <slot></slot>
     </dialog>
 </template>
