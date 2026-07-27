@@ -90,10 +90,10 @@ function tagline(session: GrowthSession): string {
             </p>
 
             <div v-for="session in sessions" :key="session.id" class="gs-divider-color flex flex-wrap gap-x-3.5 gap-y-1.5 border-b py-3">
-                <div class="gs-text-sub w-[92px] flex-none pt-3.5 text-sm font-semibold">{{ session.startTime }}–{{ session.endTime }}</div>
+                <div class="gs-text-sub w-32 flex-none pt-3.5 text-sm font-semibold uppercase">{{ session.startTime }} – {{ session.endTime }}</div>
 
                 <div
-                    class="gs-card gs-border transition-smooth flex min-w-[220px] flex-1 cursor-pointer flex-col gap-2.5 rounded-lg border p-3 px-4 hover:shadow-md"
+                    class="gs-card gs-border transition-smooth flex min-w-55 flex-1 cursor-pointer flex-col gap-2.5 rounded-lg border p-3 px-4 hover:shadow-md"
                     :style="{ opacity: sessionStatus(session) === 'finished' ? 0.55 : 1 }"
                     role="button"
                     tabindex="0"
@@ -125,7 +125,7 @@ function tagline(session: GrowthSession): string {
                                 </div>
                                 <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">{{ session.owner.name }}</div>
                                 <div v-if="tagline(session)" class="gs-text-sub mt-1 text-sm">{{ tagline(session) }}</div>
-                                <div class="gs-text-body mt-2 max-w-[560px] text-sm leading-[1.5]">{{ session.topic }}</div>
+                                <div class="gs-text-body mt-2 max-w-140 text-sm leading-normal">{{ session.topic }}</div>
                                 <div class="gs-text-muted mt-2 flex items-center gap-1.5 text-sm font-medium break-all">
                                     <i class="fa fa-compass flex-none" aria-hidden="true"></i>
                                     <location-renderer :locationString="session.location" />
