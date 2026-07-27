@@ -16,7 +16,7 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['select-day', 'open-detail', 'refresh', 'edit-requested', 'copy-requested', 'create']);
+const emit = defineEmits(['select-day', 'open-detail', 'join', 'watch', 'leave', 'edit-requested', 'copy-requested', 'create']);
 
 const { getInitials } = useInitials();
 
@@ -28,21 +28,6 @@ const showCreateCta = computed<boolean>(() => !!props.user?.is_vehikl_member && 
 
 function tagline(session: GrowthSession): string {
     return session.tags.map((t) => (t.name.includes('&') ? t.name : t.name.charAt(0).toUpperCase() + t.name.slice(1).toLowerCase())).join(', ');
-}
-
-async function join(session: GrowthSession) {
-    await session.join();
-    emit('refresh');
-}
-
-async function watch(session: GrowthSession) {
-    await session.watch();
-    emit('refresh');
-}
-
-async function leave(session: GrowthSession) {
-    await session.leave();
-    emit('refresh');
 }
 </script>
 
@@ -67,7 +52,19 @@ async function leave(session: GrowthSession) {
 
         <!-- Session timeline -->
         <div class="min-w-0 flex-1 px-[clamp(12px,4vw,28px)] py-5">
-            <div class="gs-text-strong font-display mb-4 text-base font-bold tracking-[0.03em] uppercase">{{ currentLabel }}</div>
+            <div class="mb-4 flex items-center gap-2.5">
+                <span class="gs-text-strong font-display text-base font-bold tracking-[0.03em] uppercase">{{ currentLabel }}</span>
+                <button
+                    v-if="user && user.is_vehikl_member && !days[selectedIndex]?.isInAPastDate()"
+                    type="button"
+                    class="create-growth-session gs-btn-primary flex h-6 w-6 flex-none items-center justify-center rounded-full text-base leading-none font-bold cursor-pointer"
+                    title="Add a session"
+                    aria-label="Add a session"
+                    @click="emit('create')"
+                >
+                    +
+                </button>
+            </div>
 
             <!-- Call to action when the logged-in member isn't in any session today -->
             <button
@@ -147,7 +144,7 @@ async function leave(session: GrowthSession) {
                             v-show="session.canJoin(user)"
                             type="button"
                             class="join-button gs-btn-primary rounded-md px-5 py-2 text-sm font-semibold"
-                            @click.stop="join(session)"
+                            @click.stop="emit('join', session)"
                         >
                             Join
                         </button>
@@ -155,7 +152,7 @@ async function leave(session: GrowthSession) {
                             v-show="session.canWatch(user)"
                             type="button"
                             class="watch-button gs-btn-secondary rounded-md px-5 py-2 text-sm font-semibold"
-                            @click.stop="watch(session)"
+                            @click.stop="emit('watch', session)"
                         >
                             Spectate
                         </button>
@@ -163,7 +160,7 @@ async function leave(session: GrowthSession) {
                             v-show="session.canLeave(user)"
                             type="button"
                             class="leave-button transition-smooth rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
-                            @click.stop="leave(session)"
+                            @click.stop="emit('leave', session)"
                         >
                             Leave
                         </button>

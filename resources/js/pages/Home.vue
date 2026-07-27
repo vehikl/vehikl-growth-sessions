@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import WeekView from '@/components/legacy/WeekView.vue';
+import Board from '@/pages/Board.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
@@ -40,5 +40,5 @@ const shouldRenderGoogleLogin = computed(() => !!page.props.services.google_clie
         </strong>
     </div>
 
-    <week-view :user="$page.props.auth.user" />
+    <Board :user="$page.props.auth.user" />
 </template>

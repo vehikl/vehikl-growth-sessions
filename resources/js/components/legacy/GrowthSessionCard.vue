@@ -89,7 +89,7 @@ async function onDeleteClicked() {
         <h3 class="gs-text-strong mb-3 text-lg leading-snug font-semibold wrap-break-word" v-text="growthSession.title" />
 
         <div class="gs-text-sub mb-2 flex items-center justify-between text-sm font-medium">
-            <span>{{ growthSession.startTime }}–{{ growthSession.endTime }}</span>
+            <span>{{ growthSession.startTime }} – {{ growthSession.endTime }}</span>
             <span class="attendees-count inline-flex items-center gap-1">
                 <i class="fa fa-user text-xs" aria-hidden="true"></i>
                 {{ growthSession.attendees.length

@@ -42,7 +42,6 @@ const tagOptions = ref<{ label: string; value: string }[]>([]);
 function toggleTag(value: string) {
     tagIds.value = tagIds.value.includes(value) ? tagIds.value.filter((v) => v !== value) : [...tagIds.value, value];
 }
-const tagsOpen = ref<boolean>(false);
 const publicConfirmationModalState = ref<'open' | 'closed'>('closed');
 
 const isCreating = computed(() => !props.growthSession?.id);
@@ -79,7 +78,6 @@ onBeforeMount(() => {
     getTags();
 
     if (props.growthSession) {
-        tagsOpen.value = props.growthSession.tags.length > 0;
         date.value = props.growthSession.date;
         startTime.value = DateTime.parseByTime(props.growthSession.start_time).toTimeString12Hours();
         endTime.value = DateTime.parseByTime(props.growthSession.end_time).toTimeString12Hours();
@@ -373,7 +371,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
             </div>
 
             <div class="gs-border border-t pt-3.5">
-                <button type="button" class="gs-text-sub inline-flex items-center gap-1.5 text-xs font-semibold" @click="tagsOpen = !tagsOpen">
+                <button type="button" class="gs-text-sub inline-flex items-center gap-1.5 text-xs font-semibold">
                     + Add tags <span class="gs-text-muted font-normal">(optional)</span>
                     <span
                         v-if="tagIds.length"
@@ -381,7 +379,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                         >{{ tagIds.length }}</span
                     >
                 </button>
-                <div v-show="tagsOpen" class="mt-3 flex flex-wrap gap-2">
+                <div class="mt-3 flex flex-wrap gap-2">
                     <button
                         v-for="option in tagOptions"
                         :key="option.value"

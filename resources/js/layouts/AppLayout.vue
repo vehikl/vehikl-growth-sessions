@@ -16,19 +16,8 @@ withDefaults(defineProps<Props>(), {
 const { theme, toggleTheme } = useTheme();
 const isDark = computed(() => theme.value === 'dark');
 
-const isHome = computed(() => {
-    try {
-        return route().current('home');
-    } catch {
-        return false;
-    }
-});
+const navLinkClass = 'text-sm font-medium uppercase tracking-[0.06em] text-white/70 transition-smooth hover:text-white cursor-pointer';
 
-function requestCreateSession() {
-    window.dispatchEvent(new CustomEvent('gs:create-session'));
-}
-
-const navLinkClass = 'text-sm font-medium uppercase tracking-[0.06em] text-white/60 transition-smooth hover:text-white';
 </script>
 
 <template>
@@ -43,15 +32,6 @@ const navLinkClass = 'text-sm font-medium uppercase tracking-[0.06em] text-white
 
         <div class="flex flex-wrap items-center justify-end gap-x-5 gap-y-2 sm:gap-x-6">
             <template v-if="$page.props.auth.user">
-                <button
-                    v-if="isHome && $page.props.auth.user.is_vehikl_member"
-                    type="button"
-                    class="gs-btn-primary rounded-md px-5 py-2.5 text-sm font-semibold whitespace-nowrap"
-                    @click="requestCreateSession"
-                >
-                    + Add Session
-                </button>
-
                 <template v-if="$page.props.auth.user.is_vehikl_member">
                     <Link v-if="route().current('statistics.index')" :href="route('home')" :class="navLinkClass">Board</Link>
                     <Link v-else :href="route('statistics.index')" :class="navLinkClass">Statistics</Link>
@@ -66,14 +46,14 @@ const navLinkClass = 'text-sm font-medium uppercase tracking-[0.06em] text-white
             <template v-else>
                 <a
                     :href="route('oauth.login.redirect', { driver: 'github' })"
-                    class="transition-smooth flex items-center gap-2 text-sm font-medium tracking-[0.06em] text-white/70 uppercase hover:text-white"
+                    class="transition-smooth flex items-center gap-2 text-sm font-medium tracking-[0.06em] text-white/70 uppercase hover:text-white cursor-pointer"
                 >
                     <i class="fa fa-github text-base" aria-hidden="true"></i> Login with GitHub
                 </a>
                 <a
                     v-if="$page.props.services?.google_client_id"
                     :href="route('oauth.login.redirect', { driver: 'google' })"
-                    class="transition-smooth flex items-center gap-2 text-sm font-medium tracking-[0.06em] text-white/70 uppercase hover:text-white"
+                    class="transition-smooth flex items-center gap-2 text-sm font-medium tracking-[0.06em] text-white/70 uppercase hover:text-white cursor-pointer"
                 >
                     <i class="fa fa-google text-base" aria-hidden="true"></i> Login with Google
                 </a>
@@ -85,7 +65,7 @@ const navLinkClass = 'text-sm font-medium uppercase tracking-[0.06em] text-white
                 type="button"
                 aria-label="Toggle light and dark theme"
                 :title="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
-                class="transition-smooth flex h-9 w-9 items-center justify-center rounded-md bg-white/10 text-base text-white hover:bg-white/20"
+                class="transition-smooth flex h-9 w-9 items-center justify-center rounded-md text-base text-white/70 hover:text-white cursor-pointer"
                 @click="toggleTheme"
             >
                 <span aria-hidden="true">{{ isDark ? '☀' : '☾' }}</span>
