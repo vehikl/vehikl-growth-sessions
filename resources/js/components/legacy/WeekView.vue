@@ -1,19 +1,21 @@
 <script lang="ts" setup>
-import {IUser} from '@/types';
+import { DateTime } from '@/classes/DateTime';
+import { GrowthSession } from '@/classes/GrowthSession';
+import { Nothingator } from '@/classes/Nothingator';
+import { WeekGrowthSessions } from '@/classes/WeekGrowthSessions';
+import DayView from '@/components/legacy/DayView.vue';
 import GrowthSessionCard from '@/components/legacy/GrowthSessionCard.vue';
 import GrowthSessionForm from '@/components/legacy/GrowthSessionForm.vue';
-import {GrowthSessionApi} from '@/services/GrowthSessionApi';
-import {DateTime} from '@/classes/DateTime';
-import {GrowthSession} from '@/classes/GrowthSession';
-import {WeekGrowthSessions} from '@/classes/WeekGrowthSessions';
-import {Nothingator} from '@/classes/Nothingator';
+import GrowthSessionTags from '@/components/legacy/GrowthSessionTags.vue';
+import SessionDetailDrawer from '@/components/legacy/SessionDetailDrawer.vue';
 import VisibilityRadioFieldset from '@/components/legacy/VisibilityRadioFieldset.vue';
 import VModal from '@/components/legacy/VModal.vue';
-import {computed, onBeforeMount, onBeforeUnmount, ref} from 'vue';
-import {watchDebounced} from '@vueuse/core';
-import GrowthSessionTags from '@/components/legacy/GrowthSessionTags.vue';
+import { GrowthSessionApi } from '@/services/GrowthSessionApi';
+import { IUser } from '@/types';
+import { useEcho } from '@laravel/echo-vue';
+import { watchDebounced } from '@vueuse/core';
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
 import draggable from 'vuedraggable';
-import {useEcho} from "@laravel/echo-vue";
 
 interface IGrowthSessionCardDragChange {
     added?: { element: GrowthSession; index: number };
@@ -32,24 +34,52 @@ const selectedTagIds = ref<number[]>([]);
 const searchQuery = ref('');
 const debouncedSearchQuery = ref('');
 
+const view = ref<'week' | 'day'>('week');
+const dayIndex = ref(0);
+const filtersOpen = ref(false);
+const selectedSession = ref<GrowthSession | null>(null);
+
 const uniqueTags = computed(() => {
     const allTags = growthSessions.value.allGrowthSessions.flatMap((gs) => gs.tags);
 
     return allTags.filter((tag, index, allTags) => allTags.map((t) => t.id).indexOf(tag.id) == index);
 });
 
-watchDebounced(searchQuery, (newValue) => {
-    debouncedSearchQuery.value = newValue;
-}, { debounce: 300 });
+const weekLabel = computed(() => {
+    if (growthSessions.value.weekDates.length === 0) return '';
+    return `${growthSessions.value.firstDay.format('MMM D')} – ${growthSessions.value.lastDay.format('MMM D')}`.toUpperCase();
+});
+
+const selectedDate = computed(() => growthSessions.value.weekDates[dayIndex.value] ?? growthSessions.value.weekDates[0] ?? DateTime.today());
+const daySessions = computed(() => growthSessionsVisibleInDate(selectedDate.value));
+
+watchDebounced(
+    searchQuery,
+    (newValue) => {
+        debouncedSearchQuery.value = newValue;
+    },
+    { debounce: 300 },
+);
 
 onBeforeMount(async () => {
     await refreshGrowthSessionsOfTheWeek();
+    const todayIdx = growthSessions.value.weekDates.findIndex((d) => d.isToday());
+    dayIndex.value = todayIdx >= 0 ? todayIdx : 0;
     window.onpopstate = refreshGrowthSessionsOfTheWeek;
+});
+
+onMounted(() => {
+    window.addEventListener('gs:create-session', handleHeaderCreate);
 });
 
 onBeforeUnmount(() => {
     window.onpopstate = null;
+    window.removeEventListener('gs:create-session', handleHeaderCreate);
 });
+
+function handleHeaderCreate() {
+    onCreateNewGrowthSessionClicked(selectedDate.value);
+}
 
 async function refreshGrowthSessionsOfTheWeek() {
     useDateFromUrlAsReference();
@@ -103,7 +133,9 @@ async function onDragEnd(location: any) {
             date: targetDateString,
             attendee_limit: draggedGrowthSession.value.attendee_limit,
         });
-    } catch (e) {}
+    } catch {
+        /* keep the board responsive even if the move failed to persist */
+    }
 
     await getAllGrowthSessionsOfTheWeek();
 }
@@ -130,12 +162,14 @@ function onCreateNewGrowthSessionClicked(startDate: DateTime) {
 }
 
 function onGrowthSessionEditRequested(growthSession: GrowthSession) {
+    selectedSession.value = null;
     growthSessionToUpdate.value = growthSession;
     newGrowthSessionDate.value = '';
     formModalState.value = 'open';
 }
 
 function onGrowthSessionCopyRequested(growthSession: GrowthSession) {
+    selectedSession.value = null;
     growthSession.id = 0;
     growthSessionToUpdate.value = growthSession;
     newGrowthSessionDate.value = '';
@@ -143,7 +177,9 @@ function onGrowthSessionCopyRequested(growthSession: GrowthSession) {
 }
 
 async function changeReferenceDate(deltaDays: number) {
-    referenceDate.value.addDays(deltaDays);
+    const next = DateTime.parseByDate(referenceDate.value.toDateString());
+    next.addDays(deltaDays);
+    referenceDate.value = next;
     window.history.pushState({}, document.title, `?date=${referenceDate.value.toDateString()}`);
     await getAllGrowthSessionsOfTheWeek();
 }
@@ -160,7 +196,19 @@ function onTagClick(id: number) {
     }
 }
 
-async function refreshGrowthSessions(data: {type: string}) {
+function openDetail(growthSession: GrowthSession) {
+    selectedSession.value = growthSession;
+}
+
+async function onDrawerRefresh() {
+    const id = selectedSession.value?.id;
+    await getAllGrowthSessionsOfTheWeek();
+    if (id) {
+        selectedSession.value = growthSessions.value.allGrowthSessions.find((s) => s.id === id) ?? null;
+    }
+}
+
+async function refreshGrowthSessions(data: { type: string }) {
     const ignoredEvents = ['comment', 'watchers'];
 
     if (!ignoredEvents.includes(data.type)) {
@@ -168,108 +216,134 @@ async function refreshGrowthSessions(data: {type: string}) {
     }
 }
 
-useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], "public");
-
+useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
 </script>
 
 <template>
-    <div v-if="growthSessions.isReady">
-        <div class="flex justify-between bg-vehikl-dark px-4 py-4 text-xl text-white sm:justify-center sm:text-2xl shadow-md">
-            <button aria-label="Load previous week" class="load-previous-week pr-8 text-2xl sm:text-2xl hover:text-vehikl-orange transition-smooth rounded-lg px-3 py-2 hover:bg-white/10" @click="changeReferenceDate(-7)">
-                <i aria-hidden="true" class="fa fa-chevron-left"></i>
-            </button>
-            <h2
-                v-if="growthSessions.weekDates.length > 0"
-                class="mx-4 flex flex-col items-center justify-center text-center sm:flex-row md:w-full md:max-w-md font-semibold"
-            >
-                {{ growthSessions.firstDay.format('MMMM DD') }} <span class="mx-4 text-neutral-400">to</span>
-                {{ growthSessions.lastDay.format('MMMM DD') }}
-            </h2>
-            <button aria-label="Load next week" class="load-next-week pl-8 text-2xl sm:text-2xl hover:text-vehikl-orange transition-smooth rounded-lg px-3 py-2 hover:bg-white/10" @click="changeReferenceDate(+7)">
-                <i aria-hidden="true" class="fa fa-chevron-right"></i>
-            </button>
-        </div>
+    <div v-if="growthSessions.isReady" class="gs-page flex min-h-[calc(100vh-56px)] flex-col">
+        <!-- Control bar -->
+        <div class="gs-bar gs-border relative flex flex-wrap items-center gap-3 border-b px-5 py-3.5 sm:px-7">
+            <div class="flex flex-none items-center gap-2">
+                <button
+                    aria-label="Load previous week"
+                    class="load-previous-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-[26px] w-[26px] items-center justify-center rounded-md text-lg leading-none"
+                    @click="changeReferenceDate(-7)"
+                >
+                    ‹
+                </button>
+                <span class="gs-text-strong text-[11px] font-semibold whitespace-nowrap">{{ weekLabel }}</span>
+                <button
+                    aria-label="Load next week"
+                    class="load-next-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-[26px] w-[26px] items-center justify-center rounded-md text-lg leading-none"
+                    @click="changeReferenceDate(7)"
+                >
+                    ›
+                </button>
+            </div>
 
-        <div class="mx-4 flex flex-col gap-3 rounded-b-xl bg-neutral-100 px-4 py-3 text-sm tracking-wide text-neutral-700 shadow-sm sm:text-base border border-t-0 border-neutral-200 md:flex-row md:items-center">
-            <div class="relative flex-shrink-0 md:w-64">
-                <i aria-hidden="true" class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+            <div class="gs-seg flex flex-none rounded-lg p-[3px]">
+                <button
+                    type="button"
+                    class="transition-smooth rounded-md px-3.5 py-[7px] text-[11px] font-semibold whitespace-nowrap"
+                    :class="view === 'week' ? 'gs-header-bg text-white' : 'gs-text-sub'"
+                    @click="view = 'week'"
+                >
+                    Week
+                </button>
+                <button
+                    type="button"
+                    class="transition-smooth rounded-md px-3.5 py-[7px] text-[11px] font-semibold whitespace-nowrap"
+                    :class="view === 'day' ? 'gs-header-bg text-white' : 'gs-text-sub'"
+                    @click="view = 'day'"
+                >
+                    Day
+                </button>
+            </div>
+
+            <div class="relative min-w-[180px] flex-1">
                 <input
                     v-model="searchQuery"
                     type="text"
                     placeholder="Search sessions..."
-                    class="search-input w-full rounded-lg border border-neutral-300 bg-white py-2 pl-10 pr-10 text-sm text-neutral-700 placeholder-neutral-400 transition-smooth focus:border-vehikl-orange focus:outline-none focus:ring-2 focus:ring-vehikl-orange/20"
+                    class="search-input gs-input w-full rounded-lg px-3.5 py-2.5 text-[13px]"
                     aria-label="Search growth sessions by title, description, or host name"
                 />
                 <button
                     v-if="searchQuery"
-                    @click="searchQuery = ''"
-                    class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-neutral-400 hover:text-neutral-600 transition-smooth"
+                    class="gs-text-muted transition-smooth hover:text-gs-accent absolute top-1/2 right-2 -translate-y-1/2 rounded-md px-2 py-1"
                     aria-label="Clear search"
+                    @click="searchQuery = ''"
                 >
-                    <i aria-hidden="true" class="fa fa-times"></i>
+                    ✕
                 </button>
             </div>
-            <GrowthSessionTags :tags="uniqueTags" :selected-tag-ids="selectedTagIds" @tag-click="onTagClick" ref="growthSessionTags" class="flex-shrink justify-center mx-auto flex-wrap" />
-            <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters" v-model="visibilityFilter" class="flex-shrink-0" />
+
+            <button
+                v-if="uniqueTags.length"
+                type="button"
+                class="gs-seg gs-text-strong transition-smooth flex flex-none items-center gap-1.5 rounded-lg px-3.5 py-2.5 text-[11px] font-semibold whitespace-nowrap"
+                @click="filtersOpen = !filtersOpen"
+            >
+                Filters
+                <span
+                    v-if="selectedTagIds.length"
+                    class="gs-header-bg inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white"
+                    >{{ selectedTagIds.length }}</span
+                >
+            </button>
+
+            <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters" v-model="visibilityFilter" class="ml-auto" />
         </div>
 
-        <div class="week-grid gap-4 px-4 py-6">
-            <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
-                <div class="relative flex flex-row-reverse flex-wrap overflow-visible p-6 bg-white rounded-2xl">
-                    <button
-                        class="x absolute top-4 right-4 rounded-lg bg-neutral-100 hover:bg-neutral-200 px-4 py-2 text-neutral-700 hover:text-vehikl-dark transition-smooth font-semibold"
-                        @click="formModalState = 'closed'"
-                    >
-                        <i aria-hidden="true" class="fa fa-times mr-2"></i> Close
-                    </button>
-                    <growth-session-form
-                        v-if="formModalState === 'open'"
-                        :growth-session="growthSessionToUpdate"
-                        :owner="user"
-                        :start-date="newGrowthSessionDate"
-                        class="growth-session-form"
-                        @submitted="onFormSubmitted"
-                    />
-                </div>
-            </v-modal>
+        <!-- Filters panel -->
+        <div v-show="filtersOpen" class="gs-col gs-border w-full border-b px-5 py-4 sm:px-7">
+            <div class="mb-3 flex items-center justify-between">
+                <span class="gs-text-sub text-[11px] font-bold tracking-[0.04em]">FILTER BY TAG</span>
+                <button type="button" class="gs-accent-text text-[11px] font-semibold" @click="selectedTagIds = []">Clear</button>
+            </div>
+            <GrowthSessionTags
+                ref="growthSessionTags"
+                :tags="uniqueTags"
+                :selected-tag-ids="selectedTagIds"
+                class="flex-wrap"
+                @tag-click="onTagClick"
+            />
+        </div>
+
+        <!-- Week view -->
+        <div v-show="view === 'week'" class="week-grid flex-1">
             <div
                 v-for="date in growthSessions.weekDates"
                 :key="date.toDateString()"
                 :weekDay="date.weekDayString()"
-                :class="{
-                    'bg-neutral-50': date.isEvenDate(),
-                    'bg-white': !date.isEvenDate(),
-                }"
-                class="day relative mb-2 flex flex-col items-center rounded-lg overflow-hidden border border-neutral-200 shadow-sm"
+                class="day gs-col gs-border flex flex-col border-r p-4"
             >
-                <h2
-                    class="sticky top-0 z-20 w-full bg-gradient-to-b from-white to-neutral-50 p-3 text-center text-2xl font-bold tracking-wide text-vehikl-dark border-b border-neutral-200 sm:relative"
-                    v-text="date.weekDayString()"
-                    :id="date.weekDayString()"
-                ></h2>
-                <p
-                    v-if="date.isInAPastDate()"
-                    class="w-full bg-neutral-100 px-4 py-2 text-center text-sm font-semibold tracking-wider text-neutral-500 uppercase border-b border-neutral-200"
-                >
-                    Finished
-                </p>
+                <div class="mb-3.5 flex items-center justify-between">
+                    <span :id="date.weekDayString()" class="gs-text-strong font-display uppercase text-[13px] font-bold tracking-[0.04em]">{{
+                        date.weekDayString()
+                    }}</span>
+                    <span class="gs-text-sub text-[9px] font-semibold tracking-[0.06em]">{{ date.format('MMM D').toUpperCase() }}</span>
+                </div>
+
                 <button
                     v-if="user && user.is_vehikl_member && !date.isInAPastDate()"
-                    class="create-growth-session mb-2 mx-2 mt-3 block w-[calc(100%-1rem)] rounded-lg bg-vehikl-orange hover:bg-vehikl-orange/90 px-4 py-2.5 text-base font-semibold tracking-wide text-white transition-smooth shadow-sm hover:shadow-md"
+                    class="create-growth-session gs-btn-primary mx-2 mb-3 rounded-lg px-4 py-2 text-xs font-semibold"
                     @click="onCreateNewGrowthSessionClicked(date)"
                 >
-                    <i aria-hidden="true" class="fa fa-plus-circle mr-2"></i><span class="text">Add Session</span>
+                    + Add Session
                 </button>
-                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="px-4 py-8 text-center text-lg text-neutral-500">
-                    <p class="mb-2" v-text="`${Nothingator.random(date.toDateString())}...`" />
-                    <p v-show="user && date.isToday()" class="text-sm text-neutral-400">Why don't you create the first one?</p>
+
+                <div v-show="growthSessionsVisibleInDate(date).length === 0" class="gs-text-muted px-2 py-6 text-center text-sm">
+                    <p class="mb-1" v-text="`${Nothingator.random(date.toDateString())}...`" />
+                    <p v-show="user && date.isToday()" class="gs-text-muted text-xs">Why don't you create the first one?</p>
                 </div>
+
                 <draggable
                     :model-value="growthSessionsVisibleInDate(date)"
                     :data-date="date.toDateString()"
                     item-key="id"
                     tag="ul"
-                    class="h-full w-full py-2"
+                    class="h-full w-full"
                     group="growth-sessions"
                     handle=".handle"
                     @end="onDragEnd"
@@ -284,37 +358,87 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], "public");
                                 @copy-requested="onGrowthSessionCopyRequested"
                                 @edit-requested="onGrowthSessionEditRequested"
                                 @delete-requested="getAllGrowthSessionsOfTheWeek"
+                                @open-detail="openDetail"
                             />
                         </li>
                     </template>
                 </draggable>
             </div>
-            <div class="fixed inset-x-4 bottom-4 z-50 block md:hidden" v-if="growthSessions.hasCurrentDate">
-                <button
-                    aria-label="Scroll to today"
-                    class="flex w-full items-center justify-center rounded-lg bg-vehikl-orange hover:bg-vehikl-orange/90 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-smooth focus:ring-2 focus:ring-vehikl-orange/50 focus:ring-offset-2 focus:outline-none"
-                    @click="scrollToDate(DateTime.today().weekDayString())"
-                >
-                    Go to today <i aria-hidden="true" class="fa fa-calendar ml-2"></i>
-                </button>
-            </div>
         </div>
+
+        <!-- Day view -->
+        <DayView
+            v-show="view === 'day'"
+            :days="growthSessions.weekDates"
+            :selected-index="dayIndex"
+            :sessions="daySessions"
+            :current-label="selectedDate.weekDayString()"
+            :user="user"
+            @select-day="dayIndex = $event"
+            @open-detail="openDetail"
+            @refresh="onDrawerRefresh"
+            @edit-requested="onGrowthSessionEditRequested"
+            @copy-requested="onGrowthSessionCopyRequested"
+        />
+
+        <!-- Scroll to today (mobile) -->
+        <div v-if="growthSessions.hasCurrentDate" class="fixed inset-x-4 bottom-4 z-40 block md:hidden">
+            <button
+                aria-label="Scroll to today"
+                class="gs-btn-primary flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold shadow-lg"
+                @click="scrollToDate(DateTime.today().weekDayString())"
+            >
+                Go to today
+            </button>
+        </div>
+
+        <!-- Create / edit modal -->
+        <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
+            <div class="gs-card relative rounded-2xl p-6">
+                <button
+                    class="gs-text-muted transition-smooth hover:text-gs-accent absolute top-5 right-5 text-[11px] font-semibold tracking-[0.04em]"
+                    @click="formModalState = 'closed'"
+                >
+                    CLOSE ✕
+                </button>
+                <growth-session-form
+                    v-if="formModalState === 'open'"
+                    :growth-session="growthSessionToUpdate"
+                    :owner="user"
+                    :start-date="newGrowthSessionDate"
+                    class="growth-session-form"
+                    @submitted="onFormSubmitted"
+                />
+            </div>
+        </v-modal>
+
+        <!-- Detail drawer -->
+        <SessionDetailDrawer
+            v-if="selectedSession"
+            :growth-session="selectedSession"
+            :user="user"
+            @close="selectedSession = null"
+            @edit-requested="onGrowthSessionEditRequested"
+            @refresh="onDrawerRefresh"
+        />
     </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .day {
-    min-height: 10rem;
-    @media (min-width: 768px) {
-        min-height: 35rem;
-    }
+    min-height: 14rem;
 }
 
 .week-grid {
     display: grid;
     grid-auto-flow: row;
-    grid-template-columns: repeat(auto-fit, minmax(228px, 1fr));
-    @media (max-width: 767px) {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 0;
+    align-items: start;
+}
+
+@media (max-width: 767px) {
+    .week-grid {
         grid-auto-rows: auto;
     }
 }

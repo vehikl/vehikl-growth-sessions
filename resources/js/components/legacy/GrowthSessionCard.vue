@@ -1,159 +1,181 @@
 <script lang="ts" setup>
-import {GrowthSessionApi} from "@/services/GrowthSessionApi"
-import {GrowthSession} from "@/classes/GrowthSession"
-import {IUser} from "@/types"
-import VAvatar from "@/components/legacy/VAvatar.vue"
-import VButton from "@/components/legacy/VButton.vue"
-import IconDraggable from "@/svgs/IconDraggable.vue"
-import LocationRenderer from "@/components/legacy/LocationRenderer.vue"
-import {computed} from "vue"
-import GrowthSessionTags from "@/components/legacy/GrowthSessionTags.vue";
+import { GrowthSession } from '@/classes/GrowthSession';
+import { useInitials } from '@/composables/useInitials';
+import { avatarColor, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
+import IconDraggable from '@/svgs/IconDraggable.vue';
+import { IUser } from '@/types';
+import { computed } from 'vue';
 
 interface IProps {
     growthSession: GrowthSession;
     user?: IUser;
 }
 
-const props = defineProps<IProps>()
-const emit = defineEmits(["growth-session-updated", "delete-requested", "edit-requested", "copy-requested"])
+const props = defineProps<IProps>();
+const emit = defineEmits(['growth-session-updated', 'delete-requested', 'edit-requested', 'copy-requested', 'open-detail']);
 
-const isDraggable = computed<boolean>(() => !!props.user && props.growthSession.canEditOrDelete(props.user))
-const growthSessionUrl = computed<string>(() => GrowthSessionApi.showUrl(props.growthSession))
+const { getInitials } = useInitials();
 
+const isDraggable = computed<boolean>(() => !!props.user && props.growthSession.canEditOrDelete(props.user));
+const status = computed(() => sessionStatus(props.growthSession));
+const statusColor = computed(() => statusMeta(status.value).color);
+const initials = computed(() => getInitials(props.growthSession.owner.name));
+const ownerColor = computed(() => avatarColor(props.growthSession.owner.name));
+const cardOpacity = computed(() => (status.value === 'finished' ? 0.55 : 1));
 
-async function watchGrowthSession() {
-    await props.growthSession.watch()
-    emit("growth-session-updated")
-}
+const canSeeLocation = computed<boolean>(
+    () => !!props.user && (props.growthSession.isOwner(props.user) || props.growthSession.isAttendeeOrWatcher(props.user)),
+);
 
 async function joinGrowthSession() {
-    await props.growthSession.join()
-    emit("growth-session-updated")
+    await props.growthSession.join();
+    emit('growth-session-updated');
+}
+
+async function watchGrowthSession() {
+    await props.growthSession.watch();
+    emit('growth-session-updated');
 }
 
 async function leaveGrowthSession() {
-    await props.growthSession.leave()
-    emit("growth-session-updated")
+    await props.growthSession.leave();
+    emit('growth-session-updated');
 }
 
 async function onDeleteClicked() {
-    if (confirm("Are you sure you want to delete?")) {
+    if (confirm('Are you sure you want to delete?')) {
         try {
-            await props.growthSession.delete()
+            await props.growthSession.delete();
         } catch (error: any) {
             if (error.response?.status !== 404) {
-                console.error('Failed to delete growth session:', error)
+                console.error('Failed to delete growth session:', error);
             }
         } finally {
-            emit("delete-requested", props.growthSession)
+            emit('delete-requested', props.growthSession);
         }
     }
 }
-
 </script>
 
 <template>
-    <a class="group block px-6 py-5 mx-2 cursor-pointer overflow-visible mb-4 transition-smooth hover-lift bg-white rounded-xl border border-neutral-200 hover:border-neutral-300 hover:shadow-lg"
-       :class="growthSession.is_public ? '' : 'ring-2 ring-vehikl-orange/20 border-vehikl-orange/30'"
-       :href="growthSessionUrl">
-
-        <div class="flex items-center justify-between flex-1 mb-3">
-            <p class="text-sm font-semibold tracking-wide text-neutral-600 uppercase" v-text="growthSession.owner.name"/>
-            <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar"/>
-        </div>
-       <h3 class="font-bold text-2xl text-vehikl-dark text-left mb-4 break-words group-hover:text-vehikl-orange transition-smooth"
-        v-text="growthSession.title"/>
-
-
-        <div class="flex justify-between items-center mb-4 px-3 py-2 bg-neutral-50 rounded-lg text-neutral-700">
-            <div class="font-semibold text-sm">
-                {{ growthSession.startTime }} to {{ growthSession.endTime }}
+    <div
+        class="group gs-card gs-border transition-smooth mx-2 mb-2.5 cursor-pointer rounded-xl border p-3 hover:shadow-md"
+        :style="{ opacity: cardOpacity }"
+        role="button"
+        tabindex="0"
+        @click="emit('open-detail', growthSession)"
+        @keydown.enter="emit('open-detail', growthSession)"
+    >
+        <div class="mb-2 flex items-center justify-between gap-2">
+            <div class="flex min-w-0 items-center gap-2">
+                <span
+                    class="flex h-5 w-5 flex-none items-center justify-center overflow-hidden rounded-full text-[8px] font-bold text-white"
+                    :style="{ backgroundColor: ownerColor }"
+                >
+                    <img
+                        v-if="growthSession.owner.avatar"
+                        :src="growthSession.owner.avatar"
+                        :alt="growthSession.owner.name"
+                        class="h-full w-full object-cover"
+                    />
+                    <template v-else>{{ initials }}</template>
+                </span>
+                <span class="gs-text-sub min-w-0 truncate text-[11px] font-medium" v-text="growthSession.owner.name" />
             </div>
-            <div class="flex items-center gap-1.5 attendees-count">
-                <i class="fa fa-user-circle text-base" aria-hidden="true"></i>
-                <span class="font-semibold" v-text="growthSession.attendees.length"/>
-                <span v-if="growthSession.attendee_limit" class="text-neutral-500 attendee-limit">/ {{ growthSession.attendee_limit }}</span>
-            </div>
+            <span class="h-1.5 w-1.5 flex-none rounded-full" :style="{ backgroundColor: statusColor }" :title="statusMeta(status).label"></span>
         </div>
 
-        <GrowthSessionTags class="mb-4 flex-wrap max-h-20 overflow-y-scroll" minimal :tags="growthSession.tags" />
+        <h3 class="gs-text-strong mb-2.5 text-[15px] leading-snug font-semibold break-words" v-text="growthSession.title" />
 
-        <pre
-            class="mb-4 topic inline-block text-left break-words-fixed whitespace-pre-wrap max-h-48 overflow-y-auto overflow-x-hidden font-sans text-neutral-700 text-sm leading-relaxed"
-            v-text="growthSession.topic"/>
-
-        <div class="text-neutral-600 text-left mb-3 break-all flex items-center gap-2 text-sm">
-            <i class="fa fa-compass text-base text-neutral-400" aria-hidden="true"></i>
-            <location-renderer :locationString="growthSession.location"/>
+        <div class="gs-text-sub mb-1.5 flex items-center justify-between text-[11px] font-medium">
+            <span>{{ growthSession.startTime }}–{{ growthSession.endTime }}</span>
+            <span class="attendees-count">
+                {{ growthSession.attendees.length
+                }}<span v-if="growthSession.attendee_limit" class="attendee-limit">/{{ growthSession.attendee_limit }}</span
+                ><span v-else> joined</span>
+            </span>
         </div>
 
-        <div v-if="growthSession.anydesk && user" class="text-neutral-600 text-left mb-4 break-all flex items-center gap-2 text-sm">
-            <i class="fa fa-desktop text-base text-neutral-400" aria-hidden="true"></i>
-            {{ growthSession.anydesk.name }}
+        <div class="gs-text-muted mb-2.5 truncate text-[11px]">
+            <template v-if="canSeeLocation">{{ growthSession.location }}</template>
+            <template v-else>&lt; Join to see location &gt;</template>
         </div>
 
-        <div class="grid gap-2 mb-2">
-            <v-button
-                class="join-button"
-                color="orange"
-                @click="joinGrowthSession"
-                text="Join Mob"
-                v-show="growthSession.canJoin(user)"/>
-            <v-button
-                class="watch-button"
-                color="blue"
-                variant='outlined'
-                @click="watchGrowthSession"
-                text="Spectate"
-                v-show="growthSession.canWatch(user)"/>
-            <v-button
-                class="leave-button"
-                color="red"
-                variant='outlined'
-                @click="leaveGrowthSession"
+        <div class="flex gap-1.5 empty:hidden" @click.stop>
+            <button
+                v-show="growthSession.canJoin(user)"
+                type="button"
+                class="join-button gs-btn-primary flex-[3] rounded-md py-1.5 text-[11px] font-semibold"
+                @click.stop="joinGrowthSession"
+            >
+                Join
+            </button>
+            <button
+                v-show="growthSession.canWatch(user)"
+                type="button"
+                class="watch-button gs-btn-secondary flex-1 rounded-md py-1.5 text-[11px] font-semibold"
+                @click.stop="watchGrowthSession"
+            >
+                Spectate
+            </button>
+            <button
                 v-show="growthSession.canLeave(user)"
-                text="Leave"/>
+                type="button"
+                class="leave-button transition-smooth flex-1 rounded-md border border-red-500 py-1.5 text-[11px] font-semibold text-red-500 hover:bg-red-500 hover:text-white"
+                @click.stop="leaveGrowthSession"
+            >
+                Leave
+            </button>
         </div>
 
-        <div
-            v-if="growthSession.title || isDraggable"
-            class="flex items-center gap-1 pt-3 mt-3 border-t border-neutral-100"
-        >
+        <!-- Owner / utility actions: collapsed until hover so the card stays clean like the design -->
+        <div class="max-h-0 overflow-hidden opacity-0 transition-all duration-200 group-hover:max-h-10 group-hover:opacity-100" @click.stop>
+            <div class="flex items-center gap-0.5 pt-2">
                 <a
                     aria-label="add-to-calendar"
                     :href="growthSession.calendarUrl"
                     target="_blank"
-                    class="text-neutral-500 group/icon relative leading-none hover:bg-neutral-100 hover:text-vehikl-orange transition-smooth rounded-lg h-9 w-9 inline-flex justify-center items-center"
+                    class="gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-7 w-7 items-center justify-center rounded-md leading-none"
+                    title="Add to calendar"
+                    @click.stop
                 >
-                    <i aria-hidden="true" class="fa fa-calendar"></i>
-                    <div class="bg-vehikl-dark text-white hidden group-hover/icon:block absolute px-3 py-1.5 bottom-full mb-2 rounded-lg text-xs whitespace-nowrap shadow-lg">Add to Calendar</div>
+                    <i aria-hidden="true" class="fa fa-calendar text-xs"></i>
                 </a>
                 <button
                     v-show="growthSession.canEditOrDelete(user)"
-                    class="update-button text-neutral-500 leading-none hover:bg-neutral-100 hover:text-vehikl-orange transition-smooth rounded-lg h-9 w-9 inline-flex justify-center items-center"
-                    @click.prevent="emit('edit-requested', growthSession)">
-                    <i aria-hidden="true" class="fa fa-edit"></i>
+                    type="button"
+                    class="update-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-7 w-7 items-center justify-center rounded-md leading-none"
+                    title="Edit"
+                    @click.stop="emit('edit-requested', growthSession)"
+                >
+                    <i aria-hidden="true" class="fa fa-edit text-xs"></i>
                 </button>
                 <button
                     v-show="user && user.is_vehikl_member"
-                    class="copy-button text-neutral-500 leading-none hover:bg-neutral-100 hover:text-vehikl-orange transition-smooth rounded-lg h-9 w-9 inline-flex justify-center items-center"
-                    @click.prevent="emit('copy-requested', growthSession)">
-                    <i aria-hidden="true" class="fa fa-copy"></i>
+                    type="button"
+                    class="copy-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-7 w-7 items-center justify-center rounded-md leading-none"
+                    title="Duplicate"
+                    @click.stop="emit('copy-requested', growthSession)"
+                >
+                    <i aria-hidden="true" class="fa fa-copy text-xs"></i>
                 </button>
                 <button
                     v-show="growthSession.canEditOrDelete(user)"
-                    class="delete-button text-neutral-500 leading-none hover:bg-red-50 hover:text-red-600 transition-smooth rounded-lg h-9 w-9 inline-flex justify-center items-center"
-                    @click.prevent="onDeleteClicked">
-                    <i class="fa fa-trash" aria-hidden="true"></i>
+                    type="button"
+                    class="delete-button gs-text-muted transition-smooth inline-flex h-7 w-7 items-center justify-center rounded-md leading-none hover:text-red-500"
+                    title="Delete"
+                    @click.stop="onDeleteClicked"
+                >
+                    <i class="fa fa-trash text-xs" aria-hidden="true"></i>
                 </button>
-
-                <div v-if="isDraggable"
-                     @click.stop
-                     class="z-10 handle h-9 w-9 hover:bg-neutral-100 hover:text-vehikl-orange transition-smooth rounded-lg inline-flex justify-center items-center cursor-move ml-auto">
-                    <icon-draggable class="h-4 text-neutral-500"/>
+                <div
+                    v-if="isDraggable"
+                    class="handle transition-smooth hover:text-gs-accent ml-auto inline-flex h-7 w-7 cursor-move items-center justify-center rounded-md"
+                    @click.stop
+                >
+                    <icon-draggable class="gs-text-muted h-4" />
                 </div>
-
             </div>
-    </a>
+        </div>
+    </div>
 </template>
-

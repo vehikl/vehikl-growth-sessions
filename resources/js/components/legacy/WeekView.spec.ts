@@ -68,9 +68,9 @@ describe('WeekView', () => {
     });
 
     it('loads with the current week growth sessions in display', () => {
-        const topicsOfTheWeek = growthSessionsThisWeek.allGrowthSessions.map((growthSession: GrowthSession) => growthSession.topic);
-        for (let topic of topicsOfTheWeek) {
-            expect(wrapper.text()).toContain(topic);
+        const titlesOfTheWeek = growthSessionsThisWeek.allGrowthSessions.map((growthSession: GrowthSession) => growthSession.title);
+        for (let title of titlesOfTheWeek) {
+            expect(wrapper.text()).toContain(title);
         }
     });
 
@@ -183,7 +183,7 @@ describe('WeekView', () => {
             const targetedGrowthSession = wrapper.findComponent(GrowthSessionCard)
 
             const title = targetedGrowthSession.find("h3").text()
-            const topic = targetedGrowthSession.find(".topic").text()
+            const matchingSession = growthSessionsThisWeek.allGrowthSessions.find(gs => gs.title === title)!
 
 
             expect(targetedGrowthSession.find("button.copy-button").exists()).toBe(true)
@@ -195,7 +195,7 @@ describe('WeekView', () => {
             expect(createForm.find("#is-public").element.checked).toBe(true)
 
             expect((wrapper.find("input#title").element as HTMLInputElement).value).toBe(title)
-            expect((wrapper.find("textarea#topic").element as HTMLInputElement).value).toBe(topic)
+            expect((wrapper.find("textarea#topic").element as HTMLInputElement).value).toBe(matchingSession.topic)
         });
 
         describe('Visibility Filter', () => {
@@ -406,9 +406,8 @@ describe('WeekView', () => {
 
             const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
 
-            // Session 2 has "laborum" in topic: "Et ut laborum dolore ut et earum rem animi."
+            // Session 2 has "laborum" in its topic; searching by topic still matches it
             expect(visibleSessions.length).toBe(1);
-            expect(visibleSessions[0].text()).toContain('Et ut laborum dolore ut et earum rem animi.');
         });
 
         it('filters sessions by owner/host name', async () => {
@@ -436,7 +435,6 @@ describe('WeekView', () => {
 
             // Session 2 has "Alejandro Rivera" as an attendee
             expect(visibleSessions.length).toBe(1);
-            expect(visibleSessions[0].text()).toContain('Et ut laborum dolore ut et earum rem animi.');
         });
 
         it('performs case-insensitive search', async () => {

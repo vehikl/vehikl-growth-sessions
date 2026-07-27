@@ -100,26 +100,16 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.text()).toContain(growthSessionData.owner.name);
     });
 
-    it('displays the growth session topic', () => {
-        expect(wrapper.text()).toContain(growthSessionData.topic);
-    });
-
-    it('displays the growth session location', () => {
+    it('displays the growth session location to attendees', () => {
+        wrapper = mount(GrowthSessionCard, {props: {growthSession: growthSessionData, user: attendee}})
         expect(wrapper.text()).toContain(growthSessionData.location);
     });
 
-    it('displays the growth session anydesk name', () => {
+    it('gates the location behind joining for users who have not joined', () => {
         wrapper = mount(GrowthSessionCard, {props: {growthSession: growthSessionData, user: outsider}})
-
-       expect(wrapper.text()).toContain(growthSessionData.anydesk?.name);
+        expect(wrapper.text()).not.toContain(growthSessionData.location);
+        expect(wrapper.text()).toContain('Join to see location');
     });
-
-    it('does not display the growth session anydesk name if there is none', () => {
-        const noAnyDeskGrowthSession = new GrowthSession({...growthSessionData, anydesk: null });
-        wrapper = mount(GrowthSessionCard, {props: {growthSession: noAnyDeskGrowthSession}})
-
-        expect(wrapper.text()).not.toContain(growthSessionData.anydesk?.name);
-    })
 
     it('displays the number of attendees', () => {
         expect(wrapper.find('.attendees-count').text()).toContain(growthSessionData.attendees.length);
@@ -288,15 +278,4 @@ describe('GrowthSessionCard', () => {
         })
     })
 
-    it('Displays tags', () => {
-        const existingTags = baseGrowthSessionDataAttributes.tags;
-
-        const tags = wrapper.findAll('.tag')
-        let expectedNumberOfTags = existingTags.length;
-        expect(tags.length).toBe(expectedNumberOfTags);
-
-        tags.forEach((tag: Wrapper, index: number) => {
-            expect(tag.text()).toBe(existingTags[index].name);
-        })
-    })
 });
