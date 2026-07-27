@@ -72,7 +72,7 @@ onBeforeMount(fetchStatistics);
         <div class="mx-auto max-w-6xl">
             <header class="mb-8">
                 <h1 class="gs-text-strong font-display text-4xl font-bold">Statistics</h1>
-                <p class="gs-text-body mt-2 text-lg">A look at this week's Growth Sessions activity.</p>
+                <p class="gs-text-body mt-2 text-lg">A snapshot of Growth Sessions activity and participation.</p>
             </header>
 
             <div v-if="isLoading" class="gs-text-muted py-24 text-center text-sm">Loading statistics…</div>
