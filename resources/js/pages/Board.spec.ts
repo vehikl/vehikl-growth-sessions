@@ -1,3 +1,4 @@
+import discordChannelsJson from '@/../../tests/fixtures/Discord/ChannelList.json';
 import growthSessionsThisWeekJson from '@/../../tests/fixtures/WeekGrowthSessions.json';
 import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
@@ -54,9 +55,13 @@ describe('Board', () => {
         GrowthSessionApi.join = vi.fn().mockImplementation((growthSession) => growthSession);
         GrowthSessionApi.leave = vi.fn().mockImplementation((growthSession) => growthSession);
         GrowthSessionApi.delete = vi.fn().mockImplementation((growthSession) => growthSession);
-        DiscordChannelApi.index = vi.fn();
-        DiscordChannelApi.occupied = vi.fn();
-        TagsApi.index = vi.fn();
+        DiscordChannelApi.index = vi.fn().mockResolvedValue(discordChannelsJson);
+        DiscordChannelApi.occupied = vi.fn().mockResolvedValue([]);
+        TagsApi.index = vi.fn().mockResolvedValue([
+            { id: 1, name: 'foo' },
+            { id: 2, name: 'bar' },
+            { id: 3, name: 'baz' },
+        ]);
         AnydesksApi.getAllAnyDesks = vi.fn();
         wrapper = mount(Board);
         await flushPromises();
@@ -113,7 +118,7 @@ describe('Board', () => {
             await flushPromises();
         });
 
-        it('renders unique combined list of tags from visible growth sessions', async () => {
+        it('renders the full list of available tags from the tags endpoint', async () => {
             const tagsFilter = wrapper.findComponent({ ref: 'growthSessionTags' });
 
             expect(tagsFilter.find('div#foo').text()).toBe('foo');

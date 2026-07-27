@@ -71,7 +71,7 @@ function tagline(session: GrowthSession): string {
                 v-if="showCreateCta"
                 type="button"
                 class="transition-smooth mb-5 flex w-full items-center gap-4 rounded-xl border-2 border-dashed px-5 py-4 text-left hover:bg-black/5 dark:hover:bg-white/5"
-                :style="{ borderColor: 'var(--color-gs-accent)' }"
+                :style="{ borderColor: 'var(--color-vehikl-orange)' }"
                 @click="emit('create')"
             >
                 <span

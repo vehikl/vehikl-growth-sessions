@@ -10,7 +10,8 @@ import VisibilityRadioFieldset from '@/components/legacy/VisibilityRadioFieldset
 import VModal from '@/components/legacy/VModal.vue';
 import WeekView from '@/components/legacy/WeekView.vue';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
-import { IUser } from '@/types';
+import { TagsApi } from '@/services/TagsApi';
+import { ITag, IUser } from '@/types';
 import { useEcho } from '@laravel/echo-vue';
 import { watchDebounced } from '@vueuse/core';
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
@@ -37,11 +38,15 @@ const dayIndex = ref(0);
 const filtersOpen = ref(false);
 const selectedSession = ref<GrowthSession | null>(null);
 
-const uniqueTags = computed(() => {
-    const allTags = growthSessions.value.allGrowthSessions.flatMap((gs) => gs.tags);
+const allTags = ref<ITag[]>([]);
 
-    return allTags.filter((tag, index, allTags) => allTags.map((t) => t.id).indexOf(tag.id) == index);
-});
+async function getAllTags() {
+    try {
+        allTags.value = await TagsApi.index();
+    } catch {
+        /* leave the filter empty if the tag list can't be loaded */
+    }
+}
 
 const weekLabel = computed(() => {
     if (growthSessions.value.weekDates.length === 0) return '';
@@ -69,6 +74,7 @@ watchDebounced(
 );
 
 onBeforeMount(async () => {
+    await getAllTags();
     await refreshGrowthSessionsOfTheWeek();
     const todayIdx = growthSessions.value.weekDates.findIndex((d) => d.isToday());
     dayIndex.value = todayIdx >= 0 ? todayIdx : 0;
@@ -301,7 +307,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             </div>
 
             <button
-                v-if="uniqueTags.length"
+                v-if="allTags.length"
                 type="button"
                 class="gs-seg gs-text-strong transition-smooth flex flex-none items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold whitespace-nowrap"
                 @click="filtersOpen = !filtersOpen"
@@ -325,7 +331,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             </div>
             <GrowthSessionTags
                 ref="growthSessionTags"
-                :tags="uniqueTags"
+                :tags="allTags"
                 :selected-tag-ids="selectedTagIds"
                 class="flex-wrap"
                 @tag-click="onTagClick"

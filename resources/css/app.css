@@ -7,16 +7,15 @@
 
 @theme {
     /* Vehikl Brand Colors */
-    --color-vehikl-orange: #e26701;
-    --color-vehikl-dark: #101827;
+    --color-vehikl-orange: #ff731f;
+    --color-vehikl-dark: #b44e10;
 
     /* Design accent (Growth Sessions redesign) */
-    --color-gs-accent: #e0632a;
-    --color-gs-accent-hover: #c94f1e;
+    --color-gs-accent-hover: var(--color-vehikl-dark);
     --color-gs-header: #171a24;
 
     /* Status colors */
-    --color-gs-live: #e0632a;
+    --color-gs-live: var(--color-vehikl-orange);
     --color-gs-upcoming: #3fb56d;
     --color-gs-finished: #9aa0ab;
 
@@ -153,10 +152,10 @@ body {
 
 /* Accent */
 .gs-accent-text {
-    color: var(--color-gs-accent);
+    color: var(--color-vehikl-orange);
 }
 .gs-accent-bg {
-    background-color: var(--color-gs-accent);
+    background-color: var(--color-vehikl-orange);
 }
 
 .font-display {
@@ -165,7 +164,7 @@ body {
 
 /* Primary (orange) action button */
 .gs-btn-primary {
-    background-color: var(--color-gs-accent);
+    background-color: var(--color-vehikl-orange);
     color: #ffffff;
     transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -195,7 +194,7 @@ body {
 }
 .gs-input:focus {
     outline: none;
-    border-color: var(--color-gs-accent);
+    border-color: var(--color-vehikl-orange);
 }
 
 .break-words-fixed {

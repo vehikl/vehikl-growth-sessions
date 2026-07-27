@@ -136,8 +136,10 @@ describe('GrowthSessionForm', () => {
                 }
 
                 if (anyDesk) {
-                    wrapper.find('#anydesk-selection').setValue(anyDeskId.toString());
+                    wrapper.find('#anydesks-toggle').setChecked();
                     await wrapper.vm.$nextTick();
+
+                    wrapper.find('#anydesk-selection').setValue(anyDeskId.toString());
                 }
 
                 await wrapper.vm.$nextTick();
@@ -224,7 +226,10 @@ describe('GrowthSessionForm', () => {
             expect(wrapper.find('#discord-channel').exists()).toBeFalsy();
         });
 
-        it('displays a dropdown select with AnyDesks when AnyDesks given', async () => {
+        it('displays a checkbox and dropdown select with AnyDesks when AnyDesks given', async () => {
+            const useAnyDesksSelector = wrapper.find('#anydesks-toggle');
+            await useAnyDesksSelector.setChecked();
+
             const anyDesksSelector = wrapper.find('#anydesk-selection');
             expect(anyDesksSelector.exists()).toBeTruthy();
             const optionsAvailable = anyDesksSelector.findAll('option').map((option) => option.text());
@@ -232,11 +237,14 @@ describe('GrowthSessionForm', () => {
             expect(optionsAvailable).toEqual(expect.arrayContaining(optionsExpected));
         });
 
-        it('does not display the dropdown select with AnyDesks when no AnyDesks given', async () => {
+        it('does not display a checkbox and dropdown select with AnyDesks when no AnyDesks given', async () => {
             AnydesksApi.getAllAnyDesks = vi.fn().mockImplementation(() => []);
             wrapper = mount(GrowthSessionForm, { propsData: { owner: user, startDate } });
 
             await flushPromises();
+
+            const useAnyDesksSelector = wrapper.find('#anydesks-toggle');
+            expect(useAnyDesksSelector.exists()).toBe(false);
 
             const anyDesksSelector = wrapper.find('#anydesk-selection');
             expect(anyDesksSelector.exists()).toBe(false);

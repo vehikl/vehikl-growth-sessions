@@ -23,7 +23,7 @@ defineProps<IProps>();
             :key="`tag.name.${i}`"
             class="tag transition-smooth cursor-pointer rounded-full border px-3.5 py-2 text-xs font-semibold tracking-[0.05em] uppercase"
             :class="
-                (selectedTagIds ?? []).includes(tag.id) ? 'gs-header-bg border-transparent text-white' : 'gs-border gs-text-sub hover:text-gs-accent'
+                (selectedTagIds ?? []).includes(tag.id) ? 'gs-accent-bg border-transparent text-white' : 'gs-border gs-text-sub hover:text-gs-accent'
             "
             @click="buttonClick(tag.id)"
         >
