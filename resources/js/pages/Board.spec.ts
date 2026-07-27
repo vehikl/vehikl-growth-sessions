@@ -4,7 +4,9 @@ import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
 import { Nothingator } from '@/classes/Nothingator';
 import { WeekGrowthSessions } from '@/classes/WeekGrowthSessions';
+import DayView from '@/components/legacy/DayView.vue';
 import GrowthSessionCard from '@/components/legacy/GrowthSessionCard.vue';
+import WeekView from '@/components/legacy/WeekView.vue';
 import Board from '@/pages/Board.vue';
 import { AnydesksApi } from '@/services/AnydesksApi';
 import { DiscordChannelApi } from '@/services/DiscordChannelApi';
@@ -92,6 +94,32 @@ describe('Board', () => {
         await flushPromises();
         let sevenDaysInTheFuture = DateTime.parseByDate(todayDate).addDays(7).toDateString();
         expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(sevenDaysInTheFuture);
+    });
+
+    it('switches between day and week views with keyboard shortcuts', async () => {
+        expect(wrapper.findComponent(DayView).isVisible()).toBe(true);
+        expect(wrapper.findComponent(WeekView).isVisible()).toBe(false);
+
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }));
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.findComponent(WeekView).isVisible()).toBe(true);
+        expect(wrapper.findComponent(DayView).isVisible()).toBe(false);
+
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'D' }));
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.findComponent(DayView).isVisible()).toBe(true);
+        expect(wrapper.findComponent(WeekView).isVisible()).toBe(false);
+    });
+
+    it('does not switch views while typing', async () => {
+        const searchInput = wrapper.find('input.search-input');
+        await searchInput.trigger('keydown', { key: 'w' });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.findComponent(DayView).isVisible()).toBe(true);
+        expect(wrapper.findComponent(WeekView).isVisible()).toBe(false);
     });
 
     it('does not display the growth session creation buttons for guests', async () => {

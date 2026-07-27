@@ -16,7 +16,7 @@
     --color-gs-header: #171a24;
 
     /* Status colors */
-    --color-gs-live: var(--color-vehikl-light);
+    --color-gs-live: var(--color-vehikl-orange);
     --color-gs-upcoming: #3fb56d;
     --color-gs-finished: #9aa0ab;
 
@@ -93,7 +93,7 @@
 }
 
 body {
-    font-family: var(--font-sans);
+    font-family: var(--font-sans), serif;
 }
 
 ::placeholder {
@@ -156,7 +156,7 @@ body {
     color: var(--color-vehikl-orange);
 }
 .gs-accent-bg {
-    background-color: var(--color-vehikl-light);
+    background-color: var(--color-vehikl-orange);
 }
 
 .font-display {
@@ -165,7 +165,7 @@ body {
 
 /* Primary (orange) action button */
 .gs-btn-primary {
-    background-color: var(--color-vehikl-light);
+    background-color: var(--color-vehikl-orange);
     color: #ffffff;
     transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }

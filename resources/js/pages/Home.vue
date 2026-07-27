@@ -41,4 +41,21 @@ const shouldRenderGoogleLogin = computed(() => !!page.props.services.google_clie
     </div>
 
     <Board :user="$page.props.auth.user" />
+
+    <footer class="gs-bar gs-border border-t px-5 py-5 text-center">
+        <p class="gs-text-muted text-sm">
+            Have
+            <a
+                href="https://github.com/vehikl/vehikl-growth-sessions/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="transition-smooth gs-accent-text underline decoration-transparent underline-offset-2 hover:decoration-current"
+                >
+                suggestions
+            </a
+            >
+            or feedback?
+            <a href="mailto:gsfeedback@vehikl.com" class="transition-smooth gs-accent-text underline decoration-transparent underline-offset-2 hover:decoration-current">Let us know &rarr;</a>
+        </p>
+    </footer>
 </template>

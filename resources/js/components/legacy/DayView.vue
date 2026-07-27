@@ -81,7 +81,7 @@ function tagline(session: GrowthSession): string {
                 </span>
                 <span class="min-w-0">
                     <span class="gs-text-strong block text-base font-semibold">You're not in a session today</span>
-                    <span class="gs-text-sub block text-sm">Start a Growth Session and invite others to join</span>
+                    <span class="gs-text-body block text-sm">Start a Growth Session and invite others to join</span>
                 </span>
             </button>
 
@@ -143,7 +143,7 @@ function tagline(session: GrowthSession): string {
                         <button
                             v-show="session.canJoin(user)"
                             type="button"
-                            class="join-button gs-btn-primary rounded-md px-5 py-2 text-sm font-semibold"
+                            class="join-button gs-btn-primary rounded-md px-4 md:px-20 py-2 text-sm font-semibold max-w-48"
                             @click.stop="emit('join', session)"
                         >
                             Join

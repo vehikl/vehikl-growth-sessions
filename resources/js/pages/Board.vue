@@ -84,15 +84,35 @@ onBeforeMount(async () => {
 
 onMounted(() => {
     window.addEventListener('gs:create-session', handleHeaderCreate);
+    window.addEventListener('keydown', handleViewShortcut);
 });
 
 onBeforeUnmount(() => {
     window.onpopstate = null;
     window.removeEventListener('gs:create-session', handleHeaderCreate);
+    window.removeEventListener('keydown', handleViewShortcut);
 });
 
 function handleHeaderCreate() {
     onCreateNewGrowthSessionClicked(selectedDate.value);
+}
+
+function handleViewShortcut(event: KeyboardEvent) {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+
+    const target = event.target;
+    if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        (target instanceof HTMLElement && target.isContentEditable)
+    ) {
+        return;
+    }
+
+    const key = event.key.toLowerCase();
+    if (key === 'd') view.value = 'day';
+    if (key === 'w') view.value = 'week';
 }
 
 async function refreshGrowthSessionsOfTheWeek() {
@@ -249,7 +269,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
 </script>
 
 <template>
-    <div v-if="growthSessions.isReady" class="gs-page flex min-h-[calc(100vh-56px)] flex-col">
+    <div v-if="growthSessions.isReady" class="gs-page flex min-h-[calc(100vh-128px)] flex-col">
         <!-- Control bar -->
         <div class="gs-bar gs-border relative flex flex-wrap items-center gap-3.5 border-b px-5 py-4 sm:px-7">
             <div class="flex flex-none items-center gap-2.5">
@@ -270,26 +290,28 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 </button>
             </div>
 
-            <div class="gs-seg flex flex-none rounded-lg p-[3px]">
+            <div class="gs-seg flex flex-none rounded-lg p-0.75">
                 <button
                     type="button"
-                    class="transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
-                    :class="view === 'week' ? 'gs-header-bg text-white' : 'gs-text-sub'"
-                    @click="view = 'week'"
-                >
-                    Week
-                </button>
-                <button
-                    type="button"
+                    aria-keyshortcuts="D"
                     class="transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
                     :class="view === 'day' ? 'gs-header-bg text-white' : 'gs-text-sub'"
                     @click="view = 'day'"
                 >
                     Day
                 </button>
+                <button
+                    type="button"
+                    aria-keyshortcuts="W"
+                    class="transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
+                    :class="view === 'week' ? 'gs-header-bg text-white' : 'gs-text-sub'"
+                    @click="view = 'week'"
+                >
+                    Week
+                </button>
             </div>
 
-            <div class="relative min-w-[180px] flex-1">
+            <div class="relative min-w-45 flex-1">
                 <input
                     v-model="searchQuery"
                     type="text"
@@ -316,7 +338,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 Filters
                 <span
                     v-if="selectedTagIds.length"
-                    class="gs-header-bg inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-xs font-bold text-white"
+                    class="gs-header-bg inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1 text-xs font-bold text-white"
                     >{{ selectedTagIds.length }}</span
                 >
                 <ChevronDown class="transition-transform duration-200" :class="{ 'rotate-180': filtersOpen }" :size="16" aria-hidden="true" />
