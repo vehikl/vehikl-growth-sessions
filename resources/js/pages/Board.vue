@@ -14,6 +14,7 @@ import { TagsApi } from '@/services/TagsApi';
 import { ITag, IUser } from '@/types';
 import { useEcho } from '@laravel/echo-vue';
 import { watchDebounced } from '@vueuse/core';
+import { ChevronDown } from 'lucide-vue-next';
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
 
 interface IGrowthSessionCardDragChange {
@@ -33,7 +34,7 @@ const selectedTagIds = ref<number[]>([]);
 const searchQuery = ref('');
 const debouncedSearchQuery = ref('');
 
-const view = ref<'week' | 'day'>('week');
+const view = ref<'week' | 'day'>('day');
 const dayIndex = ref(0);
 const filtersOpen = ref(false);
 const selectedSession = ref<GrowthSession | null>(null);
@@ -318,6 +319,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                     class="gs-header-bg inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-xs font-bold text-white"
                     >{{ selectedTagIds.length }}</span
                 >
+                <ChevronDown class="transition-transform duration-200" :class="{ 'rotate-180': filtersOpen }" :size="16" aria-hidden="true" />
             </button>
 
             <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters" v-model="visibilityFilter" class="ml-auto" />
