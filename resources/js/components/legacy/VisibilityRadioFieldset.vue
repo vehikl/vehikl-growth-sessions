@@ -8,11 +8,7 @@ const visibility = computed({
     set: (value) => emit('update:modelValue', value),
 });
 
-const options: {
-    id: string;
-    value: 'all' | 'private' | 'public';
-    label: string;
-}[] = [
+const options: { id: string; value: 'all' | 'private' | 'public'; label: string }[] = [
     { id: 'all', value: 'all', label: 'All' },
     { id: 'private', value: 'private', label: 'Private' },
     { id: 'public', value: 'public', label: 'Public' },
@@ -24,7 +20,7 @@ const options: {
         <label
             v-for="option in options"
             :key="option.id"
-            class="transition-smooth cursor-pointer rounded-md px-3 py-[7px] text-[11px] font-semibold whitespace-nowrap"
+            class="transition-smooth cursor-pointer rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
             :class="visibility === option.value ? 'gs-header-bg text-white' : 'gs-text-sub'"
         >
             {{ option.label }}

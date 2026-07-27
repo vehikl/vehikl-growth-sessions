@@ -21,7 +21,7 @@ describe('LocationRenderer', () => {
         const complexLocation: string = `It is happening at ${url} ... Right now!`;
         wrapper = mount(LocationRenderer, {propsData: {locationString: complexLocation}});
 
-        expect(wrapper.find("a.underline").attributes("href")).toEqual(url)
+        expect(wrapper.find("a.gs-accent-text").attributes("href")).toEqual(url)
     });
 
     it('renders a url in an anchor tag even if there is clutter around', () => {
@@ -29,7 +29,7 @@ describe('LocationRenderer', () => {
         const complexLocation: string = `It is happening (${url})!!! Right now!`;
         wrapper = mount(LocationRenderer, {propsData: {locationString: complexLocation}});
 
-        expect(wrapper.find("a.underline").attributes("href")).toEqual(url)
+        expect(wrapper.find("a.gs-accent-text").attributes("href")).toEqual(url)
     });
 
     it('renders 2 urls as separate links', async () => {
@@ -37,8 +37,8 @@ describe('LocationRenderer', () => {
         const complexLocation: string = `I can't decide between ${url} and ${url}`
         wrapper = mount(LocationRenderer, {propsData: {locationString: complexLocation}})
 
-        expect(wrapper.findAll("a.underline")).toHaveLength(2)
-        wrapper.findAll("a.underline").forEach((anchorWrapper) => {
+        expect(wrapper.findAll("a.gs-accent-text")).toHaveLength(2)
+        wrapper.findAll("a.gs-accent-text").forEach((anchorWrapper) => {
             expect(anchorWrapper.attributes("href")).toEqual(url)
         })
     });

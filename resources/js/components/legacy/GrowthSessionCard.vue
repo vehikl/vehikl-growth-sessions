@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { GrowthSession } from '@/classes/GrowthSession';
+import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import IconDraggable from '@/svgs/IconDraggable.vue';
@@ -59,17 +60,17 @@ async function onDeleteClicked() {
 
 <template>
     <div
-        class="group gs-card gs-border transition-smooth mx-2 mb-2.5 cursor-pointer rounded-xl border p-3 hover:shadow-md"
+        class="group gs-card gs-border transition-smooth mx-2 mb-3 cursor-pointer rounded-xl border p-4 hover:shadow-md"
         :style="{ opacity: cardOpacity }"
         role="button"
         tabindex="0"
         @click="emit('open-detail', growthSession)"
         @keydown.enter="emit('open-detail', growthSession)"
     >
-        <div class="mb-2 flex items-center justify-between gap-2">
-            <div class="flex min-w-0 items-center gap-2">
+        <div class="mb-3 flex items-center justify-between gap-2">
+            <div class="flex min-w-0 items-center gap-2.5">
                 <span
-                    class="flex h-5 w-5 flex-none items-center justify-center overflow-hidden rounded-full text-[8px] font-bold text-white"
+                    class="flex h-7 w-7 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
                     :style="{ backgroundColor: ownerColor }"
                 >
                     <img
@@ -80,14 +81,14 @@ async function onDeleteClicked() {
                     />
                     <template v-else>{{ initials }}</template>
                 </span>
-                <span class="gs-text-sub min-w-0 truncate text-[11px] font-medium" v-text="growthSession.owner.name" />
+                <span class="gs-text-sub min-w-0 truncate text-sm font-medium" v-text="growthSession.owner.name" />
             </div>
-            <span class="h-1.5 w-1.5 flex-none rounded-full" :style="{ backgroundColor: statusColor }" :title="statusMeta(status).label"></span>
+            <span class="h-2 w-2 flex-none rounded-full" :style="{ backgroundColor: statusColor }" :title="statusMeta(status).label"></span>
         </div>
 
-        <h3 class="gs-text-strong mb-2.5 text-[15px] leading-snug font-semibold break-words" v-text="growthSession.title" />
+        <h3 class="gs-text-strong mb-3 text-lg leading-snug font-semibold break-words" v-text="growthSession.title" />
 
-        <div class="gs-text-sub mb-1.5 flex items-center justify-between text-[11px] font-medium">
+        <div class="gs-text-sub mb-2 flex items-center justify-between text-sm font-medium">
             <span>{{ growthSession.startTime }}–{{ growthSession.endTime }}</span>
             <span class="attendees-count">
                 {{ growthSession.attendees.length
@@ -96,16 +97,16 @@ async function onDeleteClicked() {
             </span>
         </div>
 
-        <div class="gs-text-muted mb-2.5 truncate text-[11px]">
-            <template v-if="canSeeLocation">{{ growthSession.location }}</template>
+        <div class="gs-text-muted mb-3 truncate text-sm">
+            <location-renderer v-if="canSeeLocation" :locationString="growthSession.location" />
             <template v-else>&lt; Join to see location &gt;</template>
         </div>
 
-        <div class="flex gap-1.5 empty:hidden" @click.stop>
+        <div class="flex gap-2 empty:hidden" @click.stop>
             <button
                 v-show="growthSession.canJoin(user)"
                 type="button"
-                class="join-button gs-btn-primary flex-[3] rounded-md py-1.5 text-[11px] font-semibold"
+                class="join-button gs-btn-primary flex-[3] rounded-md py-2 text-sm font-semibold"
                 @click.stop="joinGrowthSession"
             >
                 Join
@@ -113,7 +114,7 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canWatch(user)"
                 type="button"
-                class="watch-button gs-btn-secondary flex-1 rounded-md py-1.5 text-[11px] font-semibold"
+                class="watch-button gs-btn-secondary flex-1 rounded-md py-2 text-sm font-semibold"
                 @click.stop="watchGrowthSession"
             >
                 Spectate
@@ -121,7 +122,7 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canLeave(user)"
                 type="button"
-                class="leave-button transition-smooth flex-1 rounded-md border border-red-500 py-1.5 text-[11px] font-semibold text-red-500 hover:bg-red-500 hover:text-white"
+                class="leave-button transition-smooth flex-1 rounded-md border border-red-500 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
                 @click.stop="leaveGrowthSession"
             >
                 Leave
@@ -129,48 +130,48 @@ async function onDeleteClicked() {
         </div>
 
         <!-- Owner / utility actions: collapsed until hover so the card stays clean like the design -->
-        <div class="max-h-0 overflow-hidden opacity-0 transition-all duration-200 group-hover:max-h-10 group-hover:opacity-100" @click.stop>
-            <div class="flex items-center gap-0.5 pt-2">
+        <div class="max-h-0 overflow-hidden opacity-0 transition-all duration-200 group-hover:max-h-12 group-hover:opacity-100" @click.stop>
+            <div class="flex items-center gap-0.5 pt-2.5">
                 <a
                     aria-label="add-to-calendar"
                     :href="growthSession.calendarUrl"
                     target="_blank"
-                    class="gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-7 w-7 items-center justify-center rounded-md leading-none"
+                    class="gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-9 w-9 items-center justify-center rounded-md leading-none"
                     title="Add to calendar"
                     @click.stop
                 >
-                    <i aria-hidden="true" class="fa fa-calendar text-xs"></i>
+                    <i aria-hidden="true" class="fa fa-calendar text-sm"></i>
                 </a>
                 <button
                     v-show="growthSession.canEditOrDelete(user)"
                     type="button"
-                    class="update-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-7 w-7 items-center justify-center rounded-md leading-none"
+                    class="update-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-9 w-9 items-center justify-center rounded-md leading-none"
                     title="Edit"
                     @click.stop="emit('edit-requested', growthSession)"
                 >
-                    <i aria-hidden="true" class="fa fa-edit text-xs"></i>
+                    <i aria-hidden="true" class="fa fa-edit text-sm"></i>
                 </button>
                 <button
                     v-show="user && user.is_vehikl_member"
                     type="button"
-                    class="copy-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-7 w-7 items-center justify-center rounded-md leading-none"
+                    class="copy-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-9 w-9 items-center justify-center rounded-md leading-none"
                     title="Duplicate"
                     @click.stop="emit('copy-requested', growthSession)"
                 >
-                    <i aria-hidden="true" class="fa fa-copy text-xs"></i>
+                    <i aria-hidden="true" class="fa fa-copy text-sm"></i>
                 </button>
                 <button
                     v-show="growthSession.canEditOrDelete(user)"
                     type="button"
-                    class="delete-button gs-text-muted transition-smooth inline-flex h-7 w-7 items-center justify-center rounded-md leading-none hover:text-red-500"
+                    class="delete-button gs-text-muted transition-smooth inline-flex h-9 w-9 items-center justify-center rounded-md leading-none hover:text-red-500"
                     title="Delete"
                     @click.stop="onDeleteClicked"
                 >
-                    <i class="fa fa-trash text-xs" aria-hidden="true"></i>
+                    <i class="fa fa-trash text-sm" aria-hidden="true"></i>
                 </button>
                 <div
                     v-if="isDraggable"
-                    class="handle transition-smooth hover:text-gs-accent ml-auto inline-flex h-7 w-7 cursor-move items-center justify-center rounded-md"
+                    class="handle transition-smooth hover:text-gs-accent ml-auto inline-flex h-9 w-9 cursor-move items-center justify-center rounded-md"
                     @click.stop
                 >
                     <icon-draggable class="gs-text-muted h-4" />

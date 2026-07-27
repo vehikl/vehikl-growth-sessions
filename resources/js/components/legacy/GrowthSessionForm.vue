@@ -214,7 +214,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
     <form @submit.prevent class="create-growth-session edit-growth-session-form w-full pt-8 text-left">
         <div class="flex flex-col gap-3.5">
             <div>
-                <label class="gs-text-sub mb-1.5 block text-[10px] font-bold tracking-[0.05em] uppercase" for="title">Title</label>
+                <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="title">Title</label>
                 <input
                     id="title"
                     v-model="title"
@@ -227,7 +227,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
             </div>
 
             <div>
-                <label class="gs-text-sub mb-1.5 block text-[10px] font-bold tracking-[0.05em] uppercase" for="topic">Topic</label>
+                <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="topic">Topic</label>
                 <textarea
                     id="topic"
                     v-model="topic"
@@ -240,7 +240,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
 
             <div class="grid grid-cols-3 gap-2.5">
                 <div>
-                    <label class="gs-text-sub mb-1.5 block text-[10px] font-bold tracking-[0.05em] uppercase" for="date">Date</label>
+                    <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="date">Date</label>
                     <input
                         id="date"
                         v-model="date"
@@ -250,7 +250,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                     />
                 </div>
                 <div>
-                    <label class="gs-text-sub mb-1.5 block text-[10px] font-bold tracking-[0.05em] uppercase">Start</label>
+                    <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">Start</label>
                     <time-picker
                         id="start-time"
                         v-model="startTime"
@@ -259,7 +259,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                     />
                 </div>
                 <div>
-                    <label class="gs-text-sub mb-1.5 block text-[10px] font-bold tracking-[0.05em] uppercase">End</label>
+                    <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">End</label>
                     <time-picker
                         id="end-time"
                         v-model="endTime"
@@ -280,7 +280,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                     <input id="allow-watchers" v-model="allowWatchers" type="checkbox" class="accent-gs-accent" /> Allow watchers
                 </label>
                 <div v-if="!isLimitless" class="ml-auto flex items-center gap-1.5">
-                    <label class="gs-text-sub text-[10px] font-bold tracking-[0.05em] uppercase" for="attendee-limit">Limit</label>
+                    <label class="gs-text-sub text-xs font-bold tracking-[0.05em] uppercase" for="attendee-limit">Limit</label>
                     <input
                         id="attendee-limit"
                         v-model.number="attendeeLimit"
@@ -298,19 +298,19 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                     <input id="anydesks-toggle" v-model="anydesksToggle" type="checkbox" class="accent-gs-accent" @input="selectedAnydeskId = null" />
                     Plan to use an AnyDesk?
                 </label>
-                <label v-if="anydesksToggle" class="gs-text-sub flex items-center gap-2 text-[10px] font-bold tracking-[0.05em] uppercase">
+                <label v-if="anydesksToggle" class="gs-text-sub flex items-center gap-2 text-xs font-bold tracking-[0.05em] uppercase">
                     AnyDesk
                     <v-select id="anydesk-selection" v-model="selectedAnydeskId" :options="anyDesks" class="w-32" />
                 </label>
             </div>
 
             <div v-if="discordChannels.length > 0">
-                <label class="gs-text-sub mb-1.5 block text-[10px] font-bold tracking-[0.05em] uppercase">Discord Channel</label>
+                <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">Discord Channel</label>
                 <v-select id="discord-channel" v-model="selectedDiscordChannelId" :options="discordChannels" class="w-full" />
             </div>
 
             <div>
-                <label class="gs-text-sub mb-1.5 block text-[10px] font-bold tracking-[0.05em] uppercase" for="location">Location</label>
+                <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="location">Location</label>
                 <textarea
                     id="location"
                     v-model="location"
@@ -326,7 +326,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                     + Add tags <span class="gs-text-muted font-normal">(optional)</span>
                     <span
                         v-if="tagIds.length"
-                        class="gs-header-bg inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white"
+                        class="gs-header-bg inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-xs font-bold text-white"
                         >{{ tagIds.length }}</span
                     >
                 </button>
@@ -347,7 +347,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
             <button
                 :class="{ 'cursor-not-allowed opacity-40': !isReadyToSubmit }"
                 :disabled="!isReadyToSubmit"
-                class="gs-btn-primary mt-1.5 w-full rounded-lg py-3 text-sm font-bold"
+                class="gs-btn-primary mt-1.5 w-full rounded-md py-3 text-sm font-bold"
                 type="submit"
                 @click="onSubmit"
                 v-text="isCreating ? 'Create Session' : 'Update Session'"

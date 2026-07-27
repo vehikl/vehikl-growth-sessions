@@ -222,19 +222,19 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
 <template>
     <div v-if="growthSessions.isReady" class="gs-page flex min-h-[calc(100vh-56px)] flex-col">
         <!-- Control bar -->
-        <div class="gs-bar gs-border relative flex flex-wrap items-center gap-3 border-b px-5 py-3.5 sm:px-7">
-            <div class="flex flex-none items-center gap-2">
+        <div class="gs-bar gs-border relative flex flex-wrap items-center gap-3.5 border-b px-5 py-4 sm:px-7">
+            <div class="flex flex-none items-center gap-2.5">
                 <button
                     aria-label="Load previous week"
-                    class="load-previous-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-[26px] w-[26px] items-center justify-center rounded-md text-lg leading-none"
+                    class="load-previous-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-8 w-8 items-center justify-center rounded-md text-xl leading-none"
                     @click="changeReferenceDate(-7)"
                 >
                     ‹
                 </button>
-                <span class="gs-text-strong text-[11px] font-semibold whitespace-nowrap">{{ weekLabel }}</span>
+                <span class="gs-text-strong text-sm font-semibold whitespace-nowrap">{{ weekLabel }}</span>
                 <button
                     aria-label="Load next week"
-                    class="load-next-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-[26px] w-[26px] items-center justify-center rounded-md text-lg leading-none"
+                    class="load-next-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-8 w-8 items-center justify-center rounded-md text-xl leading-none"
                     @click="changeReferenceDate(7)"
                 >
                     ›
@@ -244,7 +244,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             <div class="gs-seg flex flex-none rounded-lg p-[3px]">
                 <button
                     type="button"
-                    class="transition-smooth rounded-md px-3.5 py-[7px] text-[11px] font-semibold whitespace-nowrap"
+                    class="transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
                     :class="view === 'week' ? 'gs-header-bg text-white' : 'gs-text-sub'"
                     @click="view = 'week'"
                 >
@@ -252,7 +252,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 </button>
                 <button
                     type="button"
-                    class="transition-smooth rounded-md px-3.5 py-[7px] text-[11px] font-semibold whitespace-nowrap"
+                    class="transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
                     :class="view === 'day' ? 'gs-header-bg text-white' : 'gs-text-sub'"
                     @click="view = 'day'"
                 >
@@ -265,7 +265,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                     v-model="searchQuery"
                     type="text"
                     placeholder="Search sessions..."
-                    class="search-input gs-input w-full rounded-lg px-3.5 py-2.5 text-[13px]"
+                    class="search-input gs-input w-full rounded-lg px-4 py-2.5 text-sm"
                     aria-label="Search growth sessions by title, description, or host name"
                 />
                 <button
@@ -281,13 +281,13 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             <button
                 v-if="uniqueTags.length"
                 type="button"
-                class="gs-seg gs-text-strong transition-smooth flex flex-none items-center gap-1.5 rounded-lg px-3.5 py-2.5 text-[11px] font-semibold whitespace-nowrap"
+                class="gs-seg gs-text-strong transition-smooth flex flex-none items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold whitespace-nowrap"
                 @click="filtersOpen = !filtersOpen"
             >
                 Filters
                 <span
                     v-if="selectedTagIds.length"
-                    class="gs-header-bg inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white"
+                    class="gs-header-bg inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-xs font-bold text-white"
                     >{{ selectedTagIds.length }}</span
                 >
             </button>
@@ -298,8 +298,8 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
         <!-- Filters panel -->
         <div v-show="filtersOpen" class="gs-col gs-border w-full border-b px-5 py-4 sm:px-7">
             <div class="mb-3 flex items-center justify-between">
-                <span class="gs-text-sub text-[11px] font-bold tracking-[0.04em]">FILTER BY TAG</span>
-                <button type="button" class="gs-accent-text text-[11px] font-semibold" @click="selectedTagIds = []">Clear</button>
+                <span class="gs-text-sub text-xs font-bold tracking-[0.04em]">FILTER BY TAG</span>
+                <button type="button" class="gs-accent-text text-sm font-semibold" @click="selectedTagIds = []">Clear</button>
             </div>
             <GrowthSessionTags
                 ref="growthSessionTags"
@@ -319,15 +319,15 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 class="day gs-col gs-border flex flex-col border-r p-4"
             >
                 <div class="mb-3.5 flex items-center justify-between">
-                    <span :id="date.weekDayString()" class="gs-text-strong font-display uppercase text-[13px] font-bold tracking-[0.04em]">{{
+                    <span :id="date.weekDayString()" class="gs-text-strong font-display text-base font-bold tracking-[0.04em]">{{
                         date.weekDayString()
                     }}</span>
-                    <span class="gs-text-sub text-[9px] font-semibold tracking-[0.06em]">{{ date.format('MMM D').toUpperCase() }}</span>
+                    <span class="gs-text-sub text-xs font-semibold tracking-[0.06em]">{{ date.format('MMM D').toUpperCase() }}</span>
                 </div>
 
                 <button
                     v-if="user && user.is_vehikl_member && !date.isInAPastDate()"
-                    class="create-growth-session gs-btn-primary mx-2 mb-3 rounded-lg px-4 py-2 text-xs font-semibold"
+                    class="create-growth-session gs-btn-primary mx-2 mb-3 rounded-md px-4 py-2.5 text-sm font-semibold"
                     @click="onCreateNewGrowthSessionClicked(date)"
                 >
                     + Add Session
@@ -385,7 +385,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
         <div v-if="growthSessions.hasCurrentDate" class="fixed inset-x-4 bottom-4 z-40 block md:hidden">
             <button
                 aria-label="Scroll to today"
-                class="gs-btn-primary flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold shadow-lg"
+                class="gs-btn-primary flex w-full items-center justify-center rounded-md px-4 py-3 text-sm font-semibold shadow-lg"
                 @click="scrollToDate(DateTime.today().weekDayString())"
             >
                 Go to today
@@ -396,7 +396,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
         <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
             <div class="gs-card relative rounded-2xl p-6">
                 <button
-                    class="gs-text-muted transition-smooth hover:text-gs-accent absolute top-5 right-5 text-[11px] font-semibold tracking-[0.04em]"
+                    class="gs-text-muted transition-smooth hover:text-gs-accent absolute top-5 right-5 text-xs font-semibold tracking-[0.04em]"
                     @click="formModalState = 'closed'"
                 >
                     CLOSE ✕
@@ -432,7 +432,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
 .week-grid {
     display: grid;
     grid-auto-flow: row;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
     gap: 0;
     align-items: start;
 }
