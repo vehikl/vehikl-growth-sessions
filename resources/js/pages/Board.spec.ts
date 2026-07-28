@@ -313,68 +313,18 @@ describe('Board', () => {
                 expect(radioButton).toBeChecked();
             });
 
-            it('shows both public and one private growth sessions on the page', async () => {
-                const allGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions;
+            // The visibility rules themselves live in lib/sessionFilters.spec.ts; this only
+            // proves the radio reaches the filter criteria.
+            it('passes the chosen visibility through to the filter', async () => {
+                const privateSessions = growthSessionsThisWeek.allGrowthSessions.filter((gs) => !gs.is_public);
+                const publicSessions = growthSessionsThisWeek.allGrowthSessions.filter((gs) => gs.is_public);
+                const isRendered = (title: string) =>
+                    wrapper.findAllComponents(GrowthSessionCard).some((card) => card.text().includes(title));
 
-                allGrowthSessionsThisWeek.forEach((growthSession) => {
-                    const isTitleBeingRendered = wrapper
-                        .findAllComponents(GrowthSessionCard)
-                        .some((card) => card.text().includes(growthSession.title));
+                await wrapper.find('#visibility-filters input[type=radio][name=filter-sessions][id=private]').setValue(true);
 
-                    expect(isTitleBeingRendered).toEqual(true);
-                });
-            });
-
-            it('shows only private growth sessions if the private filter is enabled', async () => {
-                const privateGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions.filter(function (growthSession) {
-                    return !growthSession.is_public;
-                });
-                const publicGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions.filter((gs) => gs.is_public);
-
-                const radioButton = wrapper.find('#visibility-filters input[type=radio][name=filter-sessions][id=private]');
-                await radioButton.setValue(true);
-
-                privateGrowthSessionsThisWeek.forEach((growthSession) => {
-                    const isTitleBeingRendered = wrapper
-                        .findAllComponents(GrowthSessionCard)
-                        .some((card) => card.text().includes(growthSession.title));
-
-                    expect(isTitleBeingRendered).toEqual(true);
-                });
-
-                publicGrowthSessionsThisWeek.forEach((publicGrowthSession) => {
-                    const isTitleBeingRendered = wrapper
-                        .findAllComponents(GrowthSessionCard)
-                        .some((card) => card.text().includes(publicGrowthSession.title));
-
-                    expect(isTitleBeingRendered).toEqual(false);
-                });
-            });
-
-            it('shows only public growth sessions if the public filter is enabled', async () => {
-                const privateGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions.filter(function (growthSession) {
-                    return !growthSession.is_public;
-                });
-                const publicGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions.filter((gs) => gs.is_public);
-
-                const radioButton = wrapper.find('#visibility-filters input[type=radio][name=filter-sessions][id=public]');
-                await radioButton.setValue(true);
-
-                privateGrowthSessionsThisWeek.forEach((growthSession) => {
-                    const isTitleBeingRendered = wrapper
-                        .findAllComponents(GrowthSessionCard)
-                        .some((card) => card.text().includes(growthSession.title));
-
-                    expect(isTitleBeingRendered).toEqual(false);
-                });
-
-                publicGrowthSessionsThisWeek.forEach((publicGrowthSession) => {
-                    const isTitleBeingRendered = wrapper
-                        .findAllComponents(GrowthSessionCard)
-                        .some((card) => card.text().includes(publicGrowthSession.title));
-
-                    expect(isTitleBeingRendered).toEqual(true);
-                });
+                expect(privateSessions.every((gs) => isRendered(gs.title))).toBe(true);
+                expect(publicSessions.some((gs) => isRendered(gs.title))).toBe(false);
             });
         });
     });
@@ -384,39 +334,17 @@ describe('Board', () => {
             expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.today.date);
         });
 
-        it.skip('displays the growth sessions of the week of the date provided in the query string if it exists', () => {
-            // TODO: Investigate how to use url with happy-dom
-            window.history.pushState({}, 'sometitle', `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`);
-            wrapper = mount(Board);
-            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
-        });
+        // Reading the date out of the url, writing it back on navigation, and shifting from
+        // the url's date rather than today are covered directly in
+        // composables/useReferenceDate.spec.ts, which passes a fake window instead of
+        // fighting happy-dom. These replace three tests that sat skipped here.
+        it('re-fetches the week when the user navigates back through history', async () => {
+            (GrowthSessionApi.getAllGrowthSessionsOfTheWeek as ReturnType<typeof vi.fn>).mockClear();
 
-        it.skip('updates the query string for the date whenever the user navigates the weeks', async () => {
-            // TODO: Investigate how to use url with happy-dom
-            await wrapper.find('button[aria-label="Load next week"]').trigger('click');
+            window.onpopstate!({} as PopStateEvent);
             await flushPromises();
 
-            const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
-            expect(urlParameters.get('date')).toEqual(metadataForGrowthSessionsFixture.nextWeek.date);
-        });
-
-        it.skip('properly display the growth sessions of the day from the query string when the user navigates back in history', async () => {
-            // TODO: Investigate how to use url with happy-dom
-            window.history.pushState({}, 'sometitle', `?date=${metadataForGrowthSessionsFixture.nextWeek.date}`);
-            wrapper = mount(Board);
-            await flushPromises();
-            GrowthSessionApi.getAllGrowthSessionsOfTheWeek = vi.fn();
-
-            window.history.back = () => {
-                console.error = vi.fn();
-                const fakeMockEvent = {} as unknown as PopStateEvent;
-                window.onpopstate!(fakeMockEvent);
-            };
-
-            window.history.back();
-            await flushPromises();
-
-            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.nextWeek.date);
+            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalled();
         });
     });
 
@@ -437,12 +365,9 @@ describe('Board', () => {
             expect(searchInput.attributes('placeholder')).toBe('Search sessions...');
         });
 
-        it('shows all sessions when search is empty', async () => {
-            const growthSessions = wrapper.findAllComponents(GrowthSessionCard);
-            expect(growthSessions.length).toBe(5);
-        });
-
-        it('filters sessions by title', async () => {
+        // What the query matches against is covered in lib/sessionFilters.spec.ts; this only
+        // proves the debounced query reaches the filter criteria.
+        it('passes the debounced query through to the filter', async () => {
             const searchInput = wrapper.find('input.search-input');
             await searchInput.setValue('voluptas');
 
@@ -455,91 +380,6 @@ describe('Board', () => {
             expect(visibleSessions.length).toBe(2);
             expect(visibleSessions.some((card) => card.text().includes('Voluptas vel distinctio'))).toBe(true);
             expect(visibleSessions.some((card) => card.text().includes('Maxime voluptas suscipit'))).toBe(true);
-        });
-
-        it('filters sessions by topic/description', async () => {
-            const searchInput = wrapper.find('input.search-input');
-            await searchInput.setValue('laborum');
-
-            vi.advanceTimersByTime(300);
-            await flushPromises();
-
-            const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
-
-            // Session 2 has "laborum" in its topic; searching by topic still matches it
-            expect(visibleSessions.length).toBe(1);
-        });
-
-        it('filters sessions by owner/host name', async () => {
-            const searchInput = wrapper.find('input.search-input');
-            await searchInput.setValue('Tamia');
-
-            vi.advanceTimersByTime(300);
-            await flushPromises();
-
-            const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
-
-            // Sessions 4 and 5 are owned by "Tamia Thompson"
-            expect(visibleSessions.length).toBe(2);
-            expect(visibleSessions.every((card) => card.text().includes('Tamia Thompson'))).toBe(true);
-        });
-
-        it('filters sessions by attendee name', async () => {
-            const searchInput = wrapper.find('input.search-input');
-            await searchInput.setValue('Alejandro');
-
-            vi.advanceTimersByTime(300);
-            await flushPromises();
-
-            const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
-
-            // Session 2 has "Alejandro Rivera" as an attendee
-            expect(visibleSessions.length).toBe(1);
-        });
-
-        it('performs case-insensitive search', async () => {
-            const searchInput = wrapper.find('input.search-input');
-
-            // Test with uppercase
-            await searchInput.setValue('VOLUPTAS');
-            vi.advanceTimersByTime(300);
-            await flushPromises();
-
-            let visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
-            expect(visibleSessions.length).toBe(2);
-
-            // Test with mixed case
-            await searchInput.setValue('StEpHaN');
-            vi.advanceTimersByTime(300);
-            await flushPromises();
-
-            visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
-            // Session 1 is owned by "Stephan Klocko"
-            expect(visibleSessions.length).toBe(1);
-            expect(visibleSessions[0].text()).toContain('Stephan Klocko');
-        });
-
-        it('combines search with tag filter', async () => {
-            const searchInput = wrapper.find('input.search-input');
-            const tagsFilter = wrapper.findComponent({ ref: 'growthSessionTags' });
-
-            // First apply tag filter (foo tag)
-            await tagsFilter.find('div#foo').trigger('click');
-            await flushPromises();
-
-            let visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
-            // Sessions 1 and 3 have the 'foo' tag
-            expect(visibleSessions.length).toBe(2);
-
-            // Then apply search filter for "Stephan" (only session 1 has this owner)
-            await searchInput.setValue('Stephan');
-            vi.advanceTimersByTime(300);
-            await flushPromises();
-
-            visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
-            // Only session 1 matches both filters (has 'foo' tag AND owned by Stephan)
-            expect(visibleSessions.length).toBe(1);
-            expect(visibleSessions[0].text()).toContain('Stephan Klocko');
         });
 
         it('shows clear button when search has text', async () => {
@@ -579,17 +419,6 @@ describe('Board', () => {
             expect((searchInput.element as HTMLInputElement).value).toBe('');
         });
 
-        it('shows no sessions when search matches nothing', async () => {
-            const searchInput = wrapper.find('input.search-input');
-            await searchInput.setValue('nonexistent search term that matches nothing');
-
-            vi.advanceTimersByTime(300);
-            await flushPromises();
-
-            const visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
-            expect(visibleSessions.length).toBe(0);
-        });
-
         it('debounces search input to avoid excessive filtering', async () => {
             const searchInput = wrapper.find('input.search-input');
 
@@ -619,33 +448,6 @@ describe('Board', () => {
             expect(visibleSessions.length).toBe(2); // Sessions with "voluptas" in title
         });
 
-        describe('with visibility filter for Vehikl users', () => {
-            beforeEach(async () => {
-                wrapper = mount(Board, { propsData: { user: authVehiklUser } });
-                await flushPromises();
-            });
-
-            it('combines search with visibility filter', async () => {
-                const searchInput = wrapper.find('input.search-input');
-
-                // Search for "Tamia" (sessions 4 and 5)
-                await searchInput.setValue('Tamia');
-                vi.advanceTimersByTime(300);
-                await flushPromises();
-
-                let visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
-                expect(visibleSessions.length).toBe(2); // Both sessions by Tamia
-
-                // Apply private filter (only session 5 is private)
-                const radioButton = wrapper.find('#visibility-filters input[type=radio][id=private]');
-                await radioButton.setValue(true);
-                await flushPromises();
-
-                visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
-                expect(visibleSessions.length).toBe(1); // Only private session by Tamia
-                expect(visibleSessions[0].text()).toContain('This is a private GS');
-            });
-        });
     });
 
     describe('when the signed-in user changes', () => {

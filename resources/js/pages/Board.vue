@@ -9,6 +9,8 @@ import SessionDetailDrawer from '@/components/legacy/SessionDetailDrawer.vue';
 import VisibilityRadioFieldset from '@/components/legacy/VisibilityRadioFieldset.vue';
 import VModal from '@/components/legacy/VModal.vue';
 import WeekView from '@/components/legacy/WeekView.vue';
+import { useReferenceDate } from '@/composables/useReferenceDate';
+import { filterSessions, type SessionFilterCriteria, type VisibilityFilter } from '@/lib/sessionFilters';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
 import { ITag, IUser } from '@/types';
@@ -23,12 +25,12 @@ interface IGrowthSessionCardDragChange {
 }
 
 const props = defineProps<{ user?: IUser }>();
-const referenceDate = ref(DateTime.today());
+const { referenceDate, syncFromUrl, shiftBy } = useReferenceDate();
 const growthSessions = ref<WeekGrowthSessions>(WeekGrowthSessions.empty());
 const newGrowthSessionDate = ref('');
 const growthSessionToUpdate = ref<GrowthSession | null>(null);
 const draggedGrowthSession = ref<GrowthSession | null>(null);
-const visibilityFilter = ref<'all' | 'public' | 'private'>('all');
+const visibilityFilter = ref<VisibilityFilter>('all');
 const formModalState = ref<'open' | 'closed'>('closed');
 const selectedTagIds = ref<number[]>([]);
 const searchQuery = ref('');
@@ -88,6 +90,18 @@ const weekLabel = computed(() => {
 });
 
 const selectedDate = computed(() => growthSessions.value.weekDates[dayIndex.value] ?? growthSessions.value.weekDates[0] ?? DateTime.today());
+
+const filterCriteria = computed<SessionFilterCriteria>(() => ({
+    user: props.user,
+    tagIds: selectedTagIds.value,
+    visibility: visibilityFilter.value,
+    searchQuery: debouncedSearchQuery.value,
+}));
+
+function growthSessionsVisibleInDate(date: DateTime): GrowthSession[] {
+    return filterSessions(growthSessions.value.getSessionByDate(date), filterCriteria.value);
+}
+
 const daySessions = computed(() => growthSessionsVisibleInDate(selectedDate.value));
 
 // Precompute the filtered sessions for each day so the dumb WeekView renders from props alone.
@@ -161,53 +175,8 @@ function handleViewShortcut(event: KeyboardEvent) {
 }
 
 async function refreshGrowthSessionsOfTheWeek() {
-    useDateFromUrlAsReference();
+    syncFromUrl();
     await getAllGrowthSessionsOfTheWeek();
-}
-
-function growthSessionsVisibleInDate(date: DateTime) {
-    const allGrowthSessionsOnDate = growthSessions.value.getSessionByDate(date);
-    return allGrowthSessionsOnDate
-        .filter((session) => {
-            if (selectedTagIds.value.length == 0) return true;
-
-            return session.tags.some((tag) => selectedTagIds.value.includes(tag.id));
-        })
-        .filter((session) => {
-            // Guests can only ever see public sessions. The server enforces this too, but
-            // guarding here means private sessions can't linger in the UI after logging out
-            // (before any refetch resolves), and the Vehikl-only visibility filter below
-            // simply doesn't apply to guests.
-            if (!props.user) {
-                return session.is_public;
-            }
-
-            if (visibilityFilter.value === 'private') {
-                return !session.is_public;
-            }
-
-            if (visibilityFilter.value === 'public') {
-                return session.is_public;
-            }
-
-            return true;
-        })
-        .filter((session) => {
-            if (!debouncedSearchQuery.value) return true;
-
-            const query = debouncedSearchQuery.value.toLowerCase();
-            const title = session.title.toLowerCase();
-            const topic = session.topic.toLowerCase();
-            const ownerName = session.owner.name.toLowerCase();
-            const attendeeMatch = session.attendees.some((attendee) => attendee.name.toLowerCase().includes(query));
-
-            return title.includes(query) || topic.includes(query) || ownerName.includes(query) || attendeeMatch;
-        });
-}
-
-function useDateFromUrlAsReference() {
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    referenceDate.value = urlSearchParams.has('date') ? DateTime.parseByDate(urlSearchParams.get('date')!) : DateTime.today();
 }
 
 async function onDragEnd(location: any) {
@@ -263,10 +232,7 @@ function onGrowthSessionCopyRequested(growthSession: GrowthSession) {
 }
 
 async function changeReferenceDate(deltaDays: number) {
-    const next = DateTime.parseByDate(referenceDate.value.toDateString());
-    next.addDays(deltaDays);
-    referenceDate.value = next;
-    window.history.pushState({}, document.title, `?date=${referenceDate.value.toDateString()}`);
+    shiftBy(deltaDays);
     await getAllGrowthSessionsOfTheWeek();
 }
 
