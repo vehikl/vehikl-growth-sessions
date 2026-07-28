@@ -284,7 +284,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
 </script>
 
 <template>
-    <div v-if="growthSessions.isReady" class="gs-page flex min-h-[calc(100vh-128px)] flex-col">
+    <div v-if="growthSessions.isReady" class="gs-page flex flex-1 flex-col">
         <!-- Control bar -->
         <div class="gs-bar gs-border relative flex flex-wrap items-center gap-3.5 border-b px-5 py-4 sm:px-7">
             <div class="flex flex-none items-center gap-2.5">
