@@ -24,7 +24,7 @@ function apply(next: Theme): void {
     if (typeof document === 'undefined') return;
     const root = document.documentElement;
     root.classList.toggle('dark', next === 'dark');
-    root.style.backgroundColor = next === 'dark' ? '#14161c' : '#f5f3ee';
+    root.style.backgroundColor = next === 'dark' ? '#14161c' : '#f9fafb';
 }
 
 /**

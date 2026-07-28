@@ -15,7 +15,7 @@
                     if (theme === 'dark') {
                         document.documentElement.classList.add('dark');
                     }
-                    document.documentElement.style.backgroundColor = theme === 'dark' ? '#14161c' : '#f5f3ee';
+                    document.documentElement.style.backgroundColor = theme === 'dark' ? '#14161c' : '#f9fafb';
                 } catch (e) {}
             })();
         </script>

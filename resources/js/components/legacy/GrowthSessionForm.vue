@@ -380,7 +380,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                         :class="
                             tagIds.includes(option.value)
                                 ? 'gs-header-bg border-transparent text-white'
-                                : 'gs-border hover:border-gs-accent hover:bg-gs-accent/10 hover:text-gs-accent text-gs-header/70 dark:text-[#f2f1ee]/55'
+                                : 'gs-border hover:border-gs-accent hover:bg-gs-accent/10 hover:text-gs-accent text-gs-header/70 dark:text-gray-300'
                         "
                         @click="toggleTag(option.value)"
                     >
