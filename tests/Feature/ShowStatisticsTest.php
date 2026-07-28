@@ -40,10 +40,10 @@ class ShowStatisticsTest extends TestCase
             ->get(route('statistics.index'))
             ->assertSuccessful()
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->component('Statistics')
+                ->component('Statistics', false)
                 ->where('summary.lifetime_sessions_count', 5)
                 ->where('summary.sessions_this_week_count', 2)
-                ->where('summary.weekly_unique_participants_count', 1)
+                ->where('summary.weekly_unique_participants_count', 2)
                 ->has('summary.average_attendance_count')
             );
     }

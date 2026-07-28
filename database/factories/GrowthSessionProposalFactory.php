@@ -17,7 +17,7 @@ class GrowthSessionProposalFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => fake()->sentence(4),
+            'title' => fake()->text(45),
             'topic' => fake()->paragraph(),
             'creator_id' => \App\Models\User::factory(),
             'status' => 'pending',

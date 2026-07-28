@@ -211,11 +211,20 @@ class StatisticsTest extends TestCase
         return $userStatistics;
     }
 
+    /**
+     * Built key-by-key rather than with `only()`, which would preserve the action's own
+     * key order and make the strict comparison depend on it.
+     */
     private function countsFor(Collection $statistics, User $user): array
     {
-        return collect($this->statisticsFor($statistics, $user))
-            ->only(['total_sessions_count', 'sessions_hosted_count', 'sessions_attended_count', 'sessions_watched_count'])
-            ->all();
+        $userStatistics = $this->statisticsFor($statistics, $user);
+
+        return [
+            'total_sessions_count' => $userStatistics['total_sessions_count'],
+            'sessions_hosted_count' => $userStatistics['sessions_hosted_count'],
+            'sessions_attended_count' => $userStatistics['sessions_attended_count'],
+            'sessions_watched_count' => $userStatistics['sessions_watched_count'],
+        ];
     }
 
     private function mobbedWith(Collection $statistics, User $user): array
@@ -232,8 +241,9 @@ class StatisticsTest extends TestCase
         User $attendee,
         User $owner,
         CarbonInterface $date
-    ): GrowthSession {
-        return GrowthSession::factory()
+    ): void
+    {
+        GrowthSession::factory()
             ->hasAttached($attendee, ['user_type_id' => UserType::ATTENDEE_ID], 'attendees')
             ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')
             ->create(['date' => $date]);
