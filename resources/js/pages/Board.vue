@@ -13,16 +13,16 @@ import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
 import { ITag, IUser } from '@/types';
 import { useEcho } from '@laravel/echo-vue';
-import { watchDebounced } from '@vueuse/core';
+import { useMediaQuery, watchDebounced } from '@vueuse/core';
 import { ChevronDown } from 'lucide-vue-next';
-import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 interface IGrowthSessionCardDragChange {
     added?: { element: GrowthSession; index: number };
     removed?: { element: GrowthSession; index: number };
 }
 
-defineProps<{ user?: IUser }>();
+const props = defineProps<{ user?: IUser }>();
 const referenceDate = ref(DateTime.today());
 const growthSessions = ref<WeekGrowthSessions>(WeekGrowthSessions.empty());
 const newGrowthSessionDate = ref('');
@@ -34,7 +34,26 @@ const selectedTagIds = ref<number[]>([]);
 const searchQuery = ref('');
 const debouncedSearchQuery = ref('');
 
+// The week view only makes sense on wider screens; small screens are day-only.
+const isDesktop = useMediaQuery('(min-width: 768px)');
+// Guests can only browse the week overview; the day view and view-switching unlock after sign-in.
+// On small screens there is nothing to switch to — the board is day-only.
+const canSwitchView = computed(() => isDesktop.value && !!props.user);
 const view = ref<'week' | 'day'>('day');
+
+// Keep the active view within what the current screen size and auth state allow.
+watch(
+    isDesktop,
+    (desktop) => {
+        if (!desktop) {
+            view.value = 'day';
+        } else if (!props.user) {
+            view.value = 'week';
+        }
+    },
+    { immediate: true },
+);
+
 const dayIndex = ref(0);
 const filtersOpen = ref(false);
 const selectedSession = ref<GrowthSession | null>(null);
@@ -98,6 +117,7 @@ function handleHeaderCreate() {
 }
 
 function handleViewShortcut(event: KeyboardEvent) {
+    if (!canSwitchView.value) return;
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
 
     const target = event.target;
@@ -305,22 +325,39 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 </button>
             </div>
 
-            <div class="gs-seg flex flex-none rounded-lg p-0.75">
+            <div
+                class="gs-seg flex flex-none rounded-lg p-0.75"
+                :title="
+                    canSwitchView
+                        ? undefined
+                        : !isDesktop
+                          ? 'Week view is only available on larger screens'
+                          : 'Sign in to switch between day and week views'
+                "
+            >
                 <button
                     type="button"
                     aria-keyshortcuts="D"
-                    class="cursor-pointer transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
-                    :class="view === 'day' ? 'gs-header-bg text-white' : 'gs-text-sub'"
-                    @click="view = 'day'"
+                    :disabled="!canSwitchView"
+                    class="transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
+                    :class="[
+                        view === 'day' ? 'gs-header-bg text-white' : 'gs-text-sub',
+                        canSwitchView ? 'cursor-pointer' : 'cursor-not-allowed opacity-50',
+                    ]"
+                    @click="canSwitchView && (view = 'day')"
                 >
                     Day
                 </button>
                 <button
                     type="button"
                     aria-keyshortcuts="W"
-                    class="cursor-pointer transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
-                    :class="view === 'week' ? 'gs-header-bg text-white' : 'gs-text-sub'"
-                    @click="view = 'week'"
+                    :disabled="!canSwitchView"
+                    class="transition-smooth rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
+                    :class="[
+                        view === 'week' ? 'gs-header-bg text-white' : 'gs-text-sub',
+                        canSwitchView ? 'cursor-pointer' : 'cursor-not-allowed opacity-50',
+                    ]"
+                    @click="canSwitchView && (view = 'week')"
                 >
                     Week
                 </button>
@@ -404,17 +441,6 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             @copy-requested="onGrowthSessionCopyRequested"
             @create="onCreateNewGrowthSessionClicked(selectedDate)"
         />
-
-        <!-- Scroll to today (mobile) -->
-        <div v-if="growthSessions.hasCurrentDate" class="fixed inset-x-4 bottom-4 z-40 block md:hidden">
-            <button
-                aria-label="Scroll to today"
-                class="cursor-pointer gs-btn-primary flex w-full items-center justify-center rounded-md px-4 py-3 text-sm font-semibold shadow-lg"
-                @click="scrollToDate(DateTime.today().weekDayString())"
-            >
-                Go to today
-            </button>
-        </div>
 
         <!-- Create / edit modal -->
         <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">

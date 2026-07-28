@@ -30,15 +30,17 @@ const guestPerks = [
 
     <div class="flex min-h-[calc(100vh-128px)] flex-col">
         <section v-if="!user" class="gs-header-bg border-t border-white/10 text-white">
-            <div class="flex flex-col gap-8 px-5 py-8 sm:px-7 lg:flex-row lg:items-center lg:justify-between">
+            <div class="px-5 py-8 sm:px-7">
                 <div class="max-w-2xl">
                     <p class="gs-accent-text text-xs font-semibold tracking-[0.18em] uppercase">You're browsing as a guest</p>
                     <h1 class="font-display mt-3 text-3xl font-semibold sm:text-4xl lg:text-5xl">Log in to join this week's sessions</h1>
                     <p class="mt-4 text-base text-white/70 sm:text-lg">
                         You can browse what's scheduled below. Log in to reserve a spot, host your own session, or see exactly where to find people.
                     </p>
+                </div>
 
-                    <ul class="mt-7 flex flex-wrap gap-x-8 gap-y-4">
+                <div class="mt-7 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                    <ul class="flex flex-wrap gap-x-8 gap-y-4">
                         <li v-for="perk in guestPerks" :key="perk.label" class="flex items-center gap-3">
                             <span class="gs-accent-text flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-base">
                                 <i :class="['fa', perk.icon]" aria-hidden="true"></i>
@@ -46,12 +48,10 @@ const guestPerks = [
                             <span class="text-sm font-medium text-white/80">{{ perk.label }}</span>
                         </li>
                     </ul>
-                </div>
 
-                <div class="flex-none">
                     <a
                         :href="getLoginUrl('github')"
-                        class="gs-btn-primary group shadow-vehikl-orange/30 inline-flex items-center justify-center gap-3 rounded-xl px-7 py-4 text-base font-semibold shadow-lg"
+                        class="gs-btn-primary group shadow-vehikl-orange/30 inline-flex flex-none items-center justify-center gap-3 self-start rounded-xl px-7 py-4 text-base font-semibold shadow-lg lg:self-auto"
                     >
                         <i class="fa fa-github text-lg" aria-hidden="true"></i>
                         Continue with GitHub

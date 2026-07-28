@@ -1,4 +1,4 @@
-import discordChannelsJson from '@/../../tests/fixtures/Discord/ChannelList.json';
+import discordChannelsJson from '@/../../tests/fixtures/Discord/Channels.json';
 import growthSessionsThisWeekJson from '@/../../tests/fixtures/WeekGrowthSessions.json';
 import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
@@ -48,10 +48,29 @@ vi.mock('@laravel/echo-vue', () => ({
     useEcho: vi.fn(),
 }));
 
+// happy-dom does not evaluate real media queries, so stub matchMedia to emulate a viewport.
+function stubViewport(isDesktop: boolean) {
+    Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        configurable: true,
+        value: (query: string) => ({
+            matches: isDesktop,
+            media: query,
+            onchange: null,
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            addListener: vi.fn(),
+            removeListener: vi.fn(),
+            dispatchEvent: vi.fn(),
+        }),
+    });
+}
+
 describe('Board', () => {
     let wrapper: Wrapper<Board>;
 
     beforeEach(async () => {
+        stubViewport(true); // default tests to a desktop-sized viewport
         DateTime.setTestNow(todayDate);
         GrowthSessionApi.getAllGrowthSessionsOfTheWeek = vi.fn().mockResolvedValue(growthSessionsThisWeek);
         GrowthSessionApi.join = vi.fn().mockImplementation((growthSession) => growthSession);
@@ -73,6 +92,13 @@ describe('Board', () => {
         window.history.replaceState({}, document.title, 'localhost');
         vi.restoreAllMocks();
     });
+
+    // v-show toggles inline `display: none`; assert on that rather than isVisible(),
+    // which does not detect v-show styling under happy-dom.
+    function isViewShown(component: any): boolean {
+        const view = wrapper.findComponent(component);
+        return view.exists() && !(view.attributes('style') ?? '').includes('display: none');
+    }
 
     it('loads with the current week growth sessions in display', () => {
         const titlesOfTheWeek = growthSessionsThisWeek.allGrowthSessions.map((growthSession: GrowthSession) => growthSession.title);
@@ -97,29 +123,76 @@ describe('Board', () => {
     });
 
     it('switches between day and week views with keyboard shortcuts', async () => {
-        expect(wrapper.findComponent(DayView).isVisible()).toBe(true);
-        expect(wrapper.findComponent(WeekView).isVisible()).toBe(false);
+        wrapper = mount(Board, { propsData: { user: authNonVehiklUser } });
+        await flushPromises();
+
+        expect(isViewShown(DayView)).toBe(true);
+        expect(isViewShown(WeekView)).toBe(false);
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }));
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.findComponent(WeekView).isVisible()).toBe(true);
-        expect(wrapper.findComponent(DayView).isVisible()).toBe(false);
+        expect(isViewShown(WeekView)).toBe(true);
+        expect(isViewShown(DayView)).toBe(false);
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'D' }));
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.findComponent(DayView).isVisible()).toBe(true);
-        expect(wrapper.findComponent(WeekView).isVisible()).toBe(false);
+        expect(isViewShown(DayView)).toBe(true);
+        expect(isViewShown(WeekView)).toBe(false);
     });
 
     it('does not switch views while typing', async () => {
+        wrapper = mount(Board, { propsData: { user: authNonVehiklUser } });
+        await flushPromises();
+
         const searchInput = wrapper.find('input.search-input');
         await searchInput.trigger('keydown', { key: 'w' });
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.findComponent(DayView).isVisible()).toBe(true);
-        expect(wrapper.findComponent(WeekView).isVisible()).toBe(false);
+        expect(isViewShown(DayView)).toBe(true);
+        expect(isViewShown(WeekView)).toBe(false);
+    });
+
+    it('shows guests the week view and disables view switching until signed in', async () => {
+        // The default beforeEach mounts the board with no user (a guest) on a desktop viewport.
+        expect(isViewShown(WeekView)).toBe(true);
+        expect(isViewShown(DayView)).toBe(false);
+
+        const viewButtons = wrapper.findAll('button[aria-keyshortcuts]');
+        expect(viewButtons.length).toBe(2);
+        viewButtons.forEach((button) => {
+            expect(button.attributes('disabled')).toBeDefined();
+        });
+
+        // Keyboard shortcuts should not switch the view for guests.
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'd' }));
+        await wrapper.vm.$nextTick();
+
+        expect(isViewShown(WeekView)).toBe(true);
+        expect(isViewShown(DayView)).toBe(false);
+    });
+
+    it('shows only the day view on small screens and disables week switching', async () => {
+        stubViewport(false); // emulate a mobile-sized viewport
+        wrapper = mount(Board, { propsData: { user: authVehiklUser } });
+        await flushPromises();
+
+        expect(isViewShown(DayView)).toBe(true);
+        expect(isViewShown(WeekView)).toBe(false);
+
+        const viewButtons = wrapper.findAll('button[aria-keyshortcuts]');
+        expect(viewButtons.length).toBe(2);
+        viewButtons.forEach((button) => {
+            expect(button.attributes('disabled')).toBeDefined();
+        });
+
+        // Even an authenticated user cannot switch to week view on a small screen.
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }));
+        await wrapper.vm.$nextTick();
+
+        expect(isViewShown(DayView)).toBe(true);
+        expect(isViewShown(WeekView)).toBe(false);
     });
 
     it('does not display the growth session creation buttons for guests', async () => {

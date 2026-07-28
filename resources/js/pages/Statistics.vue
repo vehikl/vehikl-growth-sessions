@@ -50,7 +50,7 @@ function initials(name: string): string {
 const avatarColors = [
     'bg-blue-600',
     'bg-fuchsia-600',
-    'bg-orange-500',
+    'bg-vehikl-light',
     'bg-yellow-600',
     'bg-green-600',
     'bg-teal-500',
@@ -183,11 +183,15 @@ onBeforeMount(fetchStatistics);
                 <section class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                     <h2 class="gs-text-strong mb-5 text-sm font-bold tracking-[0.05em] uppercase">Yet to mob with</h2>
                     <div v-if="yetToMobWith.length" class="flex flex-wrap gap-3">
-                        <div v-for="member in yetToMobWith" :key="member.id" class="gs-secondary-bg flex items-center gap-2.5 rounded-full py-1.5 pr-4 pl-1.5">
+                        <div
+                            v-for="member in yetToMobWith"
+                            :key="member.id"
+                            class="gs-secondary-bg flex items-center gap-2.5 rounded-full py-1.5 pr-4 pl-1.5"
+                        >
                             <span
                                 :class="avatarColor(member.name)"
                                 class="flex h-8 w-8 flex-none items-center justify-center rounded-full text-[11px] font-bold text-white"
-                                >
+                            >
                                 {{ initials(member.name) }}
                             </span>
                             <span class="gs-text-strong text-xs font-semibold whitespace-nowrap">{{ member.name }}</span>
