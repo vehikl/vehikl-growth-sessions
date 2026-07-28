@@ -10,9 +10,6 @@ const page = usePage<{
             name: string;
         };
     };
-    services: {
-        google_client_id?: string;
-    };
 }>();
 
 function getLoginUrl(driver = 'github'): string {
@@ -20,25 +17,47 @@ function getLoginUrl(driver = 'github'): string {
 }
 
 const user = computed(() => page.props.auth.user ?? null);
-const shouldRenderGoogleLogin = computed(() => !!page.props.services.google_client_id);
+
+const guestPerks = [
+    { icon: 'fa-sign-in', label: 'Join sessions' },
+    { icon: 'fa-plus', label: 'Host your own' },
+    { icon: 'fa-compass', label: 'See where to go' },
+];
 </script>
 
 <template>
     <Head title="Week" />
 
-    <div
-        v-if="!user"
-        role="alert"
-        class="border-vehikl-orange/20 bg-vehikl-orange fixed inset-x-4 bottom-4 z-30 block rounded-xl border p-5 text-center text-base text-white shadow-xl backdrop-blur-sm sm:bottom-4"
-    >
-        To join/create growth session or see their location, you must
-        <strong>
-            <a :href="getLoginUrl('github')" class="transition-smooth font-bold underline hover:text-white/80">log in with Github</a>
-        </strong>
-        <strong v-if="shouldRenderGoogleLogin">
-            or <a :href="getLoginUrl('google')" class="transition-smooth font-bold underline hover:text-white/80">log in with Google</a>
-        </strong>
-    </div>
+    <section v-if="!user" class="gs-header-bg text-white">
+        <div class="mx-auto flex max-w-[1600px] flex-col gap-8 px-5 py-10 sm:px-7 lg:flex-row lg:items-center lg:justify-between">
+            <div class="max-w-2xl">
+                <p class="gs-accent-text text-xs font-semibold tracking-[0.18em] uppercase">You're browsing as a guest</p>
+                <h1 class="font-display mt-3 text-3xl font-semibold sm:text-4xl lg:text-5xl">Log in to join the week's sessions</h1>
+                <p class="mt-4 text-base text-white/70 sm:text-lg">
+                    You can browse what's scheduled below. Log in to reserve a spot, host your own session, or see exactly where to find people.
+                </p>
+
+                <ul class="mt-7 flex flex-wrap gap-x-8 gap-y-4">
+                    <li v-for="perk in guestPerks" :key="perk.label" class="flex items-center gap-3">
+                        <span class="gs-accent-text flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-base">
+                            <i :class="['fa', perk.icon]" aria-hidden="true"></i>
+                        </span>
+                        <span class="text-sm font-medium text-white/80">{{ perk.label }}</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="flex-none">
+                <a
+                    :href="getLoginUrl('github')"
+                    class="gs-btn-primary group shadow-vehikl-orange/30 inline-flex items-center justify-center gap-3 rounded-xl px-7 py-4 text-base font-semibold shadow-lg"
+                >
+                    <i class="fa fa-github text-lg" aria-hidden="true"></i>
+                    Continue with GitHub
+                </a>
+            </div>
+        </div>
+    </section>
 
     <Board :user="$page.props.auth.user" />
 
@@ -50,12 +69,15 @@ const shouldRenderGoogleLogin = computed(() => !!page.props.services.google_clie
                 target="_blank"
                 rel="noopener noreferrer"
                 class="transition-smooth gs-accent-text underline decoration-transparent underline-offset-2 hover:decoration-current"
-                >
-                suggestions
-            </a
             >
+                suggestions
+            </a>
             or feedback?
-            <a href="mailto:gsfeedback@vehikl.com" class="transition-smooth gs-accent-text underline decoration-transparent underline-offset-2 hover:decoration-current">Let us know &rarr;</a>
+            <a
+                href="mailto:gsfeedback@vehikl.com"
+                class="transition-smooth gs-accent-text underline decoration-transparent underline-offset-2 hover:decoration-current"
+                >Let us know &rarr;</a
+            >
         </p>
     </footer>
 </template>
