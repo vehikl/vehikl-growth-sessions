@@ -450,6 +450,90 @@ describe('Board', () => {
 
     });
 
+    describe('sessions at capacity', () => {
+        const memberA: IUser = { id: 501, name: 'Member A', github_nickname: 'a', avatar: '', is_vehikl_member: true };
+        const memberB: IUser = { id: 502, name: 'Member B', github_nickname: 'b', avatar: '', is_vehikl_member: true };
+        const sessionOwner: IUser = { id: 503, name: 'Session Owner', github_nickname: 'o', avatar: '', is_vehikl_member: true };
+
+        const template = (growthSessionsThisWeekJson as Record<string, any[]>)['2020-01-13'][0];
+
+        /** A week containing exactly one session, on today, with the given overrides. */
+        async function boardShowing(sessionOverrides: Record<string, unknown>, user?: IUser) {
+            const week: Record<string, unknown[]> = {};
+            for (const date of Object.keys(growthSessionsThisWeekJson)) {
+                week[date] = [];
+            }
+            week[todayDate] = [
+                {
+                    ...template,
+                    date: todayDate,
+                    end_time: '05:00 pm',
+                    owner: sessionOwner,
+                    attendees: [memberA, memberB],
+                    watchers: [],
+                    attendee_limit: 2,
+                    ...sessionOverrides,
+                },
+            ];
+
+            GrowthSessionApi.getAllGrowthSessionsOfTheWeek = vi.fn().mockResolvedValue(new WeekGrowthSessions(week as never));
+            wrapper = mount(Board, { propsData: { user } });
+            await flushPromises();
+
+            return wrapper.findComponent(DayView).find('.full-indicator');
+        }
+
+        it('marks a session as full when every seat is taken', async () => {
+            expect((await boardShowing({}, authVehiklUser)).exists()).toBe(true);
+        });
+
+        it('colours the capacity readout in the day view', async () => {
+            await boardShowing({}, authVehiklUser);
+
+            expect(wrapper.findComponent(DayView).find('.capacity-readout').classes()).toContain('gs-at-capacity');
+        });
+
+        it('colours the capacity readout in the week view', async () => {
+            await boardShowing({}, authVehiklUser);
+
+            expect(wrapper.findComponent(WeekView).find('.attendees-count').classes()).toContain('gs-at-capacity');
+        });
+
+        it('leaves the capacity readout uncoloured while seats remain', async () => {
+            await boardShowing({ attendee_limit: 3 }, authVehiklUser);
+
+            expect(wrapper.findComponent(DayView).find('.capacity-readout').classes()).not.toContain('gs-at-capacity');
+            expect(wrapper.findComponent(WeekView).find('.attendees-count').classes()).not.toContain('gs-at-capacity');
+        });
+
+        it('does not mark a session with seats remaining', async () => {
+            expect((await boardShowing({ attendee_limit: 3 }, authVehiklUser)).exists()).toBe(false);
+        });
+
+        it('does not mark a limitless session however many have joined', async () => {
+            expect((await boardShowing({ attendee_limit: null }, authVehiklUser)).exists()).toBe(false);
+        });
+
+        it('does not show the indicator to the owner, who was never going to join', async () => {
+            expect((await boardShowing({}, sessionOwner)).exists()).toBe(false);
+        });
+
+        it('does not show the indicator to someone already attending', async () => {
+            expect((await boardShowing({}, memberA)).exists()).toBe(false);
+        });
+
+        it('does not show the indicator to guests, who cannot join at all', async () => {
+            expect((await boardShowing({})).exists()).toBe(false);
+        });
+
+        it('does not show the indicator once the session has finished', async () => {
+            // Later the same day, so the session is still on the selected day but already over.
+            DateTime.setTestNow(`${todayDate} 18:00:00`);
+
+            expect((await boardShowing({ end_time: '05:00 pm' }, authVehiklUser)).exists()).toBe(false);
+        });
+    });
+
     describe('when the signed-in user changes', () => {
         it('re-fetches the week so private sessions do not linger after logging out', async () => {
             wrapper = mount(Board, { propsData: { user: authVehiklUser } });

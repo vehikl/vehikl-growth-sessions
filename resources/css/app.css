@@ -73,6 +73,7 @@
     --gs-input: #111827;
     --gs-ph: #9ca3af;
     --gs-overlay: rgba(17, 24, 39, 0.5);
+    --gs-full: #dc2626;
 }
 
 .dark {
@@ -91,6 +92,8 @@
     --gs-input: #f2f1ee;
     --gs-ph: rgba(242, 241, 238, 0.35);
     --gs-overlay: rgba(0, 0, 0, 0.6);
+    /* Lifted for contrast against the dark card background. */
+    --gs-full: #f87171;
 }
 
 body {
@@ -150,6 +153,11 @@ body {
 }
 .gs-text-input {
     color: var(--gs-input);
+}
+/* A session that has hit its attendee limit. Applied to the capacity readout and the
+   Full indicator, which borrows the same colour via `border-current`. */
+.gs-at-capacity {
+    color: var(--gs-full);
 }
 
 /* Accent */

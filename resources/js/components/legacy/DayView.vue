@@ -12,6 +12,8 @@ interface IProps {
     selectedIndex: number;
     sessions: GrowthSession[];
     currentLabel: string;
+    /** Ids of sessions the Board has determined should read as full. */
+    fullSessionIds?: number[];
     user?: IUser;
 }
 
@@ -28,6 +30,10 @@ const showCreateCta = computed<boolean>(() => !!props.user?.is_vehikl_member && 
 
 function tagline(session: GrowthSession): string {
     return session.tags.map((t) => (t.name.includes('&') ? t.name : t.name.charAt(0).toUpperCase() + t.name.slice(1).toLowerCase())).join(', ');
+}
+
+function isFull(session: GrowthSession): boolean {
+    return (props.fullSessionIds ?? []).includes(session.id);
 }
 </script>
 
@@ -135,7 +141,9 @@ function tagline(session: GrowthSession): string {
                             </div>
                         </div>
                         <span
-                            class="gs-secondary-bg gs-text-muted ml-3.5 inline-flex flex-none items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
+                            class="capacity-readout gs-secondary-bg ml-3.5 inline-flex flex-none items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
+                            :class="session.hasReachedAttendeeLimit() ? 'gs-at-capacity' : 'gs-text-muted'"
+                            :title="session.hasReachedAttendeeLimit() ? 'This session is full' : undefined"
                         >
                             <i class="fa fa-user" aria-hidden="true"></i>{{ capacityLabel(session) }}
                         </span>
@@ -150,6 +158,11 @@ function tagline(session: GrowthSession): string {
                         >
                             Join
                         </button>
+                        <span
+                            v-if="isFull(session)"
+                            class="full-indicator gs-at-capacity max-w-48 rounded-md border border-current px-4 py-2 text-center text-sm font-semibold md:px-20"
+                            >Full</span
+                        >
                         <button
                             v-show="session.canWatch(user)"
                             type="button"

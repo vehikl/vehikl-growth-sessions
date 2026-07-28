@@ -73,4 +73,38 @@ describe('GrowthSession', () => {
             expect(growthSession.canJoin(someUser)).toBe(true);
         });
     });
+
+    describe('hasReachedAttendeeLimit', () => {
+        function sessionWith(attendeeCount: number, attendee_limit: number | null): GrowthSession {
+            const attendees = Array.from({ length: attendeeCount }, (_, index) => ({
+                id: index + 1,
+                name: `Attendee ${index + 1}`,
+                github_nickname: `attendee${index + 1}`,
+                is_vehikl_member: true,
+                avatar: '',
+            }));
+
+            return new GrowthSession({ ...growthSessionJson, attendee_limit, attendees });
+        }
+
+        it('is false below the limit', () => {
+            expect(sessionWith(3, 4).hasReachedAttendeeLimit()).toBe(false);
+        });
+
+        it('is true at the limit', () => {
+            expect(sessionWith(4, 4).hasReachedAttendeeLimit()).toBe(true);
+        });
+
+        it('is true past the limit', () => {
+            expect(sessionWith(5, 4).hasReachedAttendeeLimit()).toBe(true);
+        });
+
+        it('is false for a limitless session no matter how many have joined', () => {
+            expect(sessionWith(50, null).hasReachedAttendeeLimit()).toBe(false);
+        });
+
+        it('is false for an empty session', () => {
+            expect(sessionWith(0, 4).hasReachedAttendeeLimit()).toBe(false);
+        });
+    });
 });

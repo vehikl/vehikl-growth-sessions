@@ -106,8 +106,12 @@ export class GrowthSession implements IGrowthSession {
         return !this.isOwner(user) && !this.isAttendeeOrWatcher(user) && !this.hasAlreadyHappened && !this.hasReachedAttendeeLimit();
     }
 
-    hasReachedAttendeeLimit() {
-        return this.attendee_limit === this.attendees.length;
+    hasReachedAttendeeLimit(): boolean {
+        if (this.isLimitless) {
+            return false;
+        }
+
+        return this.attendees.length >= this.attendee_limit!;
     }
 
     async join() {

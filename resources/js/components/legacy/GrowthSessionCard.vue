@@ -9,6 +9,8 @@ import { computed } from 'vue';
 
 interface IProps {
     growthSession: GrowthSession;
+    /** Decided by the Board so every view marks the same sessions as full. */
+    isFull?: boolean;
     user?: IUser;
 }
 
@@ -23,6 +25,7 @@ const statusColor = computed(() => statusMeta(status.value).color);
 const initials = computed(() => getInitials(props.growthSession.owner.name));
 const ownerColor = computed(() => avatarColor(props.growthSession.owner.name));
 const cardOpacity = computed(() => (status.value === 'finished' ? 0.55 : 1));
+const atCapacity = computed<boolean>(() => props.growthSession.hasReachedAttendeeLimit());
 
 const canSeeLocation = computed<boolean>(
     () => !!props.user && (props.growthSession.isOwner(props.user) || props.growthSession.isAttendeeOrWatcher(props.user)),
@@ -89,10 +92,14 @@ async function onDeleteClicked() {
 
         <div class="gs-text-sub mb-2 flex items-center justify-between text-sm font-medium">
             <span>{{ growthSession.startTime }} – {{ growthSession.endTime }}</span>
-            <span class="attendees-count inline-flex items-center gap-1">
+            <span
+                class="attendees-count inline-flex items-center gap-1"
+                :class="{ 'gs-at-capacity': atCapacity }"
+                :title="atCapacity ? 'This session is full' : undefined"
+            >
                 <i class="fa fa-user text-xs" aria-hidden="true"></i>
                 {{ growthSession.attendees.length }}
-                <span v-if="growthSession.attendee_limit" class="attendee-limit">/{{ growthSession.attendee_limit }}</span>
+                <span v-if="!growthSession.isLimitless" class="attendee-limit">/{{ growthSession.attendee_limit }}</span>
             </span>
         </div>
 
@@ -110,6 +117,11 @@ async function onDeleteClicked() {
             >
                 Join
             </button>
+            <span
+                v-if="isFull"
+                class="full-indicator gs-at-capacity flex-3 rounded-sm border border-current px-4 py-1.5 text-center text-sm font-medium"
+                >Full</span
+            >
             <button
                 v-show="growthSession.canWatch(user)"
                 type="button"

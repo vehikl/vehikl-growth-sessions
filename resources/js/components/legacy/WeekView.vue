@@ -9,6 +9,8 @@ import draggable from 'vuedraggable';
 interface IProps {
     weekDates: DateTime[];
     sessionsByDate: Record<string, GrowthSession[]>;
+    /** Ids of sessions the Board has determined should read as full. */
+    fullSessionIds?: number[];
     user?: IUser;
 }
 
@@ -67,6 +69,7 @@ function sessionsFor(date: DateTime): GrowthSession[] {
                     <li :key="growthSession.id">
                         <growth-session-card
                             :growth-session="growthSession"
+                            :is-full="(fullSessionIds ?? []).includes(growthSession.id)"
                             :user="user"
                             @growth-session-updated="emit('refresh')"
                             @copy-requested="emit('copy-requested', $event)"

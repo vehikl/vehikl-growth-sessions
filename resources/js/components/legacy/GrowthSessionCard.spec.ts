@@ -120,6 +120,53 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.find('.attendee-limit').exists()).toBe(false);
     });
 
+    describe('when the attendee limit is reached', () => {
+        function fullGrowthSession(): GrowthSession {
+            return new GrowthSession({ ...baseGrowthSessionDataAttributes, attendee_limit: 1, attendees: [attendee] });
+        }
+
+        it('marks the capacity as full', () => {
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), user: outsider } });
+
+            expect(wrapper.find('.attendees-count').classes()).toContain('gs-at-capacity');
+        });
+
+        it('does not mark the capacity as full while seats remain', () => {
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: outsider } });
+
+            expect(wrapper.find('.attendees-count').classes()).not.toContain('gs-at-capacity');
+        });
+
+        it('does not mark a limitless session as full', () => {
+            const limitless = new GrowthSession({ ...baseGrowthSessionDataAttributes, attendee_limit: null });
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: limitless, user: outsider } });
+
+            expect(wrapper.find('.attendees-count').classes()).not.toContain('gs-at-capacity');
+        });
+
+        // Whether a session reads as full is decided by the Board and handed down, so the
+        // card only renders the flag. The rules behind it are covered in Board.spec.ts.
+        it('replaces the join button with a full indicator when told the session is full', () => {
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), isFull: true, user: outsider } });
+
+            expect(wrapper.find('.join-button')).not.toBeVisible();
+            expect(wrapper.find('.full-indicator').exists()).toBe(true);
+            expect(wrapper.find('.full-indicator').text()).toBe('Full');
+        });
+
+        it('does not show the full indicator unless told to', () => {
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), user: outsider } });
+
+            expect(wrapper.find('.full-indicator').exists()).toBe(false);
+        });
+
+        it('still offers spectating when the session is full', () => {
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), isFull: true, user: outsider } });
+
+            expect(wrapper.find('.watch-button')).toBeVisible();
+        });
+    });
+
     it('does not display the join button to the owner of the growth session', () => {
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: ownerOfTheGrowthSession } });
         expect(wrapper.find('.join-button')).not.toBeVisible();
