@@ -172,6 +172,7 @@ class GrowthSessionsStoreTest extends TestCase
             'title' => 'Foo',
             'location' => 'At the central mobbing area',
             'start_time' => now()->format('h:i a'),
+            'end_time' => now()->addHour()->format('h:i a'),
             'date' => today(),
             'discord_channel' => null,
         ], $params);

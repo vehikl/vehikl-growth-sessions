@@ -254,8 +254,7 @@ function onGrowthSessionEditRequested(growthSession: GrowthSession) {
 
 function onGrowthSessionCopyRequested(growthSession: GrowthSession) {
     selectedSession.value = null;
-    growthSession.id = 0;
-    growthSessionToUpdate.value = growthSession;
+    growthSessionToUpdate.value = new GrowthSession({ ...growthSession, id: 0 });
     newGrowthSessionDate.value = '';
     formModalState.value = 'open';
 }

@@ -12,6 +12,7 @@
     --color-vehikl-dark: #b44e10;
 
     /* Design accent (Growth Sessions redesign) */
+    --color-gs-accent: var(--color-vehikl-orange);
     --color-gs-accent-hover: var(--color-vehikl-dark);
     --color-gs-header: #171a24;
 

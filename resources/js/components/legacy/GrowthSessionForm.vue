@@ -312,7 +312,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                         <span class="relative inline-flex flex-none">
                             <input id="is-public" v-model="isPublic" type="checkbox" class="peer sr-only" />
                             <span
-                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
+                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-2 peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
                             ></span>
                             <span
                                 class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
@@ -325,7 +325,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                         <span class="relative inline-flex flex-none">
                             <input id="allow-watchers" v-model="allowWatchers" type="checkbox" class="peer sr-only" />
                             <span
-                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
+                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-2 peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
                             ></span>
                             <span
                                 class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
@@ -338,7 +338,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                         <span class="relative inline-flex flex-none">
                             <input id="no-limit" v-model="isLimitless" type="checkbox" class="peer sr-only" />
                             <span
-                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
+                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-2 peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
                             ></span>
                             <span
                                 class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
@@ -375,6 +375,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                     <button
                         v-for="option in tagOptions"
                         :key="option.value"
+                        :data-testid="`tag-option-${option.value}`"
                         type="button"
                         class="transition-smooth cursor-pointer rounded-full border px-3.5 py-2 text-xs font-semibold tracking-[0.05em] uppercase"
                         :class="

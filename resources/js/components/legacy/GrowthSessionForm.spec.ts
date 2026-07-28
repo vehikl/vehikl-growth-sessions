@@ -52,7 +52,10 @@ describe('GrowthSessionForm', () => {
         GrowthSessionApi.update = vi.fn().mockImplementation((growthSession) => growthSession);
         DiscordChannelApi.index = vi.fn().mockImplementation(() => discordChannels);
         DiscordChannelApi.occupied = vi.fn().mockImplementation(() => []);
-        TagsApi.index = vi.fn().mockImplementation(() => []);
+        TagsApi.index = vi.fn().mockImplementation(() => [
+            { id: 1, name: 'Laravel' },
+            { id: 2, name: 'Vue' },
+        ]);
         AnydesksApi.getAllAnyDesks = vi.fn().mockImplementation(() => anyDesks);
         wrapper = mount(GrowthSessionForm, { propsData: { owner: user, startDate } });
     });
@@ -81,7 +84,7 @@ describe('GrowthSessionForm', () => {
             type TGrowthSessionCreationScenario = [string, IStoreGrowthSessionRequest];
 
             const scenarios: TGrowthSessionCreationScenario[] = [
-                ['Can accept no limit and no end time', { ...baseGrowthSessionRequest, attendee_limit: undefined, end_time: undefined }],
+                ['Can accept no limit', { ...baseGrowthSessionRequest, attendee_limit: undefined }],
                 [
                     'Can accept a limit',
                     {
@@ -115,6 +118,7 @@ describe('GrowthSessionForm', () => {
                     discord_channel_id: discordChannelId,
                     anydesk_id: anyDeskId,
                     allow_watchers,
+                    tags: chosenTags,
                 } = payload;
 
                 const discordChannel = discordChannels.filter((channel) => channel.id === discordChannelId)[0] || undefined;
@@ -147,6 +151,12 @@ describe('GrowthSessionForm', () => {
                     wrapper.find('#anydesk-selection').setValue(anyDeskId!.toString());
                 }
 
+                if (chosenTags) {
+                    for (const tagId of chosenTags) {
+                        await wrapper.find(`[data-testid="tag-option-${tagId}"]`).trigger('click');
+                    }
+                }
+
                 await wrapper.vm.$nextTick();
                 wrapper.find('button[type="submit"]').trigger('click');
                 await flushPromises();
@@ -166,6 +176,10 @@ describe('GrowthSessionForm', () => {
 
                 if (!chosenLimit) {
                     delete expectedPayload.attendee_limit;
+                }
+
+                if (chosenTags) {
+                    expectedPayload.tags = chosenTags;
                 }
 
                 expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining(expectedPayload));
