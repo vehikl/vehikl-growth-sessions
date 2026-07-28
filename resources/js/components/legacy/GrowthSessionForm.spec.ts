@@ -106,7 +106,6 @@ describe('GrowthSessionForm', () => {
                     discord_channel_id: discordChannelId,
                     anydesk_id: anyDeskId,
                     allow_watchers,
-                    tags,
                 } = payload;
 
                 const discordChannel = discordChannels.filter((channel) => channel.id === discordChannelId)[0] || undefined;
@@ -125,7 +124,7 @@ describe('GrowthSessionForm', () => {
                     wrapper.find('#no-limit').trigger('click');
                 }
 
-                wrapper.find('#allow-watchers').setChecked(allow_watchers);
+                wrapper.find('#allow-watchers').setValue(allow_watchers);
 
                 if (chosenLimit) {
                     wrapper.find('#attendee-limit').setValue(chosenLimit);
@@ -136,7 +135,7 @@ describe('GrowthSessionForm', () => {
                 }
 
                 if (anyDesk) {
-                    wrapper.find('#anydesk-selection').setValue(anyDeskId.toString());
+                    wrapper.find('#anydesk-selection').setValue(anyDeskId!.toString());
                 }
 
                 await wrapper.vm.$nextTick();
@@ -176,7 +175,7 @@ describe('GrowthSessionForm', () => {
         });
 
         it('starts with the submit button disabled', () => {
-            expect(wrapper.find('button[type="submit"]').element.disabled).toBeTruthy();
+            expect(wrapper.find<HTMLButtonElement>('button[type="submit"]').element.disabled).toBeTruthy();
         });
 
         it('enables the submit button when all required fields are filled', async () => {
@@ -185,7 +184,7 @@ describe('GrowthSessionForm', () => {
             wrapper.find('#topic').setValue('Anything');
             wrapper.find('#location').setValue('Anywhere');
             await wrapper.vm.$nextTick();
-            expect(wrapper.find('button[type="submit"]').element.disabled).toBeFalsy();
+            expect(wrapper.find<HTMLButtonElement>('button[type="submit"]').element.disabled).toBeFalsy();
         });
 
         it('has a no limit checkbox', () => {
@@ -193,11 +192,11 @@ describe('GrowthSessionForm', () => {
         });
 
         it('starts with allow watchers checkbox enabled', () => {
-            expect(wrapper.find('#allow-watchers').element.checked).toBe(true);
+            expect(wrapper.find<HTMLInputElement>('#allow-watchers').element.checked).toBe(true);
         });
 
         it('hides the attendee limit input, if no limit checkbox is checked', async () => {
-            wrapper.find('#no-limit').setChecked(true);
+            wrapper.find('#no-limit').setValue(true);
             await wrapper.vm.$nextTick();
 
             expect(wrapper.findComponent({ ref: 'attendee-limit' }).exists()).toBeFalsy();
@@ -280,7 +279,7 @@ describe('GrowthSessionForm', () => {
             await wrapper.find('#topic').setValue(growthSessionInformation.topic);
             await wrapper.find('#location').setValue(growthSessionInformation.location);
             await wrapper.find('#start-time').setValue(DateTime.parseByTime(growthSessionInformation.start_time).toTimeString12Hours());
-            await wrapper.find('#is-public').setChecked(true);
+            await wrapper.find('#is-public').setValue(true);
 
             wrapper.find('button[type=submit]').trigger('click');
             await wrapper.vm.$nextTick();
@@ -295,7 +294,7 @@ describe('GrowthSessionForm', () => {
             await wrapper.find('#title').setValue('Test Title');
             await wrapper.find('#topic').setValue('Test Topic');
             await wrapper.find('#location').setValue('Test Location');
-            await wrapper.find('#is-public').setChecked(true);
+            await wrapper.find('#is-public').setValue(true);
 
             await wrapper.find('button[type=submit]').trigger('click');
             await wrapper.vm.$nextTick();
@@ -308,7 +307,7 @@ describe('GrowthSessionForm', () => {
             await wrapper.find('#title').setValue('Test Title');
             await wrapper.find('#topic').setValue('Test Topic');
             await wrapper.find('#location').setValue('Test Location');
-            await wrapper.find('#is-public').setChecked(true);
+            await wrapper.find('#is-public').setValue(true);
 
             await wrapper.find('button[type=submit]').trigger('click');
             await wrapper.vm.$nextTick();
@@ -323,7 +322,7 @@ describe('GrowthSessionForm', () => {
             await wrapper.find('#title').setValue('Test Title');
             await wrapper.find('#topic').setValue('Test Topic');
             await wrapper.find('#location').setValue('Test Location');
-            await wrapper.find('#is-public').setChecked(true);
+            await wrapper.find('#is-public').setValue(true);
 
             await wrapper.find('button[type=submit]').trigger('click');
             await wrapper.vm.$nextTick();
@@ -373,7 +372,7 @@ describe('GrowthSessionForm', () => {
                 },
             });
 
-            await wrapper.find('#is-public').setChecked(true);
+            await wrapper.find('#is-public').setValue(true);
             await wrapper.find('button[type=submit]').trigger('click');
             await wrapper.vm.$nextTick();
 

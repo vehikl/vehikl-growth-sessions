@@ -56,12 +56,14 @@ watch(
     { immediate: true },
 );
 
-watch(() => props.user?.id, () => {
-    if (props.user)
-        return;
+watch(
+    () => props.user?.id,
+    () => {
+        if (props.user) return;
 
-    refreshGrowthSessionsOfTheWeek();
-});
+        refreshGrowthSessionsOfTheWeek();
+    },
+);
 
 const dayIndex = ref(0);
 const filtersOpen = ref(false);
@@ -491,7 +493,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                     CLOSE ✕
                 </button>
                 <growth-session-form
-                    v-if="formModalState === 'open'"
+                    v-if="formModalState === 'open' && user"
                     :growth-session="growthSessionToUpdate"
                     :owner="user"
                     :start-date="newGrowthSessionDate"

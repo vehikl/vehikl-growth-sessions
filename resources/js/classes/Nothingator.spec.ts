@@ -1,4 +1,4 @@
-import {Nothingator} from "./Nothingator"
+import { Nothingator } from './Nothingator';
 
 describe('Nothingator', () => {
     it('Can be called multiple times and always return a word', () => {

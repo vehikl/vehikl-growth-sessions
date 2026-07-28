@@ -36,7 +36,7 @@ function sessionsFor(date: DateTime): GrowthSession[] {
                     <button
                         v-if="user && user.is_vehikl_member && !date.isInAPastDate()"
                         type="button"
-                        class="create-growth-session gs-btn-primary flex h-6 w-6 flex-none items-center justify-center rounded-full text-base leading-none font-bold cursor-pointer"
+                        class="create-growth-session gs-btn-primary flex h-6 w-6 flex-none cursor-pointer items-center justify-center rounded-full text-base leading-none font-bold"
                         title="Add a session"
                         aria-label="Add a session"
                         @click="emit('create', date)"

@@ -5,7 +5,7 @@ declare global {
     function route(name: string, params?: RouteParams<typeof name> | undefined, absolute?: boolean): string;
 }
 
-declare module '@vue/runtime-core' {
+declare module 'vue' {
     interface ComponentCustomProperties {
         route: typeof route;
     }

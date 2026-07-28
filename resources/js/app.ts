@@ -9,19 +9,6 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 
-// Extend ImportMeta interface for Vite...
-declare module 'vite/client' {
-    interface ImportMetaEnv {
-        readonly VITE_APP_NAME: string;
-        [key: string]: string | boolean | undefined;
-    }
-
-    interface ImportMeta {
-        readonly env: ImportMetaEnv;
-        readonly glob: <T>(pattern: string) => Record<string, () => Promise<T>>;
-    }
-}
-
 // Sync the reactive theme state with the class the blade template already applied.
 initTheme();
 
@@ -33,14 +20,13 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
-    resolve: (name) => {
-        const page = resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue'));
+    resolve: async (name) => {
+        const page = resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<{ default: DefineComponent }>('./pages/**/*.vue'));
 
-        page.then((module) => {
-            module.default.layout = module.default.layout || AppLayout;
-        });
+        const module = await page;
+        module.default.layout = module.default.layout || AppLayout;
 
-        return page;
+        return module.default;
     },
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })

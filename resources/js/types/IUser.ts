@@ -4,4 +4,5 @@ export interface IUser {
     name: string;
     avatar: string;
     is_vehikl_member: boolean;
+    email?: string;
 }

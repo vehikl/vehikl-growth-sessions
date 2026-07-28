@@ -1,7 +1,7 @@
+import { IGrowthSessionProposal, IStoreGrowthSessionProposalRequest } from '@/types';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { GrowthSessionProposalApi, proposalResource } from './GrowthSessionProposalApi';
-import { IGrowthSessionProposal, IStoreGrowthSessionProposalRequest } from '@/types';
 
 const mockProposal: IGrowthSessionProposal = {
     id: 1,
@@ -53,9 +53,7 @@ describe('GrowthSessionProposalApi', () => {
             title: 'Learn Laravel 12',
             topic: 'I want to learn the new features in Laravel 12',
             tags: [1, 2],
-            time_preferences: [
-                { weekday: 'Monday', start_time: '14:00', end_time: '17:00' },
-            ],
+            time_preferences: [{ weekday: 'Monday', start_time: '14:00', end_time: '17:00' }],
         };
 
         mockBackend.onPost(proposalResource).reply(201, mockProposal);

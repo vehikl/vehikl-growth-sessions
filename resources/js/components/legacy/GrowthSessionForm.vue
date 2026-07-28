@@ -13,7 +13,7 @@ import VSelect from './VSelect.vue';
 
 interface IProps {
     owner: IUser;
-    growthSession?: IGrowthSession;
+    growthSession?: IGrowthSession | null;
     startDate?: string;
 }
 
@@ -272,13 +272,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                 <div class="grid gap-2.5 sm:grid-cols-3">
                     <div v-if="anyDesks.length > 0">
                         <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="anydesk-selection">AnyDesk</label>
-                        <v-select
-                            id="anydesk-selection"
-                            v-model="selectedAnydeskId"
-                            :options="anyDesks"
-                            placeholder="None"
-                            class="w-full"
-                        />
+                        <v-select id="anydesk-selection" v-model="selectedAnydeskId" :options="anyDesks" placeholder="None" class="w-full" />
                     </div>
                     <div v-if="discordChannels.length > 0">
                         <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">Discord</label>
@@ -362,7 +356,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
             </div>
 
             <div class="gs-border border-t pt-3.5">
-                <button type="button" class="cursor-pointer gs-text-sub inline-flex items-center gap-1.5 text-xs font-semibold uppercase">
+                <button type="button" class="gs-text-sub inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold uppercase">
                     + Add tags
                     <span class="gs-text-muted font-normal lowercase">(optional)</span>
                     <span

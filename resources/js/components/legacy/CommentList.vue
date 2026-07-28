@@ -7,7 +7,7 @@ import { computed, ref } from 'vue';
 
 interface IProps {
     growthSession: GrowthSession;
-    user?: IUser;
+    user?: IUser | null;
 }
 
 const props = defineProps<IProps>();
@@ -54,7 +54,7 @@ function shortTimestamp(timeStamp: string): string {
                         <span class="gs-text-muted flex-none text-xs" v-text="shortTimestamp(comment.time_stamp)"></span>
                         <button
                             v-show="growthSession.canDeleteComment(user, comment)"
-                            class="cursor-pointer transition-smooth ml-auto flex-none text-red-500 hover:text-red-600"
+                            class="transition-smooth ml-auto flex-none cursor-pointer text-red-500 hover:text-red-600"
                             aria-label="delete-comment"
                             @click="growthSession.deleteComment(comment)"
                         >

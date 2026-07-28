@@ -13,7 +13,7 @@ import { DiscordChannelApi } from '@/services/DiscordChannelApi';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
 import { IUser } from '@/types';
-import { mount, Wrapper } from '@vue/test-utils';
+import { mount, type VueWrapper } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import { vi } from 'vitest';
 
@@ -33,7 +33,7 @@ const authNonVehiklUser: IUser = {
     is_vehikl_member: false,
 };
 
-let growthSessionsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
+const growthSessionsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
 
 const metadataForGrowthSessionsFixture = {
     today: { date: '2020-01-15', weekday: 'Wednesday' },
@@ -67,7 +67,7 @@ function stubViewport(isDesktop: boolean) {
 }
 
 describe('Board', () => {
-    let wrapper: Wrapper<Board>;
+    let wrapper: VueWrapper;
 
     beforeEach(async () => {
         stubViewport(true); // default tests to a desktop-sized viewport
@@ -105,7 +105,7 @@ describe('Board', () => {
         const publicTitlesOfTheWeek = growthSessionsThisWeek.allGrowthSessions
             .filter((growthSession: GrowthSession) => growthSession.is_public)
             .map((growthSession: GrowthSession) => growthSession.title);
-        for (let title of publicTitlesOfTheWeek) {
+        for (const title of publicTitlesOfTheWeek) {
             expect(wrapper.text()).toContain(title);
         }
     });
@@ -113,7 +113,7 @@ describe('Board', () => {
     it('allows the user to view growth sessions of the previous week', async () => {
         wrapper.find('button.load-previous-week').trigger('click');
         await flushPromises();
-        let sevenDaysInThePast = DateTime.parseByDate(todayDate).addDays(-7).toDateString();
+        const sevenDaysInThePast = DateTime.parseByDate(todayDate).addDays(-7).toDateString();
         expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(sevenDaysInThePast);
     });
 
@@ -121,7 +121,7 @@ describe('Board', () => {
         window.confirm = vi.fn();
         wrapper.find('button.load-next-week').trigger('click');
         await flushPromises();
-        let sevenDaysInTheFuture = DateTime.parseByDate(todayDate).addDays(7).toDateString();
+        const sevenDaysInTheFuture = DateTime.parseByDate(todayDate).addDays(7).toDateString();
         expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(sevenDaysInTheFuture);
     });
 
@@ -254,7 +254,7 @@ describe('Board', () => {
         });
 
         it('does not render growth session filter for non vehikl users', async () => {
-            let visibilityFilters = wrapper.find('#visibility-filters');
+            const visibilityFilters = wrapper.find('#visibility-filters');
             expect(visibilityFilters.exists()).toBeFalsy();
         });
     });
@@ -296,10 +296,10 @@ describe('Board', () => {
             expect(targetedGrowthSession.find('button.copy-button').exists()).toBe(true);
             await targetedGrowthSession.find('button.copy-button').trigger('click');
 
-            let createForm = wrapper.find('form.create-growth-session');
+            const createForm = wrapper.find('form.create-growth-session');
             expect(createForm.exists()).toBe(true);
 
-            expect(createForm.find('#is-public').element.checked).toBe(true);
+            expect(createForm.find<HTMLInputElement>('#is-public').element.checked).toBe(true);
 
             expect((wrapper.find('input#title').element as HTMLInputElement).value).toBe(title);
             expect((wrapper.find('textarea#topic').element as HTMLInputElement).value).toBe(matchingSession.topic);
@@ -307,9 +307,9 @@ describe('Board', () => {
 
         describe('Visibility Filter', () => {
             it('it loads with "ALL" radio button selected', async () => {
-                let radioButton = wrapper.find('#visibility-filters input[type=radio][name=filter-sessions]');
+                const radioButton = wrapper.find('#visibility-filters input[type=radio][name=filter-sessions]');
 
-                expect(radioButton.element.value).toBe('all');
+                expect((radioButton.element as HTMLInputElement).value).toBe('all');
                 expect(radioButton).toBeChecked();
             });
 
@@ -331,8 +331,8 @@ describe('Board', () => {
                 });
                 const publicGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions.filter((gs) => gs.is_public);
 
-                let radioButton = wrapper.find('#visibility-filters input[type=radio][name=filter-sessions][id=private]');
-                await radioButton.setChecked();
+                const radioButton = wrapper.find('#visibility-filters input[type=radio][name=filter-sessions][id=private]');
+                await radioButton.setValue(true);
 
                 privateGrowthSessionsThisWeek.forEach((growthSession) => {
                     const isTitleBeingRendered = wrapper
@@ -357,8 +357,8 @@ describe('Board', () => {
                 });
                 const publicGrowthSessionsThisWeek = growthSessionsThisWeek.allGrowthSessions.filter((gs) => gs.is_public);
 
-                let radioButton = wrapper.find('#visibility-filters input[type=radio][name=filter-sessions][id=public]');
-                await radioButton.setChecked();
+                const radioButton = wrapper.find('#visibility-filters input[type=radio][name=filter-sessions][id=public]');
+                await radioButton.setValue(true);
 
                 privateGrowthSessionsThisWeek.forEach((growthSession) => {
                     const isTitleBeingRendered = wrapper
@@ -438,7 +438,7 @@ describe('Board', () => {
         });
 
         it('shows all sessions when search is empty', async () => {
-            let growthSessions = wrapper.findAllComponents(GrowthSessionCard);
+            const growthSessions = wrapper.findAllComponents(GrowthSessionCard);
             expect(growthSessions.length).toBe(5);
         });
 
@@ -638,7 +638,7 @@ describe('Board', () => {
 
                 // Apply private filter (only session 5 is private)
                 const radioButton = wrapper.find('#visibility-filters input[type=radio][id=private]');
-                await radioButton.setChecked();
+                await radioButton.setValue(true);
                 await flushPromises();
 
                 visibleSessions = wrapper.findAllComponents(GrowthSessionCard);

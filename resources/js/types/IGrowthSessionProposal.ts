@@ -1,4 +1,4 @@
-import { IUser, ITag } from '.';
+import { ITag, IUser } from '.';
 import { ITimePreference } from './ITimePreference';
 
 export interface IGrowthSessionProposal {

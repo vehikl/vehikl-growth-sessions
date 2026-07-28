@@ -1,11 +1,11 @@
+import { IGrowthSession, IUpdateGrowthSessionRequest } from '@/types';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import growthSessionsThisWeekJson from '../../../tests/fixtures/WeekGrowthSessions.json';
 import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
-import {GrowthSessionApi, growthSessionResource} from './GrowthSessionApi';
-import {IGrowthSession, IUpdateGrowthSessionRequest} from '@/types';
-import {DateTime} from '../classes/DateTime';
-import {WeekGrowthSessions} from '../classes/WeekGrowthSessions';
+import growthSessionsThisWeekJson from '../../../tests/fixtures/WeekGrowthSessions.json';
+import { DateTime } from '../classes/DateTime';
+import { WeekGrowthSessions } from '../classes/WeekGrowthSessions';
+import { GrowthSessionApi, growthSessionResource } from './GrowthSessionApi';
 
 const growthSessionsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
 const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
@@ -30,8 +30,7 @@ describe('GrowthSessionApi', () => {
         expect(result).toEqual(growthSessionsThisWeek);
     });
 
-
-    it('returns the growth sessions of the week of the date provided', async() => {
+    it('returns the growth sessions of the week of the date provided', async () => {
         DateTime.setTestNow('2020-05-01');
         mockBackend.onGet(`${growthSessionResource}/week?date=2020-01-01`).reply(200, growthSessionsThisWeekJson);
 
@@ -49,13 +48,13 @@ describe('GrowthSessionApi', () => {
     });
 
     it('updates an existing growth session', async () => {
-        let newTopic: string = 'A totally new topic';
+        const newTopic: string = 'A totally new topic';
         mockBackend.onPut(`${growthSessionResource}/${dummyGrowthSession.id}`).reply(200, {
             ...dummyGrowthSession,
-            topic: newTopic
+            topic: newTopic,
         });
 
-        const payload: IUpdateGrowthSessionRequest = {topic: newTopic};
+        const payload: IUpdateGrowthSessionRequest = { topic: newTopic };
         const result = await GrowthSessionApi.update(dummyGrowthSession, payload);
 
         expect(result.topic).toEqual(newTopic);
@@ -100,14 +99,18 @@ describe('GrowthSessionApi', () => {
         await GrowthSessionApi.postComment(dummyGrowthSession, content);
 
         expect(mockBackend.history.post[0].url).toBe(`/${growthSessionResource}/${dummyGrowthSession.id}/comments`);
-        expect(JSON.parse(mockBackend.history.post[0].data)).toEqual({content: content})
+        expect(JSON.parse(mockBackend.history.post[0].data)).toEqual({ content: content });
     });
 
     it('allows a comment to be deleted', async () => {
-        mockBackend.onDelete(`${growthSessionResource}/${dummyGrowthSession.id}/comments/${dummyGrowthSession.comments[0].id}`).reply(200, dummyGrowthSession);
+        mockBackend
+            .onDelete(`${growthSessionResource}/${dummyGrowthSession.id}/comments/${dummyGrowthSession.comments[0].id}`)
+            .reply(200, dummyGrowthSession);
 
         await GrowthSessionApi.deleteComment(dummyGrowthSession.comments[0]);
 
-        expect(mockBackend.history.delete[0].url).toBe(`/${growthSessionResource}/${dummyGrowthSession.id}/comments/${dummyGrowthSession.comments[0].id}`);
+        expect(mockBackend.history.delete[0].url).toBe(
+            `/${growthSessionResource}/${dummyGrowthSession.id}/comments/${dummyGrowthSession.comments[0].id}`,
+        );
     });
 });

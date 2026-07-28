@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import Board from '@/pages/Board.vue';
+import type { IUser } from '@/types';
 import { Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const page = usePage<{
     auth: {
-        user: {
-            id: number;
-            name: string;
-        };
+        user: IUser | null;
     };
 }>();
 
@@ -60,7 +58,7 @@ const guestPerks = [
             </div>
         </section>
 
-        <Board :user="$page.props.auth.user" />
+        <Board :user="$page.props.auth.user ?? undefined" />
     </div>
 
     <footer class="gs-bar gs-border border-t px-5 py-5 text-center">

@@ -16,17 +16,7 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits([
-    'select-day',
-    'open-detail',
-    'join',
-    'watch',
-    'leave',
-    'edit-requested',
-    'delete-requested',
-    'copy-requested',
-    'create',
-]);
+const emit = defineEmits(['select-day', 'open-detail', 'join', 'watch', 'leave', 'edit-requested', 'delete-requested', 'copy-requested', 'create']);
 
 const { getInitials } = useInitials();
 
@@ -49,7 +39,7 @@ function tagline(session: GrowthSession): string {
                 v-for="(day, i) in days"
                 :key="day.toDateString()"
                 type="button"
-                class="cursor-pointer transition-smooth flex w-[86%] flex-col items-center gap-0.5 rounded-[10px] py-2.5"
+                class="transition-smooth flex w-[86%] cursor-pointer flex-col items-center gap-0.5 rounded-[10px] py-2.5"
                 :class="i === selectedIndex ? 'gs-accent-bg text-white' : 'hover:bg-black/5 dark:hover:bg-white/5'"
                 @click="emit('select-day', i)"
             >
@@ -80,7 +70,7 @@ function tagline(session: GrowthSession): string {
             <button
                 v-if="showCreateCta"
                 type="button"
-                class="cursor-pointer transition-smooth mb-5 flex w-full items-center gap-4 rounded-xl border-2 border-dashed px-5 py-4 text-left hover:bg-black/5 dark:hover:bg-white/5"
+                class="transition-smooth mb-5 flex w-full cursor-pointer items-center gap-4 rounded-xl border-2 border-dashed px-5 py-4 text-left hover:bg-black/5 dark:hover:bg-white/5"
                 :style="{ borderColor: 'var(--color-vehikl-orange)' }"
                 @click="emit('create')"
             >
@@ -153,7 +143,7 @@ function tagline(session: GrowthSession): string {
                         <button
                             v-show="session.canJoin(user)"
                             type="button"
-                            class="cursor-pointer join-button gs-btn-primary max-w-48 rounded-md px-4 py-2 text-sm font-semibold md:px-20"
+                            class="join-button gs-btn-primary max-w-48 cursor-pointer rounded-md px-4 py-2 text-sm font-semibold md:px-20"
                             @click.stop="emit('join', session)"
                         >
                             Join
@@ -161,7 +151,7 @@ function tagline(session: GrowthSession): string {
                         <button
                             v-show="session.canWatch(user)"
                             type="button"
-                            class="cursor-pointer watch-button gs-btn-secondary rounded-md px-5 py-2 text-sm font-semibold"
+                            class="watch-button gs-btn-secondary cursor-pointer rounded-md px-5 py-2 text-sm font-semibold"
                             @click.stop="emit('watch', session)"
                         >
                             Spectate
@@ -169,7 +159,7 @@ function tagline(session: GrowthSession): string {
                         <button
                             v-show="session.canLeave(user)"
                             type="button"
-                            class="cursor-pointer leave-button transition-smooth rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
+                            class="leave-button transition-smooth cursor-pointer rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
                             @click.stop="emit('leave', session)"
                         >
                             Leave
@@ -177,7 +167,7 @@ function tagline(session: GrowthSession): string {
                         <button
                             v-show="session.canEditOrDelete(user)"
                             type="button"
-                            class="cursor-pointer update-button gs-btn-primary max-w-48 rounded-md px-4 py-2 text-sm font-semibold md:px-20"
+                            class="update-button gs-btn-primary max-w-48 cursor-pointer rounded-md px-4 py-2 text-sm font-semibold md:px-20"
                             @click.stop="emit('edit-requested', session)"
                         >
                             Edit
@@ -185,7 +175,7 @@ function tagline(session: GrowthSession): string {
                         <button
                             v-show="session.canEditOrDelete(user)"
                             type="button"
-                            class="cursor-pointer delete-button transition-smooth rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
+                            class="delete-button transition-smooth cursor-pointer rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
                             @click.stop="emit('delete-requested', session)"
                         >
                             Delete
@@ -204,7 +194,7 @@ function tagline(session: GrowthSession): string {
                         <button
                             v-show="user && user.is_vehikl_member"
                             type="button"
-                            class="cursor-pointer copy-button gs-text-muted gs-border transition-smooth hover:text-gs-accent inline-flex h-9 w-9 items-center justify-center rounded-md border"
+                            class="copy-button gs-text-muted gs-border transition-smooth hover:text-gs-accent inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border"
                             title="Duplicate to another day"
                             @click.stop="emit('copy-requested', session)"
                         >

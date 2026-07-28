@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
 import About from '@/components/About.vue';
+import { Head } from '@inertiajs/vue3';
 </script>
 
 <template>

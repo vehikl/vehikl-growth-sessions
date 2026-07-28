@@ -1,13 +1,5 @@
 export class Nothingator {
-    static readonly nothingInDifferentLanguages: string[] = [
-        'Empty',
-        'Rien',
-        'Nada',
-        'Nichts',
-        'Niente',
-        'Нічого',
-        'Nothing at all'
-    ];
+    static readonly nothingInDifferentLanguages: string[] = ['Empty', 'Rien', 'Nada', 'Nichts', 'Niente', 'Нічого', 'Nothing at all'];
 
     static random(seed?: number | string): string {
         const words = [...Nothingator.nothingInDifferentLanguages];
@@ -29,7 +21,7 @@ export class Nothingator {
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
             const char = str.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
+            hash = (hash << 5) - hash + char;
             hash = hash & hash; // Convert to 32-bit integer
         }
         return Math.abs(hash);

@@ -67,7 +67,7 @@ async function leave() {
                 </div>
                 <button
                     type="button"
-                    class="cursor-pointer gs-text-muted transition-smooth hover:text-gs-accent text-xs font-semibold tracking-[0.04em]"
+                    class="gs-text-muted transition-smooth hover:text-gs-accent cursor-pointer text-xs font-semibold tracking-[0.04em]"
                     @click="emit('close')"
                 >
                     CLOSE ✕
@@ -98,7 +98,7 @@ async function leave() {
                 <button
                     v-show="growthSession.canJoin(user)"
                     type="button"
-                    class="cursor-pointer join-button gs-btn-primary rounded-md py-3 text-sm font-semibold"
+                    class="join-button gs-btn-primary cursor-pointer rounded-md py-3 text-sm font-semibold"
                     @click="join"
                 >
                     Join
@@ -106,7 +106,7 @@ async function leave() {
                 <button
                     v-show="growthSession.canWatch(user)"
                     type="button"
-                    class="cursor-pointer watch-button gs-btn-secondary rounded-md py-3 text-sm font-semibold"
+                    class="watch-button gs-btn-secondary cursor-pointer rounded-md py-3 text-sm font-semibold"
                     @click="watch"
                 >
                     Spectate
@@ -114,7 +114,7 @@ async function leave() {
                 <button
                     v-show="growthSession.canLeave(user)"
                     type="button"
-                    class="cursor-pointer leave-button transition-smooth rounded-md border border-red-500 py-3 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
+                    class="leave-button transition-smooth cursor-pointer rounded-md border border-red-500 py-3 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
                     @click="leave"
                 >
                     Leave
@@ -122,7 +122,7 @@ async function leave() {
                 <button
                     v-if="growthSession.canEditOrDelete(user)"
                     type="button"
-                    class="cursor-pointer update-button gs-btn-primary rounded-md py-3 text-sm font-semibold"
+                    class="update-button gs-btn-primary cursor-pointer rounded-md py-3 text-sm font-semibold"
                     @click="emit('edit-requested', growthSession)"
                 >
                     Edit
@@ -130,7 +130,7 @@ async function leave() {
                 <button
                     v-if="growthSession.canEditOrDelete(user)"
                     type="button"
-                    class="cursor-pointer delete-button transition-smooth rounded-md border border-red-500 py-3 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
+                    class="delete-button transition-smooth cursor-pointer rounded-md border border-red-500 py-3 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
                     @click="emit('delete-requested', growthSession)"
                 >
                     Delete

@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
 import VAvatar from '@/components/legacy/VAvatar.vue';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { IGrowthSession, IUser, IValidationError } from '@/types';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 
 interface IProps {
     user?: IUser;
@@ -17,9 +16,6 @@ const emit = defineEmits(['submitted']);
 const growthSession = ref<GrowthSession>(new GrowthSession(props.growthSessionJson));
 const validationErrors = ref<IValidationError | null>(null);
 
-const date = computed(() => `${DateTime.parseByDate(growthSession.value.date).format('MMM-DD')}`);
-const time = computed(() => `${growthSession.value.startTime} - ${growthSession.value.endTime}`);
-
 async function deleteGrowthSession() {
     await growthSession.value.delete();
     window.location.assign('/');
@@ -31,7 +27,7 @@ async function updateGrowthSession() {
         if (growthSession.value.isLimitless) {
             payload.attendee_limit = null;
         }
-        let updatedGrowthSession: IGrowthSession = await GrowthSessionApi.update(growthSession.value, payload);
+        const updatedGrowthSession: IGrowthSession = await GrowthSessionApi.update(growthSession.value, payload);
         emit('submitted', updatedGrowthSession);
         window.history.back();
     } catch (e) {
@@ -49,7 +45,7 @@ function onRequestFailed(exception: any) {
 }
 
 function getError(field: string): string {
-    let errors = validationErrors.value?.errors[field];
+    const errors = validationErrors.value?.errors[field];
     return errors ? errors[0] : '';
 }
 </script>
@@ -144,7 +140,7 @@ function getError(field: string): string {
 
                 <h3 class="mb-3 font-sans text-2xl font-light text-gray-700">Attendees</h3>
                 <ul>
-                    <li class="my-4 ml-6 flex items-center" v-for="attendee in growthSession.attendees">
+                    <li v-for="attendee in growthSession.attendees" :key="attendee.id" class="my-4 ml-6 flex items-center">
                         <v-avatar :alt="`${attendee.name}'s Avatar`" :size="12" :src="attendee.avatar" class="mr-3" />
                         {{ attendee.name }}
                     </li>

@@ -1,7 +1,7 @@
-import {IAnyDesk, IComment, IGrowthSession, ITag, IUser} from "@/types"
-import {DateTime} from "@/classes/DateTime"
-import {GrowthSessionApi} from "@/services/GrowthSessionApi"
-import {User} from "./User"
+import { DateTime } from '@/classes/DateTime';
+import { GrowthSessionApi } from '@/services/GrowthSessionApi';
+import { IAnyDesk, IComment, IGrowthSession, ITag, IUser } from '@/types';
+import { User } from './User';
 
 export class GrowthSession implements IGrowthSession {
     id!: number;
@@ -32,8 +32,11 @@ export class GrowthSession implements IGrowthSession {
     }
 
     get googleCalendarDate(): string {
-        return DateTime.parseByDateTime(this.date, this.start_time).toGoogleCalendarStyle() +
-            '/' + DateTime.parseByDateTime(this.date, this.end_time).toGoogleCalendarStyle();
+        return (
+            DateTime.parseByDateTime(this.date, this.start_time).toGoogleCalendarStyle() +
+            '/' +
+            DateTime.parseByDateTime(this.date, this.end_time).toGoogleCalendarStyle()
+        );
     }
 
     get startTime(): string {
@@ -54,9 +57,9 @@ export class GrowthSession implements IGrowthSession {
         this.allow_watchers = growthSession.allow_watchers;
         this.start_time = growthSession.start_time;
         this.end_time = growthSession.end_time;
-        this.owner = new User(growthSession.owner)
-        this.attendees = growthSession.attendees?.map(attendee => new User(attendee)) ?? []
-        this.watchers = growthSession.watchers?.map(attendee => new User(attendee)) ?? []
+        this.owner = new User(growthSession.owner);
+        this.attendees = growthSession.attendees?.map((attendee) => new User(attendee)) ?? [];
+        this.watchers = growthSession.watchers?.map((attendee) => new User(attendee)) ?? [];
         this.comments = growthSession.comments;
         this.attendee_limit = growthSession.attendee_limit;
         this.discord_channel_id = growthSession.discord_channel_id;
@@ -77,7 +80,7 @@ export class GrowthSession implements IGrowthSession {
     }
 
     get calendarUrl(): string {
-        let url = new URL('https://www.google.com/calendar/event');
+        const url = new URL('https://www.google.com/calendar/event');
         url.searchParams.append('action', 'TEMPLATE');
         url.searchParams.append('text', this.title);
         url.searchParams.append('dates', this.googleCalendarDate);
@@ -87,29 +90,23 @@ export class GrowthSession implements IGrowthSession {
         return url.toString();
     }
 
-    canWatch(user: IUser): boolean {
+    canWatch(user?: IUser | null): boolean {
         if (!user) {
             return false;
         }
 
-        return this.allow_watchers
-            && !this.isOwner(user)
-            && !this.isAttendeeOrWatcher(user)
-            && !this.hasAlreadyHappened
+        return this.allow_watchers && !this.isOwner(user) && !this.isAttendeeOrWatcher(user) && !this.hasAlreadyHappened;
     }
 
-    canJoin(user: IUser): boolean {
+    canJoin(user?: IUser | null): boolean {
         if (!user) {
             return false;
         }
 
-        return !this.isOwner(user)
-            && !this.isAttendeeOrWatcher(user)
-            && !this.hasAlreadyHappened
-            && !this.hasReachedAttendeeLimit();
+        return !this.isOwner(user) && !this.isAttendeeOrWatcher(user) && !this.hasAlreadyHappened && !this.hasReachedAttendeeLimit();
     }
 
-    private hasReachedAttendeeLimit() {
+    hasReachedAttendeeLimit() {
         return this.attendee_limit === this.attendees.length;
     }
 
@@ -117,25 +114,21 @@ export class GrowthSession implements IGrowthSession {
         try {
             const updated = await GrowthSessionApi.join(this);
             this.refresh(updated);
-        } catch (e) {
-
-        }
+        } catch {}
     }
 
     async watch() {
         try {
             const updated = await GrowthSessionApi.watch(this);
             this.refresh(updated);
-        } catch (e) {
-
-        }
+        } catch {}
     }
 
-    canLeave(user: IUser): boolean {
+    canLeave(user?: IUser | null): boolean {
         if (!user) {
             return false;
         }
-        return !this.isOwner(user) && this.isAttendeeOrWatcher(user) && !this.hasAlreadyHappened
+        return !this.isOwner(user) && this.isAttendeeOrWatcher(user) && !this.hasAlreadyHappened;
     }
 
     async leave() {
@@ -146,7 +139,7 @@ export class GrowthSession implements IGrowthSession {
         this.refresh(await GrowthSessionApi.postComment(this, content));
     }
 
-    canDeleteComment(user: IUser, comment: IComment) {
+    canDeleteComment(user: IUser | null | undefined, comment: IComment) {
         return user?.id === comment.user.id;
     }
 
@@ -154,7 +147,7 @@ export class GrowthSession implements IGrowthSession {
         this.refresh(await GrowthSessionApi.deleteComment(comment));
     }
 
-    canEditOrDelete(user: IUser): boolean {
+    canEditOrDelete(user?: IUser | null): boolean {
         if (!user) {
             return false;
         }
@@ -166,15 +159,17 @@ export class GrowthSession implements IGrowthSession {
         return await GrowthSessionApi.delete(this);
     }
 
-    isAttendeeOrWatcher(user: IUser): boolean {
+    isAttendeeOrWatcher(user?: IUser | null): boolean {
         if (!user) {
             return false;
         }
-        return this.attendees.filter(attendee => attendee.id === user?.id).length > 0
-            || this.watchers.filter(watcher => watcher.id === user?.id).length > 0;
+        return (
+            this.attendees.filter((attendee) => attendee.id === user?.id).length > 0 ||
+            this.watchers.filter((watcher) => watcher.id === user?.id).length > 0
+        );
     }
 
-    isOwner(user: IUser): boolean {
+    isOwner(user?: IUser | null): boolean {
         if (!user) {
             return false;
         }

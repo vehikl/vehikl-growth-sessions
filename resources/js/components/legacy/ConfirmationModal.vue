@@ -38,7 +38,13 @@ function onModalClosed() {
 
             <div class="mt-6 flex justify-end gap-3 border-t border-neutral-100 pt-4">
                 <VButton text="Cancel" color="blue" variant="outlined" class="!w-auto" @click="emit('dismissed')" />
-                <VButton :text="confirmLabel" color="orange" variant="filled" class="confirm-button !w-auto" @click="emit('confirmed')" />
+                <VButton
+                    :text="confirmLabel ?? 'Confirm'"
+                    color="orange"
+                    variant="filled"
+                    class="confirm-button !w-auto"
+                    @click="emit('confirmed')"
+                />
             </div>
         </div>
     </VModal>

@@ -1,6 +1,6 @@
-import {IGrowthSession, IWeekGrowthSessions} from '@/types';
-import {GrowthSession} from './GrowthSession';
-import {DateTime} from '@/classes/DateTime';
+import { DateTime } from '@/classes/DateTime';
+import { IGrowthSession, IWeekGrowthSessions } from '@/types';
+import { GrowthSession } from './GrowthSession';
 
 export class WeekGrowthSessions {
     weekGrowthSessions: IWeekGrowthSessions;
@@ -8,23 +8,23 @@ export class WeekGrowthSessions {
 
     constructor(weekGrowthSessions: IWeekGrowthSessions) {
         this.weekGrowthSessions = weekGrowthSessions;
-        let weekDateStrings = Object.keys(weekGrowthSessions);
-        for (let weekDate of weekDateStrings) {
+        const weekDateStrings = Object.keys(weekGrowthSessions);
+        for (const weekDate of weekDateStrings) {
             this.weekGrowthSessions[weekDate] = weekGrowthSessions[weekDate].map((growthSession: IGrowthSession) => new GrowthSession(growthSession));
-            this.weekDates.push(DateTime.parseByDate(weekDate))
+            this.weekDates.push(DateTime.parseByDate(weekDate));
         }
     }
 
     get allGrowthSessions(): GrowthSession[] {
-        let growthSessions = [];
-        for (let weekDate of this.weekDates) {
+        const growthSessions = [];
+        for (const weekDate of this.weekDates) {
             growthSessions.push(...this.weekGrowthSessions[weekDate.toDateString()]);
         }
         return growthSessions as GrowthSession[];
     }
 
     getSessionByDate(date: DateTime): GrowthSession[] {
-        return this.weekGrowthSessions[date.toDateString()] as GrowthSession[] ?? [];
+        return (this.weekGrowthSessions[date.toDateString()] as GrowthSession[]) ?? [];
     }
 
     get isReady(): boolean {
@@ -41,10 +41,10 @@ export class WeekGrowthSessions {
     }
 
     get hasCurrentDate(): boolean {
-        return !!this.weekDates.find(date => date.isToday())
+        return !!this.weekDates.find((date) => date.isToday());
     }
 
     static empty(): WeekGrowthSessions {
-        return new WeekGrowthSessions({[DateTime.today().toDateString()] : []});
+        return new WeekGrowthSessions({ [DateTime.today().toDateString()]: [] });
     }
 }

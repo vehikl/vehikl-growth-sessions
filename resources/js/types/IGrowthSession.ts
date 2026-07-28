@@ -1,5 +1,5 @@
-import {IComment, IUser, ITag} from '.';
-import {IAnyDesk} from "./IAnyDesk";
+import { IComment, ITag, IUser } from '.';
+import { IAnyDesk } from './IAnyDesk';
 
 export interface IGrowthSession {
     id: number;
