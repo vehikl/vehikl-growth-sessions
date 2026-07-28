@@ -28,8 +28,12 @@ class ShowStatisticsController extends Controller
         );
 
         $formattedStatistics = app(Statistics::class)->getFormattedStatisticsFor($start_date, $end_date);
-        $sessions = GrowthSession::query()->whereBetween('date', [$start_date, $end_date]);
-        $weeklySessions = (clone $sessions)->with('attendees:id')->withCount('attendees')->get();
+
+        $weeklySessions = GrowthSession::query()
+            ->whereBetween('date', [today()->startOfWeek()->toDateString(), today()->endOfWeek()->toDateString()])
+            ->with('attendees:id')
+            ->withCount('attendees')
+            ->get();
         $weeklyParticipants = $weeklySessions->flatMap->attendees->pluck('id')->unique();
         $currentUserStatistics = $formattedStatistics->firstWhere('user_id', $request->user()->id);
 

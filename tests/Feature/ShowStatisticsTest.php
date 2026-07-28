@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\GrowthSession;
 use App\Models\GrowthSessionUser;
+use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserType;
 use Carbon\CarbonInterface;
@@ -308,6 +309,57 @@ class ShowStatisticsTest extends TestCase
                     ],
                 ]
             ]);
+    }
+
+    public function testItReturnsAWeeklySummaryAndTheCurrentUsersStatistics()
+    {
+        [$owner, $attendee] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->getJson(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertJson([
+                'summary' => [
+                    'lifetime_sessions_count' => 5,
+                    'sessions_this_week_count' => 2,
+                    'weekly_unique_participants_count' => 1,
+                ],
+                'current_user' => [
+                    'user_id' => $owner->id,
+                    'name' => $owner->name,
+                ],
+            ])
+            ->assertJsonStructure([
+                'summary' => [
+                    'lifetime_sessions_count',
+                    'sessions_this_week_count',
+                    'weekly_unique_participants_count',
+                    'average_attendance_count',
+                ],
+            ]);
+    }
+
+    public function testItReturnsTagUsageCountsForTheSelectedRange()
+    {
+        $this->setTestNowToASafeWednesday();
+        $user = User::factory()->vehiklMember()->create();
+
+        $laravel = Tag::factory()->create(['name' => 'Laravel']);
+        $vue = Tag::factory()->create(['name' => 'Vue']);
+        Tag::factory()->create(['name' => 'Unused']);
+
+        GrowthSession::factory()->count(2)->create(['date' => today()])
+            ->each(fn (GrowthSession $session) => $session->tags()->attach($laravel));
+        GrowthSession::factory()->create(['date' => today()])->tags()->attach($vue);
+
+        $this->actingAs($user)
+            ->getJson(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertJsonPath('tags.0.name', 'Laravel')
+            ->assertJsonPath('tags.0.sessions_count', 2)
+            ->assertJsonPath('tags.1.name', 'Vue')
+            ->assertJsonPath('tags.1.sessions_count', 1)
+            ->assertJsonMissing(['name' => 'Unused']);
     }
 
     private function makeGrowthSessionWithSingleAttendee(

@@ -56,9 +56,13 @@ watch(
     { immediate: true },
 );
 
+const selectedSession = ref<GrowthSession | null>(null);
+
 watch(
     () => props.user?.id,
     () => {
+        selectedSession.value = null;
+
         if (props.user) return;
 
         refreshGrowthSessionsOfTheWeek();
@@ -67,7 +71,6 @@ watch(
 
 const dayIndex = ref(0);
 const filtersOpen = ref(false);
-const selectedSession = ref<GrowthSession | null>(null);
 
 const allTags = ref<ITag[]>([]);
 

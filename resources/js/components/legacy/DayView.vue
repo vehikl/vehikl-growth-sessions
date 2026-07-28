@@ -93,13 +93,15 @@ function tagline(session: GrowthSession): string {
                 <div class="gs-text-sub w-32 flex-none pt-3.5 text-sm font-semibold uppercase">{{ session.startTime }} – {{ session.endTime }}</div>
 
                 <div
-                    class="gs-card gs-border transition-smooth flex min-w-55 flex-1 cursor-pointer flex-col gap-2.5 rounded-lg border p-3 px-4 hover:shadow-md"
+                    class="gs-card gs-border transition-smooth relative flex min-w-55 flex-1 flex-col gap-2.5 rounded-lg border p-3 px-4 hover:shadow-md"
                     :style="{ opacity: sessionStatus(session) === 'finished' ? 0.55 : 1 }"
-                    role="button"
-                    tabindex="0"
-                    @click="emit('open-detail', session)"
-                    @keydown.enter="emit('open-detail', session)"
                 >
+                    <button
+                        type="button"
+                        class="absolute inset-0 z-10 h-full w-full cursor-pointer rounded-lg"
+                        :aria-label="`View details for ${session.title}`"
+                        @click="emit('open-detail', session)"
+                    ></button>
                     <div class="flex flex-wrap items-start justify-between gap-2">
                         <div class="flex min-w-0 items-start gap-3">
                             <span
@@ -139,7 +141,7 @@ function tagline(session: GrowthSession): string {
                         </span>
                     </div>
 
-                    <div class="gs-divider-color flex flex-wrap items-center gap-2 border-t pt-2.5" @click.stop>
+                    <div class="gs-divider-color relative z-20 flex flex-wrap items-center gap-2 border-t pt-2.5" @click.stop>
                         <button
                             v-show="session.canJoin(user)"
                             type="button"

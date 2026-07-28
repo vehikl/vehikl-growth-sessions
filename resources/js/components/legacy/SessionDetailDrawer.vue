@@ -6,7 +6,7 @@ import { useInitials } from '@/composables/useInitials';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
 import { ChevronRight } from 'lucide-vue-next';
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 
 interface IProps {
     growthSession: GrowthSession;
@@ -16,14 +16,48 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['close', 'edit-requested', 'delete-requested', 'refresh']);
 
+const panel = ref<HTMLElement | null>(null);
+let previouslyFocused: HTMLElement | null = null;
+
+function focusableElements(): HTMLElement[] {
+    if (!panel.value) return [];
+    return Array.from(
+        panel.value.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'),
+    ).filter((el) => el.offsetParent !== null || el === panel.value);
+}
+
 function onKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
         emit('close');
+        return;
+    }
+
+    if (event.key !== 'Tab') return;
+
+    const focusable = focusableElements();
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
     }
 }
 
-onMounted(() => document.addEventListener('keydown', onKeydown));
-onUnmounted(() => document.removeEventListener('keydown', onKeydown));
+onMounted(() => {
+    previouslyFocused = document.activeElement as HTMLElement | null;
+    document.addEventListener('keydown', onKeydown);
+    nextTick(() => (focusableElements()[0] ?? panel.value)?.focus());
+});
+onUnmounted(() => {
+    document.removeEventListener('keydown', onKeydown);
+    previouslyFocused?.focus();
+});
 
 const { getInitials } = useInitials();
 
@@ -48,8 +82,8 @@ async function leave() {
 </script>
 
 <template>
-    <div class="gs-overlay-bg gs-fade-in fixed inset-0 z-30 flex justify-end" @click="emit('close')">
-        <div class="gs-card gs-drawer-panel h-full max-w-2xl overflow-y-auto p-7 shadow-2xl" @click.stop>
+    <div class="gs-overlay-bg gs-fade-in fixed inset-0 z-30 flex justify-end" role="dialog" aria-modal="true" aria-labelledby="drawer-title" @click="emit('close')">
+        <div ref="panel" tabindex="-1" class="gs-card gs-drawer-panel h-full max-w-2xl overflow-y-auto p-7 shadow-2xl outline-none" @click.stop>
             <div class="mb-3 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
                     <span
@@ -75,7 +109,7 @@ async function leave() {
                 </button>
             </div>
 
-            <h2 class="gs-text-strong font-display mb-2.5 text-2xl leading-tight font-bold">{{ growthSession.title }}</h2>
+            <h2 id="drawer-title" class="gs-text-strong font-display mb-2.5 text-2xl leading-tight font-bold">{{ growthSession.title }}</h2>
 
             <div class="mb-3 flex items-center gap-2.5">
                 <span class="gs-text-sub text-xs font-semibold">{{ growthSession.startTime }}–{{ growthSession.endTime }}</span>

@@ -59,14 +59,13 @@ async function onDeleteClicked() {
 </script>
 
 <template>
-    <div
-        class="group gs-card gs-border transition-smooth mb-3 cursor-pointer rounded-lg border p-4 hover:shadow-md"
-        :style="{ opacity: cardOpacity }"
-        role="button"
-        tabindex="0"
-        @click="emit('open-detail', growthSession)"
-        @keydown.enter="emit('open-detail', growthSession)"
-    >
+    <div class="group gs-card gs-border transition-smooth relative mb-3 rounded-lg border p-4 hover:shadow-md" :style="{ opacity: cardOpacity }">
+        <button
+            type="button"
+            class="absolute inset-0 z-10 h-full w-full cursor-pointer rounded-lg"
+            :aria-label="`View details for ${growthSession.title}`"
+            @click="emit('open-detail', growthSession)"
+        ></button>
         <div class="mb-3 flex items-center justify-between gap-2">
             <div class="flex min-w-0 items-center gap-2.5">
                 <span
@@ -102,7 +101,7 @@ async function onDeleteClicked() {
             <template v-else>&lt; Join to see location &gt;</template>
         </div>
 
-        <div class="flex gap-1.5 empty:hidden" @click.stop>
+        <div class="relative z-20 flex gap-1.5 empty:hidden" @click.stop>
             <button
                 v-show="growthSession.canJoin(user)"
                 type="button"
@@ -146,7 +145,7 @@ async function onDeleteClicked() {
         </div>
 
         <!-- Owner / utility actions: collapsed until hover so the card stays clean like the design -->
-        <div class="max-h-0 overflow-hidden opacity-0 transition-all duration-200 group-hover:max-h-12 group-hover:opacity-100" @click.stop>
+        <div class="relative z-20 max-h-0 overflow-hidden opacity-0 transition-all duration-200 group-hover:max-h-12 group-hover:opacity-100" @click.stop>
             <div class="flex items-center gap-0.5 pt-2.5">
                 <a
                     aria-label="add-to-calendar"

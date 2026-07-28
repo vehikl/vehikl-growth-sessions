@@ -37,6 +37,7 @@ const selectedAnydeskId = ref<string>('');
 const anyDesks = ref<IDropdownOption[]>([]);
 const tagIds = ref<string[]>([]);
 const tagOptions = ref<{ label: string; value: string }[]>([]);
+const showTags = ref<boolean>(true);
 const titleInput = ref<HTMLInputElement | null>(null);
 
 function toggleTag(value: string) {
@@ -80,6 +81,7 @@ onBeforeMount(() => {
         startTime.value = DateTime.parseByTime(props.growthSession.start_time).toTimeString12Hours();
         endTime.value = DateTime.parseByTime(props.growthSession.end_time).toTimeString12Hours();
         location.value = props.growthSession.location;
+        selectedDiscordChannelId.value = props.growthSession.discord_channel_id;
         title.value = props.growthSession.title;
         topic.value = props.growthSession.topic;
         isLimitless.value = !props.growthSession.attendee_limit;
@@ -278,7 +280,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                 <div class="grid gap-2.5 sm:grid-cols-3">
                     <div v-if="anyDesks.length > 0">
                         <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="anydesk-selection">AnyDesk</label>
-                        <v-select id="anydesk-selection" v-model="selectedAnydeskId" :options="anyDesks" placeholder="None" class="w-full" />
+                        <v-select id="anydesk-selection" v-model="selectedAnydeskId" :options="anyDesks" placeholder="None" clearable class="w-full" />
                     </div>
                     <div v-if="discordChannels.length > 0">
                         <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">Discord</label>
@@ -287,6 +289,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                             v-model="selectedDiscordChannelId"
                             :options="discordChannels"
                             placeholder="No channel"
+                            clearable
                             class="w-full"
                         />
                     </div>
@@ -362,7 +365,12 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
             </div>
 
             <div class="gs-border border-t pt-3.5">
-                <button type="button" class="gs-text-sub inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold uppercase">
+                <button
+                    type="button"
+                    class="gs-text-sub inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold uppercase"
+                    :aria-expanded="showTags"
+                    @click="showTags = !showTags"
+                >
                     + Add tags
                     <span class="gs-text-muted font-normal lowercase">(optional)</span>
                     <span
@@ -371,7 +379,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                         >{{ tagIds.length }}</span
                     >
                 </button>
-                <div class="mt-3 flex flex-wrap gap-2">
+                <div v-show="showTags" class="mt-3 flex flex-wrap gap-2">
                     <button
                         v-for="option in tagOptions"
                         :key="option.value"
