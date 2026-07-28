@@ -26,6 +26,10 @@ describe('CommentList', () => {
             });
     });
 
+    it('displays the comment count beside the header', () => {
+        expect(wrapper.find('h2').text()).toBe(`Comments (${growthSession.comments.length})`);
+    });
+
     it('allows a new comment to be created', async () => {
         GrowthSessionApi.postComment = vi.fn().mockResolvedValue(growthSession);
         const comment = 'My comment';

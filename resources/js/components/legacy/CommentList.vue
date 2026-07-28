@@ -41,7 +41,7 @@ function shortTimestamp(timeStamp: string): string {
 
 <template>
     <div>
-        <h2 class="gs-text-muted mb-3 text-xs font-bold tracking-[0.06em] uppercase">Comments</h2>
+        <h2 class="gs-text-muted mb-3 text-xs font-bold tracking-[0.06em] uppercase">Comments ({{ growthSession.comments.length }})</h2>
         <ul class="mb-4 flex flex-col gap-4">
             <li v-for="comment in growthSession.comments" :key="comment.id" class="flex gap-3">
                 <a :href="getGithubURL(comment)" aria-label="visit-their-github" class="flex-none">
