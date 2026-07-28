@@ -201,9 +201,9 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
     if (!selectedId) {
         return;
     }
-    if (!location.value || location.value.startsWith('Discord: ')) {
+    if (!location.value || location.value.startsWith('Channel: ')) {
         const discordChannelName = discordChannels.value.find((channel) => channel.value === selectedId)?.label;
-        location.value = `Discord: ${discordChannelName}`;
+        location.value = `Channel: ${discordChannelName}`;
     }
 });
 </script>

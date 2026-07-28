@@ -92,8 +92,8 @@ async function onDeleteClicked() {
             <span>{{ growthSession.startTime }} – {{ growthSession.endTime }}</span>
             <span class="attendees-count inline-flex items-center gap-1">
                 <i class="fa fa-user text-xs" aria-hidden="true"></i>
-                {{ growthSession.attendees.length
-                }}<span v-if="growthSession.attendee_limit" class="attendee-limit">/{{ growthSession.attendee_limit }}</span>
+                {{ growthSession.attendees.length }}
+                <span v-if="growthSession.attendee_limit" class="attendee-limit">/{{ growthSession.attendee_limit }}</span>
             </span>
         </div>
 

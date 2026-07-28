@@ -136,9 +136,6 @@ describe('GrowthSessionForm', () => {
                 }
 
                 if (anyDesk) {
-                    wrapper.find('#anydesks-toggle').setChecked();
-                    await wrapper.vm.$nextTick();
-
                     wrapper.find('#anydesk-selection').setValue(anyDeskId.toString());
                 }
 
@@ -226,9 +223,8 @@ describe('GrowthSessionForm', () => {
             expect(wrapper.find('#discord-channel').exists()).toBeFalsy();
         });
 
-        it('displays a checkbox and dropdown select with AnyDesks when AnyDesks given', async () => {
-            const useAnyDesksSelector = wrapper.find('#anydesks-toggle');
-            await useAnyDesksSelector.setChecked();
+        it('displays a dropdown select with AnyDesks when AnyDesks given', async () => {
+            await flushPromises();
 
             const anyDesksSelector = wrapper.find('#anydesk-selection');
             expect(anyDesksSelector.exists()).toBeTruthy();
@@ -237,14 +233,11 @@ describe('GrowthSessionForm', () => {
             expect(optionsAvailable).toEqual(expect.arrayContaining(optionsExpected));
         });
 
-        it('does not display a checkbox and dropdown select with AnyDesks when no AnyDesks given', async () => {
+        it('does not display the dropdown select with AnyDesks when no AnyDesks given', async () => {
             AnydesksApi.getAllAnyDesks = vi.fn().mockImplementation(() => []);
             wrapper = mount(GrowthSessionForm, { propsData: { owner: user, startDate } });
 
             await flushPromises();
-
-            const useAnyDesksSelector = wrapper.find('#anydesks-toggle');
-            expect(useAnyDesksSelector.exists()).toBe(false);
 
             const anyDesksSelector = wrapper.find('#anydesk-selection');
             expect(anyDesksSelector.exists()).toBe(false);
@@ -258,7 +251,7 @@ describe('GrowthSessionForm', () => {
             expect(locationInput.value).toBe('');
 
             await selector.setValue(discordChannels[0].id);
-            expect(locationInput.value).toBe(`Discord Channel: ${discordChannels[0].name}`);
+            expect(locationInput.value).toBe(`Channel: ${discordChannels[0].name}`);
         });
 
         it('changes the location when new Discord channel is selected if old location was a Discord channel', async () => {
@@ -267,10 +260,10 @@ describe('GrowthSessionForm', () => {
             const locationInput = wrapper.find('#location').element as HTMLInputElement;
 
             await selector.setValue(discordChannels[0].id);
-            expect(locationInput.value).toBe(`Discord Channel: ${discordChannels[0].name}`);
+            expect(locationInput.value).toBe(`Channel: ${discordChannels[0].name}`);
 
             await selector.setValue(discordChannels[1].id);
-            expect(locationInput.value).toBe(`Discord Channel: ${discordChannels[1].name}`);
+            expect(locationInput.value).toBe(`Channel: ${discordChannels[1].name}`);
         });
 
         it('allows users to create a public growth session', async () => {
