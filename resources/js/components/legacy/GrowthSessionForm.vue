@@ -6,7 +6,7 @@ import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
 import { IGrowthSession, IStoreGrowthSessionRequest, IUser, IValidationError } from '@/types';
 import { IDropdownOption } from '@/types/IDropdownOption';
-import { computed, onBeforeMount, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeMount, onMounted, ref, watch } from 'vue';
 import ConfirmationModal from './ConfirmationModal.vue';
 import TimePicker from './TimePicker.vue';
 import VSelect from './VSelect.vue';
@@ -37,6 +37,7 @@ const selectedAnydeskId = ref<string>('');
 const anyDesks = ref<IDropdownOption[]>([]);
 const tagIds = ref<string[]>([]);
 const tagOptions = ref<{ label: string; value: string }[]>([]);
+const titleInput = ref<HTMLInputElement | null>(null);
 
 function toggleTag(value: string) {
     tagIds.value = tagIds.value.includes(value) ? tagIds.value.filter((v) => v !== value) : [...tagIds.value, value];
@@ -88,6 +89,10 @@ onBeforeMount(() => {
         allowWatchers.value = props.growthSession.allow_watchers;
         tagIds.value = props.growthSession.tags.map((tag) => tag.id.toString());
     }
+});
+
+onMounted(() => {
+    nextTick(() => titleInput.value?.focus());
 });
 
 function onSubmit() {
@@ -215,6 +220,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                 <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="title">Title</label>
                 <input
                     id="title"
+                    ref="titleInput"
                     v-model="title"
                     :class="{ 'error-outline': getError('title') }"
                     class="gs-input w-full rounded-lg px-3 py-2.5 text-sm"

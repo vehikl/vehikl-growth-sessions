@@ -68,6 +68,15 @@ describe('GrowthSessionForm', () => {
         allow_watchers: true,
     };
     describe('used for creation', () => {
+        it('focuses the title input when the form opens', async () => {
+            wrapper.unmount();
+            wrapper = mount(GrowthSessionForm, { propsData: { owner: user, startDate }, attachTo: document.body });
+            await flushPromises();
+
+            expect(document.activeElement).toBe(wrapper.find('#title').element);
+            wrapper.unmount();
+        });
+
         describe('allows a growth session to be created', () => {
             type TGrowthSessionCreationScenario = [string, IStoreGrowthSessionRequest];
 
