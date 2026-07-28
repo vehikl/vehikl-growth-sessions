@@ -33,6 +33,8 @@ const formModalState = ref<'open' | 'closed'>('closed');
 const selectedTagIds = ref<number[]>([]);
 const searchQuery = ref('');
 const debouncedSearchQuery = ref('');
+const searchInput = ref<HTMLInputElement | null>(null);
+const searchShortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? '⌘K' : 'Ctrl K';
 
 // The week view only makes sense on wider screens; small screens are day-only.
 const isDesktop = useMediaQuery('(min-width: 768px)');
@@ -103,17 +105,28 @@ onBeforeMount(async () => {
 
 onMounted(() => {
     window.addEventListener('gs:create-session', handleHeaderCreate);
+    window.addEventListener('gs:focus-search', handleSearchFocus);
     window.addEventListener('keydown', handleViewShortcut);
 });
 
 onBeforeUnmount(() => {
     window.onpopstate = null;
     window.removeEventListener('gs:create-session', handleHeaderCreate);
+    window.removeEventListener('gs:focus-search', handleSearchFocus);
     window.removeEventListener('keydown', handleViewShortcut);
 });
 
 function handleHeaderCreate() {
     onCreateNewGrowthSessionClicked(selectedDate.value);
+}
+
+function handleSearchFocus() {
+    searchInput.value?.focus();
+    searchInput.value?.select();
+}
+
+function handleSearchEscape() {
+    searchInput.value?.blur();
 }
 
 function handleViewShortcut(event: KeyboardEvent) {
@@ -365,12 +378,20 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
 
             <div class="relative col-span-2 min-w-0 md:col-span-1 md:min-w-45 md:flex-1">
                 <input
+                    ref="searchInput"
                     v-model="searchQuery"
                     type="text"
                     placeholder="Search sessions..."
-                    class="search-input gs-input w-full rounded-lg px-4 py-2.5 text-sm"
+                    class="search-input gs-input w-full rounded-lg py-2.5 pr-18 pl-4 text-sm"
                     aria-label="Search growth sessions by title, description, or host name"
+                    @keydown.esc="handleSearchEscape"
                 />
+                <kbd
+                    v-if="!searchQuery"
+                    class="gs-text-muted gs-border pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 rounded border px-1.5 py-0.5 font-sans text-[10px]"
+                >
+                    {{ searchShortcutLabel }}
+                </kbd>
                 <button
                     v-if="searchQuery"
                     class="gs-text-muted transition-smooth hover:text-gs-accent absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer rounded-md px-2 py-1"

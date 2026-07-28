@@ -25,9 +25,11 @@ const { theme, toggleTheme } = useTheme();
 const isDark = computed(() => theme.value === 'dark');
 const shortcutModifier = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? '⌘' : 'Ctrl ';
 const shortcuts: Shortcut[] = [
+    { name: 'Search sessions', caption: 'Available on the Board', shortcut: `${shortcutModifier}K` },
     { name: 'Day view', caption: 'Available on the Board', shortcut: 'D' },
     { name: 'Week view', caption: 'Available on the Board', shortcut: 'W' },
     { name: 'Switch theme', shortcut: 'T' },
+    { name: 'Show keyboard shortcuts', shortcut: '?' },
 ];
 
 const navLinkClass = 'mr-2 cursor-pointer text-sm font-semibold uppercase tracking-[0.08em] transition-smooth hover:text-white sm:mr-3';
@@ -61,20 +63,43 @@ function handleThemeShortcut(event: KeyboardEvent) {
 }
 
 function handleShortcutsDialog(event: KeyboardEvent) {
-    if (event.key.toLowerCase() === 'k' && (event.metaKey || event.ctrlKey)) {
-        event.preventDefault();
-        shortcutsPopover.value?.togglePopover();
+    if (event.key !== '?' || event.altKey || event.ctrlKey || event.metaKey) return;
+
+    const target = event.target;
+    if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        (target instanceof HTMLElement && target.isContentEditable)
+    ) {
+        return;
     }
+
+    event.preventDefault();
+    shortcutsPopover.value?.togglePopover();
+}
+
+function focusSessionSearch() {
+    window.dispatchEvent(new CustomEvent('gs:focus-search'));
+}
+
+function handleSearchShortcut(event: KeyboardEvent) {
+    if (event.key.toLowerCase() !== 'k' || (!event.metaKey && !event.ctrlKey) || event.altKey) return;
+
+    event.preventDefault();
+    focusSessionSearch();
 }
 
 onMounted(() => {
     window.addEventListener('keydown', handleThemeShortcut);
     window.addEventListener('keydown', handleShortcutsDialog);
+    window.addEventListener('keydown', handleSearchShortcut);
 });
 
 onBeforeUnmount(() => {
     window.removeEventListener('keydown', handleThemeShortcut);
     window.removeEventListener('keydown', handleShortcutsDialog);
+    window.removeEventListener('keydown', handleSearchShortcut);
 });
 </script>
 
@@ -89,16 +114,6 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="hidden items-center justify-end gap-x-3 md:flex lg:gap-x-4">
-            <button
-                type="button"
-                class="transition-smooth flex cursor-pointer items-center gap-1 rounded-md bg-white/5 px-2.5 py-1.5 inset-ring inset-ring-white/10 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-                aria-label="Show keyboard shortcuts"
-                title="Show keyboard shortcuts"
-                popovertarget="keyboard-shortcuts-popover"
-            >
-                <kbd class="font-sans text-sm text-white/75">{{ shortcutModifier }}K</kbd>
-            </button>
-
             <template v-if="$page.props.auth.user">
                 <template v-if="$page.props.auth.user.is_vehikl_member">
                     <Link :href="route('home')" :class="navigationClass('home')">Board</Link>
@@ -144,6 +159,19 @@ onBeforeUnmount(() => {
                                     {{ $page.props.auth.user.email ?? $page.props.auth.user.name }}
                                 </p>
                             </div>
+                            <button
+                                type="button"
+                                role="menuitem"
+                                class="gs-text-body transition-smooth flex w-full cursor-pointer items-center justify-between px-4 py-2.5 text-left text-sm hover:bg-black/5 dark:hover:bg-white/5"
+                                popovertarget="keyboard-shortcuts-popover"
+                                @click="userMenuOpen = false"
+                            >
+                                <span class="flex items-center gap-2">
+                                    <i class="fa fa-keyboard-o text-base" aria-hidden="true"></i>
+                                    Keyboard shortcuts
+                                </span>
+                                <kbd class="gs-text-muted text-xs">?</kbd>
+                            </button>
                             <Link
                                 :href="route('logout')"
                                 method="post"
@@ -277,7 +305,7 @@ onBeforeUnmount(() => {
                             @click="mobileMenuOpen = false"
                         >
                             Keyboard shortcuts
-                            <kbd class="gs-text-muted text-xs">{{ shortcutModifier }}K</kbd>
+                            <kbd class="gs-text-muted text-xs">?</kbd>
                         </button>
                         <button
                             type="button"
@@ -290,6 +318,8 @@ onBeforeUnmount(() => {
                             {{ isDark ? 'Light theme' : 'Dark theme' }}
                             <kbd class="gs-text-muted text-xs">T</kbd>
                         </button>
+                    </div>
+                    <div class="gs-border mt-2 space-y-1 border-t pt-2">
                         <Link
                             v-if="$page.props.auth.user"
                             :href="route('logout')"
