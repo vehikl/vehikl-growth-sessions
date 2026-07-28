@@ -101,8 +101,11 @@ describe('Board', () => {
     }
 
     it('loads with the current week growth sessions in display', () => {
-        const titlesOfTheWeek = growthSessionsThisWeek.allGrowthSessions.map((growthSession: GrowthSession) => growthSession.title);
-        for (let title of titlesOfTheWeek) {
+        // Mounted as a guest, so only public sessions are shown.
+        const publicTitlesOfTheWeek = growthSessionsThisWeek.allGrowthSessions
+            .filter((growthSession: GrowthSession) => growthSession.is_public)
+            .map((growthSession: GrowthSession) => growthSession.title);
+        for (let title of publicTitlesOfTheWeek) {
             expect(wrapper.text()).toContain(title);
         }
     });
@@ -642,6 +645,51 @@ describe('Board', () => {
                 expect(visibleSessions.length).toBe(1); // Only private session by Tamia
                 expect(visibleSessions[0].text()).toContain('This is a private GS');
             });
+        });
+    });
+
+    describe('when the signed-in user changes', () => {
+        it('re-fetches the week so private sessions do not linger after logging out', async () => {
+            wrapper = mount(Board, { propsData: { user: authVehiklUser } });
+            await flushPromises();
+
+            (GrowthSessionApi.getAllGrowthSessionsOfTheWeek as ReturnType<typeof vi.fn>).mockClear();
+
+            // Simulate an Inertia logout: the page swaps the user prop to null without remounting the board.
+            await wrapper.setProps({ user: undefined });
+            await flushPromises();
+
+            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledTimes(1);
+        });
+
+        it('does not re-fetch when the same user is re-applied', async () => {
+            wrapper = mount(Board, { propsData: { user: authVehiklUser } });
+            await flushPromises();
+
+            (GrowthSessionApi.getAllGrowthSessionsOfTheWeek as ReturnType<typeof vi.fn>).mockClear();
+
+            await wrapper.setProps({ user: { ...authVehiklUser } });
+            await flushPromises();
+
+            expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).not.toHaveBeenCalled();
+        });
+
+        it('hides private sessions from guests even when they are still cached client-side', async () => {
+            const privateSession = growthSessionsThisWeek.allGrowthSessions.find((gs) => !gs.is_public);
+            expect(privateSession).toBeTruthy(); // guard: the fixture must contain a private session
+
+            wrapper = mount(Board, { propsData: { user: authVehiklUser } });
+            await flushPromises();
+
+            const showsPrivate = () => wrapper.findAllComponents(GrowthSessionCard).some((card) => card.text().includes(privateSession!.title));
+
+            expect(showsPrivate()).toBe(true); // visible to the Vehikl user
+
+            // Log out: the private session is still in the client cache, but must not be displayed.
+            await wrapper.setProps({ user: undefined });
+            await flushPromises();
+
+            expect(showsPrivate()).toBe(false);
         });
     });
 });

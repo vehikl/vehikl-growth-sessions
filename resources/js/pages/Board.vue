@@ -56,6 +56,13 @@ watch(
     { immediate: true },
 );
 
+watch(() => props.user?.id, () => {
+    if (props.user)
+        return;
+
+    refreshGrowthSessionsOfTheWeek();
+});
+
 const dayIndex = ref(0);
 const filtersOpen = ref(false);
 const selectedSession = ref<GrowthSession | null>(null);
@@ -162,6 +169,14 @@ function growthSessionsVisibleInDate(date: DateTime) {
             return session.tags.some((tag) => selectedTagIds.value.includes(tag.id));
         })
         .filter((session) => {
+            // Guests can only ever see public sessions. The server enforces this too, but
+            // guarding here means private sessions can't linger in the UI after logging out
+            // (before any refetch resolves), and the Vehikl-only visibility filter below
+            // simply doesn't apply to guests.
+            if (!props.user) {
+                return session.is_public;
+            }
+
             if (visibilityFilter.value === 'private') {
                 return !session.is_public;
             }
