@@ -65,7 +65,7 @@ export class GrowthSession implements IGrowthSession {
     }
 
     get hasAlreadyHappened(): boolean {
-        return DateTime.parseByDate(this.date).isInAPastDate();
+        return DateTime.parseByDateTime(this.date, this.end_time).isInThePast();
     }
 
     get renderedTitle(): string {

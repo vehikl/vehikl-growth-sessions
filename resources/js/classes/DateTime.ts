@@ -2,10 +2,10 @@ import moment, {Moment} from "moment-timezone"
 
 export class DateTime {
     private dateTime: string;
-    private static nowString: string = (new Date()).toISOString();
+    private static testNowString: string | null = null;
 
     constructor(dateTime?: string) {
-        this.dateTime = dateTime || DateTime.nowString;
+        this.dateTime = dateTime || DateTime.testNowString || new Date().toISOString();
     }
 
     static parseByDate(date: string): DateTime {
@@ -26,7 +26,7 @@ export class DateTime {
     }
 
     static setTestNow(date: string) {
-        DateTime.nowString = moment(date).toISOString();
+        DateTime.testNowString = moment(date).toISOString();
     }
 
     format(formatString: string): string {
@@ -78,6 +78,10 @@ export class DateTime {
         const current: Moment = moment(this.toDateString());
         const today: Moment = moment(DateTime.today().toDateString());
         return current.isBefore(today);
+    }
+
+    isInThePast(): boolean {
+        return moment(this.dateTime).isBefore(DateTime.today().toISOString());
     }
 
     isEvenDate() {

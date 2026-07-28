@@ -130,7 +130,7 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canEditOrDelete(user)"
                 type="button"
-                class="cursor-pointer join-button gs-btn-primary flex-3 rounded-sm py-1.5 px-4 text-sm font-medium"
+                class="cursor-pointer update-button gs-btn-primary flex-3 rounded-sm py-1.5 px-4 text-sm font-medium"
                 @click.stop="emit('edit-requested', growthSession)"
             >
                 Edit

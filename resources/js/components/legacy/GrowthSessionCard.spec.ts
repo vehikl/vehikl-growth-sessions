@@ -239,6 +239,14 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.find(".update-button")).not.toBeVisible()
     });
 
+    it('does not display edit or delete after the session ends today', () => {
+        DateTime.setTestNow(DateTime.parseByDateTime(growthSessionData.date, '06:00 pm').toISOString())
+        wrapper = mount(GrowthSessionCard, {props: {growthSession: growthSessionData, user: ownerOfTheGrowthSession}})
+
+        expect(wrapper.find(".update-button")).not.toBeVisible()
+        expect(wrapper.find(".delete-button")).not.toBeVisible()
+    });
+
     it('does not display the join button if the date of the growth session is in the past', () => {
         const oneDayAfterTheGrowthSession = DateTime.parseByDate(growthSessionData.date).addDays(1).toISOString();
         DateTime.setTestNow(oneDayAfterTheGrowthSession)
