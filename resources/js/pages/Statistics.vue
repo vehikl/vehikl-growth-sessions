@@ -33,6 +33,10 @@ const topHosts = computed(() =>
 
 const yetToMobWith = computed(() => currentUser.value?.has_not_mobbed_with ?? []);
 
+const sortedTags = computed(() => [...tags.value].sort((a, b) => b.sessions_count - a.sessions_count || a.name.localeCompare(b.name)));
+
+const maxTagCount = computed(() => Math.max(1, ...tags.value.map((tag) => tag.sessions_count)));
+
 function initials(name: string): string {
     return name
         .split(/\s+/)
@@ -41,6 +45,33 @@ function initials(name: string): string {
         .map((part) => part[0])
         .join('')
         .toUpperCase();
+}
+
+const avatarColors = [
+    'bg-blue-600',
+    'bg-fuchsia-600',
+    'bg-orange-500',
+    'bg-yellow-600',
+    'bg-green-600',
+    'bg-teal-500',
+    'bg-purple-600',
+    'bg-rose-600',
+    'bg-cyan-600',
+    'bg-indigo-600',
+    'bg-emerald-600',
+    'bg-pink-600',
+    'bg-amber-600',
+    'bg-sky-600',
+    'bg-violet-600',
+];
+
+function avatarColor(name: string): string {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = (hash << 5) - hash + name.charCodeAt(i);
+        hash |= 0;
+    }
+    return avatarColors[Math.abs(hash) % avatarColors.length];
 }
 
 async function fetchStatistics() {
@@ -105,7 +136,8 @@ onBeforeMount(fetchStatistics);
                         <div class="space-y-4">
                             <div v-for="host in topHosts" :key="host.user_id" class="flex items-center gap-3">
                                 <span
-                                    class="gs-accent-bg flex h-10 w-10 flex-none items-center justify-center rounded-full text-xs font-bold text-white"
+                                    :class="avatarColor(host.name)"
+                                    class="flex h-10 w-10 flex-none items-center justify-center rounded-full text-xs font-bold text-white"
                                     >{{ initials(host.name) }}</span
                                 >
                                 <span class="gs-text-strong min-w-0 flex-1 truncate text-sm font-semibold">{{ host.name }}</span>
@@ -119,43 +151,46 @@ onBeforeMount(fetchStatistics);
 
                     <section class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                         <h2 class="gs-text-strong mb-5 text-sm font-bold tracking-[0.05em] uppercase">Sessions by tag</h2>
-                        <div class="flex flex-wrap gap-2.5">
-                            <span
-                                v-for="tag in tags"
-                                :key="tag.id"
-                                class="gs-secondary-bg gs-text-strong inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-bold tracking-[0.04em] uppercase"
-                            >
-                                {{ tag.name }}
-                                <span
-                                    class="gs-accent-bg inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] text-white"
-                                    >{{ tag.sessions_count }}</span
-                                >
-                            </span>
-                            <div
-                                v-if="tags.length === 0"
-                                class="gs-secondary-bg gs-border flex w-full flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center"
-                            >
-                                <span
-                                    class="gs-card gs-border gs-accent-text mb-3 flex h-11 w-11 items-center justify-center rounded-full border text-lg shadow-sm"
-                                >
-                                    <i class="fa fa-tags" aria-hidden="true"></i>
+                        <div v-if="tags.length" class="flex flex-col gap-4">
+                            <div v-for="tag in sortedTags" :key="tag.id" class="flex items-center gap-4">
+                                <span class="gs-text-muted w-32 flex-none truncate text-xs font-semibold tracking-[0.06em] uppercase">
+                                    {{ tag.name }}
                                 </span>
-                                <strong class="gs-text-strong text-sm font-semibold">No tagged sessions yet</strong>
-                                <p class="gs-text-body mt-1 max-w-md text-sm">Tags will appear here when this week's sessions are categorized.</p>
+                                <div class="gs-secondary-bg relative h-2.5 flex-1 overflow-hidden rounded-full">
+                                    <div
+                                        class="gs-accent-bg absolute inset-y-0 left-0 rounded-full"
+                                        :style="{ width: `${(tag.sessions_count / maxTagCount) * 100}%` }"
+                                    ></div>
+                                </div>
+                                <span class="gs-text-strong w-6 flex-none text-right text-sm font-bold tabular-nums">{{ tag.sessions_count }}</span>
                             </div>
+                        </div>
+                        <div
+                            v-else
+                            class="gs-secondary-bg gs-border flex w-full flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center"
+                        >
+                            <span
+                                class="gs-card gs-border gs-accent-text mb-3 flex h-11 w-11 items-center justify-center rounded-full border text-lg shadow-sm"
+                            >
+                                <i class="fa fa-tags" aria-hidden="true"></i>
+                            </span>
+                            <strong class="gs-text-strong text-sm font-semibold">No tagged sessions yet</strong>
+                            <p class="gs-text-body mt-1 max-w-md text-sm">Tags will appear here when this week's sessions are categorized.</p>
                         </div>
                     </section>
                 </div>
 
                 <section class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                     <h2 class="gs-text-strong mb-5 text-sm font-bold tracking-[0.05em] uppercase">Yet to mob with</h2>
-                    <div v-if="yetToMobWith.length" class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                        <div v-for="member in yetToMobWith" :key="member.user_id" class="gs-secondary-bg flex items-center gap-2.5 rounded-lg p-3">
+                    <div v-if="yetToMobWith.length" class="flex flex-wrap gap-3">
+                        <div v-for="member in yetToMobWith" :key="member.id" class="gs-secondary-bg flex items-center gap-2.5 rounded-full py-1.5 pr-4 pl-1.5">
                             <span
-                                class="gs-accent-bg flex h-8 w-8 flex-none items-center justify-center rounded-full text-[11px] font-bold text-white"
-                                >{{ initials(member.name) }}</span
-                            >
-                            <span class="gs-text-strong min-w-0 truncate text-xs font-semibold">{{ member.name }}</span>
+                                :class="avatarColor(member.name)"
+                                class="flex h-8 w-8 flex-none items-center justify-center rounded-full text-[11px] font-bold text-white"
+                                >
+                                {{ initials(member.name) }}
+                            </span>
+                            <span class="gs-text-strong text-xs font-semibold whitespace-nowrap">{{ member.name }}</span>
                         </div>
                     </div>
                     <div

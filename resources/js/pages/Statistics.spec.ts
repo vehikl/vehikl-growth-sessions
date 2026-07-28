@@ -24,7 +24,7 @@ const response = {
         user_id: 1,
         has_mobbed_with: [],
         has_mobbed_with_count: 0,
-        has_not_mobbed_with: [{ name: 'Brady Deroy', user_id: 2 }],
+        has_not_mobbed_with: [{ name: 'Brady Deroy', id: 2 }],
         has_not_mobbed_with_count: 1,
         total_sessions_count: 2,
         sessions_hosted_count: 1,

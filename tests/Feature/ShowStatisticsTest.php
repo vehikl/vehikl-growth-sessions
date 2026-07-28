@@ -88,7 +88,7 @@ class ShowStatisticsTest extends TestCase
                         'has_mobbed_with' => [
                             [
                                 'name' => $attendee->name,
-                                'user_id' => $attendee->id,
+                                'id' => $attendee->id,
                             ]
                         ],
                     ],
@@ -99,7 +99,7 @@ class ShowStatisticsTest extends TestCase
                         'has_mobbed_with' => [
                             [
                                 'name' => $owner->name,
-                                'user_id' => $owner->id,
+                                'id' => $owner->id,
                             ]
                         ],
                     ],
@@ -129,7 +129,7 @@ class ShowStatisticsTest extends TestCase
                         'has_not_mobbed_with' => [
                             [
                                 'name' => $nonParticipant->name,
-                                'user_id' => $nonParticipant->id,
+                                'id' => $nonParticipant->id,
                             ]
                         ],
                     ],
@@ -140,7 +140,7 @@ class ShowStatisticsTest extends TestCase
                         'has_not_mobbed_with' => [
                             [
                                 'name' => $nonParticipant->name,
-                                'user_id' => $nonParticipant->id,
+                                'id' => $nonParticipant->id,
                             ]
                         ],
                     ],
@@ -151,11 +151,11 @@ class ShowStatisticsTest extends TestCase
                         'has_not_mobbed_with' => [
                             [
                                 'name' => $owner->name,
-                                'user_id' => $owner->id,
+                                'id' => $owner->id,
                             ],
                             [
                                 'name' => $attendee->name,
-                                'user_id' => $attendee->id,
+                                'id' => $attendee->id,
                             ]
                         ],
                     ],
@@ -220,7 +220,7 @@ class ShowStatisticsTest extends TestCase
             ->getJson(route('statistics.index'))
             ->assertSuccessful()
             ->assertJson(fn(AssertableJson $json) => $json
-                ->where('users.0.has_mobbed_with.0.user_id', $loosenRulesUser->id)
+                ->where('users.0.has_mobbed_with.0.id', $loosenRulesUser->id)
                 ->etc()
             );
     }
@@ -246,7 +246,7 @@ class ShowStatisticsTest extends TestCase
             ->getJson(route('statistics.index'))
             ->assertSuccessful()
             ->assertJson(fn(AssertableJson $json) => $json
-                ->where('users.0.has_mobbed_with.0.user_id', $loosenRulesUser->id)
+                ->where('users.0.has_mobbed_with.0.id', $loosenRulesUser->id)
                 ->etc()
             );
     }
