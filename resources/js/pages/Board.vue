@@ -306,11 +306,11 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
 <template>
     <div v-if="growthSessions.isReady" class="gs-page flex flex-1 flex-col">
         <!-- Control bar -->
-        <div class="gs-bar gs-border relative flex flex-wrap items-center gap-3.5 border-b px-5 py-4 sm:px-7">
-            <div class="flex flex-none items-center gap-2.5">
+        <div class="gs-bar gs-border relative grid grid-cols-2 items-center gap-3 border-b px-5 py-4 sm:px-7 md:flex md:flex-wrap md:gap-3.5">
+            <div class="col-span-2 flex w-full flex-none items-center justify-between gap-2.5 md:col-span-1 md:w-auto md:justify-start">
                 <button
                     aria-label="Load previous week"
-                    class="cursor-pointer load-previous-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-8 w-8 items-center justify-center rounded-md text-xl leading-none"
+                    class="load-previous-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-xl leading-none"
                     @click="changeReferenceDate(-7)"
                 >
                     ‹
@@ -318,7 +318,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 <span class="gs-text-strong text-sm font-semibold whitespace-nowrap">{{ weekLabel }}</span>
                 <button
                     aria-label="Load next week"
-                    class="cursor-pointer load-next-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-8 w-8 items-center justify-center rounded-md text-xl leading-none"
+                    class="load-next-week gs-seg gs-text-strong transition-smooth hover:text-gs-accent flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-xl leading-none"
                     @click="changeReferenceDate(7)"
                 >
                     ›
@@ -326,7 +326,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             </div>
 
             <div
-                class="gs-seg flex flex-none rounded-lg p-0.75"
+                class="gs-seg hidden flex-none rounded-lg p-0.75 md:flex"
                 :title="
                     canSwitchView
                         ? undefined
@@ -363,7 +363,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 </button>
             </div>
 
-            <div class="relative min-w-45 flex-1">
+            <div class="relative col-span-2 min-w-0 md:col-span-1 md:min-w-45 md:flex-1">
                 <input
                     v-model="searchQuery"
                     type="text"
@@ -373,7 +373,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                 />
                 <button
                     v-if="searchQuery"
-                    class="cursor-pointer gs-text-muted transition-smooth hover:text-gs-accent absolute top-1/2 right-2 -translate-y-1/2 rounded-md px-2 py-1"
+                    class="gs-text-muted transition-smooth hover:text-gs-accent absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer rounded-md px-2 py-1"
                     aria-label="Clear search"
                     @click="searchQuery = ''"
                 >
@@ -384,26 +384,33 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             <button
                 v-if="allTags.length"
                 type="button"
-                class="cursor-pointer gs-seg gs-text-strong transition-smooth flex flex-none items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold whitespace-nowrap"
+                class="gs-seg gs-text-strong transition-smooth flex w-full flex-none cursor-pointer items-center justify-between gap-3 rounded-lg px-4 py-2.5 text-sm font-semibold whitespace-nowrap md:w-auto md:justify-start"
                 @click="filtersOpen = !filtersOpen"
             >
-                Filters
-                <span
-                    v-if="selectedTagIds.length"
-                    class="gs-header-bg inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1 text-xs font-bold text-white"
-                    >{{ selectedTagIds.length }}</span
-                >
+                <span class="flex items-center gap-1.5">
+                    Filters
+                    <span
+                        v-if="selectedTagIds.length"
+                        class="gs-header-bg inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1 text-xs font-bold text-white"
+                        >{{ selectedTagIds.length }}</span
+                    >
+                </span>
                 <ChevronDown class="transition-transform duration-200" :class="{ 'rotate-180': filtersOpen }" :size="16" aria-hidden="true" />
             </button>
 
-            <VisibilityRadioFieldset v-if="user && user.is_vehikl_member" id="visibility-filters" v-model="visibilityFilter" class="ml-auto" />
+            <VisibilityRadioFieldset
+                v-if="user && user.is_vehikl_member"
+                id="visibility-filters"
+                v-model="visibilityFilter"
+                class="justify-self-end md:ml-auto"
+            />
         </div>
 
         <!-- Filters panel -->
         <div v-show="filtersOpen" class="gs-col gs-border w-full border-b px-5 py-4 sm:px-7">
             <div class="mb-3 flex items-center justify-between">
                 <span class="gs-text-sub text-xs font-bold tracking-[0.04em]">FILTER BY TAG</span>
-                <button type="button" class="cursor-pointer gs-accent-text text-sm font-semibold" @click="selectedTagIds = []">Clear</button>
+                <button type="button" class="gs-accent-text cursor-pointer text-sm font-semibold" @click="selectedTagIds = []">Clear</button>
             </div>
             <GrowthSessionTags ref="growthSessionTags" :tags="allTags" :selected-tag-ids="selectedTagIds" class="flex-wrap" @tag-click="onTagClick" />
         </div>
@@ -446,7 +453,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
         <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
             <div class="gs-card relative rounded-2xl p-6">
                 <button
-                    class="cursor-pointer gs-text-muted transition-smooth hover:text-gs-accent absolute top-5 right-5 text-xs font-semibold tracking-[0.04em]"
+                    class="gs-text-muted transition-smooth hover:text-gs-accent absolute top-5 right-5 cursor-pointer text-xs font-semibold tracking-[0.04em]"
                     @click="formModalState = 'closed'"
                 >
                     CLOSE ✕

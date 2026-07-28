@@ -20,7 +20,7 @@ const options: { id: string; value: 'all' | 'private' | 'public'; label: string 
         <label
             v-for="option in options"
             :key="option.id"
-            class="transition-smooth cursor-pointer rounded-md px-4 py-2 text-sm font-semibold whitespace-nowrap"
+            class="transition-smooth cursor-pointer rounded-md px-3 py-2 text-xs font-semibold whitespace-nowrap sm:px-4 sm:text-sm"
             :class="visibility === option.value ? 'gs-header-bg text-white' : 'gs-text-sub'"
         >
             {{ option.label }}

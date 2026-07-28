@@ -38,8 +38,11 @@ function navigationClass(routeName: string): string {
 
 const userMenuOpen = ref(false);
 const userMenu = ref<HTMLElement | null>(null);
+const mobileMenuOpen = ref(false);
+const mobileMenu = ref<HTMLElement | null>(null);
 const shortcutsPopover = ref<HTMLElement | null>(null);
 onClickOutside(userMenu, () => (userMenuOpen.value = false));
+onClickOutside(mobileMenu, () => (mobileMenuOpen.value = false));
 
 function handleThemeShortcut(event: KeyboardEvent) {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.key.toLowerCase() !== 't') return;
@@ -76,16 +79,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <header class="gs-header-bg flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 sm:px-7">
+    <header class="gs-header-bg flex items-center justify-between gap-3 px-5 py-3.5 sm:px-7">
         <div class="flex items-center gap-4">
             <Link :href="route('home')" class="transition-smooth flex items-center hover:opacity-80">
                 <VehiklLogo />
             </Link>
-            <span class="hidden h-6 w-px bg-white/15 sm:block"></span>
-            <span class="hidden text-xs leading-none font-medium tracking-[0.28em] text-white/50 uppercase sm:block"> Growth Sessions </span>
+            <span class="hidden h-6 w-px bg-white/15 md:block"></span>
+            <span class="hidden text-xs leading-none font-medium tracking-[0.28em] text-white/50 uppercase md:block"> Growth Sessions </span>
         </div>
 
-        <div class="flex flex-wrap items-center justify-end gap-x-3 gap-y-2 sm:gap-x-4">
+        <div class="hidden items-center justify-end gap-x-3 md:flex lg:gap-x-4">
             <button
                 type="button"
                 class="transition-smooth flex cursor-pointer items-center gap-1 rounded-md bg-white/5 px-2.5 py-1.5 inset-ring inset-ring-white/10 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
@@ -192,6 +195,115 @@ onBeforeUnmount(() => {
                     <path d="M20.5 14.1A8.5 8.5 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14.1Z" />
                 </svg>
             </button>
+        </div>
+
+        <div ref="mobileMenu" class="relative flex items-center gap-3 md:hidden">
+            <v-avatar v-if="$page.props.auth.user" class="mr-0" :src="$page.props.auth.user.avatar" :alt="$page.props.auth.user.name" :size="7" />
+            <button
+                type="button"
+                class="transition-smooth flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-white/75 hover:bg-white/10 hover:text-white"
+                :aria-expanded="mobileMenuOpen"
+                aria-controls="mobile-navigation"
+                aria-label="Toggle navigation"
+                @click="mobileMenuOpen = !mobileMenuOpen"
+            >
+                <svg
+                    class="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                >
+                    <path v-if="mobileMenuOpen" d="M6 6l12 12M18 6 6 18" />
+                    <path v-else d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+            </button>
+
+            <Transition
+                enter-active-class="transition duration-100 ease-out"
+                enter-from-class="scale-95 opacity-0"
+                enter-to-class="scale-100 opacity-100"
+                leave-active-class="transition duration-75 ease-in"
+                leave-from-class="scale-100 opacity-100"
+                leave-to-class="scale-95 opacity-0"
+            >
+                <div
+                    v-if="mobileMenuOpen"
+                    id="mobile-navigation"
+                    class="gs-card gs-border absolute top-12 right-0 z-40 w-64 origin-top-right rounded-xl border p-2 shadow-xl"
+                >
+                    <nav v-if="$page.props.auth.user" class="space-y-1" aria-label="Mobile navigation">
+                        <Link
+                            :href="route('home')"
+                            class="gs-text-body block rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
+                            @click="mobileMenuOpen = false"
+                        >
+                            Board
+                        </Link>
+                        <Link
+                            v-if="$page.props.auth.user.is_vehikl_member"
+                            :href="route('statistics.index')"
+                            class="gs-text-body block rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
+                            @click="mobileMenuOpen = false"
+                        >
+                            Statistics
+                        </Link>
+                        <Link
+                            :href="route('about')"
+                            class="gs-text-body block rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
+                            @click="mobileMenuOpen = false"
+                        >
+                            About
+                        </Link>
+                    </nav>
+
+                    <div v-else class="space-y-1">
+                        <a
+                            :href="route('oauth.login.redirect', { driver: 'github' })"
+                            class="gs-text-body flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
+                        >
+                            <i class="fa fa-github" aria-hidden="true"></i>
+                            Login with GitHub
+                        </a>
+                    </div>
+
+                    <div class="gs-border mt-2 space-y-1 border-t pt-2">
+                        <button
+                            type="button"
+                            class="gs-text-body flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
+                            popovertarget="keyboard-shortcuts-popover"
+                            @click="mobileMenuOpen = false"
+                        >
+                            Keyboard shortcuts
+                            <kbd class="gs-text-muted text-xs">{{ shortcutModifier }}K</kbd>
+                        </button>
+                        <button
+                            type="button"
+                            class="gs-text-body flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
+                            @click="
+                                toggleTheme();
+                                mobileMenuOpen = false;
+                            "
+                        >
+                            {{ isDark ? 'Light theme' : 'Dark theme' }}
+                            <kbd class="gs-text-muted text-xs">T</kbd>
+                        </button>
+                        <Link
+                            v-if="$page.props.auth.user"
+                            :href="route('logout')"
+                            method="post"
+                            as="button"
+                            class="gs-text-body flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
+                            @click="mobileMenuOpen = false"
+                        >
+                            <i class="fa fa-sign-out" aria-hidden="true"></i>
+                            Logout
+                        </Link>
+                    </div>
+                </div>
+            </Transition>
         </div>
     </header>
 
