@@ -5,6 +5,7 @@ import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
+import { ChevronRight } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted } from 'vue';
 
 interface IProps {
@@ -49,10 +50,10 @@ async function leave() {
 <template>
     <div class="gs-overlay-bg gs-fade-in fixed inset-0 z-30 flex justify-end" @click="emit('close')">
         <div class="gs-card gs-drawer-panel h-full max-w-2xl overflow-y-auto p-7 shadow-2xl" @click.stop>
-            <div class="mb-2 flex items-center justify-between">
-                <div class="flex items-center gap-2">
+            <div class="mb-3 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
                     <span
-                        class="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
+                        class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
                         :style="{ backgroundColor: avatarColor(growthSession.owner.name) }"
                     >
                         <img
@@ -63,7 +64,7 @@ async function leave() {
                         />
                         <template v-else>{{ getInitials(growthSession.owner.name) }}</template>
                     </span>
-                    <span class="gs-text-sub text-xs font-semibold tracking-[0.03em]">{{ growthSession.owner.name }}</span>
+                    <span class="gs-text-sub text-sm font-semibold tracking-[0.03em]">{{ growthSession.owner.name }}</span>
                 </div>
                 <button
                     type="button"
@@ -152,16 +153,32 @@ async function leave() {
                 </div>
                 <div>
                     <div class="gs-text-muted mb-2.5 text-xs font-bold tracking-[0.06em]">ATTENDEES ({{ capacityLabel(growthSession) }})</div>
-                    <ul class="flex flex-col gap-2.5">
-                        <li v-for="attendee in growthSession.attendees" :key="attendee.id" class="flex items-center gap-2.5">
-                            <span
-                                class="flex h-8 w-8 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                                :style="{ backgroundColor: avatarColor(attendee.name) }"
+                    <ul class="flex flex-col gap-1">
+                        <li v-for="attendee in growthSession.attendees" :key="attendee.id">
+                            <a
+                                :href="attendee.githubURL"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="group focus-visible:ring-gs-accent flex items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-black/5 focus-visible:ring-2 focus-visible:outline-none dark:hover:bg-white/8"
                             >
-                                <img v-if="attendee.avatar" :src="attendee.avatar" :alt="attendee.name" class="h-full w-full object-cover" />
-                                <template v-else>{{ getInitials(attendee.name) }}</template>
-                            </span>
-                            <span class="gs-text-strong text-sm font-semibold tracking-[0.02em] uppercase">{{ attendee.name }}</span>
+                                <span
+                                    class="flex h-8 w-8 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
+                                    :style="{ backgroundColor: avatarColor(attendee.name) }"
+                                >
+                                    <img v-if="attendee.avatar" :src="attendee.avatar" :alt="attendee.name" class="h-full w-full object-cover" />
+                                    <template v-else>{{ getInitials(attendee.name) }}</template>
+                                </span>
+                                <span
+                                    class="gs-text-strong group-hover:text-gs-accent min-w-0 flex-1 text-sm font-semibold tracking-[0.02em] transition-colors"
+                                    >{{ attendee.name }}</span
+                                >
+                                <ChevronRight
+                                    aria-hidden="true"
+                                    :size="17"
+                                    :stroke-width="2"
+                                    class="gs-text-muted group-hover:text-gs-accent flex-none transition-transform group-hover:translate-x-0.5"
+                                />
+                            </a>
                         </li>
                     </ul>
                 </div>

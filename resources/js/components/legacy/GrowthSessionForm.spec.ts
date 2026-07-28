@@ -227,6 +227,8 @@ describe('GrowthSessionForm', () => {
 
             const anyDesksSelector = wrapper.find('#anydesk-selection');
             expect(anyDesksSelector.exists()).toBeTruthy();
+            expect((anyDesksSelector.element as HTMLSelectElement).value).toBe('');
+            expect(anyDesksSelector.find('option[value=""]').text()).toBe('None');
             const optionsAvailable = anyDesksSelector.findAll('option').map((option) => option.text());
             const optionsExpected = anyDesks.map((option) => option.name);
             expect(optionsAvailable).toEqual(expect.arrayContaining(optionsExpected));

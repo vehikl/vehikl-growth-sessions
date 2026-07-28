@@ -33,7 +33,7 @@ const isLimitless = ref<boolean>(false);
 const allowWatchers = ref<boolean>(true);
 const selectedDiscordChannelId = ref<string | null>(null);
 const discordChannels = ref<IDropdownOption[]>([]);
-const selectedAnydeskId = ref<string | null>(null);
+const selectedAnydeskId = ref<string>('');
 const anyDesks = ref<IDropdownOption[]>([]);
 const tagIds = ref<string[]>([]);
 const tagOptions = ref<{ label: string; value: string }[]>([]);
@@ -84,7 +84,7 @@ onBeforeMount(() => {
         isLimitless.value = !props.growthSession.attendee_limit;
         attendeeLimit.value = props.growthSession.attendee_limit || 4;
         isPublic.value = props.growthSession.is_public;
-        selectedAnydeskId.value = props.growthSession.anydesk?.id.toString() ?? null;
+        selectedAnydeskId.value = props.growthSession.anydesk?.id.toString() ?? '';
         allowWatchers.value = props.growthSession.allow_watchers;
         tagIds.value = props.growthSession.tags.map((tag) => tag.id.toString());
     }
