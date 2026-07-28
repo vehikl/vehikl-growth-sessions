@@ -251,10 +251,6 @@ async function changeReferenceDate(deltaDays: number) {
     await getAllGrowthSessionsOfTheWeek();
 }
 
-function scrollToDate(id: string) {
-    window.document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-}
-
 function onTagClick(id: number) {
     if (selectedTagIds.value.includes(id)) {
         selectedTagIds.value = selectedTagIds.value.filter((tagId) => tagId != id);

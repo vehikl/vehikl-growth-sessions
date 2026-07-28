@@ -417,40 +417,6 @@ describe('Board', () => {
         });
     });
 
-    describe('Scroll to today', () => {
-        it('will show the scroll to today button', async () => {
-            DateTime.setTestNow(todayDate);
-            wrapper = mount(Board);
-            await flushPromises();
-            expect(wrapper.find('button[aria-label="Scroll to today"]').exists()).toBeTruthy();
-        });
-        it('will hide the scroll to today button when today is not available', async () => {
-            DateTime.setTestNow(metadataForGrowthSessionsFixture.nextWeek.date);
-            wrapper = mount(Board);
-            await flushPromises();
-            expect(wrapper.find('button[aria-label="Scroll to today"]').exists()).toBeFalsy();
-        });
-
-        it('it calls the scroll to method on the today date when the button is clicked', async () => {
-            let scrollIntoViewMock = vi.fn();
-
-            DateTime.setTestNow(todayDate);
-            const today = DateTime.today();
-            wrapper = mount(Board, {
-                attachTo: document.body,
-            });
-            await flushPromises();
-
-            const header = wrapper.find(`#${today.weekDayString()}`);
-
-            header.element.scrollIntoView = scrollIntoViewMock;
-
-            wrapper.find('button[aria-label="Scroll to today"]').trigger('click');
-
-            expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
-        });
-    });
-
     describe('Text Search Filter', () => {
         beforeEach(async () => {
             vi.useFakeTimers();
