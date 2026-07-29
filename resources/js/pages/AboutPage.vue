@@ -106,7 +106,7 @@ const featureCards: FeatureCard[] = [
             class="border-vehikl-orange/20 from-vehikl-orange/12 to-vehikl-orange/5 relative mt-8 overflow-hidden rounded-2xl border bg-gradient-to-br p-8 sm:p-10"
         >
             <i class="fa fa-quote-right gs-accent-text absolute top-6 right-6 text-3xl opacity-25" aria-hidden="true"></i>
-            <p class="gs-text-strong max-w-3xl text-xl leading-relaxed font-medium tracking-wide italic sm:text-2xl">
+            <p class="gs-text-strong max-w-4xl text-xl leading-relaxed font-medium tracking-wide italic sm:text-2xl">
                 Growth Sessions are our time to sharpen the saw — and maybe discover the chainsaw along the way. A space for experimenting, getting
                 unstuck, learning from each other, and sharing what we've found.
             </p>
