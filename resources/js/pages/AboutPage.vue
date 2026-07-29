@@ -51,7 +51,7 @@ const featureCards: FeatureCard[] = [
 <template>
     <Head title="About" />
 
-    <div class="gs-page min-h-screen">
+    <main class="gs-page min-h-screen">
         <section class="mx-auto max-w-6xl px-6 py-16 sm:px-8 sm:py-20">
             <!-- Eyebrow -->
             <div class="flex items-center gap-3">
@@ -64,7 +64,7 @@ const featureCards: FeatureCard[] = [
             </div>
 
             <!-- Heading -->
-            <h1 class="font-display gs-text-strong mt-5 text-4xl font-bold tracking-tight sm:text-5xl">What is a Vehikl Growth Session?</h1>
+            <h1 class="font-display gs-text-strong mt-5 text-4xl font-bold tracking-tight sm:text-5xl">What is a Growth Session?</h1>
 
             <!-- Intro -->
             <p class="gs-text-sub mt-6 max-w-2xl text-lg leading-relaxed">
@@ -140,5 +140,5 @@ const featureCards: FeatureCard[] = [
                 </div>
             </div>
         </section>
-    </div>
+    </main>
 </template>

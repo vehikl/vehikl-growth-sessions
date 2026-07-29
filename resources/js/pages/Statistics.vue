@@ -15,14 +15,27 @@ const maxTagCount = computed(() => Math.max(1, ...props.tags.map((tag) => tag.se
 <template>
     <Head title="Statistics" />
 
-    <main class="gs-page min-h-[calc(100vh-64px)] px-5 py-10 sm:px-8">
-        <div class="mx-auto max-w-6xl">
-            <header class="mb-8">
-                <h1 class="gs-text-strong font-display text-4xl font-bold">Statistics</h1>
-                <p class="gs-text-body mt-2 text-lg">A snapshot of Growth Sessions activity and participation.</p>
-            </header>
+    <main class="gs-page min-h-screen">
+        <div class="mx-auto max-w-6xl px-6 py-16 sm:px-8 sm:py-20">
+            <div class="flex items-center gap-3">
+                <span class="gs-accent-text text-xs font-semibold tracking-[0.18em] uppercase">Statistics</span>
+                <span
+                    class="gs-accent-text border-vehikl-orange/40 inline-block -rotate-3 rounded-full border px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-[0.14em] uppercase"
+                >
+                    The Receipts
+                </span>
+            </div>
 
-            <section class="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Statistics summary">
+
+            <h1 class="font-display gs-text-strong mt-5 text-4xl font-bold tracking-tight sm:text-5xl">
+                Growth Sessions, by the numbers
+            </h1>
+
+            <p class="gs-text-sub mt-6 max-w-2xl text-lg leading-relaxed">
+                Who's hosting, who's showing up, and who you still haven't mobbed with.
+            </p>
+
+            <section class="mt-10 mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Statistics summary">
                 <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                     <strong class="gs-accent-text font-display block text-4xl font-bold">{{ summary.lifetime_sessions_count }}</strong>
                     <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Lifetime sessions</span>
