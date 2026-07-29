@@ -318,8 +318,7 @@ describe('Board', () => {
             it('passes the chosen visibility through to the filter', async () => {
                 const privateSessions = growthSessionsThisWeek.allGrowthSessions.filter((gs) => !gs.is_public);
                 const publicSessions = growthSessionsThisWeek.allGrowthSessions.filter((gs) => gs.is_public);
-                const isRendered = (title: string) =>
-                    wrapper.findAllComponents(GrowthSessionCard).some((card) => card.text().includes(title));
+                const isRendered = (title: string) => wrapper.findAllComponents(GrowthSessionCard).some((card) => card.text().includes(title));
 
                 await wrapper.find('#visibility-filters input[type=radio][name=filter-sessions][id=private]').setValue(true);
 
@@ -447,7 +446,6 @@ describe('Board', () => {
             visibleSessions = wrapper.findAllComponents(GrowthSessionCard);
             expect(visibleSessions.length).toBe(2); // Sessions with "voluptas" in title
         });
-
     });
 
     describe('sessions at capacity', () => {

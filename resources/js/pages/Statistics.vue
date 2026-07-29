@@ -18,11 +18,7 @@ const maxTagCount = computed(() => Math.max(1, ...props.tags.map((tag) => tag.se
     <Head title="Statistics" />
 
     <PageContainer>
-        <PageHeader
-            eyebrow="Statistics"
-            badge="The Receipts"
-            title="Growth Sessions, by the numbers"
-        >
+        <PageHeader eyebrow="Statistics" badge="The Receipts" title="Growth Sessions, by the numbers">
             <template #lead>Who's hosting, who's showing up, and who you still haven't mobbed with.</template>
         </PageHeader>
 

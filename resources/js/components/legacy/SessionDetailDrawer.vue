@@ -82,7 +82,13 @@ async function leave() {
 </script>
 
 <template>
-    <div class="gs-overlay-bg gs-fade-in fixed inset-0 z-30 flex justify-end" role="dialog" aria-modal="true" aria-labelledby="drawer-title" @click="emit('close')">
+    <div
+        class="gs-overlay-bg gs-fade-in fixed inset-0 z-30 flex justify-end"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="drawer-title"
+        @click="emit('close')"
+    >
         <div ref="panel" tabindex="-1" class="gs-card gs-drawer-panel h-full max-w-2xl overflow-y-auto p-7 shadow-2xl outline-none" @click.stop>
             <div class="mb-3 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">

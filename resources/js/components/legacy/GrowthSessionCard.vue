@@ -157,7 +157,10 @@ async function onDeleteClicked() {
         </div>
 
         <!-- Owner / utility actions: collapsed until hover so the card stays clean like the design -->
-        <div class="relative z-20 max-h-0 overflow-hidden opacity-0 transition-all duration-200 group-hover:max-h-12 group-hover:opacity-100" @click.stop>
+        <div
+            class="relative z-20 max-h-0 overflow-hidden opacity-0 transition-all duration-200 group-hover:max-h-12 group-hover:opacity-100"
+            @click.stop
+        >
             <div class="flex items-center gap-0.5 pt-2.5">
                 <a
                     aria-label="add-to-calendar"

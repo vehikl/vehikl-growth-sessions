@@ -54,11 +54,7 @@ const featureCards: FeatureCard[] = [
     <Head title="About" />
 
     <PageContainer>
-        <PageHeader
-            eyebrow="About"
-            badge="True story (kind of)"
-            title="What is a Growth Session?"
-        >
+        <PageHeader eyebrow="About" badge="True story (kind of)" title="What is a Growth Session?">
             <template #lead>
                 In <strong class="gs-text-strong font-semibold">"The 7 Habits of Highly Effective People,"</strong> Stephen Covey tells the story of a
                 hiker who comes across a frustrated lumberjack, sawing away at a tree — swearing, labouring, getting nowhere.

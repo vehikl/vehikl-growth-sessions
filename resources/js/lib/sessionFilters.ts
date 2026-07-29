@@ -54,7 +54,6 @@ function matchesSearch(session: GrowthSession, searchQuery: string): boolean {
 /** Narrows a day's growth sessions down to the ones the current filters allow. */
 export function filterSessions(sessions: GrowthSession[], criteria: SessionFilterCriteria): GrowthSession[] {
     return sessions.filter(
-        (session) =>
-            matchesTags(session, criteria.tagIds) && matchesVisibility(session, criteria) && matchesSearch(session, criteria.searchQuery),
+        (session) => matchesTags(session, criteria.tagIds) && matchesVisibility(session, criteria) && matchesSearch(session, criteria.searchQuery),
     );
 }

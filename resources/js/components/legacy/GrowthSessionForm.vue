@@ -280,7 +280,14 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                 <div class="grid gap-2.5 sm:grid-cols-3">
                     <div v-if="anyDesks.length > 0">
                         <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="anydesk-selection">AnyDesk</label>
-                        <v-select id="anydesk-selection" v-model="selectedAnydeskId" :options="anyDesks" placeholder="None" clearable class="w-full" />
+                        <v-select
+                            id="anydesk-selection"
+                            v-model="selectedAnydeskId"
+                            :options="anyDesks"
+                            placeholder="None"
+                            clearable
+                            class="w-full"
+                        />
                     </div>
                     <div v-if="discordChannels.length > 0">
                         <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">Discord</label>
@@ -315,7 +322,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                         <span class="relative inline-flex flex-none">
                             <input id="is-public" v-model="isPublic" type="checkbox" class="peer sr-only" />
                             <span
-                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-2 peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
+                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors peer-focus-visible:ring-2 dark:bg-white/20"
                             ></span>
                             <span
                                 class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
@@ -328,7 +335,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                         <span class="relative inline-flex flex-none">
                             <input id="allow-watchers" v-model="allowWatchers" type="checkbox" class="peer sr-only" />
                             <span
-                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-2 peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
+                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors peer-focus-visible:ring-2 dark:bg-white/20"
                             ></span>
                             <span
                                 class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
@@ -341,7 +348,7 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                         <span class="relative inline-flex flex-none">
                             <input id="no-limit" v-model="isLimitless" type="checkbox" class="peer sr-only" />
                             <span
-                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-2 peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors dark:bg-white/20"
+                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors peer-focus-visible:ring-2 dark:bg-white/20"
                             ></span>
                             <span
                                 class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
