@@ -40,19 +40,16 @@ const searchShortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad
 
 // The week view only makes sense on wider screens; small screens are day-only.
 const isDesktop = useMediaQuery('(min-width: 768px)');
-// Guests can only browse the week overview; the day view and view-switching unlock after sign-in.
 // On small screens there is nothing to switch to — the board is day-only.
-const canSwitchView = computed(() => isDesktop.value && !!props.user);
+const canSwitchView = computed(() => isDesktop.value);
 const view = ref<'week' | 'day'>('day');
 
-// Keep the active view within what the current screen size and auth state allow.
+// Keep the active view within what the current screen size allows.
 watch(
     isDesktop,
     (desktop) => {
         if (!desktop) {
             view.value = 'day';
-        } else if (!props.user) {
-            view.value = 'week';
         }
     },
     { immediate: true },
@@ -338,13 +335,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
 
             <div
                 class="gs-seg hidden flex-none rounded-lg p-0.75 md:flex"
-                :title="
-                    canSwitchView
-                        ? undefined
-                        : !isDesktop
-                          ? 'Week view is only available on larger screens'
-                          : 'Sign in to switch between day and week views'
-                "
+                :title="canSwitchView ? undefined : 'Week view is only available on larger screens'"
             >
                 <button
                     type="button"

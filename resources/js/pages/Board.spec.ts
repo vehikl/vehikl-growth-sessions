@@ -157,19 +157,18 @@ describe('Board', () => {
         expect(isViewShown(WeekView)).toBe(false);
     });
 
-    it('shows guests the week view and disables view switching until signed in', async () => {
+    it('allows guests to switch between day and week views', async () => {
         // The default beforeEach mounts the board with no user (a guest) on a desktop viewport.
-        expect(isViewShown(WeekView)).toBe(true);
-        expect(isViewShown(DayView)).toBe(false);
+        expect(isViewShown(DayView)).toBe(true);
+        expect(isViewShown(WeekView)).toBe(false);
 
         const viewButtons = wrapper.findAll('button[aria-keyshortcuts]');
         expect(viewButtons.length).toBe(2);
         viewButtons.forEach((button) => {
-            expect(button.attributes('disabled')).toBeDefined();
+            expect(button.attributes('disabled')).toBeUndefined();
         });
 
-        // Keyboard shortcuts should not switch the view for guests.
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'd' }));
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }));
         await wrapper.vm.$nextTick();
 
         expect(isViewShown(WeekView)).toBe(true);
