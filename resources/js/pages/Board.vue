@@ -11,7 +11,6 @@ import VModal from '@/components/legacy/VModal.vue';
 import WeekView from '@/components/legacy/WeekView.vue';
 import { useReferenceDate } from '@/composables/useReferenceDate';
 import { filterSessions, type SessionFilterCriteria, type VisibilityFilter } from '@/lib/sessionFilters';
-import { sessionStatus } from '@/lib/sessionDisplay';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
 import { ITag, IUser } from '@/types';
@@ -38,8 +37,6 @@ const searchQuery = ref('');
 const debouncedSearchQuery = ref('');
 const searchInput = ref<HTMLInputElement | null>(null);
 const searchShortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? '⌘K' : 'Ctrl K';
-const statusClock = ref(Date.now());
-let statusClockInterval: ReturnType<typeof setInterval> | undefined;
 
 // The week view only makes sense on wider screens; small screens are day-only.
 const isDesktop = useMediaQuery('(min-width: 768px)');
@@ -117,10 +114,6 @@ function growthSessionsVisibleInDate(date: DateTime): GrowthSession[] {
 }
 
 const daySessions = computed(() => growthSessionsVisibleInDate(selectedDate.value));
-const hasLiveSessions = computed(() => {
-    statusClock.value;
-    return growthSessions.value.allGrowthSessions.some((session) => sessionStatus(session) === 'live');
-});
 
 // Sessions that should read as full: at capacity, and capacity is the only thing stopping
 // this user joining. Owners, people already in the session, guests and finished sessions
@@ -165,14 +158,12 @@ onBeforeMount(async () => {
 });
 
 onMounted(() => {
-    statusClockInterval = setInterval(() => (statusClock.value = Date.now()), 30_000);
     window.addEventListener('gs:create-session', handleHeaderCreate);
     window.addEventListener('gs:focus-search', handleSearchFocus);
     window.addEventListener('keydown', handleViewShortcut);
 });
 
 onBeforeUnmount(() => {
-    clearInterval(statusClockInterval);
     window.onpopstate = null;
     window.removeEventListener('gs:create-session', handleHeaderCreate);
     window.removeEventListener('gs:focus-search', handleSearchFocus);
@@ -373,10 +364,6 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                     @click="selectView('day')"
                 >
                     Day
-                    <span v-if="hasLiveSessions" class="live-view-indicator ml-1.5 inline-flex items-center gap-1 text-xs font-bold">
-                        <span class="bg-gs-live h-1.5 w-1.5 rounded-full" aria-hidden="true"></span>
-                        LIVE
-                    </span>
                 </button>
                 <button
                     type="button"

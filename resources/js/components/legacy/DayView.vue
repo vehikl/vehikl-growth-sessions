@@ -5,7 +5,7 @@ import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 interface IProps {
     days: DateTime[];
@@ -19,6 +19,19 @@ interface IProps {
 
 const props = defineProps<IProps>();
 const emit = defineEmits(['select-day', 'open-detail', 'join', 'watch', 'leave', 'edit-requested', 'delete-requested', 'copy-requested', 'create']);
+const statusClock = ref(Date.now());
+let statusClockInterval: ReturnType<typeof setInterval> | undefined;
+
+onMounted(() => {
+    statusClockInterval = setInterval(() => (statusClock.value = Date.now()), 30_000);
+});
+
+onBeforeUnmount(() => clearInterval(statusClockInterval));
+
+function currentStatus(session: GrowthSession) {
+    statusClock.value;
+    return sessionStatus(session);
+}
 
 const { getInitials } = useInitials();
 
@@ -100,7 +113,7 @@ function isFull(session: GrowthSession): boolean {
 
                 <div
                     class="gs-card gs-border transition-smooth relative flex min-w-55 flex-1 flex-col gap-2.5 rounded-lg border p-3 px-4 hover:shadow-md"
-                    :style="{ opacity: sessionStatus(session) === 'finished' ? 0.55 : 1 }"
+                    :style="{ opacity: currentStatus(session) === 'finished' ? 0.55 : 1 }"
                 >
                     <button
                         type="button"
@@ -127,9 +140,12 @@ function isFull(session: GrowthSession): boolean {
                                     <span class="gs-text-strong text-base font-semibold">{{ session.title }}</span>
                                     <span
                                         class="h-2 w-2 flex-none rounded-full"
-                                        :style="{ backgroundColor: statusMeta(sessionStatus(session)).color }"
-                                        :title="statusMeta(sessionStatus(session)).label"
+                                        :style="{ backgroundColor: statusMeta(currentStatus(session)).color }"
+                                        :title="statusMeta(currentStatus(session)).label"
                                     ></span>
+                                    <span v-if="currentStatus(session) === 'live'" class="live-session-label gs-accent-text text-xs font-bold"
+                                        >LIVE</span
+                                    >
                                 </div>
                                 <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">{{ session.owner.name }}</div>
                                 <div v-if="tagline(session)" class="gs-text-sub mt-1 text-sm">{{ tagline(session) }}</div>

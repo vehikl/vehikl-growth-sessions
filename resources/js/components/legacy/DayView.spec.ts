@@ -3,7 +3,7 @@ import { GrowthSession } from '@/classes/GrowthSession';
 import DayView from '@/components/legacy/DayView.vue';
 import { IUser } from '@/types';
 import { DOMWrapper, mount } from '@vue/test-utils';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const today = '2099-06-15';
 
@@ -46,6 +46,7 @@ describe('DayView', () => {
     });
 
     afterEach(() => {
+        vi.useRealTimers();
         DateTime.setTestNow(new Date().toISOString());
     });
 
@@ -91,6 +92,26 @@ describe('DayView', () => {
         expect(wrapper.text()).toContain('Refactoring Kata');
         expect(wrapper.text()).toContain('Ada Lovelace');
         expect(wrapper.find('.capacity-readout').text()).toContain('1/4');
+    });
+
+    it('labels a live session next to its title', () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(2099, 5, 16, 15));
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        expect(wrapper.find('.live-session-label').text()).toBe('LIVE');
+    });
+
+    it('does not label an upcoming session as live', () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(2099, 5, 16, 13));
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        expect(wrapper.find('.live-session-label').exists()).toBe(false);
     });
 
     it('renders the full indicator only when the session id is in fullSessionIds', () => {

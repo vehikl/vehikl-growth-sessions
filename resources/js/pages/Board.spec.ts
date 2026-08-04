@@ -177,47 +177,6 @@ describe('Board', () => {
         expect(isViewShown(WeekView)).toBe(false);
     });
 
-    describe('live day indicator', () => {
-        const template = (growthSessionsThisWeekJson as Record<string, any[]>)[todayDate][0];
-
-        async function mountWithSession(startTime: string, endTime: string) {
-            const week = Object.fromEntries(Object.keys(growthSessionsThisWeekJson).map((date) => [date, []])) as Record<string, any[]>;
-            week[todayDate] = [{ ...template, date: todayDate, start_time: startTime, end_time: endTime, is_public: true }];
-            GrowthSessionApi.getAllGrowthSessionsOfTheWeek = vi.fn().mockResolvedValue(new WeekGrowthSessions(week));
-            wrapper.unmount();
-            wrapper = mount(Board);
-            await flushPromises();
-        }
-
-        it('shows LIVE next to Day while a session is in progress', async () => {
-            DateTime.setTestNow(`${todayDate} 12:00:00`);
-            await mountWithSession('11:00 am', '01:00 pm');
-
-            expect(wrapper.find('.live-view-indicator').text()).toBe('LIVE');
-        });
-
-        it('does not show LIVE before the session starts', async () => {
-            DateTime.setTestNow(`${todayDate} 10:00:00`);
-            await mountWithSession('11:00 am', '01:00 pm');
-
-            expect(wrapper.find('.live-view-indicator').exists()).toBe(false);
-        });
-
-        it('removes LIVE after the session finishes', async () => {
-            vi.useFakeTimers();
-            DateTime.setTestNow(`${todayDate} 12:00:00`);
-            await mountWithSession('11:00 am', '01:00 pm');
-            expect(wrapper.find('.live-view-indicator').exists()).toBe(true);
-
-            DateTime.setTestNow(`${todayDate} 14:00:00`);
-            vi.advanceTimersByTime(30_000);
-            await wrapper.vm.$nextTick();
-
-            expect(wrapper.find('.live-view-indicator').exists()).toBe(false);
-            vi.useRealTimers();
-        });
-    });
-
     it('does not switch views while typing', async () => {
         wrapper = mount(Board, { propsData: { user: authNonVehiklUser } });
         await flushPromises();
