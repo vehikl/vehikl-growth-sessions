@@ -26,7 +26,9 @@ export function useReferenceDate(win: ReferenceDateWindow = window) {
         const next = DateTime.parseByDate(referenceDate.value.toDateString());
         next.addDays(deltaDays);
         referenceDate.value = next;
-        win.history.pushState({}, '', `?date=${referenceDate.value.toDateString()}`);
+        const urlSearchParams = new URLSearchParams(win.location.search);
+        urlSearchParams.set('date', referenceDate.value.toDateString());
+        win.history.pushState({}, '', `?${urlSearchParams.toString()}`);
     }
 
     return { referenceDate, syncFromUrl, shiftBy };

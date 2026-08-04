@@ -11,6 +11,7 @@ import VModal from '@/components/legacy/VModal.vue';
 import WeekView from '@/components/legacy/WeekView.vue';
 import { useReferenceDate } from '@/composables/useReferenceDate';
 import { filterSessions, type SessionFilterCriteria, type VisibilityFilter } from '@/lib/sessionFilters';
+import { sessionStatus } from '@/lib/sessionDisplay';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
 import { ITag, IUser } from '@/types';
@@ -37,12 +38,28 @@ const searchQuery = ref('');
 const debouncedSearchQuery = ref('');
 const searchInput = ref<HTMLInputElement | null>(null);
 const searchShortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? '⌘K' : 'Ctrl K';
+const statusClock = ref(Date.now());
+let statusClockInterval: ReturnType<typeof setInterval> | undefined;
 
 // The week view only makes sense on wider screens; small screens are day-only.
 const isDesktop = useMediaQuery('(min-width: 768px)');
 // On small screens there is nothing to switch to — the board is day-only.
 const canSwitchView = computed(() => isDesktop.value);
 const view = ref<'week' | 'day'>('day');
+
+function syncViewFromUrl() {
+    const requestedView = new URLSearchParams(window.location.search).get('view');
+    view.value = isDesktop.value && requestedView === 'week' ? 'week' : 'day';
+}
+
+function selectView(selectedView: 'week' | 'day') {
+    if (!canSwitchView.value) return;
+
+    view.value = selectedView;
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    urlSearchParams.set('view', selectedView);
+    window.history.pushState({}, '', `?${urlSearchParams.toString()}`);
+}
 
 // Keep the active view within what the current screen size allows.
 watch(
@@ -100,6 +117,10 @@ function growthSessionsVisibleInDate(date: DateTime): GrowthSession[] {
 }
 
 const daySessions = computed(() => growthSessionsVisibleInDate(selectedDate.value));
+const hasLiveSessions = computed(() => {
+    statusClock.value;
+    return growthSessions.value.allGrowthSessions.some((session) => sessionStatus(session) === 'live');
+});
 
 // Sessions that should read as full: at capacity, and capacity is the only thing stopping
 // this user joining. Owners, people already in the session, guests and finished sessions
@@ -144,12 +165,14 @@ onBeforeMount(async () => {
 });
 
 onMounted(() => {
+    statusClockInterval = setInterval(() => (statusClock.value = Date.now()), 30_000);
     window.addEventListener('gs:create-session', handleHeaderCreate);
     window.addEventListener('gs:focus-search', handleSearchFocus);
     window.addEventListener('keydown', handleViewShortcut);
 });
 
 onBeforeUnmount(() => {
+    clearInterval(statusClockInterval);
     window.onpopstate = null;
     window.removeEventListener('gs:create-session', handleHeaderCreate);
     window.removeEventListener('gs:focus-search', handleSearchFocus);
@@ -184,12 +207,13 @@ function handleViewShortcut(event: KeyboardEvent) {
     }
 
     const key = event.key.toLowerCase();
-    if (key === 'd') view.value = 'day';
-    if (key === 'w') view.value = 'week';
+    if (key === 'd') selectView('day');
+    if (key === 'w') selectView('week');
 }
 
 async function refreshGrowthSessionsOfTheWeek() {
     syncFromUrl();
+    syncViewFromUrl();
     await getAllGrowthSessionsOfTheWeek();
 }
 
@@ -346,9 +370,13 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                         view === 'day' ? 'gs-header-bg text-white' : 'gs-text-sub',
                         canSwitchView ? 'cursor-pointer' : 'cursor-not-allowed opacity-50',
                     ]"
-                    @click="canSwitchView && (view = 'day')"
+                    @click="selectView('day')"
                 >
                     Day
+                    <span v-if="hasLiveSessions" class="live-view-indicator ml-1.5 inline-flex items-center gap-1 text-xs font-bold">
+                        <span class="bg-gs-live h-1.5 w-1.5 rounded-full" aria-hidden="true"></span>
+                        LIVE
+                    </span>
                 </button>
                 <button
                     type="button"
@@ -359,7 +387,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
                         view === 'week' ? 'gs-header-bg text-white' : 'gs-text-sub',
                         canSwitchView ? 'cursor-pointer' : 'cursor-not-allowed opacity-50',
                     ]"
-                    @click="canSwitchView && (view = 'week')"
+                    @click="selectView('week')"
                 >
                     Week
                 </button>

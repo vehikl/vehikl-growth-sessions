@@ -89,7 +89,7 @@ async function leave() {
         aria-labelledby="drawer-title"
         @click="emit('close')"
     >
-        <div ref="panel" tabindex="-1" class="gs-card gs-drawer-panel h-full max-w-2xl overflow-y-auto p-7 shadow-2xl outline-none" @click.stop>
+        <div ref="panel" tabindex="-1" class="gs-card gs-drawer-panel h-full w-full max-w-2xl overflow-y-auto p-7 shadow-2xl outline-none" @click.stop>
             <div class="mb-3 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
                     <span

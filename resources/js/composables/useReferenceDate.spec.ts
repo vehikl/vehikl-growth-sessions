@@ -71,6 +71,15 @@ describe('useReferenceDate', () => {
             expect(win.history.pushState).toHaveBeenCalledWith({}, '', `?date=${nextWeek}`);
         });
 
+        it('preserves other query parameters when recording the new date', () => {
+            const win = fakeWindow('?view=week');
+            const { shiftBy } = useReferenceDate(win);
+
+            shiftBy(7);
+
+            expect(win.history.pushState).toHaveBeenCalledWith({}, '', `?view=week&date=${nextWeek}`);
+        });
+
         it('shifts from the date already in the url rather than from today', () => {
             const win = fakeWindow(`?date=${nextWeek}`);
             const { referenceDate, syncFromUrl, shiftBy } = useReferenceDate(win);
