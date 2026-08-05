@@ -211,6 +211,59 @@ describe('Board', () => {
         expect(isViewShown(DayView)).toBe(false);
     });
 
+    // A viewport that can change mid-test: `useMediaQuery` subscribes to the query's `change`
+    // event, so the returned function flips `matches` and replays it to those subscribers.
+    function stubResizableViewport(isDesktop: boolean): (desktop: boolean) => void {
+        const listeners: Array<(event: { matches: boolean }) => void> = [];
+        const state = { matches: isDesktop };
+
+        Object.defineProperty(window, 'matchMedia', {
+            writable: true,
+            configurable: true,
+            value: (query: string) => ({
+                get matches() {
+                    return state.matches;
+                },
+                media: query,
+                onchange: null,
+                addEventListener: (_type: string, listener: (event: { matches: boolean }) => void) => listeners.push(listener),
+                removeEventListener: vi.fn(),
+                addListener: (listener: (event: { matches: boolean }) => void) => listeners.push(listener),
+                removeListener: vi.fn(),
+                dispatchEvent: vi.fn(),
+            }),
+        });
+
+        return (desktop: boolean) => {
+            state.matches = desktop;
+            listeners.forEach((listener) => listener({ matches: desktop }));
+        };
+    }
+
+    // Deliberate: a screen too narrow for the week view demotes the board to day, and it stays
+    // demoted. Widening again must not yank the visitor back to a view they didn't re-ask for.
+    it('keeps the day view after a small screen has demoted it, even once the screen widens', async () => {
+        const resizeTo = stubResizableViewport(false);
+        window.history.replaceState({}, '', '?view=week');
+        wrapper.unmount();
+        wrapper = mount(Board, { propsData: { user: authVehiklUser } });
+        await flushPromises();
+
+        expect(isViewShown(DayView)).toBe(true);
+
+        resizeTo(true);
+        await flushPromises();
+
+        expect(isViewShown(DayView)).toBe(true);
+        expect(isViewShown(WeekView)).toBe(false);
+
+        // ...but asking for the week view again now works, because the screen can show it.
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }));
+        await wrapper.vm.$nextTick();
+
+        expect(isViewShown(WeekView)).toBe(true);
+    });
+
     it('shows only the day view on small screens and disables week switching', async () => {
         stubViewport(false); // emulate a mobile-sized viewport
         window.history.replaceState({}, '', '?view=week');
