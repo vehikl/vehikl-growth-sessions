@@ -61,7 +61,9 @@ class GrowthSessionController extends Controller
 
     public function store(StoreGrowthSessionRequest $request)
     {
-        $newGrowthSession = new GrowthSession($request->validated());
+        $newGrowthSession = new GrowthSession(Arr::except($request->validated(), 'has_invite_link'));
+        $newGrowthSession->setInviteLink($request->boolean('has_invite_link'));
+
         DB::transaction(function () use ($newGrowthSession, $request) {
             $newGrowthSession->save();
             $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::OWNER_ID]);
@@ -118,7 +120,12 @@ class GrowthSessionController extends Controller
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
     {
-        $growthSession->fill(Arr::except($request->validated(), 'tags'));
+        $growthSession->fill(Arr::except($request->validated(), ['tags', 'has_invite_link']));
+
+        // An update that says nothing about the invite link leaves whatever the owner set previously in place.
+        if ($request->has('has_invite_link')) {
+            $growthSession->setInviteLink($request->boolean('has_invite_link'));
+        }
 
         $growthSession->tags()->sync($request->input('tags'));
 

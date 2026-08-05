@@ -37,6 +37,12 @@ class GrowthSession extends JsonResource
             $attributes = $this->hideGuestInformationFromPayload('watchers', $attributes, $user);
         }
 
+        // The share URL goes to whoever can hand the invitation out — the owner, and any Vehikl member so that a
+        // colleague can forward it while the owner is away. Everyone else, invited guests included, never sees it.
+        if (($isOwner || !$isPersonNotAVehiklMember) && $this->resource->isUnlisted()) {
+            $attributes['share_url'] = $this->resource->shareUrl();
+        }
+
         return $attributes;
     }
 
