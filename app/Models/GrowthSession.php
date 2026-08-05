@@ -162,6 +162,11 @@ class GrowthSession extends Model
         return ! ! $this->watchers->find($watcher);
     }
 
+    public function hasParticipant(User $user): bool
+    {
+        return $this->hasAttendee($user) || $this->hasWatcher($user);
+    }
+
     public function hasUnlimitedSlots(): bool
     {
         return $this->attendee_limit === self::NO_LIMIT;

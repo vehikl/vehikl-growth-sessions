@@ -13,8 +13,7 @@ class GrowthSession extends JsonResource
 
         $user = $request->user();
 
-        $isParticipatingInGrowthSession = $user &&
-            ($this->resource->hasAttendee($user) || $this->resource->hasWatcher($user));
+        $isParticipatingInGrowthSession = $user && $this->resource->hasParticipant($user);
 
         $isOwner = $user && $user->is($this->resource->owner);
 
