@@ -160,6 +160,15 @@ onBeforeUnmount(() => {
                                     {{ $page.props.auth.user.email ?? $page.props.auth.user.name }}
                                 </p>
                             </div>
+                            <Link
+                                :href="route('dashboard')"
+                                role="menuitem"
+                                class="gs-text-body transition-smooth flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm hover:bg-black/5 dark:hover:bg-white/5"
+                                @click="userMenuOpen = false"
+                            >
+                                <i class="fa fa-th-large text-base" aria-hidden="true"></i>
+                                Dashboard
+                            </Link>
                             <button
                                 type="button"
                                 role="menuitem"
@@ -320,9 +329,16 @@ onBeforeUnmount(() => {
                             <kbd class="gs-text-muted text-xs">T</kbd>
                         </button>
                     </div>
-                    <div class="gs-border mt-2 space-y-1 border-t pt-2">
+                    <div v-if="$page.props.auth.user" class="gs-border mt-2 space-y-1 border-t pt-2">
                         <Link
-                            v-if="$page.props.auth.user"
+                            :href="route('dashboard')"
+                            class="gs-text-body flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
+                            @click="mobileMenuOpen = false"
+                        >
+                            <i class="fa fa-th-large" aria-hidden="true"></i>
+                            Dashboard
+                        </Link>
+                        <Link
                             :href="route('logout')"
                             method="post"
                             as="button"
