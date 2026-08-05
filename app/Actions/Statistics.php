@@ -74,7 +74,7 @@ class Statistics
                     $hasNotMobbedWith = $allVisibleUsers
                         ->reject(fn($otherUser) => $otherUser->id === $user->id || in_array($otherUser->id, $hasMobbedWithIds))
                         ->map(fn($otherUser) => [
-                            'user_id' => $otherUser->id,
+                            'id' => $otherUser->id,
                             'name' => $otherUser->name,
                         ]);
 
@@ -91,7 +91,7 @@ class Statistics
                         'total_sessions_count' => $attendedCount + $hostedCount + $watchedCount,
                         'has_mobbed_with_count' => $hasMobbedWith->count(),
                         'has_mobbed_with' => $hasMobbedWith->map(fn($mobbedWith) => [
-                            'user_id' => $mobbedWith->other_user_id,
+                            'id' => $mobbedWith->other_user_id,
                             'name' => $mobbedWith->other_user_name,
                         ])->values(),
                         'has_not_mobbed_with_count' => $hasNotMobbedWith->count(),

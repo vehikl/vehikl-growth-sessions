@@ -1,27 +1,27 @@
-import {IGrowthSession} from "@/types"
-import {ref} from "vue"
-import {GrowthSession} from "@/classes/GrowthSession"
+import { GrowthSession } from '@/classes/GrowthSession';
+import { IGrowthSession } from '@/types';
+import { ref } from 'vue';
 
 export function useGrowthSession(growthSessionJson: IGrowthSession) {
-    const growthSession = ref<GrowthSession>(new GrowthSession(growthSessionJson))
-    const isProcessing = ref<boolean>(false)
+    const growthSession = ref<GrowthSession>(new GrowthSession(growthSessionJson));
+    const isProcessing = ref<boolean>(false);
 
     async function joinGrowthSession() {
-        isProcessing.value = true
-        await growthSession.value.join()
-        isProcessing.value = false
+        isProcessing.value = true;
+        await growthSession.value.join();
+        isProcessing.value = false;
     }
 
     async function leaveGrowthSession() {
-        isProcessing.value = true
-        await growthSession.value.leave()
-        isProcessing.value = false
+        isProcessing.value = true;
+        await growthSession.value.leave();
+        isProcessing.value = false;
     }
 
     async function watchGrowthSession() {
-        isProcessing.value = true
-        await growthSession.value.watch()
-        isProcessing.value = false
+        isProcessing.value = true;
+        await growthSession.value.watch();
+        isProcessing.value = false;
     }
 
     return {
@@ -29,6 +29,6 @@ export function useGrowthSession(growthSessionJson: IGrowthSession) {
         leaveGrowthSession,
         joinGrowthSession,
         isProcessing,
-        growthSession
-    }
+        growthSession,
+    };
 }

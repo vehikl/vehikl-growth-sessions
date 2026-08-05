@@ -1,5 +1,5 @@
-import {IGrowthSession} from '.';
+import { IGrowthSession } from '.';
 
 export interface IWeekGrowthSessions {
-    [dateString: string]: IGrowthSession[],
+    [dateString: string]: IGrowthSession[];
 }

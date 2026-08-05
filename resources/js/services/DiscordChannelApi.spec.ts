@@ -1,7 +1,7 @@
+import { IDiscordChannel } from '@/types/IDiscordChannel';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import {DiscordChannelApi, discordChannelResource} from './DiscordChannelApi';
-import {IDiscordChannel} from "@/types/IDiscordChannel";
+import { DiscordChannelApi, discordChannelResource } from './DiscordChannelApi';
 
 const discordChannelsJson: Array<IDiscordChannel> = [
     {
@@ -11,7 +11,7 @@ const discordChannelsJson: Array<IDiscordChannel> = [
     {
         id: '1234567891',
         name: 'Channel Two',
-    }
+    },
 ];
 
 describe('DiscordChannelApi', () => {

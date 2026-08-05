@@ -28,7 +28,6 @@ class StoreGrowthSessionRequest extends FormRequest
                 new CannotBeInDuplicatedTimeSlot($this->user(), $timeValues)
             ],
             'end_time' => [
-                'sometimes',
                 'required',
                 'after:start_time',
                 'date_format:h:i a',

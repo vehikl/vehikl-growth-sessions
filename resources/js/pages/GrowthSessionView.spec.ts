@@ -1,16 +1,15 @@
-import { Wrapper } from '@vue/test-utils';
-import { mountWithInertia } from '@/test-utils/inertia-test-helper';
-import GrowthSessionView from './GrowthSessionView.vue';
-import userJson from '../../../tests/fixtures/User.json';
-import growthSessionJson from '../../../tests/fixtures/GrowthSessionWithComments.json';
-import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
-import { User } from '@/classes/User';
-import { IGrowthSession, ITag, IUser } from '@/types';
 import { GrowthSession } from '@/classes/GrowthSession';
-import { DiscordChannelApi } from '@/services/DiscordChannelApi';
+import { User } from '@/classes/User';
 import { AnydesksApi } from '@/services/AnydesksApi';
+import { DiscordChannelApi } from '@/services/DiscordChannelApi';
 import { TagsApi } from '@/services/TagsApi';
+import { mountWithInertia } from '@/test-utils/inertia-test-helper';
+import { IGrowthSession, ITag, IUser } from '@/types';
+import type { DOMWrapper, VueWrapper } from '@vue/test-utils';
 import { vi } from 'vitest';
+import { default as growthSessionJson, default as growthSessionWithComments } from '../../../tests/fixtures/GrowthSessionWithComments.json';
+import userJson from '../../../tests/fixtures/User.json';
+import GrowthSessionView from './GrowthSessionView.vue';
 
 const user: IUser = {
     name: 'Alice',
@@ -21,24 +20,24 @@ const user: IUser = {
 };
 const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
 
-vi.mock("@laravel/echo-vue", () => ({
+vi.mock('@laravel/echo-vue', () => ({
     default: vi.fn(),
-    useEcho: vi.fn()
+    useEcho: vi.fn(),
 }));
 
 describe('GrowthSessionView', () => {
-    let wrapper: Wrapper<GrowthSessionView>;
+    let wrapper: VueWrapper;
 
     beforeEach(() => {
-        AnydesksApi.getAllAnyDesks = vi.fn().mockResolvedValue([])
-        TagsApi.index = vi.fn().mockResolvedValue([])
-        wrapper = mountWithInertia(GrowthSessionView, {propsData: {userJson, growthSessionJson}})
+        AnydesksApi.getAllAnyDesks = vi.fn().mockResolvedValue([]);
+        TagsApi.index = vi.fn().mockResolvedValue([]);
+        wrapper = mountWithInertia(GrowthSessionView, { propsData: { userJson, growthSessionJson } });
     });
 
     it('redirects to the owners GitHub page when clicked on the profile', async () => {
-        const ownerComponent = wrapper.find("#owner-avatar-link")
+        const ownerComponent = wrapper.find('#owner-avatar-link');
 
-        expect(ownerComponent.attributes("href")).toEqual(new User(growthSessionJson.owner).githubURL)
+        expect(ownerComponent.attributes('href')).toEqual(new User(growthSessionJson.owner).githubURL);
     });
 
     it('displays the host name', () => {
@@ -46,9 +45,9 @@ describe('GrowthSessionView', () => {
     });
 
     it('displays the mobtime link', () => {
-        const mobTimeUrl = 'https://mobtime.vehikl.com/vgs-' + growthSessionJson.id
-        expect(wrapper.html()).toContain(mobTimeUrl)
-        expect(wrapper.find(`a[href="${mobTimeUrl}"]`).attributes("target")).toEqual("_blank")
+        const mobTimeUrl = 'https://mobtime.vehikl.com/vgs-' + growthSessionJson.id;
+        expect(wrapper.html()).toContain(mobTimeUrl);
+        expect(wrapper.find(`a[href="${mobTimeUrl}"]`).attributes('target')).toEqual('_blank');
     });
 
     it('displays the anydesk information for vehikl member user', () => {
@@ -60,78 +59,77 @@ describe('GrowthSessionView', () => {
         const tags: ITag[] = [
             {
                 id: 1,
-                name: 'cool tag'
+                name: 'cool tag',
             },
             {
                 id: 2,
-                name: 'not cool tag'
-            }
-        ]
-        const growthSession = new GrowthSession({...dummyGrowthSession, tags});
-        wrapper = mountWithInertia(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+                name: 'not cool tag',
+            },
+        ];
+        const growthSession = new GrowthSession({ ...dummyGrowthSession, tags });
+        wrapper = mountWithInertia(GrowthSessionView, { propsData: { growthSessionJson: growthSession } });
 
-        const tagElements = wrapper.findAll('.tag')
+        const tagElements = wrapper.findAll('.tag');
         expect(tagElements.length).toBe(tags.length);
 
-        tagElements.forEach((tagElement: Wrapper, index: number) => {
+        tagElements.forEach((tagElement: DOMWrapper<Element>, index: number) => {
             expect(tagElement.text()).toBe(tags[index].name);
-        })
-    })
+        });
+    });
 
     describe('attendees section', () => {
         it('redirects to the attendees GitHub page when clicked on the profile', async () => {
-            const attendeeComponents = wrapper.findAllComponents({ref: "attendee"})
+            const attendeeComponents = wrapper.findAllComponents({ ref: 'attendee' });
 
             attendeeComponents.forEach((attendeeComponent, i) =>
-                expect(attendeeComponent.attributes("href")).toEqual(new User(growthSessionJson.attendees[i]).githubURL)
-            )
-        })
+                expect(attendeeComponent.attributes('href')).toEqual(new User(growthSessionJson.attendees[i]).githubURL),
+            );
+        });
 
         it('can display the attendee limit', () => {
-            let growthSession = new GrowthSession({...dummyGrowthSession, attendee_limit: 42});
-            wrapper = mountWithInertia(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
-            expect(wrapper.text()).toContain("Attendee Limit")
+            const growthSession = new GrowthSession({ ...dummyGrowthSession, attendee_limit: 42 });
+            wrapper = mountWithInertia(GrowthSessionView, { propsData: { growthSessionJson: growthSession } });
+            expect(wrapper.text()).toContain('Attendee Limit');
             expect(wrapper.find('.attendee_limit').text()).toContain(growthSession.attendee_limit);
         });
 
         it('can hide the attendee limit', () => {
-            let growthSession = new GrowthSession({...dummyGrowthSession, attendee_limit: null});
-            wrapper = mountWithInertia(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
-            expect(wrapper.text()).not.toContain("Attendee Limit")
+            const growthSession = new GrowthSession({ ...dummyGrowthSession, attendee_limit: null });
+            wrapper = mountWithInertia(GrowthSessionView, { propsData: { growthSessionJson: growthSession } });
+            expect(wrapper.text()).not.toContain('Attendee Limit');
         });
 
         it('renders a direct link to the Discord channel', () => {
-            let growthSession = new GrowthSession({...dummyGrowthSession, discord_channel_id: '1234567890'});
+            const growthSession = new GrowthSession({ ...dummyGrowthSession, discord_channel_id: '1234567890' });
             wrapper = mountWithInertia(GrowthSessionView, {
                 propsData: {
                     growthSessionJson: growthSession,
-                    discordGuildId: '1234567890'
-                }
+                    discordGuildId: '1234567890',
+                },
             });
             expect(wrapper.find('a[href="discord://discordapp.com/channels/1234567890/1234567890"').exists()).toBeTruthy();
-        })
+        });
 
         it('display the list of attendees', () => {
-            let growthSession = new GrowthSession({...dummyGrowthSession, attendees: [user]});
-            wrapper = mountWithInertia(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+            const growthSession = new GrowthSession({ ...dummyGrowthSession, attendees: [user] });
+            wrapper = mountWithInertia(GrowthSessionView, { propsData: { growthSessionJson: growthSession } });
 
             expect(wrapper.text()).toContain(user.name);
-        })
-
+        });
     });
 
     describe('watchers section', () => {
         it('displays the list of watchers', () => {
-            let growthSession = new GrowthSession({...dummyGrowthSession, watchers: [user]});
-            wrapper = mountWithInertia(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+            const growthSession = new GrowthSession({ ...dummyGrowthSession, watchers: [user] });
+            wrapper = mountWithInertia(GrowthSessionView, { propsData: { growthSessionJson: growthSession } });
 
             expect(wrapper.text()).toContain(user.name);
             expect(wrapper.text()).toContain('Watchers');
-        })
+        });
 
-        it('does not display the watcher section if there are no watchers',  () => {
-            let growthSession = new GrowthSession({...dummyGrowthSession, watchers: []});
-            wrapper = mountWithInertia(GrowthSessionView, {propsData: {growthSessionJson: growthSession}})
+        it('does not display the watcher section if there are no watchers', () => {
+            const growthSession = new GrowthSession({ ...dummyGrowthSession, watchers: [] });
+            wrapper = mountWithInertia(GrowthSessionView, { propsData: { growthSessionJson: growthSession } });
 
             expect(wrapper.text()).not.toContain('Watchers');
         });
@@ -140,14 +138,14 @@ describe('GrowthSessionView', () => {
     describe('as the owner', () => {
         beforeEach(() => {
             const owner = growthSessionJson.owner;
-            DiscordChannelApi.index = vi.fn().mockResolvedValue([])
-            DiscordChannelApi.occupied = vi.fn().mockResolvedValue([])
+            DiscordChannelApi.index = vi.fn().mockResolvedValue([]);
+            DiscordChannelApi.occupied = vi.fn().mockResolvedValue([]);
             wrapper = mountWithInertia(GrowthSessionView, {
-                propsData: {userJson: owner, growthSessionJson}
-            })
+                propsData: { userJson: owner, growthSessionJson },
+            });
         });
         it('prompts for confirmation when the owner clicks on the delete button', () => {
-            window.confirm = vi.fn()
+            window.confirm = vi.fn();
 
             wrapper.find('.delete-button').trigger('click');
 
@@ -157,13 +155,13 @@ describe('GrowthSessionView', () => {
         it('reviews the edit form when edit button is clicked', async () => {
             async function awaitForElement(cssSelector: string) {
                 while (!wrapper.find(cssSelector).exists()) {
-                    await new Promise(resolve => setTimeout(resolve, 25));
+                    await new Promise((resolve) => setTimeout(resolve, 25));
                 }
             }
 
             wrapper.find('.update-button').trigger('click');
-            await awaitForElement(".edit-growth-session-form")
-            expect(wrapper.find(".edit-growth-session-form").exists()).toBe(true)
+            await awaitForElement('.edit-growth-session-form');
+            expect(wrapper.find('.edit-growth-session-form').exists()).toBe(true);
         });
-    })
+    });
 });

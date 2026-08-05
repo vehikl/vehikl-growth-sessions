@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { IGrowthSessionProposal, IStoreGrowthSessionProposalRequest, IUser, IValidationError, ITimePreference } from '@/types';
 import { GrowthSessionProposalApi } from '@/services/GrowthSessionProposalApi';
 import { TagsApi } from '@/services/TagsApi';
-import { computed, onBeforeMount, ref } from 'vue';
+import { IGrowthSessionProposal, IStoreGrowthSessionProposalRequest, ITimePreference, IUser, IValidationError } from '@/types';
 import Multiselect from '@vueform/multiselect';
+import { computed, onBeforeMount, ref } from 'vue';
 import TimePreferenceInput from './TimePreferenceInput.vue';
 
 interface IProps {
@@ -68,14 +68,14 @@ function onRequestFailed(exception: any) {
 }
 
 function getError(field: string): string {
-    let errors = validationErrors.value?.errors[field];
+    const errors = validationErrors.value?.errors[field];
     return errors ? errors[0] : '';
 }
 
 async function createProposal() {
     try {
         const payload = storeOrUpdatePayload.value;
-        let proposal: IGrowthSessionProposal = await GrowthSessionProposalApi.store(payload);
+        const proposal: IGrowthSessionProposal = await GrowthSessionProposalApi.store(payload);
         emit('submitted', proposal);
     } catch (e) {
         onRequestFailed(e);
@@ -88,7 +88,7 @@ async function updateProposal() {
     }
 
     try {
-        let proposal: IGrowthSessionProposal = await GrowthSessionProposalApi.update(props.proposal.id, storeOrUpdatePayload.value);
+        const proposal: IGrowthSessionProposal = await GrowthSessionProposalApi.update(props.proposal.id, storeOrUpdatePayload.value);
         emit('submitted', proposal);
     } catch (e) {
         onRequestFailed(e);
@@ -111,14 +111,14 @@ async function getTags() {
 </script>
 
 <template>
-    <form @submit.prevent class="proposal-form bg-white w-full p-4 pt-10 text-left overflow-y-auto max-h-[95vh]">
-        <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-6">
+    <form @submit.prevent class="proposal-form max-h-[95vh] w-full overflow-y-auto bg-white p-4 pt-10 text-left">
+        <label class="mb-6 block text-sm font-bold tracking-wide text-slate-700 uppercase">
             Title
             <input
                 id="title"
                 v-model="title"
                 :class="{ 'error-outline': getError('title') }"
-                class="shadow block appearance-none border border-slate-400 w-full mt-1 py-2 px-3 text-lg font-normal text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
+                class="focus:shadow-outline mt-1 block w-full appearance-none border border-slate-400 px-3 py-2 text-lg leading-tight font-normal text-slate-700 shadow focus:outline-none"
                 maxlength="255"
                 placeholder="In a short sentence, what is this proposal about?"
                 type="text"
@@ -126,20 +126,18 @@ async function getTags() {
         </label>
 
         <div class="mb-4">
-            <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-1" for="topic">
-                Topic
-            </label>
+            <label class="mb-1 block text-sm font-bold tracking-wide text-slate-700 uppercase" for="topic"> Topic </label>
             <textarea
                 id="topic"
                 v-model="topic"
                 :class="{ 'error-outline': getError('topic') }"
-                class="shadow appearance-none border border-slate-400 w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
+                class="focus:shadow-outline w-full appearance-none border border-slate-400 px-3 py-2 leading-tight text-slate-700 shadow focus:outline-none"
                 placeholder="Provide more details about this growth session proposal"
                 rows="4"
             />
         </div>
 
-        <label class="flex flex-col text-slate-700 text-sm uppercase tracking-wide font-bold gap-1 mb-6">
+        <label class="mb-6 flex flex-col gap-1 text-sm font-bold tracking-wide text-slate-700 uppercase">
             Tags
             <Multiselect
                 v-model="tagIds"
@@ -154,20 +152,16 @@ async function getTags() {
         </label>
 
         <div class="mb-6">
-            <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-2">
-                Preferred Time Windows
-            </label>
-            <p class="text-sm text-slate-600 mb-4">
-                Add one or more time windows when you'd be available for this growth session.
-            </p>
+            <label class="mb-2 block text-sm font-bold tracking-wide text-slate-700 uppercase"> Preferred Time Windows </label>
+            <p class="mb-4 text-sm text-slate-600">Add one or more time windows when you'd be available for this growth session.</p>
             <TimePreferenceInput v-model="timePreferences" />
         </div>
 
         <button
-            :class="{ 'opacity-25 cursor-not-allowed': !isReadyToSubmit }"
+            :class="{ 'cursor-pointer': isReadyToSubmit, 'cursor-not-allowed opacity-25': !isReadyToSubmit }"
             :disabled="!isReadyToSubmit"
             @click="onSubmit"
-            class="border-gray-600 hover:bg-gray-600 focus:bg-gray-700 text-gray-600 border-4 bg-white hover:text-white font-bold py-2 px-4 w-full"
+            class="w-full border-4 border-gray-600 bg-white px-4 py-2 font-bold text-gray-600 hover:bg-gray-600 hover:text-white focus:bg-gray-700"
             type="submit"
             ref="submit-button"
             v-text="isCreating ? 'Create Proposal' : 'Update Proposal'"

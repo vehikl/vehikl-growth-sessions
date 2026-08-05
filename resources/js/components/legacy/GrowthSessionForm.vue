@@ -1,59 +1,57 @@
 <script lang="ts" setup>
-import {IGrowthSession, IStoreGrowthSessionRequest, IUser, IValidationError} from "@/types"
-import {GrowthSessionApi} from "@/services/GrowthSessionApi"
-import {DateTime} from "@/classes/DateTime"
-import {DiscordChannelApi} from "@/services/DiscordChannelApi"
-import {IDropdownOption} from "@/types/IDropdownOption"
-import {AnydesksApi} from "@/services/AnydesksApi"
-import TimePicker from "./TimePicker.vue"
-import {computed, onBeforeMount, ref, watch} from "vue"
-import VSelect from "./VSelect.vue"
-import Multiselect from "@vueform/multiselect"
-import {TagsApi} from "@/services/TagsApi";
-import ConfirmationModal from "./ConfirmationModal.vue"
+import { DateTime } from '@/classes/DateTime';
+import { AnydesksApi } from '@/services/AnydesksApi';
+import { DiscordChannelApi } from '@/services/DiscordChannelApi';
+import { GrowthSessionApi } from '@/services/GrowthSessionApi';
+import { TagsApi } from '@/services/TagsApi';
+import { IGrowthSession, IStoreGrowthSessionRequest, IUser, IValidationError } from '@/types';
+import { IDropdownOption } from '@/types/IDropdownOption';
+import { computed, nextTick, onBeforeMount, onMounted, ref, watch } from 'vue';
+import ConfirmationModal from './ConfirmationModal.vue';
+import TimePicker from './TimePicker.vue';
+import VSelect from './VSelect.vue';
 
 interface IProps {
     owner: IUser;
-    growthSession?: IGrowthSession;
+    growthSession?: IGrowthSession | null;
     startDate?: string;
 }
 
-const props = withDefaults(defineProps<IProps>(), {startDate: ""})
-const emit = defineEmits(["submitted"])
+const props = withDefaults(defineProps<IProps>(), { startDate: '' });
+const emit = defineEmits(['submitted']);
 
-const startTime = ref<string>("03:30 pm")
-const endTime = ref<string>("05:00 pm")
-const location = ref<string>("")
-const title = ref<string>("")
-const attendeeLimit = ref<number>(4)
-const topic = ref<string>("")
-const date = ref<string>("")
-const isPublic = ref<boolean>(false)
-const validationErrors = ref<IValidationError | null>(null)
-const isLimitless = ref<boolean>(false)
-const allowWatchers = ref<boolean>(true)
-const selectedDiscordChannelId = ref<string | null>(null)
-const discordChannels = ref<IDropdownOption[]>([])
-const selectedAnydeskId = ref<string | null>(null)
-const anyDesks = ref<IDropdownOption[]>([])
-const anydesksToggle = ref<boolean>(false)
-const tagIds = ref<string[]>([])
-const tagOptions = ref<any>({})
-const publicConfirmationModalState = ref<"open" | "closed">("closed")
+const startTime = ref<string>('03:30 pm');
+const endTime = ref<string>('05:00 pm');
+const location = ref<string>('');
+const title = ref<string>('');
+const attendeeLimit = ref<number>(4);
+const topic = ref<string>('');
+const date = ref<string>('');
+const isPublic = ref<boolean>(false);
+const validationErrors = ref<IValidationError | null>(null);
+const isLimitless = ref<boolean>(false);
+const allowWatchers = ref<boolean>(true);
+const selectedDiscordChannelId = ref<string | null>(null);
+const discordChannels = ref<IDropdownOption[]>([]);
+const selectedAnydeskId = ref<string>('');
+const anyDesks = ref<IDropdownOption[]>([]);
+const tagIds = ref<string[]>([]);
+const tagOptions = ref<{ label: string; value: string }[]>([]);
+const showTags = ref<boolean>(true);
+const titleInput = ref<HTMLInputElement | null>(null);
 
-const isCreating = computed(() => !props.growthSession?.id)
+function toggleTag(value: string) {
+    tagIds.value = tagIds.value.includes(value) ? tagIds.value.filter((v) => v !== value) : [...tagIds.value, value];
+}
+const publicConfirmationModalState = ref<'open' | 'closed'>('closed');
+
+const isCreating = computed(() => !props.growthSession?.id);
 const requiresPublicConfirmation = computed(() => {
-    const isNewPublicSession = isCreating.value && isPublic.value
-    const isBeingMadePublic = !isCreating.value && isPublic.value && !props.growthSession?.is_public
-    return isNewPublicSession || isBeingMadePublic
-})
-const isReadyToSubmit = computed(() => !!startTime.value
-    && !!endTime.value
-    && !!date.value
-    && !!location.value
-    && !!topic.value
-    && !!title.value
-)
+    const isNewPublicSession = isCreating.value && isPublic.value;
+    const isBeingMadePublic = !isCreating.value && isPublic.value && !props.growthSession?.is_public;
+    return isNewPublicSession || isBeingMadePublic;
+});
+const isReadyToSubmit = computed(() => !!startTime.value && !!endTime.value && !!date.value && !!location.value && !!topic.value && !!title.value);
 const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
     location: location.value,
     topic: topic.value,
@@ -66,93 +64,96 @@ const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
     discord_channel_id: selectedDiscordChannelId.value ?? undefined,
     anydesk_id: selectedAnydeskId.value ? Number.parseInt(selectedAnydeskId.value) : undefined,
     allow_watchers: allowWatchers.value,
-    tags: tagIds.value.map((tag) => +tag)
-}))
+    tags: tagIds.value.map((tag) => +tag),
+}));
 
 onBeforeMount(() => {
-    anydesksToggle.value = !!props.growthSession?.anydesk
+    date.value = props.startDate;
 
-    date.value = props.startDate
+    getDiscordChannels();
 
-    getDiscordChannels()
+    getAnyDesks();
 
-    getAnyDesks()
-
-    getTags()
+    getTags();
 
     if (props.growthSession) {
-        date.value = props.growthSession.date
-        startTime.value = DateTime.parseByTime(props.growthSession.start_time).toTimeString12Hours()
-        endTime.value = DateTime.parseByTime(props.growthSession.end_time).toTimeString12Hours()
-        location.value = props.growthSession.location
-        title.value = props.growthSession.title
-        topic.value = props.growthSession.topic
-        isLimitless.value = !props.growthSession.attendee_limit
-        attendeeLimit.value = props.growthSession.attendee_limit || 4
-        isPublic.value = props.growthSession.is_public
-        selectedAnydeskId.value = props.growthSession.anydesk?.id.toString() ?? null
-        allowWatchers.value = props.growthSession.allow_watchers
-        tagIds.value = props.growthSession.tags.map(tag => tag.id.toString())
+        date.value = props.growthSession.date;
+        startTime.value = DateTime.parseByTime(props.growthSession.start_time).toTimeString12Hours();
+        endTime.value = DateTime.parseByTime(props.growthSession.end_time).toTimeString12Hours();
+        location.value = props.growthSession.location;
+        selectedDiscordChannelId.value = props.growthSession.discord_channel_id;
+        title.value = props.growthSession.title;
+        topic.value = props.growthSession.topic;
+        isLimitless.value = !props.growthSession.attendee_limit;
+        attendeeLimit.value = props.growthSession.attendee_limit || 4;
+        isPublic.value = props.growthSession.is_public;
+        selectedAnydeskId.value = props.growthSession.anydesk?.id.toString() ?? '';
+        allowWatchers.value = props.growthSession.allow_watchers;
+        tagIds.value = props.growthSession.tags.map((tag) => tag.id.toString());
     }
-})
+});
+
+onMounted(() => {
+    nextTick(() => titleInput.value?.focus());
+});
 
 function onSubmit() {
     if (requiresPublicConfirmation.value) {
-        publicConfirmationModalState.value = "open"
-        return
+        publicConfirmationModalState.value = 'open';
+        return;
     }
-    proceedWithSubmit()
+    proceedWithSubmit();
 }
 
 function proceedWithSubmit() {
     if (isCreating.value) {
-        return createGrowthSession()
+        return createGrowthSession();
     }
-    updateGrowthSession()
+    updateGrowthSession();
 }
 
 function onPublicConfirmed() {
-    publicConfirmationModalState.value = "closed"
-    proceedWithSubmit()
+    publicConfirmationModalState.value = 'closed';
+    proceedWithSubmit();
 }
 
 function onPublicDismissed() {
-    publicConfirmationModalState.value = "closed"
+    publicConfirmationModalState.value = 'closed';
 }
 
 function onRequestFailed(exception: any) {
     if (exception.response?.status === 422) {
-        validationErrors.value = exception.response.data
+        validationErrors.value = exception.response.data;
     } else {
-        alert("Something went wrong :(")
+        alert('Something went wrong :(');
     }
 }
 
 function getError(field: string): string {
-    let errors = validationErrors.value?.errors[field]
-    return errors ? errors[0] : ""
+    const errors = validationErrors.value?.errors[field];
+    return errors ? errors[0] : '';
 }
 
 async function createGrowthSession() {
     try {
-        const payload = storeOrUpdatePayload.value
-        let growthSession: IGrowthSession = await GrowthSessionApi.store(payload)
-        emit("submitted", growthSession)
+        const payload = storeOrUpdatePayload.value;
+        const growthSession: IGrowthSession = await GrowthSessionApi.store(payload);
+        emit('submitted', growthSession);
     } catch (e) {
-        onRequestFailed(e)
+        onRequestFailed(e);
     }
 }
 
 async function updateGrowthSession() {
     if (!props.growthSession) {
-        return
+        return;
     }
 
     try {
-        let growthSession: IGrowthSession = await GrowthSessionApi.update(props.growthSession, storeOrUpdatePayload.value)
-        emit("submitted", growthSession)
+        const growthSession: IGrowthSession = await GrowthSessionApi.update(props.growthSession, storeOrUpdatePayload.value);
+        emit('submitted', growthSession);
     } catch (e) {
-        onRequestFailed(e)
+        onRequestFailed(e);
     }
 }
 
@@ -160,203 +161,259 @@ async function getDiscordChannels() {
     try {
         const discordChannelsFromApi = await DiscordChannelApi.index();
         const occupiedFromApi = await DiscordChannelApi.occupied(date.value);
-        const occupiedChannelIds = occupiedFromApi.map(discordChannel => discordChannel.id);
+        const occupiedChannelIds = occupiedFromApi.map((discordChannel) => discordChannel.id);
 
-        discordChannels.value = discordChannelsFromApi.map(discordChannel => {
-            return {
-                label: discordChannel.name,
-                value: discordChannel.id
-            }
-        }).filter(discordChannel => !occupiedChannelIds.includes(discordChannel.value))
+        discordChannels.value = discordChannelsFromApi
+            .map((discordChannel) => {
+                return {
+                    label: discordChannel.name,
+                    value: discordChannel.id,
+                };
+            })
+            .filter((discordChannel) => !occupiedChannelIds.includes(discordChannel.value));
     } catch (e) {
-        onRequestFailed(e)
+        onRequestFailed(e);
     }
 }
 
 async function getAnyDesks() {
     try {
-        const anyDesksFromApi = await AnydesksApi.getAllAnyDesks()
-        anyDesks.value = anyDesksFromApi.map(anyDesk => {
+        const anyDesksFromApi = await AnydesksApi.getAllAnyDesks();
+        anyDesks.value = anyDesksFromApi.map((anyDesk) => {
             return {
                 label: anyDesk.name,
-                value: anyDesk.id.toString()
-            }
-        })
+                value: anyDesk.id.toString(),
+            };
+        });
     } catch (e) {
-        onRequestFailed(e)
+        onRequestFailed(e);
     }
 }
 
 async function getTags() {
-  try {
-    const tagsFromApi = await TagsApi.index()
-    tagOptions.value = tagsFromApi.map(tag => {
-      return {
-        label: tag.name,
-        value: tag.id.toString()
-      }
-    })
-  } catch (e) {
-    onRequestFailed(e)
-  }
+    try {
+        const tagsFromApi = await TagsApi.index();
+        tagOptions.value = tagsFromApi.map((tag) => {
+            return {
+                label: tag.name,
+                value: tag.id.toString(),
+            };
+        });
+    } catch (e) {
+        onRequestFailed(e);
+    }
 }
 
 watch(selectedDiscordChannelId, (selectedId: string | null) => {
     if (!selectedId) {
-        return
+        return;
     }
-    if (!location.value || location.value.startsWith("Discord Channel: ")) {
-        const discordChannelName = discordChannels.value.find(channel => channel.value === selectedId)?.label
-        location.value = `Discord Channel: ${discordChannelName}`
+    if (!location.value || location.value.startsWith('Channel: ')) {
+        const discordChannelName = discordChannels.value.find((channel) => channel.value === selectedId)?.label;
+        location.value = `Channel: ${discordChannelName}`;
     }
-})
+});
 </script>
 
 <template>
-    <form @submit.prevent class="create-growth-session edit-growth-session-form bg-white w-full p-4 pt-10 text-left">
-        <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-6">
-            Title
-            <input
-                id="title"
-                v-model="title"
-                :class="{ 'error-outline': getError('title') }"
-                class="shadow block appearance-none border border-slate-400 w-full mt-1 py-2 px-3 text-lg font-normal text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
-                maxlength="45"
-                placeholder="In a short sentence, what is this growth session about?"
-                type="text"/>
-        </label>
+    <form @submit.prevent class="create-growth-session edit-growth-session-form w-full pt-8 text-left">
+        <div class="flex flex-col gap-3.5">
+            <div>
+                <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="title">Title</label>
+                <input
+                    id="title"
+                    ref="titleInput"
+                    v-model="title"
+                    :class="{ 'error-outline': getError('title') }"
+                    class="gs-input w-full rounded-lg px-3 py-2.5 text-sm"
+                    maxlength="45"
+                    placeholder="In a short sentence, what is this growth session about?"
+                    type="text"
+                />
+            </div>
 
-        <div class="mb-4">
-            <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-1" for="topic">
-                Topic
-            </label>
-            <textarea
-                id="topic"
-                v-model="topic"
-                :class="{ 'error-outline': getError('topic') }"
-                class="shadow appearance-none border border-slate-400 w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
-                placeholder="Do you want to provide more details about this growth session?"
-                rows="4"/>
-        </div>
+            <div>
+                <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="topic">Topic</label>
+                <textarea
+                    id="topic"
+                    v-model="topic"
+                    :class="{ 'error-outline': getError('topic') }"
+                    class="gs-input w-full rounded-lg px-3 py-2.5 text-sm"
+                    placeholder="Any more details?"
+                    rows="3"
+                />
+            </div>
 
-        <div class="mb-4 grid grid-cols-3 gap-6 bg-slate-100 p-4 rounded">
-            <label :class="{'error-outline': getError('date')}"
-                   class="block text-slate-700 text-sm uppercase tracking-wide font-bold">
-                Date
-                <input id="date" v-model="date" class="w-full block border p-2 mt-1 border-slate-400" type="date">
-            </label>
-
-            <label class="text-slate-700 text-sm uppercase tracking-wide font-bold">
-                Start
-                <time-picker id="start-time"
-                                v-model="startTime"
-                                :class="{'error-outline': getError('start_time')}"
-                                class="block border p-2 mt-1 border-slate-400 w-full"/>
-            </label>
-
-            <label class="text-slate-700 text-sm uppercase tracking-wide font-bold">
-                End
-                <time-picker id="end-time" v-model="endTime" :class="{'error-outline': getError('end_time')}"
-                                class="block border p-2 mt-1 border-slate-400 w-full"/>
-            </label>
-        </div>
-
-
-        <div class="p-4 py-6 bg-slate-100 rounded">
-            <div class="mb-4 grid grid-cols-2 gap-6">
-                <div class="grid grid-rows-2 gap-2">
-                    <label class="flex text-slate-700 text-sm uppercase tracking-wide font-bold items-center">
-                        <input id="is-public" v-model="isPublic" type="checkbox" class="mr-2"> Is Public
-                    </label>
-
-                    <label class="flex text-slate-700 text-sm uppercase tracking-wide font-bold items-center">
-                        <input id="no-limit" v-model="isLimitless" type="checkbox" class="mr-2">
-                        No Limit
-                    </label>
+            <div class="grid grid-cols-3 gap-2.5">
+                <div>
+                    <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="date">Date</label>
+                    <input
+                        id="date"
+                        v-model="date"
+                        :class="{ 'error-outline': getError('date') }"
+                        class="gs-input w-full rounded-lg px-2.5 py-2 text-xs"
+                        type="date"
+                    />
                 </div>
+                <div>
+                    <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">Start</label>
+                    <time-picker
+                        id="start-time"
+                        v-model="startTime"
+                        :class="{ 'error-outline': getError('start_time') }"
+                        class="gs-input w-full rounded-lg px-2.5 py-2 text-xs"
+                    />
+                </div>
+                <div>
+                    <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">End</label>
+                    <time-picker
+                        id="end-time"
+                        v-model="endTime"
+                        :class="{ 'error-outline': getError('end_time') }"
+                        class="gs-input w-full rounded-lg px-2.5 py-2 text-xs"
+                    />
+                </div>
+            </div>
 
-                <div v-if="!isLimitless" class="flex items-center">
-                    <label class="text-slate-700 text-sm uppercase tracking-wide font-bold">
-                        Limit
+            <div class="gs-border border-t pt-4">
+                <div class="gs-text-muted mb-3.5 text-xs font-bold tracking-[0.06em] uppercase">Where to meet</div>
+                <div class="grid gap-2.5 sm:grid-cols-3">
+                    <div v-if="anyDesks.length > 0">
+                        <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="anydesk-selection">AnyDesk</label>
+                        <v-select
+                            id="anydesk-selection"
+                            v-model="selectedAnydeskId"
+                            :options="anyDesks"
+                            placeholder="None"
+                            clearable
+                            class="w-full"
+                        />
+                    </div>
+                    <div v-if="discordChannels.length > 0">
+                        <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase">Discord</label>
+                        <v-select
+                            id="discord-channel"
+                            v-model="selectedDiscordChannelId"
+                            :options="discordChannels"
+                            placeholder="No channel"
+                            clearable
+                            class="w-full"
+                        />
+                    </div>
+                    <div>
+                        <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="location">Location</label>
+                        <input
+                            id="location"
+                            v-model="location"
+                            :class="{ 'error-outline': getError('location') }"
+                            class="gs-input w-full rounded-lg px-3 py-2.5 text-sm"
+                            placeholder="Where do people go?"
+                            type="text"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div class="gs-border border-t pt-4">
+                <div class="gs-text-muted mb-3.5 text-xs font-bold tracking-[0.06em] uppercase">Session Options</div>
+                <div class="flex flex-col gap-3.5">
+                    <label class="flex cursor-pointer items-center justify-between">
+                        <span class="gs-text-strong text-sm font-medium">Public</span>
+                        <span class="relative inline-flex flex-none">
+                            <input id="is-public" v-model="isPublic" type="checkbox" class="peer sr-only" />
+                            <span
+                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors peer-focus-visible:ring-2 dark:bg-white/20"
+                            ></span>
+                            <span
+                                class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
+                            ></span>
+                        </span>
+                    </label>
+
+                    <label class="flex cursor-pointer items-center justify-between">
+                        <span class="gs-text-strong text-sm font-medium">Allow watchers</span>
+                        <span class="relative inline-flex flex-none">
+                            <input id="allow-watchers" v-model="allowWatchers" type="checkbox" class="peer sr-only" />
+                            <span
+                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors peer-focus-visible:ring-2 dark:bg-white/20"
+                            ></span>
+                            <span
+                                class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
+                            ></span>
+                        </span>
+                    </label>
+
+                    <label class="flex cursor-pointer items-center justify-between">
+                        <span class="gs-text-strong text-sm font-medium">No limit</span>
+                        <span class="relative inline-flex flex-none">
+                            <input id="no-limit" v-model="isLimitless" type="checkbox" class="peer sr-only" />
+                            <span
+                                class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors peer-focus-visible:ring-2 dark:bg-white/20"
+                            ></span>
+                            <span
+                                class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
+                            ></span>
+                        </span>
+                    </label>
+
+                    <div v-if="!isLimitless" class="flex items-center justify-between">
+                        <span class="gs-text-strong text-sm font-medium">Attendee limit</span>
                         <input
                             id="attendee-limit"
                             v-model.number="attendeeLimit"
-                            :class="{'error-outline': getError('limit')}"
-                            class="block w-full text-center shadow appearance-none border border-slate-400 py-1 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
+                            :class="{ 'error-outline': getError('limit') }"
+                            class="gs-input w-16 rounded-md px-2 py-1.5 text-center text-sm"
                             min="2"
-                            placeholder="Limit of participants"
-                            type="number"/>
-                    </label>
+                            placeholder="Limit"
+                            type="number"
+                        />
+                    </div>
                 </div>
             </div>
 
-            <label class="flex items-center text-slate-700 text-sm uppercase tracking-wide font-bold">
-                <input id="allow-watchers" v-model="allowWatchers" type="checkbox" class="mr-2"> Allow watchers
-            </label>
-        </div>
-
-        <div v-if="anyDesks.length > 0" class="flex justify-between items-center w-full py-4">
-            <div class="flex-1">
-                <label class="flex items-center text-slate-700 text-sm uppercase tracking-wide font-bold">
-                    <input id="anydesks-toggle"
-                           v-model="anydesksToggle"
-                           type="checkbox"
-                           class="mr-2"
-                           @input="selectedAnydeskId = null">
-                    Plan to use an AnyDesk?
-                </label>
-            </div>
-            <label v-if="anydesksToggle" class="flex-1 text-right block text-slate-700 text-sm uppercase tracking-wide font-bold">
-                Anydesk
-                <v-select id="anydesk-selection"
-                          v-model="selectedAnydeskId"
-                          :options="anyDesks" class="ml-4 w-32"/>
-            </label>
-        </div>
-        <label class="flex flex-col text-slate-700 text-sm uppercase tracking-wide font-bold gap-1 mb-6">
-            Tags
-            <Multiselect
-                v-model="tagIds"
-                mode="tags"
-                :close-on-select="false"
-                :searchable="true"
-                :options="tagOptions"
-                :classes="{ tag: 'bg-slate-100 text-slate-700 text-sm font-semibold py-0.5 pl-2 rounded mr-1 mb-1 flex items-center whitespace-nowrap min-w-0 rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1' }"
-            />
-        </label>
-
-
-        <div class="mb-4" v-if="(discordChannels.length > 0)">
-            <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-2">
-                Discord Channel
-                <v-select id="discord-channel"
-                          v-model="selectedDiscordChannelId"
-                          :options="discordChannels"
-                          class="ml-4 w-48"></v-select>
-            </label>
-        </div>
-
-        <div class="mb-6">
-            <label class="block text-slate-700 text-sm uppercase tracking-wide font-bold mb-1" for="location">
-                Location
-            </label>
-            <textarea
-                id="location"
-                v-model="location"
-                :class="{'error-outline': getError('location')}"
-                class="shadow appearance-none border border-slate-400 w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:shadow-outline"
-                placeholder="Where should people go to participate?"
-                rows="2"/>
-        </div>
-        <button
-                    :class="{ 'opacity-25 cursor-not-allowed': !isReadyToSubmit }"
-                    :disabled="!isReadyToSubmit"
-                    @click="onSubmit"
-                    class="border-gray-600 hover:bg-gray-600 focus:bg-gray-700 text-gray-600 border-4 bg-white hover:text-white font-bold py-2 px-4 w-full"
-                    type="submit"
-                    ref="submit-button"
-                    v-text="isCreating ? 'Create' : 'Update'">
+            <div class="gs-border border-t pt-3.5">
+                <button
+                    type="button"
+                    class="gs-text-sub inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold uppercase"
+                    :aria-expanded="showTags"
+                    @click="showTags = !showTags"
+                >
+                    + Add tags
+                    <span class="gs-text-muted font-normal lowercase">(optional)</span>
+                    <span
+                        v-if="tagIds.length"
+                        class="gs-header-bg inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-xs font-bold text-white"
+                        >{{ tagIds.length }}</span
+                    >
                 </button>
+                <div v-show="showTags" class="mt-3 flex flex-wrap gap-2">
+                    <button
+                        v-for="option in tagOptions"
+                        :key="option.value"
+                        :data-testid="`tag-option-${option.value}`"
+                        type="button"
+                        class="transition-smooth cursor-pointer rounded-full border px-3.5 py-2 text-xs font-semibold tracking-[0.05em] uppercase"
+                        :class="
+                            tagIds.includes(option.value)
+                                ? 'gs-header-bg border-transparent text-white'
+                                : 'gs-border hover:border-gs-accent hover:bg-gs-accent/10 hover:text-gs-accent text-gs-header/70 dark:text-gray-300'
+                        "
+                        @click="toggleTag(option.value)"
+                    >
+                        {{ option.label }}
+                    </button>
+                </div>
+            </div>
+
+            <button
+                :class="{ 'cursor-pointer': isReadyToSubmit, 'cursor-not-allowed opacity-40': !isReadyToSubmit }"
+                :disabled="!isReadyToSubmit"
+                class="gs-btn-primary mt-1.5 w-full rounded-md py-3 text-sm font-bold"
+                type="submit"
+                @click="onSubmit"
+                v-text="isCreating ? 'Create Session' : 'Update Session'"
+            />
+        </div>
 
         <ConfirmationModal
             v-if="publicConfirmationModalState === 'open'"
@@ -369,11 +426,21 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
         />
     </form>
 </template>
-<style src="@vueform/multiselect/themes/default.css"></style>
-
 <style lang="scss" scoped>
 .error-outline {
     outline: red solid 2px;
+}
+
+/* Hide the native number-input spinner arrows on the attendee limit field */
+#attendee-limit::-webkit-inner-spin-button,
+#attendee-limit::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#attendee-limit {
+    -moz-appearance: textfield;
+    appearance: textfield;
 }
 </style>
 

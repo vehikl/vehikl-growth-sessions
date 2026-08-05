@@ -1,11 +1,11 @@
-import moment, {Moment} from "moment-timezone"
+import moment, { Moment } from 'moment-timezone';
 
 export class DateTime {
-    private dateTime: string;
-    private static nowString: string = (new Date()).toISOString();
+    public dateTime: string;
+    private static testNowString: string | null = null;
 
     constructor(dateTime?: string) {
-        this.dateTime = dateTime || DateTime.nowString;
+        this.dateTime = dateTime || DateTime.testNowString || new Date().toISOString();
     }
 
     static parseByDate(date: string): DateTime {
@@ -26,31 +26,31 @@ export class DateTime {
     }
 
     static setTestNow(date: string) {
-        DateTime.nowString = moment(date).toISOString();
+        DateTime.testNowString = moment(date).toISOString();
     }
 
     format(formatString: string): string {
-        return moment(this.dateTime, "YYYY-MM-DD").format(formatString)
+        return moment(this.dateTime, 'YYYY-MM-DD').format(formatString);
     }
 
     toDateString(): string {
-        return this.format("YYYY-MM-DD")
+        return this.format('YYYY-MM-DD');
     }
 
     toTimeString12Hours(withAmPm: boolean = true): string {
-        return moment(this.dateTime).format(`hh:mm ${withAmPm ? "a" : ""}`)
+        return moment(this.dateTime).format(`hh:mm ${withAmPm ? 'a' : ''}`);
     }
 
     toTimeString24Hours(): string {
-        return moment(this.dateTime).format(`HH:mm`)
+        return moment(this.dateTime).format(`HH:mm`);
     }
 
     toGoogleCalendarStyle(): string {
-        return this.toISOString().replace(/[\-:]/g, "").replace(".000", "")
+        return this.toISOString().replace(/[\-:]/g, '').replace('.000', '');
     }
 
     toISOString(): string {
-        return moment(this.dateTime).toISOString()
+        return moment(this.dateTime).toISOString();
     }
 
     weekDayNumber(): number {
@@ -80,7 +80,11 @@ export class DateTime {
         return current.isBefore(today);
     }
 
+    isInThePast(): boolean {
+        return moment(this.dateTime).isBefore(DateTime.today().toISOString());
+    }
+
     isEvenDate() {
-        return this.weekDayNumber() % 2 === 0
+        return this.weekDayNumber() % 2 === 0;
     }
 }

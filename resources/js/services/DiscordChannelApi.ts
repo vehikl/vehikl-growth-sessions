@@ -1,5 +1,5 @@
+import { IDiscordChannel } from '@/types/IDiscordChannel';
 import BaseApi from './BaseApi';
-import {IDiscordChannel} from "@/types/IDiscordChannel";
 
 export const discordChannelResource = 'api/discord-channels';
 
@@ -9,7 +9,7 @@ export class DiscordChannelApi extends BaseApi {
         return response.data;
     }
 
-    static async occupied(date:string): Promise<Array<IDiscordChannel>> {
+    static async occupied(date: string): Promise<Array<IDiscordChannel>> {
         const response = await BaseApi.httpRequest.get<Array<IDiscordChannel>>(`/${discordChannelResource}/${date}/occupied`);
         return response.data;
     }

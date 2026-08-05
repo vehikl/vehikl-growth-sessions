@@ -8,10 +8,10 @@ describe('AnydesksApi', () => {
 
     beforeEach(() => {
         mockBackend = new MockAdapter(axios);
-    })
+    });
 
     afterEach(() => {
-       mockBackend.restore();
+        mockBackend.restore();
     });
 
     it('returns anydesks', async () => {
@@ -21,4 +21,4 @@ describe('AnydesksApi', () => {
 
         expect(result).toEqual(anyDesksListJson);
     });
-})
+});

@@ -1,6 +1,6 @@
 export interface IValidationError {
     errors: {
-        [field: string] : string[]
-    },
+        [field: string]: string[];
+    };
     message: string;
 }

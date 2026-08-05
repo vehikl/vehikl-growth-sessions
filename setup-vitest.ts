@@ -6,7 +6,7 @@ window.alert = vi.fn()
 
 // Mock Inertia's Head component to prevent provider errors in tests
 const HeadStub = defineComponent({
-    name: 'Head',
+    name: 'InertiaHeadStub',
     props: ['title'],
     setup(props, { slots }) {
         return () => h('div', { 'data-testid': 'inertia-head' }, slots.default?.());
@@ -23,7 +23,7 @@ vi.mock('@inertiajs/vue3', async () => {
 });
 
 expect.extend({
-    toBeVisible: (received, expected) => {
+    toBeVisible: (received) => {
         if (received.attributes("style")?.includes("display: none")) {
             return {
                 message: () => "The wrapper is not visible",
@@ -37,7 +37,7 @@ expect.extend({
         }
     },
 
-    toBeChecked: (received, expected) => {
+    toBeChecked: (received) => {
         if (received.element?.checked) {
             return {
                 message: () => "The wrapper checkbox is checked",

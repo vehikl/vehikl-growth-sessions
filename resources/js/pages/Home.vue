@@ -1,18 +1,12 @@
 <script setup lang="ts">
+import Board from '@/pages/Board.vue';
+import type { IUser } from '@/types';
 import { Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import WeekView from '@/components/legacy/WeekView.vue';
-import About from '@/components/About.vue';
 
 const page = usePage<{
     auth: {
-        user: {
-            id: number;
-            name: string;
-        };
-    },
-    services: {
-        google_client_id?: string;
+        user: IUser | null;
     };
 }>();
 
@@ -21,50 +15,69 @@ function getLoginUrl(driver = 'github'): string {
 }
 
 const user = computed(() => page.props.auth.user ?? null);
-const shouldRenderGoogleLogin = computed(() => !! page.props.services.google_client_id);
+
+const guestPerks = [
+    { icon: 'fa-sign-in', label: 'Join sessions' },
+    { icon: 'fa-plus', label: 'Host your own' },
+    { icon: 'fa-compass', label: 'See where to go' },
+];
 </script>
 
 <template>
     <Head title="Week" />
 
-    <div v-if="!user" role="alert" class="fixed inset-x-4 bottom-4 z-30 block rounded-xl bg-vehikl-orange shadow-xl border border-vehikl-orange/20 p-5 text-center text-base text-white sm:bottom-4 backdrop-blur-sm">
-            To join/create growth session or see their location, you must
-            <strong>
-                <a :href="getLoginUrl('github')" class="underline hover:text-white/80 transition-smooth font-bold">log in with Github</a>
-            </strong>
-            <strong v-if="shouldRenderGoogleLogin">
-                or <a :href="getLoginUrl('google')" class="underline hover:text-white/80 transition-smooth font-bold">log in with Google</a>
-            </strong>
-        </div>
+    <div class="flex min-h-[calc(100vh-128px)] flex-col">
+        <section v-if="!user" class="gs-header-bg border-t border-white/10 text-white">
+            <div class="px-5 py-8 sm:px-7">
+                <div class="max-w-2xl">
+                    <p class="gs-accent-text text-xs font-semibold tracking-[0.18em] uppercase">You're browsing as a guest</p>
+                    <h1 class="font-display mt-3 text-3xl font-semibold sm:text-4xl lg:text-5xl">Log in to join this week's sessions</h1>
+                    <p class="mt-4 text-base text-white/70 sm:text-lg">
+                        You can browse what's scheduled below. Log in to reserve a spot, host your own session, or see exactly where to find people.
+                    </p>
+                </div>
 
-    <week-view :user="$page.props.auth.user"/>
+                <div class="mt-7 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                    <ul class="flex flex-wrap gap-x-8 gap-y-4">
+                        <li v-for="perk in guestPerks" :key="perk.label" class="flex items-center gap-3">
+                            <span class="gs-accent-text flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-base">
+                                <i :class="['fa', perk.icon]" aria-hidden="true"></i>
+                            </span>
+                            <span class="text-sm font-medium text-white/80">{{ perk.label }}</span>
+                        </li>
+                    </ul>
 
-    <div class="bg-vehikl-dark">
-        <About />
-
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 px-6 py-12 sm:px-12 lg:px-24 bg-gradient-to-b from-vehikl-dark to-black">
-            <div class="text-center lg:text-left p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-vehikl-orange/50 transition-smooth">
-                <p class="mb-6 text-3xl font-semibold text-white leading-tight">Have <span class="text-vehikl-orange italic">suggestions</span> for this app?</p>
-                <a
-                    class="inline-block rounded-lg bg-vehikl-orange hover:bg-vehikl-orange/90 px-6 py-3 text-lg font-semibold text-white transition-smooth shadow-lg hover:shadow-xl hover-lift"
-                    target="_blank"
-                    href="https://github.com/vehikl/vehikl-growth-sessions/issues"
-                >
-                    Share them!
-                </a>
-            </div>
-
-            <div class="text-center lg:text-left p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-vehikl-orange/50 transition-smooth">
-                <p class="mb-6 text-3xl font-semibold text-white leading-tight">
-                    Have <span class="text-vehikl-orange italic">feedback</span> on our <span class="text-vehikl-orange italic">growth sessions</span>?
-                </p>
-                <a
-                    href="mailto:gsfeedback@vehikl.com"
-                    class="inline-block rounded-lg bg-white hover:bg-neutral-100 px-6 py-3 text-lg font-semibold text-vehikl-dark transition-smooth shadow-lg hover:shadow-xl hover-lift"
-                >
-                    Send it to us!
-                </a>
+                    <a
+                        :href="getLoginUrl('github')"
+                        class="gs-btn-primary group shadow-vehikl-orange/30 inline-flex flex-none items-center justify-center gap-3 self-start rounded-xl px-7 py-4 text-base font-semibold shadow-lg lg:self-auto"
+                    >
+                        <i class="fa fa-github text-lg" aria-hidden="true"></i>
+                        Continue with GitHub
+                    </a>
+                </div>
             </div>
         </section>
+
+        <Board :user="$page.props.auth.user ?? undefined" />
     </div>
+
+    <footer class="gs-bar gs-border border-t px-5 py-5 text-center">
+        <p class="gs-text-muted text-sm">
+            Have
+            <a
+                href="https://github.com/vehikl/vehikl-growth-sessions/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="transition-smooth gs-accent-text underline decoration-transparent underline-offset-2 hover:decoration-current"
+            >
+                suggestions
+            </a>
+            or feedback?
+            <a
+                href="mailto:gsfeedback@vehikl.com"
+                class="transition-smooth gs-accent-text underline decoration-transparent underline-offset-2 hover:decoration-current"
+                >Let us know &rarr;</a
+            >
+        </p>
+    </footer>
 </template>
