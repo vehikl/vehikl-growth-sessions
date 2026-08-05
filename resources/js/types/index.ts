@@ -1,5 +1,6 @@
 export * from './IAnyDesk';
 export * from './IComment';
+export * from './IDashboard';
 export * from './IGrowthSession';
 export * from './IGrowthSessionProposal';
 export * from './IStatistics';
