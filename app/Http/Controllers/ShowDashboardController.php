@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Statistics;
 use App\Http\Resources\HostedGrowthSession;
 use App\Models\GrowthSession;
 use App\Models\User;
@@ -20,6 +21,7 @@ class ShowDashboardController extends Controller
         return Inertia::render('Dashboard', [
             'summary' => $this->summary($request->user()),
             'hosted_sessions' => $this->hostedSessions($request),
+            'yet_to_mob_with' => $this->yetToMobWith($request->user()),
         ]);
     }
 
@@ -57,6 +59,26 @@ class ShowDashboardController extends Controller
             ->orderByDesc('growth_sessions.start_time')
             ->paginate(self::SESSIONS_PER_PAGE)
             ->through(fn (GrowthSession $session) => HostedGrowthSession::make($session)->resolve($request));
+    }
+
+    /**
+     * Vehikl members the current user has never mobbed with, over the lifetime of the
+     * project. This reuses the date range that `statistics:recalculate` warms twice
+     * daily, so it is normally served from cache rather than recomputing the matrix.
+     *
+     * A non-member is absent from the matrix and so receives an empty list.
+     */
+    private function yetToMobWith(User $user): array
+    {
+        $oldestSessionDate = GrowthSession::query()->orderBy('date')->first()?->date?->toDateString()
+            ?? today()->toDateString();
+
+        $statistics = app(Statistics::class)
+            ->getFormattedStatisticsFor($oldestSessionDate, today()->toDateString());
+
+        return collect($statistics->firstWhere('user_id', $user->id)['has_not_mobbed_with'] ?? [])
+            ->values()
+            ->all();
     }
 
     /**

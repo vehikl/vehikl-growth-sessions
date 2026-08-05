@@ -34,8 +34,15 @@ export interface IPaginated<T> {
     next_page_url: string | null;
 }
 
+/** A Vehikl member the signed-in user has never been in a Growth Session with. */
+export interface IMemberYetToMobWith {
+    id: number;
+    name: string;
+}
+
 /** Props rendered by the Dashboard page, built by ShowDashboardController. */
 export interface IDashboard {
     summary: IHostingSummary;
     hosted_sessions: IPaginated<IHostedSession>;
+    yet_to_mob_with: IMemberYetToMobWith[];
 }

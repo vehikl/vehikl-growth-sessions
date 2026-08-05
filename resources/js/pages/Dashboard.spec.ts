@@ -1,6 +1,6 @@
 import Dashboard from '@/pages/Dashboard.vue';
 import { mountWithInertia } from '@/test-utils/inertia-test-helper';
-import { IDashboard, IHostedSession, IHostingSummary, IPaginated } from '@/types';
+import { IDashboard, IHostedSession, IHostingSummary, IMemberYetToMobWith, IPaginated } from '@/types';
 import { describe, expect, test, vi } from 'vitest';
 
 vi.mock('ziggy-js', () => ({
@@ -52,10 +52,14 @@ function paginator(overrides: Partial<IPaginated<IHostedSession>> = {}): IPagina
     };
 }
 
-function mountDashboard(overrides: Partial<IPaginated<IHostedSession>> = {}, summaryOverrides: Partial<IHostingSummary> = {}) {
+const yetToMobWith: IMemberYetToMobWith[] = [{ id: 2, name: 'Brady Deroy' }];
+
+function mountDashboard(overrides: Partial<IPaginated<IHostedSession>> = {}, rest: Partial<IDashboard> = {}) {
     const props: IDashboard = {
-        summary: { ...summary, ...summaryOverrides },
+        summary,
         hosted_sessions: paginator(overrides),
+        yet_to_mob_with: yetToMobWith,
+        ...rest,
     };
 
     return mountWithInertia(Dashboard, { props });
@@ -63,7 +67,7 @@ function mountDashboard(overrides: Partial<IPaginated<IHostedSession>> = {}, sum
 
 describe('Dashboard', () => {
     test('renders the hosting summary', () => {
-        const wrapper = mountDashboard({}, { sessions_hosted_count: 3, upcoming_count: 1, total_attendees_count: 10 });
+        const wrapper = mountDashboard({}, { summary: { sessions_hosted_count: 3, upcoming_count: 1, total_attendees_count: 10 } });
 
         expect(wrapper.text()).toContain('Sessions hosted');
         expect(wrapper.text()).toContain('Upcoming');
@@ -136,5 +140,18 @@ describe('Dashboard', () => {
 
         expect(wrapper.find('[data-testid="previous-page"]').attributes('disabled')).toBeUndefined();
         expect(wrapper.find('[data-testid="next-page"]').attributes('disabled')).toBeDefined();
+    });
+
+    test('renders the members the user has yet to mob with', () => {
+        const wrapper = mountDashboard();
+
+        expect(wrapper.text()).toContain('Yet to mob with');
+        expect(wrapper.text()).toContain('Brady Deroy');
+    });
+
+    test('shows an empty state when there is nobody left to mob with', () => {
+        const wrapper = mountDashboard({}, { yet_to_mob_with: [] });
+
+        expect(wrapper.text()).toContain("You're all caught up!");
     });
 });

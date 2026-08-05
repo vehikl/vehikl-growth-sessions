@@ -41,7 +41,7 @@ const maxTagCount = computed(() => Math.max(1, ...props.tags.map((tag) => tag.se
             </article>
         </section>
 
-        <div class="mb-8 grid gap-6">
+        <div class="grid gap-6">
             <section class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                 <h2 class="gs-text-strong mb-5 text-sm font-bold tracking-[0.05em] uppercase">Top hosts this week</h2>
                 <div class="space-y-4">
@@ -90,36 +90,5 @@ const maxTagCount = computed(() => Math.max(1, ...props.tags.map((tag) => tag.se
                 </div>
             </section>
         </div>
-
-        <section class="gs-card gs-border rounded-xl border p-6 shadow-sm">
-            <h2 class="gs-text-strong mb-5 text-sm font-bold tracking-[0.05em] uppercase">Yet to mob with</h2>
-            <div v-if="yet_to_mob_with.length" class="flex flex-wrap gap-3">
-                <div
-                    v-for="member in yet_to_mob_with"
-                    :key="member.id"
-                    class="gs-secondary-bg flex items-center gap-2.5 rounded-full py-1.5 pr-4 pl-1.5"
-                >
-                    <span
-                        :style="{ backgroundColor: avatarColor(member.name) }"
-                        class="flex h-8 w-8 flex-none items-center justify-center rounded-full text-[11px] font-bold text-white"
-                    >
-                        {{ getInitials(member.name) }}
-                    </span>
-                    <span class="gs-text-strong text-xs font-semibold whitespace-nowrap">{{ member.name }}</span>
-                </div>
-            </div>
-            <div
-                v-else
-                class="gs-secondary-bg gs-border flex flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center"
-            >
-                <span
-                    class="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-green-100 text-lg text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                >
-                    <i class="fa fa-check" aria-hidden="true"></i>
-                </span>
-                <strong class="gs-text-strong text-sm font-semibold">You're all caught up!</strong>
-                <p class="gs-text-body mt-1 max-w-md text-sm">You've mobbed with everyone on your current list. Nice work building connections.</p>
-            </div>
-        </section>
     </PageContainer>
 </template>
