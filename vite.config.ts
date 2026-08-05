@@ -6,6 +6,11 @@ import { resolve } from 'node:path';
 import {defineConfig} from 'vitest/config'
 
 export default defineConfig({
+    build: {
+        rollupOptions: {
+            maxParallelFileOps: 64,
+        },
+    },
     plugins: [
         laravel({
             input: ['resources/js/app.ts'],
