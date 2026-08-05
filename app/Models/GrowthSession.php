@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Str;
 
 #[ObservedBy(GrowthSessionObserver::class)]
 class GrowthSession extends Model
@@ -146,31 +145,6 @@ class GrowthSession extends Model
     public function scopeToday($query)
     {
         return $query->whereDate('date', today()->toDateString());
-    }
-
-    public function isUnlisted(): bool
-    {
-        return filled($this->share_token);
-    }
-
-    public function shareUrl(): ?string
-    {
-        return $this->isUnlisted()
-            ? route('growth_sessions.invitation', ['token' => $this->share_token])
-            : null;
-    }
-
-    public function setInviteLink(bool $shouldExist): void
-    {
-        if (! $shouldExist) {
-            $this->share_token = null;
-
-            return;
-        }
-
-        if (! $this->isUnlisted()) {
-            $this->share_token = Str::random(40);
-        }
     }
 
     public function hasAttendee(User $attendee): bool
