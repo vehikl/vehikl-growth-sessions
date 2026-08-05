@@ -211,6 +211,59 @@ describe('Board', () => {
         expect(isViewShown(DayView)).toBe(false);
     });
 
+    // A viewport that can change mid-test: `useMediaQuery` subscribes to the query's `change`
+    // event, so the returned function flips `matches` and replays it to those subscribers.
+    function stubResizableViewport(isDesktop: boolean): (desktop: boolean) => void {
+        const listeners: Array<(event: { matches: boolean }) => void> = [];
+        const state = { matches: isDesktop };
+
+        Object.defineProperty(window, 'matchMedia', {
+            writable: true,
+            configurable: true,
+            value: (query: string) => ({
+                get matches() {
+                    return state.matches;
+                },
+                media: query,
+                onchange: null,
+                addEventListener: (_type: string, listener: (event: { matches: boolean }) => void) => listeners.push(listener),
+                removeEventListener: vi.fn(),
+                addListener: (listener: (event: { matches: boolean }) => void) => listeners.push(listener),
+                removeListener: vi.fn(),
+                dispatchEvent: vi.fn(),
+            }),
+        });
+
+        return (desktop: boolean) => {
+            state.matches = desktop;
+            listeners.forEach((listener) => listener({ matches: desktop }));
+        };
+    }
+
+    // Deliberate: a screen too narrow for the week view demotes the board to day, and it stays
+    // demoted. Widening again must not yank the visitor back to a view they didn't re-ask for.
+    it('keeps the day view after a small screen has demoted it, even once the screen widens', async () => {
+        const resizeTo = stubResizableViewport(false);
+        window.history.replaceState({}, '', '?view=week');
+        wrapper.unmount();
+        wrapper = mount(Board, { propsData: { user: authVehiklUser } });
+        await flushPromises();
+
+        expect(isViewShown(DayView)).toBe(true);
+
+        resizeTo(true);
+        await flushPromises();
+
+        expect(isViewShown(DayView)).toBe(true);
+        expect(isViewShown(WeekView)).toBe(false);
+
+        // ...but asking for the week view again now works, because the screen can show it.
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }));
+        await wrapper.vm.$nextTick();
+
+        expect(isViewShown(WeekView)).toBe(true);
+    });
+
     it('shows only the day view on small screens and disables week switching', async () => {
         stubViewport(false); // emulate a mobile-sized viewport
         window.history.replaceState({}, '', '?view=week');
@@ -608,6 +661,7 @@ describe('Board', () => {
     });
 
     describe('deep-linked session detail', () => {
+        // The invite link lands here: the board stays on screen and the session's drawer opens over it.
         const sessionOnAnotherDay = growthSessionsThisWeek.allGrowthSessions.find((gs) => gs.date === '2020-01-13')!;
 
         async function boardAt(search: string): Promise<VueWrapper> {
@@ -743,61 +797,6 @@ describe('Board', () => {
             await flushPromises();
 
             expect(showsPrivate()).toBe(false);
-        });
-    });
-
-    describe('deep-linked session detail', () => {
-        // The invite link lands here: the board stays on screen and the session's drawer opens over it.
-        const sessionOnAnotherDay = growthSessionsThisWeek.allGrowthSessions.find((gs) => gs.date === '2020-01-13')!;
-
-        async function boardAt(search: string): Promise<VueWrapper> {
-            window.history.replaceState({}, '', search);
-            const board = mount(Board);
-            await flushPromises();
-            return board;
-        }
-
-        function drawer(): VueWrapper {
-            return wrapper.findComponent(SessionDetailDrawer);
-        }
-
-        it('opens the drawer of the session named in the query string', async () => {
-            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
-
-            expect(drawer().exists()).toBe(true);
-            expect((drawer().props() as { growthSession: GrowthSession }).growthSession.id).toBe(sessionOnAnotherDay.id);
-        });
-
-        it('moves the day view to the day the deep-linked session is on', async () => {
-            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
-
-            expect(wrapper.findComponent(DayView).props('selectedIndex')).toBe(
-                growthSessionsThisWeek.weekDates.findIndex((day) => day.toDateString() === sessionOnAnotherDay.date),
-            );
-        });
-
-        it('leaves the drawer closed when the query string names a session that is not visible', async () => {
-            wrapper = await boardAt('?session=99999');
-
-            expect(drawer().exists()).toBe(false);
-        });
-
-        it('records the open session in the url so the drawer can be shared and restored', async () => {
-            wrapper.findComponent(DayView).vm.$emit('open-detail', sessionOnAnotherDay);
-            await flushPromises();
-
-            expect(new URLSearchParams(window.location.search).get('session')).toBe(String(sessionOnAnotherDay.id));
-        });
-
-        it('drops the session from the url when the drawer is closed', async () => {
-            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
-
-            drawer().vm.$emit('close');
-            await flushPromises();
-
-            expect(drawer().exists()).toBe(false);
-            expect(new URLSearchParams(window.location.search).has('session')).toBe(false);
-            expect(new URLSearchParams(window.location.search).get('date')).toBe(todayDate);
         });
     });
 });

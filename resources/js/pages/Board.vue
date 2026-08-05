@@ -42,12 +42,29 @@ const searchShortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad
 const isDesktop = useMediaQuery('(min-width: 768px)');
 // On small screens there is nothing to switch to — the board is day-only.
 const canSwitchView = computed(() => isDesktop.value);
-// The URL may ask for the week view on a screen too narrow to show it; the day view wins.
-const view = computed<BoardView>(() => (isDesktop.value && requestedView.value === 'week' ? 'week' : 'day'));
+const view = ref<BoardView>('day');
+
+// The url's request wins whenever the url changes — on load, and on a history navigation...
+watch(
+    requestedView,
+    (requested) => {
+        view.value = isDesktop.value && requested === 'week' ? 'week' : 'day';
+    },
+    { immediate: true },
+);
+
+// ...but a screen too narrow for the week view demotes it, and it stays demoted: widening again
+// must not yank the visitor back to a view they didn't re-ask for.
+watch(isDesktop, (desktop) => {
+    if (!desktop) view.value = 'day';
+});
 
 function selectView(selectedView: BoardView) {
     if (!canSwitchView.value) return;
 
+    // Set the view outright rather than leaning on the watch above, which would not fire when the
+    // url already asks for this view — the case after a demotion the url never heard about.
+    view.value = selectedView;
     setView(selectedView);
 }
 
