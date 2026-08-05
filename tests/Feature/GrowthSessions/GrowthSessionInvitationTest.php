@@ -194,6 +194,39 @@ class GrowthSessionInvitationTest extends TestCase
             ->assertJsonFragment(['id' => $this->growthSession->id]);
     }
 
+    public function testAnAttendeeSeesTheGrowthSessionWithoutEverHoldingTheToken()
+    {
+        $attendee = User::factory()->vehiklMember(false)->create();
+        $this->growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->actingAs($attendee);
+
+        $this->showGrowthSession($this->growthSession)->assertSuccessful();
+    }
+
+    public function testAWatcherSeesTheGrowthSessionWithoutEverHoldingTheToken()
+    {
+        $watcher = User::factory()->vehiklMember(false)->create();
+        $this->growthSession->watchers()->attach($watcher, ['user_type_id' => UserType::WATCHER_ID]);
+
+        $this->actingAs($watcher);
+
+        $this->showGrowthSession($this->growthSession)->assertSuccessful();
+    }
+
+    public function testAClientWhoJoinedViaAnInviteLinkStillSeesItAfterTheirBrowserSessionExpires()
+    {
+        $client = User::factory()->vehiklMember(false)->create();
+        $this->actingAs($client);
+
+        $this->openInviteLink($this->growthSession);
+        $this->postJson(route('growth_sessions.join', $this->growthSession))->assertSuccessful();
+
+        $this->flushSession();
+
+        $this->showGrowthSession($this->growthSession)->assertSuccessful();
+    }
+
     private function openInviteLink(GrowthSession $growthSession): TestResponse
     {
         return $this->get(route('growth_sessions.invitation', ['token' => $growthSession->share_token]));
