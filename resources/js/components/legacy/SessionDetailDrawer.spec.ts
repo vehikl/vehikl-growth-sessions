@@ -132,4 +132,73 @@ describe('SessionDetailDrawer', () => {
         expect((wrapper.emitted('edit-requested')?.[0]?.[0] as GrowthSession).id).toBe(session.id);
         expect((wrapper.emitted('delete-requested')?.[0]?.[0] as GrowthSession).id).toBe(session.id);
     });
+
+    describe('invite link', () => {
+        const shareUrl = 'https://growth.test/invitations/abc123';
+        const guest: IUser = { id: 9, name: 'Client', avatar: '', github_nickname: 'client', is_vehikl_member: false };
+        let writeText: ReturnType<typeof vi.fn>;
+
+        // The server decides who may hand the invitation out and only then serializes share_url — see the GrowthSession
+        // resource. Each viewer below is paired with the payload that viewer would actually receive.
+        beforeEach(() => {
+            writeText = vi.fn().mockResolvedValue(undefined);
+            Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+        });
+
+        afterEach(() => {
+            Reflect.deleteProperty(navigator, 'clipboard');
+        });
+
+        it('shows the share url, a copy control, and what the link does to the owner', () => {
+            const wrapper = mountDrawer(makeSession({ share_url: shareUrl }), owner);
+
+            expect(wrapper.find('.share-url').text()).toContain(shareUrl);
+            expect(wrapper.find('.copy-share-url-button').exists()).toBe(true);
+            expect(wrapper.text()).toContain('Anyone with this link can view this growth session and join after logging in');
+        });
+
+        it('shows the share url to a Vehikl member who is not the owner', () => {
+            const wrapper = mountDrawer(makeSession({ share_url: shareUrl }), vehiklUser);
+
+            expect(wrapper.find('.share-url').text()).toContain(shareUrl);
+            expect(wrapper.find('.copy-share-url-button').exists()).toBe(true);
+        });
+
+        it('copies the share url to the clipboard', async () => {
+            const wrapper = mountDrawer(makeSession({ share_url: shareUrl }), owner);
+
+            await wrapper.find('.copy-share-url-button').trigger('click');
+
+            expect(writeText).toHaveBeenCalledWith(shareUrl);
+        });
+
+        it('falls back to a hidden textarea when the clipboard api is unavailable, as it is over plain http', async () => {
+            Reflect.deleteProperty(navigator, 'clipboard');
+            const execCommand = vi.fn().mockReturnValue(true);
+            Object.defineProperty(document, 'execCommand', { value: execCommand, configurable: true });
+
+            const wrapper = mountDrawer(makeSession({ share_url: shareUrl }), owner);
+            await wrapper.find('.copy-share-url-button').trigger('click');
+
+            expect(execCommand).toHaveBeenCalledWith('copy');
+            expect(wrapper.find('.copy-share-url-button').text()).toContain('Copied');
+
+            Reflect.deleteProperty(document, 'execCommand');
+        });
+
+        it('hides the share url from an unlocked guest, whose payload carries none', () => {
+            const wrapper = mountDrawer(makeSession({ share_url: undefined }), guest);
+
+            expect(wrapper.find('.share-url').exists()).toBe(false);
+            expect(wrapper.find('.copy-share-url-button').exists()).toBe(false);
+            expect(wrapper.text()).not.toContain('Anyone with this link can view this growth session');
+        });
+
+        it('hides the share url from an anonymous visitor', () => {
+            const wrapper = mountDrawer(makeSession({ share_url: undefined }));
+
+            expect(wrapper.find('.share-url').exists()).toBe(false);
+            expect(wrapper.find('.copy-share-url-button').exists()).toBe(false);
+        });
+    });
 });

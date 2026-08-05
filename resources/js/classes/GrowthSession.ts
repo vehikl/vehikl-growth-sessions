@@ -21,6 +21,7 @@ export class GrowthSession implements IGrowthSession {
     discord_channel_id!: string | null;
     anydesk!: IAnyDesk | null;
     tags!: ITag[];
+    share_url?: string;
 
     constructor(growthSession: IGrowthSession) {
         this.refresh(growthSession);
@@ -65,6 +66,7 @@ export class GrowthSession implements IGrowthSession {
         this.discord_channel_id = growthSession.discord_channel_id;
         this.anydesk = growthSession.anydesk;
         this.tags = growthSession.tags;
+        this.share_url = growthSession.share_url;
     }
 
     get hasAlreadyHappened(): boolean {

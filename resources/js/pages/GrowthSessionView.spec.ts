@@ -135,6 +135,28 @@ describe('GrowthSessionView', () => {
         });
     });
 
+    // This page is superseded by SessionDetailDrawer, which carries the full invite link coverage. Kept minimal here
+    // because the page still renders for anyone landing on a session URL directly.
+    describe('share link', () => {
+        const shareUrl = 'https://growth.test/invitations/abc123';
+
+        it('shows the share url when the payload carries one', () => {
+            wrapper = mountWithInertia(GrowthSessionView, {
+                propsData: { userJson, growthSessionJson: { ...dummyGrowthSession, share_url: shareUrl } },
+            });
+
+            expect(wrapper.find('.share-url').text()).toContain(shareUrl);
+        });
+
+        it('hides the share url when the payload carries none', () => {
+            wrapper = mountWithInertia(GrowthSessionView, {
+                propsData: { userJson, growthSessionJson: { ...dummyGrowthSession, share_url: undefined } },
+            });
+
+            expect(wrapper.find('.share-url').exists()).toBe(false);
+        });
+    });
+
     describe('as the owner', () => {
         beforeEach(() => {
             const owner = growthSessionJson.owner;

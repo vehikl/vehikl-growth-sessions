@@ -28,6 +28,7 @@ const attendeeLimit = ref<number>(4);
 const topic = ref<string>('');
 const date = ref<string>('');
 const isPublic = ref<boolean>(false);
+const hasInviteLink = ref<boolean>(false);
 const validationErrors = ref<IValidationError | null>(null);
 const isLimitless = ref<boolean>(false);
 const allowWatchers = ref<boolean>(true);
@@ -39,6 +40,14 @@ const tagIds = ref<string[]>([]);
 const tagOptions = ref<{ label: string; value: string }[]>([]);
 const showTags = ref<boolean>(true);
 const titleInput = ref<HTMLInputElement | null>(null);
+
+// Public and an invitation link are mutually exclusive: a public session is already visible to everyone. Deriving the
+// effective value rather than clearing the toggle means a trip through Public and back leaves the owner's link intact.
+const inviteLinkEnabled = computed(() => hasInviteLink.value && !isPublic.value);
+
+function onInviteLinkToggled(event: Event) {
+    hasInviteLink.value = (event.target as HTMLInputElement).checked;
+}
 
 function toggleTag(value: string) {
     tagIds.value = tagIds.value.includes(value) ? tagIds.value.filter((v) => v !== value) : [...tagIds.value, value];
@@ -64,6 +73,7 @@ const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
     discord_channel_id: selectedDiscordChannelId.value ?? undefined,
     anydesk_id: selectedAnydeskId.value ? Number.parseInt(selectedAnydeskId.value) : undefined,
     allow_watchers: allowWatchers.value,
+    has_invite_link: inviteLinkEnabled.value,
     tags: tagIds.value.map((tag) => +tag),
 }));
 
@@ -87,6 +97,8 @@ onBeforeMount(() => {
         isLimitless.value = !props.growthSession.attendee_limit;
         attendeeLimit.value = props.growthSession.attendee_limit || 4;
         isPublic.value = props.growthSession.is_public;
+        // The share URL is the only signal of a live link that reaches the client — the token itself is never serialized.
+        hasInviteLink.value = !!props.growthSession.share_url;
         selectedAnydeskId.value = props.growthSession.anydesk?.id.toString() ?? '';
         allowWatchers.value = props.growthSession.allow_watchers;
         tagIds.value = props.growthSession.tags.map((tag) => tag.id.toString());
@@ -329,6 +341,32 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
                             ></span>
                         </span>
                     </label>
+
+                    <div>
+                        <label class="flex items-center justify-between" :class="isPublic ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'">
+                            <span class="gs-text-strong text-sm font-medium">Shareable invite link</span>
+                            <span class="relative inline-flex flex-none">
+                                <input
+                                    id="has-invite-link"
+                                    :checked="inviteLinkEnabled"
+                                    :disabled="isPublic"
+                                    :aria-describedby="isPublic ? 'invite-link-unavailable-reason' : undefined"
+                                    type="checkbox"
+                                    class="peer sr-only"
+                                    @change="onInviteLinkToggled"
+                                />
+                                <span
+                                    class="peer-checked:bg-gs-accent dark:peer-checked:bg-gs-accent peer-focus-visible:ring-gs-accent h-6 w-11 rounded-full bg-black/15 transition-colors peer-focus-visible:ring-2 dark:bg-white/20"
+                                ></span>
+                                <span
+                                    class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
+                                ></span>
+                            </span>
+                        </label>
+                        <p v-if="isPublic" id="invite-link-unavailable-reason" class="gs-text-muted mt-1.5 text-xs">
+                            Public growth sessions are already visible to everyone.
+                        </p>
+                    </div>
 
                     <label class="flex cursor-pointer items-center justify-between">
                         <span class="gs-text-strong text-sm font-medium">Allow watchers</span>
