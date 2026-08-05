@@ -15,6 +15,7 @@ describe('GrowthSession', () => {
     const growthSessionJson: IGrowthSession = {
         id: 0,
         is_public: true,
+        is_unlisted: false,
         allow_watchers: true,
         date: '2020-01-01',
         start_time: '03:00 pm',

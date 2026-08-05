@@ -50,6 +50,7 @@ const baseGrowthSessionDataAttributes = {
     id: 0,
     owner: ownerOfTheGrowthSession,
     is_public: true,
+    is_unlisted: false,
     location: 'Somewhere over the rainbow',
     discord_channel_id: null,
     date: '2020-05-08',

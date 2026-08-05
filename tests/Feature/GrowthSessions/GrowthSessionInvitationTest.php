@@ -24,10 +24,40 @@ class GrowthSessionInvitationTest extends TestCase
         $this->growthSession = GrowthSession::factory()->unlisted()->create();
     }
 
-    public function testAValidInviteLinkRedirectsToTheCanonicalGrowthSessionPage()
+    public function testAValidInviteLinkRedirectsToTheBoardDeepLinkedToTheGrowthSession()
     {
         $this->openInviteLink($this->growthSession)
-            ->assertRedirect(route('growth_sessions.show', $this->growthSession));
+            ->assertRedirect(route('home', [
+                'date' => $this->growthSession->date->toDateString(),
+                'session' => $this->growthSession->id,
+            ]));
+    }
+
+    public function testTheInviteLinkIsAsShortAsItCanBeSoItPastesWellIntoAChat()
+    {
+        $this->assertSame(
+            url("/invitations/{$this->growthSession->share_token}"),
+            route('growth_sessions.invitation', ['token' => $this->growthSession->share_token]),
+        );
+    }
+
+    public function testAnUnlistedGrowthSessionIsMarkedAsSuchSoTheBoardKeepsShowingItToInvitedGuests()
+    {
+        $this->openInviteLink($this->growthSession);
+
+        $this->showGrowthSession($this->growthSession)
+            ->assertSuccessful()
+            ->assertJsonPath('is_unlisted', true)
+            ->assertJsonPath('is_public', false);
+    }
+
+    public function testAPublicGrowthSessionIsNotMarkedAsUnlisted()
+    {
+        $publicGrowthSession = GrowthSession::factory()->create(['is_public' => true]);
+
+        $this->showGrowthSession($publicGrowthSession)
+            ->assertSuccessful()
+            ->assertJsonPath('is_unlisted', false);
     }
 
     public function testAnUnknownInviteTokenIsNotFound()

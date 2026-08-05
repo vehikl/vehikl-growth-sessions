@@ -44,6 +44,9 @@ const metadataForGrowthSessionsFixture = {
 
 const todayDate: string = metadataForGrowthSessionsFixture.today.date;
 
+// Ziggy has no route table in unit tests; the login link's contents are covered in loginUrl.spec.ts.
+vi.mock('@/lib/loginUrl', () => ({ loginUrl: () => '/login-from-here' }));
+
 vi.mock('@laravel/echo-vue', () => ({
     default: vi.fn(),
     useEcho: vi.fn(),
@@ -740,6 +743,61 @@ describe('Board', () => {
             await flushPromises();
 
             expect(showsPrivate()).toBe(false);
+        });
+    });
+
+    describe('deep-linked session detail', () => {
+        // The invite link lands here: the board stays on screen and the session's drawer opens over it.
+        const sessionOnAnotherDay = growthSessionsThisWeek.allGrowthSessions.find((gs) => gs.date === '2020-01-13')!;
+
+        async function boardAt(search: string): Promise<VueWrapper> {
+            window.history.replaceState({}, '', search);
+            const board = mount(Board);
+            await flushPromises();
+            return board;
+        }
+
+        function drawer(): VueWrapper {
+            return wrapper.findComponent(SessionDetailDrawer);
+        }
+
+        it('opens the drawer of the session named in the query string', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+
+            expect(drawer().exists()).toBe(true);
+            expect((drawer().props() as { growthSession: GrowthSession }).growthSession.id).toBe(sessionOnAnotherDay.id);
+        });
+
+        it('moves the day view to the day the deep-linked session is on', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+
+            expect(wrapper.findComponent(DayView).props('selectedIndex')).toBe(
+                growthSessionsThisWeek.weekDates.findIndex((day) => day.toDateString() === sessionOnAnotherDay.date),
+            );
+        });
+
+        it('leaves the drawer closed when the query string names a session that is not visible', async () => {
+            wrapper = await boardAt('?session=99999');
+
+            expect(drawer().exists()).toBe(false);
+        });
+
+        it('records the open session in the url so the drawer can be shared and restored', async () => {
+            wrapper.findComponent(DayView).vm.$emit('open-detail', sessionOnAnotherDay);
+            await flushPromises();
+
+            expect(new URLSearchParams(window.location.search).get('session')).toBe(String(sessionOnAnotherDay.id));
+        });
+
+        it('drops the session from the url when the drawer is closed', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+
+            drawer().vm.$emit('close');
+            await flushPromises();
+
+            expect(drawer().exists()).toBe(false);
+            expect(new URLSearchParams(window.location.search).has('session')).toBe(false);
+            expect(new URLSearchParams(window.location.search).get('date')).toBe(todayDate);
         });
     });
 });

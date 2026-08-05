@@ -10,6 +10,8 @@ export interface IGrowthSession {
     start_time: string;
     end_time: string;
     is_public: boolean;
+    /** Not publicly listed, but reachable by anyone holding its invite link. */
+    is_unlisted: boolean;
     allow_watchers: boolean;
     attendee_limit: number | null;
     discord_channel_id: string | null;

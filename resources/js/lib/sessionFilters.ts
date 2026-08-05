@@ -19,12 +19,11 @@ function matchesTags(session: GrowthSession, tagIds: number[]): boolean {
 }
 
 function matchesVisibility(session: GrowthSession, criteria: SessionFilterCriteria): boolean {
-    // Guests can only ever see public sessions. The server enforces this too, but
-    // guarding here means private sessions can't linger in the UI after logging out
-    // (before any refetch resolves), and the Vehikl-only visibility filter below
-    // simply doesn't apply to guests.
+    // Guests see public sessions, plus any unlisted one they hold the invite link for — the server only ever
+    // sends those two kinds their way. Guarding here means private sessions can't linger in the UI after logging
+    // out (before any refetch resolves), and the Vehikl-only visibility filter below simply doesn't apply to guests.
     if (!criteria.user) {
-        return session.is_public;
+        return session.is_public || session.is_unlisted;
     }
 
     if (criteria.visibility === 'private') {

@@ -6,6 +6,8 @@ import { DOMWrapper, mount } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('@/lib/loginUrl', () => ({ loginUrl: () => '/login-from-here' }));
+
 const today = '2099-06-15';
 
 const vehiklUser: IUser = { id: 987, name: 'Jack Bauer', avatar: '', github_nickname: 'jack', is_vehikl_member: true };
@@ -271,6 +273,22 @@ describe('SessionDetailDrawer', () => {
 
             expect(wrapper.find('.share-url').exists()).toBe(false);
             expect(wrapper.find('.copy-share-url-button').exists()).toBe(false);
+        });
+    });
+
+    describe('for an anonymous visitor', () => {
+        // An invited guest arrives with the drawer already open; they must be able to log in from inside it,
+        // rather than closing it and losing the session they were invited to.
+        it('offers a login link in place of the join button', () => {
+            const wrapper = mountDrawer(makeSession());
+
+            expect(wrapper.find('.login-to-join-link').exists()).toBe(true);
+            expect(wrapper.find('.login-to-join-link').attributes('href')).toBe('/login-from-here');
+            expect(shown(wrapper.find('.join-button'))).toBe(false);
+        });
+
+        it('is not offered to someone already logged in', () => {
+            expect(mountDrawer(makeSession(), vehiklUser).find('.login-to-join-link').exists()).toBe(false);
         });
     });
 });

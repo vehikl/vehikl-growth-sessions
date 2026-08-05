@@ -6,6 +6,7 @@ import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import ShareInviteLink from '@/components/legacy/ShareInviteLink.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 import { useCopyStatus } from '@/composables/useCopyStatus';
+import { loginUrl } from '@/lib/loginUrl';
 import { capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
 import { ChevronRight, Forward, X } from 'lucide-vue-next';
@@ -164,6 +165,9 @@ async function share() {
             </p>
 
             <div class="mb-6 flex flex-col gap-2.5">
+                <a v-if="!user" :href="loginUrl()" class="login-to-join-link gs-btn-primary rounded-md py-3 text-center text-sm font-semibold">
+                    Log in to join
+                </a>
                 <button
                     v-show="growthSession.canJoin(user)"
                     type="button"

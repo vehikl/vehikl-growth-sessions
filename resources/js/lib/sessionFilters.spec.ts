@@ -85,6 +85,12 @@ describe('filterSessions', () => {
             expect(titlesOf(filterSessions(sessions(), criteria({ user: undefined, visibility: 'private' })))).toEqual(['Public']);
             expect(titlesOf(filterSessions(sessions(), criteria({ user: undefined, visibility: 'all' })))).toEqual(['Public']);
         });
+
+        it('keeps unlisted sessions a guest was invited to, since the server only sends the ones they unlocked', () => {
+            const invited = [makeSession({ title: 'Invited', is_public: false, is_unlisted: true })];
+
+            expect(titlesOf(filterSessions(invited, criteria({ user: undefined })))).toEqual(['Invited']);
+        });
     });
 
     describe('search', () => {

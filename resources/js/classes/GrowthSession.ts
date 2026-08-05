@@ -10,6 +10,7 @@ export class GrowthSession implements IGrowthSession {
     location!: string;
     date!: string;
     is_public!: boolean;
+    is_unlisted!: boolean;
     start_time!: string;
     end_time!: string;
     owner!: User;
@@ -55,6 +56,7 @@ export class GrowthSession implements IGrowthSession {
         this.location = growthSession.location;
         this.date = growthSession.date;
         this.is_public = growthSession.is_public;
+        this.is_unlisted = growthSession.is_unlisted ?? false;
         this.allow_watchers = growthSession.allow_watchers;
         this.start_time = growthSession.start_time;
         this.end_time = growthSession.end_time;

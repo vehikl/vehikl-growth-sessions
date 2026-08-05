@@ -9,8 +9,9 @@ use Illuminate\Http\RedirectResponse;
 class GrowthSessionInvitationController extends Controller
 {
     /**
-     * Records the unlocking and redirects to the growth session's canonical page, so that the share token
-     * appears once in the visitor's history and is never carried into the referrer of anything they click next.
+     * Records the unlocking and redirects to the board, deep-linked to the growth session so its detail drawer
+     * opens in context. Redirecting also keeps the share token to a single entry in the visitor's history, and
+     * out of the referrer of anything they click next.
      */
     public function __invoke(string $token): RedirectResponse
     {
@@ -20,6 +21,9 @@ class GrowthSessionInvitationController extends Controller
 
         GrowthSessionUnlocks::unlock($growthSession->share_token);
 
-        return redirect()->route('growth_sessions.show', $growthSession);
+        return redirect()->route('home', [
+            'date' => $growthSession->date->toDateString(),
+            'session' => $growthSession->id,
+        ]);
     }
 }
