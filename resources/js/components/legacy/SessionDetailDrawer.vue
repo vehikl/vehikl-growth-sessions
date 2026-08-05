@@ -4,6 +4,7 @@ import CommentList from '@/components/legacy/CommentList.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import ShareInviteLink from '@/components/legacy/ShareInviteLink.vue';
 import { useInitials } from '@/composables/useInitials';
+import { loginUrl } from '@/lib/loginUrl';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
 import { ChevronRight } from 'lucide-vue-next';
@@ -142,6 +143,9 @@ async function leave() {
             <p class="gs-text-body mb-5 text-sm leading-[1.6] whitespace-pre-wrap">{{ growthSession.topic }}</p>
 
             <div class="mb-6 flex flex-col gap-2.5">
+                <a v-if="!user" :href="loginUrl()" class="login-to-join-link gs-btn-primary rounded-md py-3 text-center text-sm font-semibold">
+                    Log in to join
+                </a>
                 <button
                     v-show="growthSession.canJoin(user)"
                     type="button"

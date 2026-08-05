@@ -71,6 +71,44 @@ watch(
 
 const selectedSession = ref<GrowthSession | null>(null);
 
+/**
+ * The open drawer lives in the `?session=` query parameter, so an invite link (or any copied URL) lands on the
+ * board with that session's detail already open, and the back button closes it again.
+ */
+function selectSession(growthSession: GrowthSession | null) {
+    selectedSession.value = growthSession;
+
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const sessionInUrl = urlSearchParams.get('session');
+    const sessionWanted = growthSession ? String(growthSession.id) : null;
+    if (sessionInUrl === sessionWanted) return;
+
+    if (sessionWanted) {
+        urlSearchParams.set('session', sessionWanted);
+    } else {
+        urlSearchParams.delete('session');
+    }
+
+    const query = urlSearchParams.toString();
+    window.history.pushState({}, '', query ? `?${query}` : window.location.pathname);
+}
+
+/** Adopt the session in the current URL, if it is one this visitor can see in the loaded week. */
+function syncSelectedSessionFromUrl() {
+    const requestedId = Number(new URLSearchParams(window.location.search).get('session'));
+    if (!requestedId) {
+        selectedSession.value = null;
+        return;
+    }
+
+    selectedSession.value = growthSessions.value.allGrowthSessions.find((session) => session.id === requestedId) ?? null;
+
+    if (selectedSession.value) {
+        const dayOfSession = growthSessions.value.weekDates.findIndex((date) => date.toDateString() === selectedSession.value!.date);
+        if (dayOfSession >= 0) dayIndex.value = dayOfSession;
+    }
+}
+
 watch(
     () => props.user?.id,
     () => {
@@ -152,8 +190,11 @@ watchDebounced(
 onBeforeMount(async () => {
     await getAllTags();
     await refreshGrowthSessionsOfTheWeek();
-    const todayIdx = growthSessions.value.weekDates.findIndex((d) => d.isToday());
-    dayIndex.value = todayIdx >= 0 ? todayIdx : 0;
+    // A deep-linked session has already chosen the day it lives on; otherwise start on today.
+    if (!selectedSession.value) {
+        const todayIdx = growthSessions.value.weekDates.findIndex((d) => d.isToday());
+        dayIndex.value = todayIdx >= 0 ? todayIdx : 0;
+    }
     window.onpopstate = refreshGrowthSessionsOfTheWeek;
 });
 
@@ -206,6 +247,7 @@ async function refreshGrowthSessionsOfTheWeek() {
     syncFromUrl();
     syncViewFromUrl();
     await getAllGrowthSessionsOfTheWeek();
+    syncSelectedSessionFromUrl();
 }
 
 async function onDragEnd(location: any) {
@@ -247,14 +289,14 @@ function onCreateNewGrowthSessionClicked(startDate: DateTime) {
 }
 
 function onGrowthSessionEditRequested(growthSession: GrowthSession) {
-    selectedSession.value = null;
+    selectSession(null);
     growthSessionToUpdate.value = growthSession;
     newGrowthSessionDate.value = '';
     formModalState.value = 'open';
 }
 
 function onGrowthSessionCopyRequested(growthSession: GrowthSession) {
-    selectedSession.value = null;
+    selectSession(null);
     growthSessionToUpdate.value = new GrowthSession({ ...growthSession, id: 0 });
     newGrowthSessionDate.value = '';
     formModalState.value = 'open';
@@ -273,15 +315,11 @@ function onTagClick(id: number) {
     }
 }
 
-function openDetail(growthSession: GrowthSession) {
-    selectedSession.value = growthSession;
-}
-
 async function onDrawerRefresh() {
     const id = selectedSession.value?.id;
     await getAllGrowthSessionsOfTheWeek();
     if (id) {
-        selectedSession.value = growthSessions.value.allGrowthSessions.find((s) => s.id === id) ?? null;
+        selectSession(growthSessions.value.allGrowthSessions.find((s) => s.id === id) ?? null);
     }
 }
 
@@ -310,7 +348,7 @@ async function onGrowthSessionDeleteRequested(session: GrowthSession) {
             console.error('Failed to delete growth session:', error);
         }
     } finally {
-        selectedSession.value = null;
+        selectSession(null);
         await getAllGrowthSessionsOfTheWeek();
     }
 }
@@ -450,7 +488,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             @create="onCreateNewGrowthSessionClicked"
             @edit-requested="onGrowthSessionEditRequested"
             @copy-requested="onGrowthSessionCopyRequested"
-            @open-detail="openDetail"
+            @open-detail="selectSession"
             @refresh="getAllGrowthSessionsOfTheWeek"
             @drag-change="onChange"
             @drag-end="onDragEnd"
@@ -466,7 +504,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             :full-session-ids="fullSessionIds"
             :user="user"
             @select-day="dayIndex = $event"
-            @open-detail="openDetail"
+            @open-detail="selectSession"
             @join="onDaySessionJoin"
             @watch="onDaySessionWatch"
             @leave="onDaySessionLeave"
@@ -501,7 +539,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             v-if="selectedSession"
             :growth-session="selectedSession"
             :user="user"
-            @close="selectedSession = null"
+            @close="selectSession(null)"
             @edit-requested="onGrowthSessionEditRequested"
             @delete-requested="onGrowthSessionDeleteRequested"
             @refresh="onDrawerRefresh"

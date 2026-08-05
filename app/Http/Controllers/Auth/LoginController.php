@@ -16,6 +16,8 @@ class LoginController extends Controller
 {
     public function redirectToProvider(Request $request, $driver)
     {
+        $this->rememberWhereToReturnTo($request);
+
         if (App::environment('local') && empty(config('services.github.client_id'))) {
             $githubUser = $request->input('github_user');
 
@@ -28,7 +30,7 @@ class LoginController extends Controller
                 ->firstOrFail()
             );
 
-            return redirect()->route('home');
+            return redirect()->intended(route('home'));
         }
 
         return Socialite::driver($driver)->redirect();
@@ -52,6 +54,23 @@ class LoginController extends Controller
             Email::query()->create(['address' => $email, 'user_id' => $growthSessionUser->id]);
         }
         auth()->login($growthSessionUser, true);
-        return redirect('/');
+
+        return redirect()->intended('/');
+    }
+
+    /**
+     * Someone who follows an invite link and then logs in to join should come back to the page they were on,
+     * drawer and all, rather than to a bare board. Only paths within this app are honoured, so the login link
+     * cannot be dressed up to bounce a visitor somewhere else.
+     */
+    private function rememberWhereToReturnTo(Request $request): void
+    {
+        $returnTo = (string) $request->query('redirect', '');
+
+        if (! str_starts_with($returnTo, '/') || str_starts_with($returnTo, '//')) {
+            return;
+        }
+
+        redirect()->setIntendedUrl(url($returnTo));
     }
 }

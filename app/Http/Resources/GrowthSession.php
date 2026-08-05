@@ -25,6 +25,10 @@ class GrowthSession extends JsonResource
             $attributes['attendee_limit'] = null;
         }
 
+        // Whether the growth session is unlisted, not the token that unlocks it: the board needs to tell an
+        // invite-only session apart from a private one to keep showing it to an invited guest.
+        $attributes['is_unlisted'] = $this->resource->isUnlisted();
+
         $attributes['attendees'] = $attributes['attendees'] ?? [];
         $isPersonNotAVehiklMember = auth()->guest() || !auth()->user()->is_vehikl_member;
 
