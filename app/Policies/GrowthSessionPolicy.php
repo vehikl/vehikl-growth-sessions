@@ -4,7 +4,7 @@ namespace App\Policies;
 
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Support\GrowthSessionUnlocks;
+use App\Support\InviteLink;
 use Illuminate\Auth\Access\Response;
 
 class GrowthSessionPolicy
@@ -27,13 +27,7 @@ class GrowthSessionPolicy
             // Taking part is a deliberate act by an authenticated identity, so it grants visibility on its own — it
             // does not depend on still holding the invite token or on the browser session that unlocked it.
             || ($user && $growthSession->hasParticipant($user))
-            || $this->hasUnlockedInviteLink($growthSession);
-    }
-
-    private function hasUnlockedInviteLink(GrowthSession $growthSession): bool
-    {
-        return $growthSession->isUnlisted()
-            && GrowthSessionUnlocks::has($growthSession->share_token);
+            || InviteLink::for($growthSession)->hasBeenUnlocked();
     }
 
     public function create(User $user): bool

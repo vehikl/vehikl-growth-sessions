@@ -411,11 +411,18 @@ describe('GrowthSessionForm', () => {
             expect(wrapper.text()).toContain('Public growth sessions are already visible to everyone');
         });
 
-        it('turns the invite link off when the session is made public', async () => {
+        it('shows the invite link toggle off when the session is made public', async () => {
             await wrapper.find('#has-invite-link').setValue(true);
             await wrapper.find('#is-public').setValue(true);
 
             expect(wrapper.find<HTMLInputElement>('#has-invite-link').element.checked).toBe(false);
+        });
+
+        // The server's InviteLink module decides what a public session's link does; the form only reports what the
+        // owner asked for, so that turning Public back off restores their choice without a second trip.
+        it('sends the session as public and leaves the link decision to the server', async () => {
+            await wrapper.find('#has-invite-link').setValue(true);
+            await wrapper.find('#is-public').setValue(true);
 
             await wrapper.find('#title').setValue('Test Title');
             await wrapper.find('#topic').setValue('Test Topic');
@@ -425,7 +432,7 @@ describe('GrowthSessionForm', () => {
             await wrapper.find('.confirm-button').trigger('click');
             await flushPromises();
 
-            expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining({ is_public: true, has_invite_link: false }));
+            expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining({ is_public: true }));
         });
 
         it('brings the invite link back when public is turned off again', async () => {
@@ -511,7 +518,7 @@ describe('GrowthSessionForm', () => {
             expect(wrapper.find<HTMLInputElement>('#has-invite-link').element.checked).toBe(false);
         });
 
-        it('revokes the invite link when an unlisted session is made public', async () => {
+        it('hands the server a public session so it can revoke the invite link', async () => {
             wrapper = mount(GrowthSessionForm, {
                 propsData: {
                     owner: user,
@@ -526,10 +533,7 @@ describe('GrowthSessionForm', () => {
             await wrapper.find('.confirm-button').trigger('click');
             await flushPromises();
 
-            expect(GrowthSessionApi.update).toHaveBeenCalledWith(
-                expect.anything(),
-                expect.objectContaining({ is_public: true, has_invite_link: false }),
-            );
+            expect(GrowthSessionApi.update).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ is_public: true }));
         });
     });
 });

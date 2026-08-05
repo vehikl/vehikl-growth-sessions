@@ -5,6 +5,7 @@ namespace Tests\Feature\GrowthSessions;
 use App\Models\GrowthSession;
 use App\Models\User;
 use App\Models\UserType;
+use App\Support\InviteLink;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -72,6 +73,42 @@ class GrowthSessionInviteLinkManagementTest extends TestCase
             ->assertSuccessful();
 
         $this->assertEquals($originalToken, $growthSession->fresh()->share_token);
+    }
+
+    public function testAPublicGrowthSessionIsCreatedWithoutAnInviteLinkEvenIfOneIsAskedFor()
+    {
+        $owner = User::factory()->vehiklMember()->create();
+
+        $this->actingAs($owner)
+            ->postJson(route('growth_sessions.store'), $this->creationParameters([
+                'is_public' => true,
+                'has_invite_link' => true,
+            ]))
+            ->assertSuccessful();
+
+        $this->assertNull(GrowthSession::first()->share_token);
+    }
+
+    public function testAnInviteLinkCannotBeEnabledOnAPublicGrowthSession()
+    {
+        $growthSession = $this->ownedGrowthSession(public: true);
+
+        $this->actingAs($growthSession->owner)
+            ->putJson(route('growth_sessions.update', $growthSession), ['has_invite_link' => true])
+            ->assertSuccessful();
+
+        $this->assertNull($growthSession->fresh()->share_token);
+    }
+
+    public function testMakingAGrowthSessionPublicRevokesItsInviteLink()
+    {
+        $growthSession = $this->ownedGrowthSession(unlisted: true);
+
+        $this->actingAs($growthSession->owner)
+            ->putJson(route('growth_sessions.update', $growthSession), ['is_public' => true])
+            ->assertSuccessful();
+
+        $this->assertNull($growthSession->fresh()->share_token);
     }
 
     public function testAShareTokenSuppliedByTheClientIsIgnoredOnCreation()
@@ -197,7 +234,7 @@ class GrowthSessionInviteLinkManagementTest extends TestCase
 
         $this->getJson(route('growth_sessions.day'))
             ->assertSuccessful()
-            ->assertJsonMissing(['share_url' => $growthSession->shareUrl()]);
+            ->assertJsonMissing(['share_url' => InviteLink::for($growthSession)->url()]);
     }
 
     public function testTheShareUrlIsAbsentFromTheWeekListingForAnUnlockedGuest()
@@ -208,7 +245,7 @@ class GrowthSessionInviteLinkManagementTest extends TestCase
 
         $this->getJson(route('growth_sessions.week'))
             ->assertSuccessful()
-            ->assertJsonMissing(['share_url' => $growthSession->shareUrl()]);
+            ->assertJsonMissing(['share_url' => InviteLink::for($growthSession)->url()]);
     }
 
     public function testTheShareUrlIsAbsentWhenNoInviteLinkIsActive()
@@ -256,14 +293,14 @@ class GrowthSessionInviteLinkManagementTest extends TestCase
             ->assertJsonValidationErrorFor('has_invite_link');
     }
 
-    private function ownedGrowthSession(bool $unlisted = false): GrowthSession
+    private function ownedGrowthSession(bool $unlisted = false, bool $public = false): GrowthSession
     {
         $factory = GrowthSession::factory()
             ->hasAttached(User::factory()->vehiklMember(), ['user_type_id' => UserType::OWNER_ID], 'owners');
 
         return $unlisted
             ? $factory->unlisted()->create()
-            : $factory->create(['is_public' => false]);
+            : $factory->create(['is_public' => $public]);
     }
 
     private function creationParameters(array $params = []): array

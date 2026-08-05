@@ -41,8 +41,9 @@ const tagOptions = ref<{ label: string; value: string }[]>([]);
 const showTags = ref<boolean>(true);
 const titleInput = ref<HTMLInputElement | null>(null);
 
-// Public and an invitation link are mutually exclusive: a public session is already visible to everyone. Deriving the
-// effective value rather than clearing the toggle means a trip through Public and back leaves the owner's link intact.
+// Public and an invitation link are mutually exclusive: a public session is already visible to everyone. The server's
+// InviteLink module enforces that; this computed only shows the toggle in the state the server would settle on.
+// Deriving it rather than clearing the toggle means a trip through Public and back leaves the owner's link intact.
 const inviteLinkEnabled = computed(() => hasInviteLink.value && !isPublic.value);
 
 function onInviteLinkToggled(event: Event) {
@@ -73,7 +74,7 @@ const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
     discord_channel_id: selectedDiscordChannelId.value ?? undefined,
     anydesk_id: selectedAnydeskId.value ? Number.parseInt(selectedAnydeskId.value) : undefined,
     allow_watchers: allowWatchers.value,
-    has_invite_link: inviteLinkEnabled.value,
+    has_invite_link: hasInviteLink.value,
     tags: tagIds.value.map((tag) => +tag),
 }));
 
