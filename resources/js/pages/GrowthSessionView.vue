@@ -4,6 +4,7 @@ import CommentList from '@/components/legacy/CommentList.vue';
 import GrowthSessionForm from '@/components/legacy/GrowthSessionForm.vue';
 import GrowthSessionTags from '@/components/legacy/GrowthSessionTags.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
+import ShareInviteLink from '@/components/legacy/ShareInviteLink.vue';
 import VAvatar from '@/components/legacy/VAvatar.vue';
 import VButton from '@/components/legacy/VButton.vue';
 import VModal from '@/components/legacy/VModal.vue';
@@ -190,6 +191,11 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                 <div class="mb-4">
                     <h3 class="text-lg font-semibold tracking-widest text-slate-600 uppercase">MobTime</h3>
                     <a :href="mobtimeUrl" target="_blank" class="break-words text-gray-600">{{ mobtimeUrl }}</a>
+                </div>
+
+                <div class="mb-4" v-if="growthSession.share_url">
+                    <h3 class="text-lg font-semibold tracking-widest text-slate-600 uppercase">Invite Link</h3>
+                    <share-invite-link :share-url="growthSession.share_url" />
                 </div>
 
                 <div class="mb-4" v-if="growthSession.attendee_limit">

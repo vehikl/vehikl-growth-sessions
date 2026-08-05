@@ -3,6 +3,7 @@ import { GrowthSession } from '@/classes/GrowthSession';
 import CommentList from '@/components/legacy/CommentList.vue';
 import LinkifiedText from '@/components/legacy/LinkifiedText.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
+import ShareInviteLink from '@/components/legacy/ShareInviteLink.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 import { useCopyStatus } from '@/composables/useCopyStatus';
 import { capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
@@ -223,6 +224,10 @@ async function share() {
                 <div>
                     <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">MOBTIME</div>
                     <a :href="mobtimeUrl" target="_blank" class="gs-accent-text text-sm font-medium break-all">{{ mobtimeUrl }}</a>
+                </div>
+                <div v-if="growthSession.share_url">
+                    <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">INVITE LINK</div>
+                    <share-invite-link :share-url="growthSession.share_url" />
                 </div>
                 <div>
                     <div class="gs-text-muted mb-2.5 text-xs font-bold tracking-[0.06em]">ATTENDEES ({{ capacityLabel(growthSession) }})</div>
