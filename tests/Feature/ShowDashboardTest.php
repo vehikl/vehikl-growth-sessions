@@ -161,12 +161,68 @@ class ShowDashboardTest extends TestCase
                     ->where('id', $session->id)
                     ->where('title', 'Vue Testing Deep Dive')
                     ->where('date', '2020-01-15')
-                    ->where('date_label', 'Wed, Jan 15, 2020')
+                    ->where('date_label', 'Jan 15, 2020')
+                    ->where('is_upcoming', true)
                     ->where('time_label', '3:30 pm – 5:00 pm')
                     ->where('attendee_count', 0)
                     ->has('tags', 1)
                     ->where('tags.0.name', 'Vue')
                 )
+            );
+    }
+
+    public function testItMarksPastSessionsAsNotUpcoming()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        $this->hostedBy($host, today()->addDay(), 'Tomorrow');
+        $this->hostedBy($host, today(), 'Today');
+        $this->hostedBy($host, today()->subDay(), 'Yesterday');
+
+        $this->actingAs($host)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('hosted_sessions.data.0.is_upcoming', true)
+                ->where('hosted_sessions.data.1.is_upcoming', true)
+                ->where('hosted_sessions.data.2.is_upcoming', false)
+            );
+    }
+
+    public function testItSummarisesHostingAcrossTheWholeHistory()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        $busy = $this->hostedBy($host, today()->subWeek(), 'Three came');
+        $busy->attendees()->attach(User::factory()->count(3)->create()->pluck('id'), ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $upcoming = $this->hostedBy($host, today()->addWeek(), 'Two are coming');
+        $upcoming->attendees()->attach(User::factory()->count(2)->create()->pluck('id'), ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->hostedBy($host, today()->subDay(), 'Nobody came');
+        $this->attendedBy($host, today()->subDay(), 'Somebody else hosted this');
+
+        $this->actingAs($host)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('summary.sessions_hosted_count', 3)
+                ->where('summary.upcoming_count', 1)
+                ->where('summary.total_attendees_count', 5)
+            );
+    }
+
+    public function testTheSummaryIsZeroedForAUserWhoHasHostedNothing()
+    {
+        $this->actingAs(User::factory()->vehiklMember()->create())
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('summary.sessions_hosted_count', 0)
+                ->where('summary.upcoming_count', 0)
+                ->where('summary.total_attendees_count', 0)
             );
     }
 

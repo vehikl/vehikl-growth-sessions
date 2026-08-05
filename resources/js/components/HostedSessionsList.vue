@@ -10,8 +10,6 @@ const hasRows = computed(() => props.sessions.data.length > 0);
 const onFirstPage = computed(() => props.sessions.current_page <= 1);
 const onLastPage = computed(() => props.sessions.current_page >= props.sessions.last_page);
 
-const headerClass = 'gs-text-muted px-2 py-2 text-left text-xs font-bold tracking-[0.06em] uppercase sm:px-3';
-const cellClass = 'gs-text-body px-2 py-3 align-top text-sm sm:px-3';
 const pageButtonClass =
     'gs-btn-secondary cursor-pointer rounded-lg px-3 py-1.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40';
 // Paging is a partial reload of this prop alone, so the rest of the Dashboard stays put.
@@ -20,44 +18,45 @@ const pageVisitOptions = { only: ['hosted_sessions'], preserveScroll: true, pres
 
 <template>
     <div v-if="hasRows">
-        <!-- Auto table layout with wrapping cells: the narrow columns shrink to their content and the
-             session title absorbs the slack, so the table fits a phone without scrolling sideways. -->
-        <table class="w-full border-collapse">
-            <thead>
-                <tr class="gs-border border-b">
-                    <th scope="col" :class="headerClass">Date</th>
-                    <th scope="col" :class="[headerClass, 'hidden sm:table-cell']">Time</th>
-                    <th scope="col" :class="[headerClass, 'w-full']">Session</th>
-                    <th scope="col" :class="[headerClass, 'text-right']">Attendees</th>
-                    <th scope="col" :class="[headerClass, 'hidden md:table-cell']">Tags</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="session in sessions.data" :key="session.id" class="gs-border border-b last:border-b-0">
-                    <td :class="cellClass">{{ session.date_label }}</td>
-                    <td :class="[cellClass, 'hidden whitespace-nowrap sm:table-cell']">{{ session.time_label }}</td>
-                    <td :class="cellClass">
-                        <Link
-                            :href="route('growth_sessions.show', { growth_session: session.id })"
-                            class="gs-text-strong break-words-fixed font-semibold hover:underline"
-                        >
-                            {{ session.title }}
-                        </Link>
-                    </td>
-                    <td :class="[cellClass, 'text-right tabular-nums']">{{ session.attendee_count }}</td>
-                    <td :class="[cellClass, 'hidden md:table-cell']">
-                        <span v-if="!session.tags.length" class="gs-text-muted">—</span>
+        <!-- A stacked list rather than a table: every field stays readable at any width without a
+             horizontal scroller or a second set of markup for small screens. -->
+        <ul>
+            <li
+                v-for="session in sessions.data"
+                :key="session.id"
+                class="gs-border flex items-start justify-between gap-4 border-b py-5 first:pt-0 last:border-b-0 last:pb-0"
+            >
+                <div class="min-w-0">
+                    <Link
+                        :href="route('growth_sessions.show', { growth_session: session.id })"
+                        class="gs-text-strong break-words-fixed text-lg font-bold hover:underline"
+                    >
+                        {{ session.title }}
+                    </Link>
+
+                    <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
+                        <span class="gs-text-muted flex items-center gap-2 text-sm">
+                            <span class="h-2 w-2 flex-none rounded-full" :class="session.is_upcoming ? 'bg-gs-upcoming' : 'bg-gs-finished'"></span>
+                            <span class="sr-only">{{ session.is_upcoming ? 'Upcoming' : 'Finished' }}</span>
+                            {{ session.date_label }}
+                        </span>
+                        <span class="gs-text-muted text-sm">{{ session.time_label }}</span>
                         <span
                             v-for="tag in session.tags"
                             :key="tag.id"
-                            class="gs-secondary-bg gs-text-sub mr-1.5 mb-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                            class="bg-vehikl-orange/10 gs-accent-text rounded-full px-2 py-0.5 text-[0.65rem] font-bold tracking-[0.08em] uppercase"
                         >
                             {{ tag.name }}
                         </span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                    </div>
+                </div>
+
+                <p class="flex-none text-right">
+                    <strong class="gs-text-strong font-display block text-2xl font-bold tabular-nums">{{ session.attendee_count }}</strong>
+                    <span class="gs-text-muted block text-[0.65rem] font-bold tracking-[0.06em] uppercase">Attendees</span>
+                </p>
+            </li>
+        </ul>
 
         <div class="gs-border mt-5 flex flex-wrap items-center justify-between gap-4 border-t pt-4">
             <p class="gs-text-muted text-xs font-semibold tracking-[0.04em] uppercase">
