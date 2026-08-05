@@ -45,7 +45,6 @@ class ShowStatisticsController extends Controller
             'summary' => fn () => $this->summary($weekStart, $weekEnd),
             'top_hosts' => fn () => $this->topHosts($weekStart, $weekEnd),
             'tags' => fn () => $this->tagUsage($weekStart, $weekEnd),
-            'yet_to_mob_with' => fn () => $this->yetToMobWith($request->user(), $firstSessionDate),
             'members' => fn () => $this->members($startDate, $endDate),
             'start_date' => $startDate,
             'end_date' => $endDate,
@@ -144,9 +143,8 @@ class ShowStatisticsController extends Controller
     }
 
     /**
-     * The one door onto the statistics matrix. `members` and `yetToMobWith` resolve to the same
-     * range whenever no custom one was asked for, and the action memoises per range, so the
-     * matrix is built once per request rather than once per prop.
+     * The one door onto the statistics matrix. The action memoises per range, so the matrix is
+     * built once per request rather than once per prop.
      */
     private function statisticsFor(string $startDate, string $endDate): Collection
     {
@@ -157,21 +155,6 @@ class ShowStatisticsController extends Controller
             $endDate,
             $isWarmedRange ? null : self::CUSTOM_RANGE_CACHE_SECONDS,
         );
-    }
-
-    /**
-     * Vehikl members the current user has never mobbed with, over the lifetime of the
-     * project. Deliberately independent of the range the members table is showing: this
-     * is the personal "who's left" list, and it reuses the range that
-     * `statistics:recalculate` warms twice daily, so it is normally served from cache.
-     */
-    private function yetToMobWith(User $user, string $firstSessionDate): array
-    {
-        $statistics = $this->statisticsFor($firstSessionDate, today()->toDateString());
-
-        return collect($statistics->firstWhere('user_id', $user->id)['has_not_mobbed_with'] ?? [])
-            ->values()
-            ->all();
     }
 
     private function firstSessionDate(): string

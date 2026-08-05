@@ -271,6 +271,47 @@ class ShowDashboardTest extends TestCase
             );
     }
 
+    public function testItReturnsTheCurrentUsersYetToMobWithListForAllTime()
+    {
+        $this->setTestNowToASafeWednesday();
+
+        [$host, $attendee, $nonParticipant] = User::factory()->vehiklMember()->count(3)
+            ->sequence(['name' => 'Host'], ['name' => 'Attendee'], ['name' => 'Non-Participant'])
+            ->create(['is_visible_in_statistics' => true]);
+
+        $this->hostedBy($host, today()->subDay(), 'Mobbed together')
+            ->attendees()
+            ->attach($attendee->id, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->actingAs($host)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('yet_to_mob_with', 1)
+                ->where('yet_to_mob_with.0.id', $nonParticipant->id)
+                ->where('yet_to_mob_with.0.name', $nonParticipant->name)
+            );
+    }
+
+    public function testTheYetToMobWithListIsNotLimitedToTheCurrentWeek()
+    {
+        $this->setTestNowToASafeWednesday();
+
+        [$host, $attendee] = User::factory()->vehiklMember()->count(2)
+            ->sequence(['name' => 'Host'], ['name' => 'Attendee'])
+            ->create(['is_visible_in_statistics' => true]);
+
+        // Their only session together was well before the current week.
+        $this->hostedBy($host, today()->subDays(30), 'Mobbed together, a while ago')
+            ->attendees()
+            ->attach($attendee->id, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->actingAs($host)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->has('yet_to_mob_with', 0));
+    }
+
     private function hostedBy(User $host, CarbonInterface $date, string $title, array $attributes = []): GrowthSession
     {
         return GrowthSession::factory()

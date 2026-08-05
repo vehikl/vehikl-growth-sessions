@@ -63,7 +63,6 @@ const dashboard: IStatisticsDashboard = {
         { id: 1, name: 'Client Work', sessions_count: 4 },
         { id: 2, name: 'Social', sessions_count: 3 },
     ],
-    yet_to_mob_with: [{ id: 2, name: 'Brady Deroy' }],
     members: [ada, grace, alan],
     start_date: '2020-05-21',
     end_date: '2026-08-06',
@@ -158,19 +157,6 @@ describe('Statistics dashboard', () => {
 
         expect(wrapper.text()).toContain('4 sessions');
         expect(wrapper.text()).toContain('1 session');
-    });
-
-    test('renders the current user’s yet-to-mob-with members', () => {
-        const wrapper = mountStatistics();
-
-        expect(wrapper.text()).toContain('Yet to mob with');
-        expect(wrapper.text()).toContain('Brady Deroy');
-    });
-
-    test('shows an empty state when there is nobody left to mob with', () => {
-        const wrapper = mountStatistics({ yet_to_mob_with: [] });
-
-        expect(wrapper.text()).toContain("You're all caught up!");
     });
 
     test('shows an empty state when no sessions were hosted this week', () => {

@@ -46,7 +46,6 @@ export interface IStatisticsDashboard {
     summary: IStatisticsSummary;
     top_hosts: ITopHost[];
     tags: ITagUsage[];
-    yet_to_mob_with: IStatisticsMember[];
     members: IUserStatistics[];
     start_date: string;
     end_date: string;
