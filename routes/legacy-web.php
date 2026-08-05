@@ -5,6 +5,7 @@ use App\Http\Controllers\AnyDesksController;
 use App\Http\Controllers\Api\DiscordChannelsController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\GrowthSessionController;
+use App\Http\Controllers\GrowthSessionInvitationController;
 use App\Http\Controllers\ShowStatisticsController;
 use App\Http\Controllers\TagsController;
 
@@ -13,6 +14,7 @@ Route::inertia('about', 'AboutPage')->name('about');
 Route::prefix('growth_sessions')->name('growth_sessions.')->group(function() {
     Route::get('week', [GrowthSessionController::class, 'week'])->name('week');
     Route::get('day', [GrowthSessionController::class, 'day'])->name('day');
+    Route::get('invitations/{token}', GrowthSessionInvitationController::class)->name('invitation');
     Route::get('{growth_session}', [GrowthSessionController::class, 'show'])->name('show');
     Route::post('{growth_session}/join', [GrowthSessionController::class, 'join'])->middleware(['auth', 'can:join,growth_session'])->name('join');
     Route::post('{growth_session}/leave', [GrowthSessionController::class, 'leave'])->middleware(['auth', 'can:leave,growth_session'])->name('leave');
