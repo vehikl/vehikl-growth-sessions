@@ -45,6 +45,7 @@ class StoreGrowthSessionRequest extends FormRequest
             'anydesk_id' => 'sometimes|integer|exists:' . AnyDesk::class . ',id',
             'is_public' => 'sometimes|boolean',
             'allow_watchers' => 'sometimes|boolean',
+            'has_invite_link' => 'sometimes|boolean',
         ];
     }
 }

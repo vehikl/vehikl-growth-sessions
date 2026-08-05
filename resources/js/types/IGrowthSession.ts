@@ -19,4 +19,6 @@ export interface IGrowthSession {
     comments: IComment[];
     anydesk: IAnyDesk | null;
     tags: ITag[];
+    /** Only sent to viewers who may hand the invitation out: the owner and Vehikl members. */
+    share_url?: string;
 }
