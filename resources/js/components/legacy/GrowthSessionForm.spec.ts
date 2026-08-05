@@ -492,7 +492,7 @@ describe('GrowthSessionForm', () => {
                 propsData: {
                     owner: user,
                     startDate,
-                    growthSession: { ...growthSessionWithCommentsJson, share_url: 'https://growth.test/invitations/abc123' },
+                    growthSession: { ...growthSessionWithCommentsJson, is_public: false, share_url: 'https://growth.test/invitations/abc123' },
                 },
             });
 
@@ -504,7 +504,7 @@ describe('GrowthSessionForm', () => {
                 propsData: {
                     owner: user,
                     startDate,
-                    growthSession: { ...growthSessionWithCommentsJson, share_url: undefined },
+                    growthSession: { ...growthSessionWithCommentsJson, is_public: false, share_url: undefined },
                 },
             });
 

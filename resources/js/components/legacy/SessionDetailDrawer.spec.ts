@@ -247,12 +247,13 @@ describe('SessionDetailDrawer', () => {
         });
 
         it('falls back to a hidden textarea when the clipboard api is unavailable, as it is over plain http', async () => {
-            Reflect.deleteProperty(navigator, 'clipboard');
+            Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
             const execCommand = vi.fn().mockReturnValue(true);
             Object.defineProperty(document, 'execCommand', { value: execCommand, configurable: true });
 
             const wrapper = mountDrawer(makeSession({ share_url: shareUrl }), owner);
             await wrapper.find('.copy-share-url-button').trigger('click');
+            await flushPromises();
 
             expect(execCommand).toHaveBeenCalledWith('copy');
             expect(wrapper.find('.copy-share-url-button').text()).toContain('Copied');
