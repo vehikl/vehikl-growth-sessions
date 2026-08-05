@@ -370,15 +370,15 @@ describe('Board', () => {
             expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.today.date);
         });
 
-        // Reading the date out of the url, writing it back on navigation, and shifting from
-        // the url's date rather than today are covered directly in
-        // composables/useReferenceDate.spec.ts, which passes a fake window instead of
+        // Reading each board parameter out of the url, writing it back on navigation, and
+        // shifting from the url's date rather than today are covered directly in
+        // composables/useBoardUrlState.spec.ts, which passes a fake window instead of
         // fighting happy-dom. These replace three tests that sat skipped here.
         it('re-fetches the week when the user navigates back through history', async () => {
             (GrowthSessionApi.getAllGrowthSessionsOfTheWeek as ReturnType<typeof vi.fn>).mockClear();
             window.history.replaceState({}, '', '?view=week');
 
-            window.onpopstate!({} as PopStateEvent);
+            window.dispatchEvent(new PopStateEvent('popstate'));
             await flushPromises();
 
             expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalled();
