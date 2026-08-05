@@ -19,6 +19,7 @@ class GrowthSession extends Model
     const NO_LIMIT = PHP_INT_MAX;
 
     protected $appends = ['owner'];
+    protected $hidden = ['share_token'];
 
     protected function casts(): array
     {
@@ -144,6 +145,11 @@ class GrowthSession extends Model
     public function scopeToday($query)
     {
         return $query->whereDate('date', today()->toDateString());
+    }
+
+    public function isUnlisted(): bool
+    {
+        return filled($this->share_token);
     }
 
     public function hasAttendee(User $attendee): bool

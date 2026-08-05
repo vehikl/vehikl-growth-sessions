@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\GrowthSession;
 use App\Models\User;
+use App\Support\GrowthSessionUnlocks;
 
 class GrowthSessionPolicy
 {
@@ -21,7 +22,14 @@ class GrowthSessionPolicy
     {
         return $growthSession->is_public
             || optional($user)->is_vehikl_member
-            || ($user && $user->is($growthSession->owner));
+            || ($user && $user->is($growthSession->owner))
+            || $this->hasUnlockedInviteLink($growthSession);
+    }
+
+    private function hasUnlockedInviteLink(GrowthSession $growthSession): bool
+    {
+        return $growthSession->isUnlisted()
+            && GrowthSessionUnlocks::has($growthSession->share_token);
     }
 
     public function create(User $user): bool
