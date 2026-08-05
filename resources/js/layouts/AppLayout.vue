@@ -116,16 +116,13 @@ onBeforeUnmount(() => {
 
         <div class="hidden items-center justify-end gap-x-3 md:flex lg:gap-x-4">
             <template v-if="$page.props.auth.user">
-                <template v-if="$page.props.auth.user.is_vehikl_member">
-                    <Link :href="route('home')" :class="navigationClass('home')">Board</Link>
-                    <Link :href="route('statistics.index')" :class="navigationClass('statistics.index')">Statistics</Link>
-                    <Link :href="route('about')" :class="navigationClass('about')">About</Link>
-                </template>
-
-                <template v-else>
-                    <Link :href="route('home')" :class="navigationClass('home')">Board</Link>
-                    <Link :href="route('about')" :class="navigationClass('about')">About</Link>
-                </template>
+                <!-- Dashboard leads: it is the only "you" surface, and the rest are "everyone" surfaces. -->
+                <Link :href="route('dashboard')" :class="navigationClass('dashboard')">Dashboard</Link>
+                <Link :href="route('home')" :class="navigationClass('home')">Board</Link>
+                <Link v-if="$page.props.auth.user.is_vehikl_member" :href="route('statistics.index')" :class="navigationClass('statistics.index')">
+                    Statistics
+                </Link>
+                <Link :href="route('about')" :class="navigationClass('about')">About</Link>
 
                 <span class="mx-1 h-6 w-px bg-white/15 sm:mx-2"></span>
 
@@ -160,15 +157,6 @@ onBeforeUnmount(() => {
                                     {{ $page.props.auth.user.email ?? $page.props.auth.user.name }}
                                 </p>
                             </div>
-                            <Link
-                                :href="route('dashboard')"
-                                role="menuitem"
-                                class="gs-text-body transition-smooth flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm hover:bg-black/5 dark:hover:bg-white/5"
-                                @click="userMenuOpen = false"
-                            >
-                                <i class="fa fa-th-large text-base" aria-hidden="true"></i>
-                                Dashboard
-                            </Link>
                             <button
                                 type="button"
                                 role="menuitem"
@@ -274,6 +262,13 @@ onBeforeUnmount(() => {
                 >
                     <nav v-if="$page.props.auth.user" class="space-y-1" aria-label="Mobile navigation">
                         <Link
+                            :href="route('dashboard')"
+                            class="gs-text-body block rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
+                            @click="mobileMenuOpen = false"
+                        >
+                            Dashboard
+                        </Link>
+                        <Link
                             :href="route('home')"
                             class="gs-text-body block rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
                             @click="mobileMenuOpen = false"
@@ -330,14 +325,6 @@ onBeforeUnmount(() => {
                         </button>
                     </div>
                     <div v-if="$page.props.auth.user" class="gs-border mt-2 space-y-1 border-t pt-2">
-                        <Link
-                            :href="route('dashboard')"
-                            class="gs-text-body flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
-                            @click="mobileMenuOpen = false"
-                        >
-                            <i class="fa fa-th-large" aria-hidden="true"></i>
-                            Dashboard
-                        </Link>
                         <Link
                             :href="route('logout')"
                             method="post"
