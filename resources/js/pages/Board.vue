@@ -9,7 +9,7 @@ import SessionDetailDrawer from '@/components/legacy/SessionDetailDrawer.vue';
 import VisibilityRadioFieldset from '@/components/legacy/VisibilityRadioFieldset.vue';
 import VModal from '@/components/legacy/VModal.vue';
 import WeekView from '@/components/legacy/WeekView.vue';
-import { useReferenceDate } from '@/composables/useReferenceDate';
+import { useBoardUrlState, type BoardView } from '@/composables/useBoardUrlState';
 import { filterSessions, type SessionFilterCriteria, type VisibilityFilter } from '@/lib/sessionFilters';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
@@ -25,7 +25,7 @@ interface IGrowthSessionCardDragChange {
 }
 
 const props = defineProps<{ user?: IUser }>();
-const { referenceDate, syncFromUrl, shiftBy } = useReferenceDate();
+const { referenceDate, requestedView, sessionId, syncFromUrl, shiftDateBy, setView, setSessionId, watchUrl } = useBoardUrlState();
 const growthSessions = ref<WeekGrowthSessions>(WeekGrowthSessions.empty());
 const newGrowthSessionDate = ref('');
 const growthSessionToUpdate = ref<GrowthSession | null>(null);
@@ -42,71 +42,33 @@ const searchShortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad
 const isDesktop = useMediaQuery('(min-width: 768px)');
 // On small screens there is nothing to switch to — the board is day-only.
 const canSwitchView = computed(() => isDesktop.value);
-const view = ref<'week' | 'day'>('day');
+// The URL may ask for the week view on a screen too narrow to show it; the day view wins.
+const view = computed<BoardView>(() => (isDesktop.value && requestedView.value === 'week' ? 'week' : 'day'));
 
-function syncViewFromUrl() {
-    const requestedView = new URLSearchParams(window.location.search).get('view');
-    view.value = isDesktop.value && requestedView === 'week' ? 'week' : 'day';
-}
-
-function selectView(selectedView: 'week' | 'day') {
+function selectView(selectedView: BoardView) {
     if (!canSwitchView.value) return;
 
-    view.value = selectedView;
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    urlSearchParams.set('view', selectedView);
-    window.history.pushState({}, '', `?${urlSearchParams.toString()}`);
+    setView(selectedView);
 }
-
-// Keep the active view within what the current screen size allows.
-watch(
-    isDesktop,
-    (desktop) => {
-        if (!desktop) {
-            view.value = 'day';
-        }
-    },
-    { immediate: true },
-);
 
 const selectedSession = ref<GrowthSession | null>(null);
 
-/**
- * The open drawer lives in the `?session=` query parameter, so an invite link (or any copied URL) lands on the
- * board with that session's detail already open, and the back button closes it again.
- */
+/** Open or close the detail drawer, recording which session is open in the URL. */
 function selectSession(growthSession: GrowthSession | null) {
     selectedSession.value = growthSession;
-
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    const sessionInUrl = urlSearchParams.get('session');
-    const sessionWanted = growthSession ? String(growthSession.id) : null;
-    if (sessionInUrl === sessionWanted) return;
-
-    if (sessionWanted) {
-        urlSearchParams.set('session', sessionWanted);
-    } else {
-        urlSearchParams.delete('session');
-    }
-
-    const query = urlSearchParams.toString();
-    window.history.pushState({}, '', query ? `?${query}` : window.location.pathname);
+    setSessionId(growthSession?.id ?? null);
 }
 
-/** Adopt the session in the current URL, if it is one this visitor can see in the loaded week. */
-function syncSelectedSessionFromUrl() {
-    const requestedId = Number(new URLSearchParams(window.location.search).get('session'));
-    if (!requestedId) {
-        selectedSession.value = null;
-        return;
-    }
+/** Adopt the session the URL names, if it is one this visitor can see in the loaded week. */
+function adoptSessionFromUrl() {
+    selectedSession.value = sessionId.value
+        ? (growthSessions.value.allGrowthSessions.find((session) => session.id === sessionId.value) ?? null)
+        : null;
 
-    selectedSession.value = growthSessions.value.allGrowthSessions.find((session) => session.id === requestedId) ?? null;
+    if (!selectedSession.value) return;
 
-    if (selectedSession.value) {
-        const dayOfSession = growthSessions.value.weekDates.findIndex((date) => date.toDateString() === selectedSession.value!.date);
-        if (dayOfSession >= 0) dayIndex.value = dayOfSession;
-    }
+    const dayOfSession = growthSessions.value.weekDates.findIndex((date) => date.toDateString() === selectedSession.value!.date);
+    if (dayOfSession >= 0) dayIndex.value = dayOfSession;
 }
 
 watch(
@@ -116,7 +78,7 @@ watch(
 
         if (props.user) return;
 
-        refreshGrowthSessionsOfTheWeek();
+        loadWeekFromUrl();
     },
 );
 
@@ -187,15 +149,18 @@ watchDebounced(
     { debounce: 300 },
 );
 
+// Registered before the first await, so unmounting mid-load still tears the listener down.
+const stopWatchingUrl = watchUrl(loadWeekFromUrl);
+
 onBeforeMount(async () => {
     await getAllTags();
-    await refreshGrowthSessionsOfTheWeek();
+    syncFromUrl();
+    await loadWeekFromUrl();
     // A deep-linked session has already chosen the day it lives on; otherwise start on today.
     if (!selectedSession.value) {
         const todayIdx = growthSessions.value.weekDates.findIndex((d) => d.isToday());
         dayIndex.value = todayIdx >= 0 ? todayIdx : 0;
     }
-    window.onpopstate = refreshGrowthSessionsOfTheWeek;
 });
 
 onMounted(() => {
@@ -205,7 +170,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-    window.onpopstate = null;
+    stopWatchingUrl();
     window.removeEventListener('gs:create-session', handleHeaderCreate);
     window.removeEventListener('gs:focus-search', handleSearchFocus);
     window.removeEventListener('keydown', handleViewShortcut);
@@ -243,11 +208,10 @@ function handleViewShortcut(event: KeyboardEvent) {
     if (key === 'w') selectView('week');
 }
 
-async function refreshGrowthSessionsOfTheWeek() {
-    syncFromUrl();
-    syncViewFromUrl();
+/** Fetch the week the URL asks for, then re-open whichever session it names. Ordering matters: the drawer can only adopt a session the week has loaded. */
+async function loadWeekFromUrl() {
     await getAllGrowthSessionsOfTheWeek();
-    syncSelectedSessionFromUrl();
+    adoptSessionFromUrl();
 }
 
 async function onDragEnd(location: any) {
@@ -303,7 +267,7 @@ function onGrowthSessionCopyRequested(growthSession: GrowthSession) {
 }
 
 async function changeReferenceDate(deltaDays: number) {
-    shiftBy(deltaDays);
+    shiftDateBy(deltaDays);
     await getAllGrowthSessionsOfTheWeek();
 }
 
