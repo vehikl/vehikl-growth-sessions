@@ -70,7 +70,7 @@ function isFull(session: GrowthSession): boolean {
         </div>
 
         <!-- Session timeline -->
-        <div class="min-w-0 flex-1 px-[clamp(12px,4vw,28px)] py-5">
+        <div class="@container min-w-0 flex-1 px-[clamp(12px,4vw,28px)] py-5">
             <div class="mb-4 flex items-center gap-2.5">
                 <span class="gs-text-strong font-display text-base font-bold tracking-[0.03em] uppercase">{{ currentLabel }}</span>
                 <button
@@ -109,7 +109,9 @@ function isFull(session: GrowthSession): boolean {
             </p>
 
             <div v-for="session in sessions" :key="session.id" class="gs-divider-color flex flex-wrap gap-x-3.5 gap-y-1.5 border-b py-3">
-                <div class="gs-text-sub w-32 flex-none pt-3.5 text-sm font-semibold uppercase">{{ session.startTime }} – {{ session.endTime }}</div>
+                <div class="gs-text-sub w-full flex-none text-sm font-semibold uppercase @xl:w-32 @xl:pt-3.5">
+                    {{ session.startTime }} – {{ session.endTime }}
+                </div>
 
                 <div
                     class="gs-card gs-border transition-smooth relative flex min-w-55 flex-1 flex-col gap-2.5 rounded-lg border p-3 px-4 hover:shadow-md"
