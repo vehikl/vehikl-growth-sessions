@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { DateTime } from '@/classes/DateTime';
+import { useInitials } from '@/composables/useInitials';
+import { avatarColor } from '@/lib/sessionDisplay';
 import {
     DateRange,
     decodeSettings,
@@ -30,7 +32,9 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits<{ (event: 'rangeChange', range: DateRange): void }>();
 
-const PER_PAGE = 25;
+const { getInitials } = useInitials();
+
+const PER_PAGE = 15;
 const SUGGESTION_LIMIT = 8;
 const FILTER_STORAGE_KEY = 'statistics_filter';
 const DEFAULT_SETTINGS: StatisticsSettings = { list: [], shouldUseList: false };
@@ -239,6 +243,20 @@ function moveHighlight(step: number): void {
     }
 }
 
+/**
+ * An avatar URL that no longer resolves would otherwise leave an empty coloured disc, so a
+ * failed load drops that member back to their initials for the rest of the visit.
+ */
+const brokenAvatars = ref(new Set<number>());
+
+function avatarFor(member: IUserStatistics): string | null {
+    return member.avatar && !brokenAvatars.value.has(member.user_id) ? member.avatar : null;
+}
+
+function markAvatarBroken(userId: number): void {
+    brokenAvatars.value = new Set(brokenAvatars.value).add(userId);
+}
+
 function removeNameFromList(name: string): void {
     filter.list = filter.list.filter((listedName) => listedName !== name);
 }
@@ -351,7 +369,7 @@ function copyBySelection(text: string): boolean {
                         id="member-suggestions"
                         role="listbox"
                         aria-label="Matching members"
-                        class="gs-card gs-border absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border py-1 shadow-lg"
+                        class="gs-card gs-border absolute z-20 mt-2 max-h-80 w-full overflow-y-auto rounded-xl border py-2 shadow-lg"
                     >
                         <li
                             v-for="(candidate, index) in suggestions"
@@ -359,20 +377,35 @@ function copyBySelection(text: string): boolean {
                             :key="candidate.user_id"
                             role="option"
                             :aria-selected="index === highlighted"
+                            class="gs-border border-b last:border-0"
                         >
                             <button
                                 type="button"
                                 :class="[
-                                    'w-full cursor-pointer px-4 py-2.5 text-left text-sm',
-                                    index === highlighted ? 'gs-secondary-bg gs-text-strong font-semibold' : 'gs-text-body',
+                                    'flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-semibold',
+                                    index === highlighted ? 'gs-secondary-bg gs-text-strong' : 'gs-text-body',
                                 ]"
                                 @mousemove="highlighted = index"
                                 @click="chooseMember(candidate.name)"
                             >
-                                {{ candidate.name }}
+                                <span
+                                    :style="{ backgroundColor: avatarColor(candidate.name) }"
+                                    class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
+                                    aria-hidden="true"
+                                >
+                                    <img
+                                        v-if="avatarFor(candidate)"
+                                        :src="avatarFor(candidate)!"
+                                        alt=""
+                                        class="h-full w-full object-cover"
+                                        @error="markAvatarBroken(candidate.user_id)"
+                                    />
+                                    <template v-else>{{ getInitials(candidate.name) }}</template>
+                                </span>
+                                <span data-testid="suggestion-name" class="truncate">{{ candidate.name }}</span>
                             </button>
                         </li>
-                        <li v-if="suggestions.length === 0" class="gs-text-muted px-4 py-2.5 text-sm">No members match</li>
+                        <li v-if="suggestions.length === 0" class="gs-text-muted px-4 py-3 text-sm">No members match</li>
                     </ul>
 
                     <ul v-if="filter.list.length > 0" class="mt-3 flex flex-wrap gap-2" aria-label="Saved filter list">
@@ -399,7 +432,8 @@ function copyBySelection(text: string): boolean {
                     <button
                         type="button"
                         class="gs-card gs-border gs-text-strong flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-bold whitespace-nowrap"
-                        aria-haspopup="dialog"
+                        aria-haspopup="true"
+                        aria-controls="date-range-picker"
                         :aria-expanded="isRangeOpen"
                         :aria-label="`Date range: ${rangeLabel}`"
                         @click="isRangeOpen = !isRangeOpen"
@@ -409,8 +443,9 @@ function copyBySelection(text: string): boolean {
                     </button>
 
                     <div
+                        id="date-range-picker"
                         v-show="isRangeOpen"
-                        role="dialog"
+                        role="group"
                         aria-labelledby="date-range-label"
                         class="gs-card gs-border absolute right-0 z-20 mt-2 rounded-xl border p-5 shadow-lg"
                     >
@@ -520,12 +555,30 @@ function copyBySelection(text: string): boolean {
                 </thead>
                 <tbody>
                     <tr v-for="member in rows" :key="member.user_id" class="gs-border border-b last:border-0">
-                        <td class="gs-text-strong py-2.5 pr-4 font-semibold whitespace-nowrap">{{ member.name }}</td>
-                        <td class="gs-text-body py-2.5 text-right tabular-nums">{{ member.sessions_hosted_count }}</td>
-                        <td class="gs-text-body py-2.5 text-right tabular-nums">{{ member.sessions_attended_count }}</td>
-                        <td class="gs-text-body py-2.5 text-right tabular-nums">{{ member.sessions_watched_count }}</td>
-                        <td class="gs-text-strong py-2.5 text-right font-semibold tabular-nums">{{ member.total_sessions_count }}</td>
-                        <td class="py-2.5 text-right tabular-nums">
+                        <td class="py-3 pr-4">
+                            <span class="flex items-center gap-3">
+                                <span
+                                    :style="{ backgroundColor: avatarColor(member.name) }"
+                                    class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
+                                    aria-hidden="true"
+                                >
+                                    <img
+                                        v-if="avatarFor(member)"
+                                        :src="avatarFor(member)!"
+                                        alt=""
+                                        class="h-full w-full object-cover"
+                                        @error="markAvatarBroken(member.user_id)"
+                                    />
+                                    <template v-else>{{ getInitials(member.name) }}</template>
+                                </span>
+                                <span data-testid="member-name" class="gs-text-strong font-semibold whitespace-nowrap">{{ member.name }}</span>
+                            </span>
+                        </td>
+                        <td class="gs-text-body py-3 text-right tabular-nums">{{ member.sessions_hosted_count }}</td>
+                        <td class="gs-text-body py-3 text-right tabular-nums">{{ member.sessions_attended_count }}</td>
+                        <td class="gs-text-body py-3 text-right tabular-nums">{{ member.sessions_watched_count }}</td>
+                        <td class="gs-text-strong py-3 text-right font-semibold tabular-nums">{{ member.total_sessions_count }}</td>
+                        <td class="py-3 text-right tabular-nums">
                             <span v-if="member.has_not_mobbed_with_count === 0" :title="`${member.name} has mobbed with everyone`">🎉</span>
                             <button
                                 v-else

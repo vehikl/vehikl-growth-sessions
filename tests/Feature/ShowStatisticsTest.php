@@ -12,27 +12,27 @@ use Tests\TestCase;
 
 class ShowStatisticsTest extends TestCase
 {
-    public function testItIsAccessibleByVehikaliens()
+    public function test_it_is_accessible_by_vehikaliens()
     {
         $this->actingAs(User::factory()->vehiklMember()->create())
             ->get(route('statistics.index'))
             ->assertSuccessful();
     }
 
-    public function testGuestsCannotAccessStatistics()
+    public function test_guests_cannot_access_statistics()
     {
         $this->get(route('statistics.index'))
             ->assertRedirect('/');
     }
 
-    public function testNonVehikaliensCannotAccessStatistics()
+    public function test_non_vehikaliens_cannot_access_statistics()
     {
         $this->actingAs(User::factory()->vehiklMember(false)->create())
             ->get(route('statistics.index'))
             ->assertForbidden();
     }
 
-    public function testItReturnsAWeeklySummary()
+    public function test_it_returns_a_weekly_summary()
     {
         [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -48,7 +48,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testItRanksThisWeeksTopHosts()
+    public function test_it_ranks_this_weeks_top_hosts()
     {
         $this->setTestNowToASafeWednesday();
 
@@ -73,7 +73,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testItReturnsTagUsageCountsForTheCurrentWeek()
+    public function test_it_returns_tag_usage_counts_for_the_current_week()
     {
         $this->setTestNowToASafeWednesday();
         $user = User::factory()->vehiklMember()->create();
@@ -99,7 +99,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testItReturnsTheCurrentUsersYetToMobWithListForAllTime()
+    public function test_it_returns_the_current_users_yet_to_mob_with_list_for_all_time()
     {
         [$owner, , $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -113,7 +113,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testTheYetToMobWithListIsNotLimitedToTheCurrentWeek()
+    public function test_the_yet_to_mob_with_list_is_not_limited_to_the_current_week()
     {
         $this->setTestNowToASafeWednesday();
 
@@ -130,7 +130,7 @@ class ShowStatisticsTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page->has('yet_to_mob_with', 0));
     }
 
-    public function testItReturnsARowForEveryStatisticsVisibleMember()
+    public function test_it_returns_a_row_for_every_statistics_visible_member()
     {
         [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -148,7 +148,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testMembersCarryTheParticipationCountsAndYetToMobWithNames()
+    public function test_members_carry_the_participation_counts_and_yet_to_mob_with_names()
     {
         [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -169,7 +169,20 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testMembersOmitsUsersWhoAreInvisibleInStatistics()
+    public function test_members_carry_their_avatar_so_the_table_can_show_it()
+    {
+        [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('members', fn ($members) => collect($members)
+                    ->firstWhere('user_id', $owner->id)['avatar'] === $owner->avatar)
+            );
+    }
+
+    public function test_members_omits_users_who_are_invisible_in_statistics()
     {
         [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -181,7 +194,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testTheMemberDateRangeDefaultsToTheFirstEverSessionThroughToday()
+    public function test_the_member_date_range_defaults_to_the_first_ever_session_through_today()
     {
         [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -195,7 +208,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testTheMemberDateRangeFallsBackToTodayWhenThereAreNoSessions()
+    public function test_the_member_date_range_falls_back_to_today_when_there_are_no_sessions()
     {
         $this->setTestNowToASafeWednesday();
 
@@ -209,7 +222,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testMemberCountsAreNarrowedByTheRequestedDateRange()
+    public function test_member_counts_are_narrowed_by_the_requested_date_range()
     {
         [$owner, $attendee] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -227,7 +240,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testMobbedWithPairingsAreLimitedToTheRequestedDateRange()
+    public function test_mobbed_with_pairings_are_limited_to_the_requested_date_range()
     {
         $this->setTestNowToASafeWednesday();
 
@@ -250,7 +263,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testAMalformedDateFallsBackToTheDefaultRangeRatherThanFailing()
+    public function test_a_malformed_date_falls_back_to_the_default_range_rather_than_failing()
     {
         [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -263,7 +276,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testMembersOmitTheUnusedHalfOfTheMobbedWithMatrix()
+    public function test_members_omit_the_unused_half_of_the_mobbed_with_matrix()
     {
         [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
 

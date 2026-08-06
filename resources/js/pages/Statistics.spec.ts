@@ -74,8 +74,12 @@ function buttonLabelled(wrapper: VueWrapper, label: string) {
     return button;
 }
 
+function suggestedNames(wrapper: VueWrapper): string[] {
+    return wrapper.findAll('[role="option"] [data-testid="suggestion-name"]').map((label) => label.text());
+}
+
 function suggestionFor(wrapper: VueWrapper, name: string) {
-    const option = wrapper.findAll('[role="option"] button').find((candidate) => candidate.text() === name);
+    const option = wrapper.findAll('[role="option"] button').find((candidate) => candidate.get('[data-testid="suggestion-name"]').text() === name);
 
     if (!option) {
         throw new Error(`No suggestion offering "${name}"`);
@@ -98,7 +102,7 @@ function savedNames(wrapper: VueWrapper): string[] {
 }
 
 function memberNames(wrapper: VueWrapper): string[] {
-    return wrapper.findAll('tbody tr').map((row) => row.findAll('td')[0].text());
+    return wrapper.findAll('tbody [data-testid="member-name"]').map((cell) => cell.text());
 }
 
 let reload: MockInstance;
@@ -162,11 +166,34 @@ describe('Everyone’s numbers table', () => {
 
         expect(memberNames(wrapper)).toEqual(['Ada Lovelace', 'Alan Turing', 'Grace Hopper']);
 
-        const adaRow = wrapper
+        const adaCounts = wrapper
             .findAll('tbody tr')[0]
             .findAll('td')
+            .slice(1)
             .map((cell) => cell.text());
-        expect(adaRow).toEqual(['Ada Lovelace', '2', '6', '1', '9', '2']);
+        expect(adaCounts).toEqual(['2', '6', '1', '9', '2']);
+    });
+
+    test('shows the member’s own avatar', () => {
+        const wrapper = mountStatistics({ members: [member({ name: 'Ada Lovelace', avatar: 'https://example.test/ada.png' })] });
+
+        expect(wrapper.get('tbody img').attributes('src')).toBe('https://example.test/ada.png');
+    });
+
+    test('falls back to initials when an avatar fails to load', async () => {
+        const wrapper = mountStatistics({ members: [member({ name: 'Ada Lovelace', avatar: 'https://example.test/gone.png' })] });
+
+        await wrapper.get('tbody img').trigger('error');
+
+        expect(wrapper.find('tbody img').exists()).toBe(false);
+        expect(wrapper.findAll('tbody td')[0].text()).toContain('AL');
+    });
+
+    test('falls back to initials for a member without an avatar', () => {
+        const wrapper = mountStatistics({ members: [member({ name: 'Ada Lovelace', avatar: null })] });
+
+        expect(wrapper.find('tbody img').exists()).toBe(false);
+        expect(wrapper.findAll('tbody td')[0].text()).toContain('AL');
     });
 
     test('celebrates a member who has mobbed with everyone instead of showing a zero', () => {
@@ -244,7 +271,7 @@ describe('Finding and saving people', () => {
 
         await wrapper.get('input[name="filter-by-name"]').setValue('a');
 
-        expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['Ada Lovelace', 'Grace Hopper', 'Alan Turing']);
+        expect(suggestedNames(wrapper)).toEqual(['Ada Lovelace', 'Grace Hopper', 'Alan Turing']);
     });
 
     test('saves the chosen member and empties the box', async () => {
@@ -283,7 +310,7 @@ describe('Finding and saving people', () => {
 
         await saveToList(wrapper, 'Grace Hopper');
 
-        expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['Ada Lovelace', 'Alan Turing']);
+        expect(suggestedNames(wrapper)).toEqual(['Ada Lovelace', 'Alan Turing']);
     });
 
     test('says when nobody matches what has been typed', async () => {
@@ -482,11 +509,11 @@ describe('Choosing a date range', () => {
     test('keeps the picker shut until the range button is pressed', async () => {
         const wrapper = mountStatistics({ start_date: '2026-07-16' });
 
-        expect(wrapper.get('[role="dialog"]').isVisible()).toBe(false);
+        expect(wrapper.get('#date-range-picker').isVisible()).toBe(false);
 
         await buttonLabelled(wrapper, 'Jul 16 – Aug 6').trigger('click');
 
-        expect(wrapper.get('[role="dialog"]').isVisible()).toBe(true);
+        expect(wrapper.get('#date-range-picker').isVisible()).toBe(true);
     });
 
     test('names the chosen range on the button that opens the picker', () => {

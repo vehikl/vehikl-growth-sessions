@@ -30,6 +30,8 @@ export interface IStatisticsMember {
 export interface IUserStatistics {
     user_id: number;
     name: string;
+    /** Absent for members whose statistics were cached before avatars were carried here. */
+    avatar?: string | null;
     sessions_hosted_count: number;
     sessions_attended_count: number;
     sessions_watched_count: number;
