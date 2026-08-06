@@ -7,21 +7,30 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserType;
 use Carbon\CarbonImmutable;
-use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class GrowthSessionsShowTest extends TestCase
 {
-    public function testTheGetGrowthSessionEndpointReturnsAViewIfTheRequestIsNotExpectingJson()
+    public function testABrowserVisitIsSentToTheBoardWithThatGrowthSessionsDrawerOpen()
     {
+        $this->setTestNow('2020-01-15');
         $growthSession = GrowthSession::factory()->create();
+
         $this->get(route('growth_sessions.show', $growthSession))
-            ->assertInertia(function (AssertableInertia $page) use ($growthSession) {
-                return $page
-                    ->where('growthSessionJson.id', $growthSession->id)
-                    ->etc();
-            });
+            ->assertRedirect(route('home', [
+                'date' => $growthSession->date->toDateString(),
+                'session' => $growthSession->id,
+            ]));
+    }
+
+    public function testTheRedirectCarriesTheWeekTheGrowthSessionIsIn()
+    {
+        $this->setTestNow('2020-01-15');
+        $growthSession = GrowthSession::factory()->create(['date' => '2019-11-06']);
+
+        $this->get(route('growth_sessions.show', $growthSession))
+            ->assertRedirect(route('home', ['date' => '2019-11-06', 'session' => $growthSession->id]));
     }
 
     public function testTheGetGrowthSessionEndpointReturnsAJsonPayloadIfTheRequestIsExpectingJson()
@@ -37,7 +46,7 @@ class GrowthSessionsShowTest extends TestCase
         $monday = CarbonImmutable::parse('Last Monday');
         $growthSession = GrowthSession::factory()->create(['date' => $monday, 'start_time' => '03:30 pm']);
 
-        $response = $this->get(route('growth_sessions.show', ['growth_session' => $growthSession]));
+        $response = $this->getJson(route('growth_sessions.show', ['growth_session' => $growthSession]));
 
         $response->assertSuccessful();
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
@@ -51,7 +60,7 @@ class GrowthSessionsShowTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create(['is_vehikl_member' => false]);
 
-        $response = $this->actingAs($user)->get(route('growth_sessions.show', ['growth_session' => $growthSession]));
+        $response = $this->actingAs($user)->getJson(route('growth_sessions.show', ['growth_session' => $growthSession]));
 
         $response->assertSuccessful();
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
@@ -68,7 +77,7 @@ class GrowthSessionsShowTest extends TestCase
         $user = $growthSession->attendees()->first();
 
         $this->actingAs($user)
-            ->get(route('growth_sessions.show', ['growth_session' => $growthSession]))
+            ->getJson(route('growth_sessions.show', ['growth_session' => $growthSession]))
             ->assertSuccessful()
             ->assertSee('At AnyDesk XYZ - abcdefg');
     }
@@ -84,7 +93,7 @@ class GrowthSessionsShowTest extends TestCase
         $user = $growthSession->attendees()->first();
 
         $this->actingAs($user)
-            ->get(route('growth_sessions.show', ['growth_session' => $growthSession]))
+            ->getJson(route('growth_sessions.show', ['growth_session' => $growthSession]))
             ->assertSuccessful()
             ->assertSee('At AnyDesk XYZ - abcdefg');
     }
@@ -116,9 +125,23 @@ class GrowthSessionsShowTest extends TestCase
         $user = User::factory()->create(['is_vehikl_member' => true]);
 
         $this->actingAs($user)
-            ->get(route('growth_sessions.show', $growthSession))
+            ->getJson(route('growth_sessions.show', $growthSession))
             ->assertSuccessful()
             ->assertSee($growthSession->title);
+    }
+
+    public function testAMemberFollowingALinkToAPrivateGrowthSessionIsSentToTheBoard()
+    {
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+        /** @var User $user */
+        $user = User::factory()->create(['is_vehikl_member' => true]);
+
+        $this->actingAs($user)
+            ->get(route('growth_sessions.show', $growthSession))
+            ->assertRedirect(route('home', [
+                'date' => $growthSession->date->toDateString(),
+                'session' => $growthSession->id,
+            ]));
     }
 
     public function testItProvidesTheGrowthSessionVisibilityInThePayload()
@@ -146,7 +169,7 @@ class GrowthSessionsShowTest extends TestCase
 
         $guestMember = $growthSession->$guestRelationship()->first();
 
-        $this->actingAs($nonVehiklMember)->get(route('growth_sessions.show', $growthSession))
+        $this->actingAs($nonVehiklMember)->getJson(route('growth_sessions.show', $growthSession))
             ->assertSee('Guest')
             ->assertSee('images\\/guest-avatar.webp')
             ->assertDontSee($guestMember->name)
@@ -165,7 +188,7 @@ class GrowthSessionsShowTest extends TestCase
 
         $guestMember = $growthSession->$guestRelationship()->first();
 
-        $this->actingAs($vehiklMember)->get(route('growth_sessions.show', $growthSession))
+        $this->actingAs($vehiklMember)->getJson(route('growth_sessions.show', $growthSession))
             ->assertSee($guestMember->name)
             ->assertSee($growthSession->avatar)
             ->assertSee($guestMember->github_nickname)
@@ -182,7 +205,7 @@ class GrowthSessionsShowTest extends TestCase
 
         $guestMember = $growthSession->$guestRelationship()->first();
 
-        $this->actingAs($guestMember)->get(route('growth_sessions.show', $growthSession))
+        $this->actingAs($guestMember)->getJson(route('growth_sessions.show', $growthSession))
             ->assertSee($guestMember->name)
             ->assertSee($growthSession->avatar)
             ->assertSee($guestMember->github_nickname)
@@ -202,7 +225,7 @@ class GrowthSessionsShowTest extends TestCase
         $guest = $growthSession->fresh()->$guestRelationship->first();
         $anotherGuest = $growthSession->fresh()->$guestRelationship->last();
 
-        $this->actingAs($guest)->get(route('growth_sessions.show', $growthSession))
+        $this->actingAs($guest)->getJson(route('growth_sessions.show', $growthSession))
             ->assertSee('Guest')
             ->assertSee('images\\/guest-avatar.webp')
             ->assertDontSee($anotherGuest->name)

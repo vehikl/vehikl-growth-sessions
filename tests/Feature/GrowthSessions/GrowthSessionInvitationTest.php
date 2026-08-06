@@ -8,7 +8,6 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserType;
 use Illuminate\Testing\TestResponse;
-use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class GrowthSessionInvitationTest extends TestCase
@@ -93,22 +92,22 @@ class GrowthSessionInvitationTest extends TestCase
             ->assertJsonCount(2, 'attendees');
     }
 
-    public function testAnUnlockedVisitorSeesTheGrowthSessionPageItself()
+    public function testAnUnlockedVisitorFollowingTheGrowthSessionsOwnUrlReachesTheBoard()
     {
         $this->openInviteLink($this->growthSession);
 
         $this->get(route('growth_sessions.show', $this->growthSession))
-            ->assertSuccessful()
-            ->assertInertia(fn(AssertableInertia $page) => $page
-                ->where('growthSessionJson.id', $this->growthSession->id)
-                ->etc());
+            ->assertRedirect(route('home', [
+                'date' => $this->growthSession->date->toDateString(),
+                'session' => $this->growthSession->id,
+            ]));
     }
 
     public function testTheLocationRemainsMaskedForAnUnlockedVisitor()
     {
         $this->openInviteLink($this->growthSession);
 
-        $this->get(route('growth_sessions.show', $this->growthSession))
+        $this->getJson(route('growth_sessions.show', $this->growthSession))
             ->assertSuccessful()
             ->assertDontSee('At AnyDesk XYZ - abcdefg');
     }
