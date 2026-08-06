@@ -277,11 +277,27 @@ describe('Dashboard', () => {
         expect(sidebar.text().indexOf('Top tags')).toBeLessThan(sidebar.text().indexOf('Yet to mob with'));
     });
 
-    test('shows an empty state when the user has never tagged a session', () => {
+    test('hides the whole Top tags card when the user has never tagged a session', () => {
         const wrapper = mountDashboard({}, { top_tags: [] });
 
+        expect(wrapper.find('[aria-labelledby="top-tags-heading"]').exists()).toBe(false);
         expect(wrapper.findAll('[data-testid="tag-usage"]')).toHaveLength(0);
-        expect(wrapper.text()).toContain('No tags yet.');
+        expect(wrapper.text()).not.toContain('Top tags');
+    });
+
+    test('leaves the rest of the sidebar in place when the Top tags card is hidden', () => {
+        const sidebar = mountDashboard({}, { top_tags: [] }).find('[data-testid="dashboard-sidebar"]');
+
+        expect(sidebar.text()).toContain('Mob Squad');
+        expect(sidebar.text()).toContain('Yet to mob with');
+    });
+
+    /** Fewer than five is still a ranking worth reading — only zero earns the card its silence. */
+    test('still shows the Top tags card when the user has only tagged one thing', () => {
+        const wrapper = mountDashboard({}, { top_tags: [{ id: 1, name: 'Vue', sessions_count: 6 }] });
+
+        expect(wrapper.find('[aria-labelledby="top-tags-heading"]').exists()).toBe(true);
+        expect(wrapper.findAll('[data-testid="tag-usage"]')).toHaveLength(1);
     });
 
     test('renders the members the user has yet to mob with', () => {
