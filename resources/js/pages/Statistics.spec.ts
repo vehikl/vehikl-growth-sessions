@@ -7,6 +7,16 @@ import { router } from '@inertiajs/vue3';
 import { flushPromises, VueWrapper } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, type MockInstance, test, vi } from 'vitest';
 
+// Nothing mounts a real Inertia app here, so the shared page props are stood in for.
+let signedInUserId: number | null = null;
+
+// This replaces the global mock in setup-vitest.ts outright, so the <Head> stub has to come along too.
+vi.mock('@inertiajs/vue3', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('@inertiajs/vue3')>()),
+    Head: (await import('@/test-utils/inertia-test-helper')).InertiaHeadStub,
+    usePage: () => ({ props: { auth: { user: signedInUserId === null ? null : { id: signedInUserId } } } }),
+}));
+
 function member(overrides: Partial<IUserStatistics> = {}): IUserStatistics {
     return {
         user_id: 1,
@@ -43,7 +53,7 @@ const dashboard: IStatisticsDashboard = {
         lifetime_sessions_count: 240,
         sessions_this_week_count: 19,
         weekly_unique_participants_count: 18,
-        average_attendance_count: 3.4,
+        lifetime_minutes_count: 11610,
     },
     top_hosts: [
         { id: 3, name: 'Alex Barry', sessions_hosted_count: 4 },
@@ -110,7 +120,9 @@ let writeText: ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
     DateTime.setTestNow('2026-08-06'); // A Thursday
-    window.history.replaceState({}, '', '/statistics');
+    signedInUserId = null;
+    // Most of what is under test only exists in the full display, so that is the default here.
+    window.history.replaceState({}, '', '/statistics?full-display=');
     localStorage.clear();
     reload = vi.spyOn(router, 'reload').mockImplementation(() => undefined);
     writeText = vi.fn().mockResolvedValue(undefined);
@@ -129,6 +141,8 @@ describe('Statistics dashboard', () => {
         expect(wrapper.text()).toContain('240');
         expect(wrapper.text()).toContain('Lifetime sessions');
         expect(wrapper.text()).toContain('Sessions this week');
+        expect(wrapper.text()).toContain('Time of growth');
+        expect(wrapper.text()).toContain('193h 30m');
         expect(wrapper.text()).toContain('Alex Barry');
         expect(wrapper.text()).toContain('Client Work');
     });
@@ -194,6 +208,17 @@ describe('Everyone’s numbers table', () => {
 
         expect(wrapper.find('tbody img').exists()).toBe(false);
         expect(wrapper.findAll('tbody td')[0].text()).toContain('AL');
+    });
+
+    test('puts the signed-in member first, whatever the sort says', async () => {
+        signedInUserId = alan.user_id;
+        const wrapper = mountStatistics();
+
+        expect(memberNames(wrapper)).toEqual(['Alan Turing', 'Ada Lovelace', 'Grace Hopper']);
+
+        await buttonLabelled(wrapper, 'Total').trigger('click');
+
+        expect(memberNames(wrapper)[0]).toBe('Alan Turing');
     });
 
     test('celebrates a member who has mobbed with everyone instead of showing a zero', () => {
@@ -262,6 +287,48 @@ describe('Everyone’s numbers table', () => {
         expect(wrapper.findAll('tbody tr')).toHaveLength(5);
         expect(wrapper.text()).toContain('Showing 26–30 of 30');
         expect(buttonLabelled(wrapper, 'Next').attributes('disabled')).toBeDefined();
+    });
+});
+
+describe('The plain reading view', () => {
+    beforeEach(() => window.history.replaceState({}, '', '/statistics'));
+
+    test('shows only who is here and who they have yet to mob with', () => {
+        const wrapper = mountStatistics();
+
+        expect(wrapper.findAll('thead th').map((heading) => heading.text().replace(/[▲▼]/g, '').trim())).toEqual(['Name', 'Yet to mob with']);
+        expect(memberNames(wrapper)).toEqual(['Ada Lovelace', 'Alan Turing', 'Grace Hopper']);
+    });
+
+    test('leaves the participation counts out of the rows', () => {
+        const wrapper = mountStatistics();
+
+        expect(wrapper.findAll('tbody tr')[0].findAll('td')).toHaveLength(2);
+    });
+
+    test('hides the filters, the date range and the share button', () => {
+        const wrapper = mountStatistics();
+
+        expect(wrapper.find('input[name="filter-by-name"]').exists()).toBe(false);
+        expect(wrapper.find('input[name="start-date"]').exists()).toBe(false);
+        expect(wrapper.find('input[name="apply-list"]').exists()).toBe(false);
+        expect(wrapper.text()).not.toContain('Share URL');
+    });
+
+    test('still opens the yet-to-mob-with dialog', async () => {
+        const wrapper = mountStatistics();
+
+        await buttonLabelled(wrapper, '2').trigger('click');
+
+        expect(wrapper.get('[role="dialog"]').text()).toContain('Ada Lovelace has yet to mob with');
+    });
+
+    test('brings all of it back with full-display in the query', () => {
+        window.history.replaceState({}, '', '/statistics?full-display=');
+        const wrapper = mountStatistics();
+
+        expect(wrapper.findAll('thead th')).toHaveLength(6);
+        expect(wrapper.find('input[name="filter-by-name"]').exists()).toBe(true);
     });
 });
 
@@ -393,7 +460,7 @@ describe('Finding and saving people', () => {
     });
 
     test('drops shared settings from the address bar when the list is cleared', async () => {
-        window.history.replaceState({}, '', `/statistics?settings=${encodeSettings({ list: ['Grace'], shouldUseList: true })}`);
+        window.history.replaceState({}, '', `/statistics?full-display=&settings=${encodeSettings({ list: ['Grace'], shouldUseList: true })}`);
         const wrapper = mountStatistics();
 
         await buttonLabelled(wrapper, 'Clear').trigger('click');

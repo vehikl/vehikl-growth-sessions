@@ -44,8 +44,22 @@ class ShowStatisticsTest extends TestCase
                 ->where('summary.lifetime_sessions_count', 5)
                 ->where('summary.sessions_this_week_count', 2)
                 ->where('summary.weekly_unique_participants_count', 2)
-                ->has('summary.average_attendance_count')
+                ->has('summary.lifetime_minutes_count')
             );
+    }
+
+    public function test_it_sums_every_minute_ever_spent_in_a_growth_session()
+    {
+        $user = User::factory()->vehiklMember()->create();
+
+        // Two hours, then three and a half: 330 minutes all told.
+        GrowthSession::factory()->create(['start_time' => '15:00', 'end_time' => '17:00']);
+        GrowthSession::factory()->create(['start_time' => '09:00', 'end_time' => '12:30']);
+
+        $this->actingAs($user)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.lifetime_minutes_count', 330));
     }
 
     public function test_it_ranks_this_weeks_top_hosts()

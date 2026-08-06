@@ -4,14 +4,17 @@ import PageContainer from '@/components/PageContainer.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor } from '@/lib/sessionDisplay';
-import { DateRange } from '@/lib/statistics';
-import { IStatisticsDashboard } from '@/types';
-import { Head, router } from '@inertiajs/vue3';
+import { DateRange, formatGrowthTime } from '@/lib/statistics';
+import { IStatisticsDashboard, SharedData } from '@/types';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 const props = defineProps<IStatisticsDashboard>();
 
 const { getInitials } = useInitials();
+
+const page = usePage<SharedData>();
+const currentUserId = computed(() => page.props?.auth?.user?.id ?? null);
 
 const maxTagCount = computed(() => Math.max(1, ...props.tags.map((tag) => tag.sessions_count)));
 
@@ -21,13 +24,12 @@ let cancelPendingReload: (() => void) | null = null;
 let latestReload = 0;
 
 /**
- * Only the member table depends on the date range, so a range change is a partial reload
- * of that prop — which also preserves the table's own filter and sort state. The range
- * rides in the query string, which is what makes a shared link land the recipient on the
- * same window.
+ * Only the member table depends on the date range, so a range change is a partial reload of that prop — which also
+ * preserves the table's own filter and sort state.
+ * The range rides in the query string, which is what makes a shared link land the recipient on the same window.
  *
  * Inertia runs reloads concurrently, so editing the start date and then the end date puts
- * two in flight. The earlier one is cancelled outright: without that, a slow first
+ * two in flight. The earlier one is canceled outright: without that, a slow first
  * response can land last and snap the table back to a range the member has left behind.
  */
 function reloadMembers({ startDate, endDate }: DateRange): void {
@@ -64,16 +66,16 @@ function reloadMembers({ startDate, endDate }: DateRange): void {
                 <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Lifetime sessions</span>
             </article>
             <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
+                <strong class="gs-text-strong font-display block text-4xl font-bold">{{ formatGrowthTime(summary.lifetime_minutes_count) }}</strong>
+                <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Time of growth</span>
+            </article>
+            <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                 <strong class="font-display block text-4xl font-bold text-green-600">{{ summary.sessions_this_week_count }}</strong>
                 <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Sessions this week</span>
             </article>
             <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                 <strong class="gs-text-strong font-display block text-4xl font-bold">{{ summary.weekly_unique_participants_count }}</strong>
                 <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Unique participants</span>
-            </article>
-            <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
-                <strong class="gs-text-strong font-display block text-4xl font-bold">{{ summary.average_attendance_count }}</strong>
-                <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Average attendance</span>
             </article>
         </section>
 
@@ -160,6 +162,7 @@ function reloadMembers({ startDate, endDate }: DateRange): void {
 
         <MemberStatistics
             :members="members"
+            :current-user-id="currentUserId"
             :start-date="start_date"
             :end-date="end_date"
             :first-session-date="first_session_date"

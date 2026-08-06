@@ -65,6 +65,17 @@ export function sortMembers(members: IUserStatistics[], field: SortableField, di
     });
 }
 
+/**
+ * Lifts the signed-in member to the top, whatever the sort says. Their own row is the one
+ * they came to read, and hunting for it through several pages of an alphabetical list is
+ * the whole friction this removes. Everyone else keeps the order they arrived in.
+ */
+export function pinMember(members: IUserStatistics[], userId: number | null): IUserStatistics[] {
+    const mine = userId === null ? -1 : members.findIndex((member) => member.user_id === userId);
+
+    return mine <= 0 ? members : [members[mine], ...members.slice(0, mine), ...members.slice(mine + 1)];
+}
+
 export function paginate<T>(rows: T[], page: number, perPage: number): T[] {
     return rows.slice((page - 1) * perPage, page * perPage);
 }
@@ -101,6 +112,17 @@ export function thisMonthRange(): DateRange {
 /** Everything on record: the first ever session through to today. */
 export function allTimeRange(firstSessionDate: string): DateRange {
     return { startDate: new DateTime(firstSessionDate).toDateString(), endDate: today() };
+}
+
+/**
+ * A span of minutes as hours and minutes — 11610 reads "193h 30m". A whole number of hours
+ * drops the minutes rather than trailing a pointless "0m".
+ */
+export function formatGrowthTime(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const leftover = minutes % 60;
+
+    return leftover === 0 ? `${hours.toLocaleString()}h` : `${hours.toLocaleString()}h ${leftover}m`;
 }
 
 /**

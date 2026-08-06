@@ -2,7 +2,7 @@ export interface IStatisticsSummary {
     lifetime_sessions_count: number;
     sessions_this_week_count: number;
     weekly_unique_participants_count: number;
-    average_attendance_count: number;
+    lifetime_minutes_count: number;
 }
 
 export interface ITopHost {

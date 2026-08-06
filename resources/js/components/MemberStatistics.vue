@@ -3,13 +3,14 @@ import { DateTime } from '@/classes/DateTime';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor } from '@/lib/sessionDisplay';
 import {
+    allTimeRange,
     DateRange,
     decodeSettings,
     encodeSettings,
-    allTimeRange,
     filterMembers,
     formatRangeLabel,
     paginate,
+    pinMember,
     SortableField,
     SortDirection,
     sortMembers,
@@ -24,6 +25,7 @@ import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 
 interface IProps {
     members: IUserStatistics[];
+    currentUserId?: number | null;
     startDate: string;
     endDate: string;
     firstSessionDate: string;
@@ -45,12 +47,12 @@ const DEFAULT_SETTINGS: StatisticsSettings = { list: [], shouldUseList: false };
  * has nowhere else to be read, so a phone gets a table that scrolls sideways inside its
  * own container rather than one that quietly drops the watched count.
  */
-const COLUMNS: { label: string; field: SortableField; numeric: boolean }[] = [
+const COLUMNS: { label: string; field: SortableField; numeric: boolean; countsOnly?: true }[] = [
     { label: 'Name', field: 'name', numeric: false },
-    { label: 'Hosted', field: 'sessions_hosted_count', numeric: true },
-    { label: 'Attended', field: 'sessions_attended_count', numeric: true },
-    { label: 'Watched', field: 'sessions_watched_count', numeric: true },
-    { label: 'Total', field: 'total_sessions_count', numeric: true },
+    { label: 'Hosted', field: 'sessions_hosted_count', numeric: true, countsOnly: true },
+    { label: 'Attended', field: 'sessions_attended_count', numeric: true, countsOnly: true },
+    { label: 'Watched', field: 'sessions_watched_count', numeric: true, countsOnly: true },
+    { label: 'Total', field: 'total_sessions_count', numeric: true, countsOnly: true },
     { label: 'Yet to mob with', field: 'has_not_mobbed_with_count', numeric: true },
 ];
 
@@ -145,7 +147,10 @@ onUnmounted(() => {
     clearTimeout(shareResultTimer);
 });
 
-const matchingMembers = computed(() => sortMembers(filterMembers(props.members, filter), sort.field, sort.direction));
+const matchingMembers = computed(() =>
+    pinMember(sortMembers(filterMembers(props.members, filter), sort.field, sort.direction), props.currentUserId ?? null),
+);
+const columns = computed(() => (isFullDisplay ? COLUMNS : COLUMNS.filter((column) => !column.countsOnly)));
 const suggestions = computed(() => suggestMembers(props.members, search.value, filter.list, SUGGESTION_LIMIT));
 const rangeLabel = computed(() => formatRangeLabel(range));
 const pageCount = computed(() => totalPages(matchingMembers.value.length, PER_PAGE));
@@ -348,7 +353,7 @@ function copyBySelection(text: string): boolean {
             <h2 id="member-statistics-heading" class="gs-text-strong text-sm font-bold tracking-[0.05em] uppercase">Everyone's numbers</h2>
         </header>
 
-        <div class="gs-secondary-bg mb-5 flex flex-col gap-4 rounded-xl p-4">
+        <div v-if="isFullDisplay" class="gs-secondary-bg mb-5 flex flex-col gap-4 rounded-xl p-4">
             <div class="flex flex-wrap items-start gap-4">
                 <div ref="searchField" class="relative min-w-64 flex-1">
                     <label for="filter-by-name" class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.06em] uppercase">
@@ -552,7 +557,7 @@ function copyBySelection(text: string): boolean {
                 <thead>
                     <tr class="gs-border border-b">
                         <th
-                            v-for="column in COLUMNS"
+                            v-for="column in columns"
                             :key="column.field"
                             scope="col"
                             :aria-sort="ariaSortFor(column.field)"
@@ -589,10 +594,12 @@ function copyBySelection(text: string): boolean {
                                 <span data-testid="member-name" class="gs-text-strong font-semibold whitespace-nowrap">{{ member.name }}</span>
                             </span>
                         </td>
-                        <td class="gs-text-body py-3 text-right tabular-nums">{{ member.sessions_hosted_count }}</td>
-                        <td class="gs-text-body py-3 text-right tabular-nums">{{ member.sessions_attended_count }}</td>
-                        <td class="gs-text-body py-3 text-right tabular-nums">{{ member.sessions_watched_count }}</td>
-                        <td class="gs-text-strong py-3 text-right font-semibold tabular-nums">{{ member.total_sessions_count }}</td>
+                        <template v-if="isFullDisplay">
+                            <td class="gs-text-body py-3 text-right tabular-nums">{{ member.sessions_hosted_count }}</td>
+                            <td class="gs-text-body py-3 text-right tabular-nums">{{ member.sessions_attended_count }}</td>
+                            <td class="gs-text-body py-3 text-right tabular-nums">{{ member.sessions_watched_count }}</td>
+                            <td class="gs-text-strong py-3 text-right font-semibold tabular-nums">{{ member.total_sessions_count }}</td>
+                        </template>
                         <td class="py-3 text-right tabular-nums">
                             <span v-if="member.has_not_mobbed_with_count === 0" :title="`${member.name} has mobbed with everyone`">🎉</span>
                             <button

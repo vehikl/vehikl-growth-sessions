@@ -4,8 +4,10 @@ import {
     decodeSettings,
     encodeSettings,
     filterMembers,
+    formatGrowthTime,
     formatRangeLabel,
     paginate,
+    pinMember,
     sortMembers,
     suggestMembers,
     thisMonthRange,
@@ -71,6 +73,21 @@ describe('suggestMembers', () => {
     });
 });
 
+describe('pinMember', () => {
+    test('lifts the signed-in member to the top, keeping everyone else in order', () => {
+        expect(pinMember(members, alan.user_id)).toEqual([alan, ada, grace]);
+    });
+
+    test('leaves the order alone when the signed-in member is already first', () => {
+        expect(pinMember(members, ada.user_id)).toEqual(members);
+    });
+
+    test('leaves the order alone when nobody is signed in or they are not listed', () => {
+        expect(pinMember(members, null)).toEqual(members);
+        expect(pinMember(members, 999)).toEqual(members);
+    });
+});
+
 describe('sortMembers', () => {
     test('sorts by name ascending', () => {
         expect(sortMembers(members, 'name', 'asc').map((row) => row.name)).toEqual(['Ada Lovelace', 'Alan Turing', 'Grace Hopper']);
@@ -133,6 +150,21 @@ describe('date range presets', () => {
 
     test('all time runs from the first ever session to today', () => {
         expect(allTimeRange('2020-05-21')).toEqual({ startDate: '2020-05-21', endDate: '2026-08-06' });
+    });
+});
+
+describe('formatGrowthTime', () => {
+    test('reads as hours and minutes', () => {
+        expect(formatGrowthTime(11610)).toBe('193h 30m');
+    });
+
+    test('drops the minutes on a whole number of hours', () => {
+        expect(formatGrowthTime(120)).toBe('2h');
+    });
+
+    test('separates the thousands and survives having no time at all', () => {
+        expect(formatGrowthTime(60_045)).toBe('1,000h 45m');
+        expect(formatGrowthTime(0)).toBe('0h');
     });
 });
 
