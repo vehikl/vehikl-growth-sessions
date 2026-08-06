@@ -58,30 +58,18 @@ defineProps<IDashboard>();
                     <div class="mb-5 flex items-center gap-2">
                         <h2 id="mob-squad-heading" class="gs-section-heading">Mob Squad</h2>
                         <InfoPopover label="About Mob Squad">
-                            The five people you've shared the most growth with. Bigger group sessions don't count &mdash; only the ones small
-                            enough to really mob.
+                            The five people you've shared the most growth with. Bigger group sessions don't count &mdash; only the ones small enough
+                            to really mob.
                         </InfoPopover>
                     </div>
                     <MobSquadLeaderboard :members="mob_squad" />
                 </section>
 
-                <section class="gs-card gs-border rounded-xl border p-6 shadow-sm" aria-labelledby="top-tags-heading">
+                <!-- Like the Mob Squad above, an untagged user gets no card rather than a card
+                     announcing its own emptiness. Any number from one up is still worth ranking. -->
+                <section v-if="top_tags.length" class="gs-card gs-border rounded-xl border p-6 shadow-sm" aria-labelledby="top-tags-heading">
                     <h2 id="top-tags-heading" class="gs-section-heading mb-5">Top tags</h2>
-                    <TagUsageBars :tags="top_tags">
-                        <template #empty>
-                            <div
-                                class="gs-secondary-bg gs-border flex flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center"
-                            >
-                                <span
-                                    class="gs-card gs-border gs-accent-text mb-3 flex h-11 w-11 items-center justify-center rounded-full border text-lg shadow-sm"
-                                >
-                                    <i class="fa fa-tags" aria-hidden="true"></i>
-                                </span>
-                                <strong class="gs-text-strong text-sm font-semibold">No tags yet.</strong>
-                                <p class="gs-text-body mt-1 max-w-md text-sm">Tag a session you host and it will show up here.</p>
-                            </div>
-                        </template>
-                    </TagUsageBars>
+                    <TagUsageBars :tags="top_tags" />
                 </section>
 
                 <section class="gs-card gs-border rounded-xl border p-6 shadow-sm" aria-labelledby="yet-to-mob-heading">
