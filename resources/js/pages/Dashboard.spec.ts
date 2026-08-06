@@ -151,7 +151,6 @@ describe('Dashboard', () => {
 
         expect(mainColumn.find('section[aria-label="Hosting summary"]').exists()).toBe(true);
         expect(mainColumn.find('section[aria-labelledby="hosted-sessions-heading"]').exists()).toBe(true);
-        // "Yet to mob with" is the sidebar itself, so it must not be nested in the left column.
         expect(mainColumn.find('[data-testid="dashboard-sidebar"]').exists()).toBe(false);
     });
 
@@ -163,7 +162,7 @@ describe('Dashboard', () => {
     });
 
     test('renders the top tags with their usage counts, in the order given', () => {
-        const entries = mountDashboard().findAll('[data-testid="top-tag"]');
+        const entries = mountDashboard().findAll('[data-testid="tag-usage"]');
 
         expect(entries).toHaveLength(2);
         expect(entries[0].text()).toContain('Vue');
@@ -175,14 +174,14 @@ describe('Dashboard', () => {
     test('puts the top tags in the sidebar, above the people left to mob with', () => {
         const sidebar = mountDashboard().find('[data-testid="dashboard-sidebar"]');
 
-        expect(sidebar.find('[data-testid="top-tag"]').exists()).toBe(true);
+        expect(sidebar.find('[data-testid="tag-usage"]').exists()).toBe(true);
         expect(sidebar.text().indexOf('Top tags')).toBeLessThan(sidebar.text().indexOf('Yet to mob with'));
     });
 
     test('shows an empty state when the user has never tagged a session', () => {
         const wrapper = mountDashboard({}, { top_tags: [] });
 
-        expect(wrapper.findAll('[data-testid="top-tag"]')).toHaveLength(0);
+        expect(wrapper.findAll('[data-testid="tag-usage"]')).toHaveLength(0);
         expect(wrapper.text()).toContain('No tags yet.');
     });
 

@@ -101,7 +101,7 @@ class ShowDashboardTest extends TestCase
             );
     }
 
-    public function testItPagesFifteenSessionsAtATimeAndReportsTheTotal()
+    public function testItPagesTenSessionsAtATimeAndReportsTheTotal()
     {
         $this->setTestNowToASafeWednesday();
         $host = User::factory()->vehiklMember()->create();
@@ -114,7 +114,7 @@ class ShowDashboardTest extends TestCase
             ->get(route('dashboard'))
             ->assertSuccessful()
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('hosted_sessions.data', 15)
+                ->has('hosted_sessions.data', 10)
                 ->where('hosted_sessions.total', 17)
                 ->where('hosted_sessions.current_page', 1)
                 ->where('hosted_sessions.last_page', 2)
@@ -135,10 +135,10 @@ class ShowDashboardTest extends TestCase
             ->get(route('dashboard', ['page' => 2]))
             ->assertSuccessful()
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('hosted_sessions.data', 2)
+                ->has('hosted_sessions.data', 7)
                 ->where('hosted_sessions.current_page', 2)
-                ->where('hosted_sessions.data.0.title', 'Session 16')
-                ->where('hosted_sessions.data.1.title', 'Session 17')
+                ->where('hosted_sessions.data.0.title', 'Session 11')
+                ->where('hosted_sessions.data.6.title', 'Session 17')
             );
     }
 

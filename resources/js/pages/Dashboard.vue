@@ -2,21 +2,15 @@
 import HostedSessionsList from '@/components/HostedSessionsList.vue';
 import PageContainer from '@/components/PageContainer.vue';
 import PageHeader from '@/components/PageHeader.vue';
+import TagUsageBars from '@/components/TagUsageBars.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor } from '@/lib/sessionDisplay';
 import { IDashboard } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { computed } from 'vue';
 
-const props = defineProps<IDashboard>();
+defineProps<IDashboard>();
 
 const { getInitials } = useInitials();
-
-const busiestTagCount = computed(() => Math.max(1, ...props.top_tags.map((tag) => tag.sessions_count)));
-
-function tagShare(sessionsCount: number): string {
-    return `${(sessionsCount / busiestTagCount.value) * 100}%`;
-}
 </script>
 
 <template>
@@ -55,22 +49,21 @@ function tagShare(sessionsCount: number): string {
             <div data-testid="dashboard-sidebar" class="flex flex-col gap-4">
                 <section class="gs-card gs-border rounded-xl border p-6 shadow-sm" aria-labelledby="top-tags-heading">
                     <h2 id="top-tags-heading" class="gs-section-heading mb-5">Top tags</h2>
-                    <ul v-if="top_tags.length" class="space-y-3">
-                        <li v-for="tag in top_tags" :key="tag.id" data-testid="top-tag">
-                            <div class="flex items-baseline justify-between gap-3">
-                                <span class="gs-text-strong text-sm font-semibold">{{ tag.name }}</span>
-                                <span class="gs-text-muted text-xs font-bold tabular-nums">
-                                    {{ tag.sessions_count }}
-                                    <span class="sr-only">sessions</span>
+                    <TagUsageBars :tags="top_tags">
+                        <template #empty>
+                            <div
+                                class="gs-secondary-bg gs-border flex flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center"
+                            >
+                                <span
+                                    class="gs-card gs-border gs-accent-text mb-3 flex h-11 w-11 items-center justify-center rounded-full border text-lg shadow-sm"
+                                >
+                                    <i class="fa fa-tags" aria-hidden="true"></i>
                                 </span>
+                                <strong class="gs-text-strong text-sm font-semibold">No tags yet.</strong>
+                                <p class="gs-text-body mt-1 max-w-md text-sm">Tag a session you host and it will show up here.</p>
                             </div>
-                            <!-- Drawn against the busiest tag, so the ranking reads at a glance. -->
-                            <div class="gs-secondary-bg mt-1.5 h-1.5 overflow-hidden rounded-full">
-                                <div class="gs-accent-bg h-full rounded-full" :style="{ width: tagShare(tag.sessions_count) }"></div>
-                            </div>
-                        </li>
-                    </ul>
-                    <p v-else class="gs-text-body text-sm">No tags yet. Tag a session and it will show up here.</p>
+                        </template>
+                    </TagUsageBars>
                 </section>
 
                 <section class="gs-card gs-border rounded-xl border p-6 shadow-sm" aria-labelledby="yet-to-mob-heading">

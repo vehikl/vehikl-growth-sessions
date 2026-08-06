@@ -1,3 +1,5 @@
+import type { ITagUsage } from './ITag';
+
 export interface IStatisticsSummary {
     lifetime_sessions_count: number;
     sessions_this_week_count: number;
@@ -9,12 +11,6 @@ export interface ITopHost {
     id: number;
     name: string;
     sessions_hosted_count: number;
-}
-
-export interface ITagUsage {
-    id: number;
-    name: string;
-    sessions_count: number;
 }
 
 export interface IStatisticsMember {

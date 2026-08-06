@@ -111,20 +111,7 @@ class ShowStatisticsController extends Controller
 
     private function tagUsage(string $weekStart, string $weekEnd): array
     {
-        return Tag::query()
-            ->withCount([
-                'growthSessions as sessions_count' => fn ($query) => $query->whereBetween('date', [$weekStart, $weekEnd]),
-            ])
-            ->having('sessions_count', '>', 0)
-            ->orderByDesc('sessions_count')
-            ->orderBy('name')
-            ->get(['id', 'name'])
-            ->map(fn (Tag $tag) => [
-                'id' => $tag->id,
-                'name' => $tag->name,
-                'sessions_count' => $tag->sessions_count,
-            ])
-            ->all();
+        return Tag::usageRanking(fn ($query) => $query->whereBetween('date', [$weekStart, $weekEnd]));
     }
 
     /**
