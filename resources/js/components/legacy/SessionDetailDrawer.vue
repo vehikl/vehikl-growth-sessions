@@ -83,13 +83,18 @@ async function leave() {
 
 <template>
     <div
-        class="gs-overlay-bg gs-fade-in fixed inset-0 z-30 flex justify-end"
+        class="gs-overlay-bg fixed inset-0 z-30 flex justify-end"
         role="dialog"
         aria-modal="true"
         aria-labelledby="drawer-title"
         @click="emit('close')"
     >
-        <div ref="panel" tabindex="-1" class="gs-card gs-drawer-panel h-full w-full max-w-2xl overflow-y-auto p-7 shadow-2xl outline-none" @click.stop>
+        <div
+            ref="panel"
+            tabindex="-1"
+            class="gs-card gs-drawer-panel h-full w-full max-w-2xl overflow-y-auto p-7 shadow-2xl outline-none"
+            @click.stop
+        >
             <div class="mb-3 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
                     <span
@@ -245,3 +250,34 @@ async function leave() {
         </div>
     </div>
 </template>
+
+<style scoped>
+/* Open and close animation. The caller mounts this component behind a <Transition name="gs-drawer">
+   so closing plays in reverse instead of tearing the drawer out of the DOM; Vue puts the
+   gs-drawer-* classes on our root element, which carries this block's scope id. */
+.gs-drawer-enter-active,
+.gs-drawer-leave-active {
+    transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Same duration as the overlay fade, so Vue does not unmount us mid-slide. */
+.gs-drawer-enter-active .gs-drawer-panel,
+.gs-drawer-leave-active .gs-drawer-panel {
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gs-drawer-enter-from,
+.gs-drawer-leave-to {
+    opacity: 0;
+}
+
+.gs-drawer-enter-from .gs-drawer-panel,
+.gs-drawer-leave-to .gs-drawer-panel {
+    transform: translateX(100%);
+}
+
+/* Let clicks reach the page again as soon as we start closing. */
+.gs-drawer-leave-active {
+    pointer-events: none;
+}
+</style>

@@ -496,15 +496,17 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             </div>
         </v-modal>
 
-        <!-- Detail drawer -->
-        <SessionDetailDrawer
-            v-if="selectedSession"
-            :growth-session="selectedSession"
-            :user="user"
-            @close="selectedSession = null"
-            @edit-requested="onGrowthSessionEditRequested"
-            @delete-requested="onGrowthSessionDeleteRequested"
-            @refresh="onDrawerRefresh"
-        />
+        <!-- The transition keeps the drawer mounted while it slides back out; it styles its own gs-drawer-* classes. -->
+        <Transition name="gs-drawer">
+            <SessionDetailDrawer
+                v-if="selectedSession"
+                :growth-session="selectedSession"
+                :user="user"
+                @close="selectedSession = null"
+                @edit-requested="onGrowthSessionEditRequested"
+                @delete-requested="onGrowthSessionDeleteRequested"
+                @refresh="onDrawerRefresh"
+            />
+        </Transition>
     </div>
 </template>

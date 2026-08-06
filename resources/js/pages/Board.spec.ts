@@ -6,6 +6,7 @@ import { Nothingator } from '@/classes/Nothingator';
 import { WeekGrowthSessions } from '@/classes/WeekGrowthSessions';
 import DayView from '@/components/legacy/DayView.vue';
 import GrowthSessionCard from '@/components/legacy/GrowthSessionCard.vue';
+import SessionDetailDrawer from '@/components/legacy/SessionDetailDrawer.vue';
 import WeekView from '@/components/legacy/WeekView.vue';
 import Board from '@/pages/Board.vue';
 import { AnydesksApi } from '@/services/AnydesksApi';
@@ -564,6 +565,42 @@ describe('Board', () => {
             DateTime.setTestNow(`${todayDate} 18:00:00`);
 
             expect((await boardShowing({ end_time: '05:00 pm' }, authVehiklUser)).exists()).toBe(false);
+        });
+    });
+
+    describe('the detail drawer', () => {
+        async function openFirstSessionDetail() {
+            await wrapper.findComponent(GrowthSessionCard).find('button[aria-label^="View details for"]').trigger('click');
+            await flushPromises();
+        }
+
+        it('opens when a session card is clicked', async () => {
+            expect(wrapper.findComponent(SessionDetailDrawer).exists()).toBe(false);
+
+            await openFirstSessionDetail();
+
+            expect(wrapper.findComponent(SessionDetailDrawer).exists()).toBe(true);
+        });
+
+        // Mounted bare, the drawer's leave is a hard close: v-if rips it out of the DOM with no
+        // chance to animate. The transition is what keeps it mounted long enough to slide back
+        // out, and its name has to match the gs-drawer-* rules in SessionDetailDrawer.vue. Vue
+        // Test Utils stubs <Transition>, so only the wiring is observable here, not the motion.
+        it('renders the drawer inside the gs-drawer transition so it animates out', async () => {
+            await openFirstSessionDetail();
+
+            const transition = wrapper.findComponent(SessionDetailDrawer).element.parentElement;
+
+            expect(transition?.getAttribute('name')).toBe('gs-drawer');
+        });
+
+        it('closes when the drawer asks to be closed', async () => {
+            await openFirstSessionDetail();
+
+            wrapper.findComponent(SessionDetailDrawer).vm.$emit('close');
+            await flushPromises();
+
+            expect(wrapper.findComponent(SessionDetailDrawer).exists()).toBe(false);
         });
     });
 
