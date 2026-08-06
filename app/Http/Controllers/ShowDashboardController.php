@@ -14,7 +14,7 @@ use Inertia\Response;
 
 class ShowDashboardController extends Controller
 {
-    private const SESSIONS_PER_PAGE = 15;
+    private const SESSIONS_PER_PAGE = 10;
 
     public function __invoke(Request $request): Response
     {

@@ -147,10 +147,7 @@ class ShowDashboardTest extends TestCase
         $this->setTestNowToASafeWednesday();
         $host = User::factory()->vehiklMember()->create();
 
-        $session = $this->hostedBy($host, today(), 'Vue Testing Deep Dive', [
-            'start_time' => '15:30',
-            'end_time' => '17:00',
-        ]);
+        $session = $this->hostedBy($host, today(), 'Vue Testing Deep Dive');
         $session->tags()->attach(Tag::factory()->create(['name' => 'Vue']));
 
         $this->actingAs($host)
@@ -163,7 +160,6 @@ class ShowDashboardTest extends TestCase
                     ->where('date', '2020-01-15')
                     ->where('date_label', 'Jan 15, 2020')
                     ->where('is_upcoming', true)
-                    ->where('time_label', '3:30 pm – 5:00 pm')
                     ->where('attendee_count', 0)
                     ->has('tags', 1)
                     ->where('tags.0.name', 'Vue')

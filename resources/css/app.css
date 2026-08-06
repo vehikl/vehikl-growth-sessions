@@ -154,6 +154,15 @@ body {
 .gs-text-input {
     color: var(--gs-input);
 }
+/* The heading that titles a card on the Dashboard. Small, bold and lettered out so the
+   cards read as a set rather than each inventing its own label style. */
+.gs-section-heading {
+    color: var(--gs-strong);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
 /* A session that has hit its attendee limit. Applied to the capacity readout and the
    Full indicator, which borrows the same colour via `border-current`. */
 .gs-at-capacity {

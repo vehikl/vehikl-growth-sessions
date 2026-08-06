@@ -9,7 +9,6 @@ export interface IHostedSession {
     date_label: string;
     /** Drives the status dot, so the row never has to reason about "today" in the browser. */
     is_upcoming: boolean;
-    time_label: string;
     /** Everyone in the room except the host, so a session nobody joined reads as zero. */
     attendee_count: number;
     tags: ITag[];
