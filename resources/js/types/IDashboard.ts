@@ -1,3 +1,4 @@
+import type { ITagUsage } from './IStatistics';
 import type { ITag } from './ITag';
 
 /** One row of the Dashboard's hosted sessions list, built server-side by HostedGrowthSession. */
@@ -43,5 +44,7 @@ export interface IMemberYetToMobWith {
 export interface IDashboard {
     summary: IHostingSummary;
     hosted_sessions: IPaginated<IHostedSession>;
+    /** At most five, busiest first, counted over the sessions this user hosts. */
+    top_tags: ITagUsage[];
     yet_to_mob_with: IMemberYetToMobWith[];
 }

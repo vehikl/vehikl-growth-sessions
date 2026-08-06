@@ -6,10 +6,17 @@ import { useInitials } from '@/composables/useInitials';
 import { avatarColor } from '@/lib/sessionDisplay';
 import { IDashboard } from '@/types';
 import { Head } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
-defineProps<IDashboard>();
+const props = defineProps<IDashboard>();
 
 const { getInitials } = useInitials();
+
+const busiestTagCount = computed(() => Math.max(1, ...props.top_tags.map((tag) => tag.sessions_count)));
+
+function tagShare(sessionsCount: number): string {
+    return `${(sessionsCount / busiestTagCount.value) * 100}%`;
+}
 </script>
 
 <template>
@@ -45,38 +52,60 @@ const { getInitials } = useInitials();
                 </section>
             </div>
 
-            <section data-testid="dashboard-sidebar" class="gs-card gs-border rounded-xl border p-6 shadow-sm" aria-labelledby="yet-to-mob-heading">
-                <h2 id="yet-to-mob-heading" class="gs-section-heading mb-5">Yet to mob with</h2>
-                <div v-if="yet_to_mob_with.length" class="flex flex-wrap gap-3">
+            <div data-testid="dashboard-sidebar" class="flex flex-col gap-4">
+                <section class="gs-card gs-border rounded-xl border p-6 shadow-sm" aria-labelledby="top-tags-heading">
+                    <h2 id="top-tags-heading" class="gs-section-heading mb-5">Top tags</h2>
+                    <ul v-if="top_tags.length" class="space-y-3">
+                        <li v-for="tag in top_tags" :key="tag.id" data-testid="top-tag">
+                            <div class="flex items-baseline justify-between gap-3">
+                                <span class="gs-text-strong text-sm font-semibold">{{ tag.name }}</span>
+                                <span class="gs-text-muted text-xs font-bold tabular-nums">
+                                    {{ tag.sessions_count }}
+                                    <span class="sr-only">sessions</span>
+                                </span>
+                            </div>
+                            <!-- Drawn against the busiest tag, so the ranking reads at a glance. -->
+                            <div class="gs-secondary-bg mt-1.5 h-1.5 overflow-hidden rounded-full">
+                                <div class="gs-accent-bg h-full rounded-full" :style="{ width: tagShare(tag.sessions_count) }"></div>
+                            </div>
+                        </li>
+                    </ul>
+                    <p v-else class="gs-text-body text-sm">No tags yet. Tag a session and it will show up here.</p>
+                </section>
+
+                <section class="gs-card gs-border rounded-xl border p-6 shadow-sm" aria-labelledby="yet-to-mob-heading">
+                    <h2 id="yet-to-mob-heading" class="gs-section-heading mb-5">Yet to mob with</h2>
+                    <div v-if="yet_to_mob_with.length" class="flex flex-wrap gap-3">
+                        <div
+                            v-for="member in yet_to_mob_with"
+                            :key="member.id"
+                            class="gs-secondary-bg flex items-center gap-2.5 rounded-full py-1.5 pr-4 pl-1.5"
+                        >
+                            <span
+                                :style="{ backgroundColor: avatarColor(member.name) }"
+                                class="flex h-8 w-8 flex-none items-center justify-center rounded-full text-[11px] font-bold text-white"
+                            >
+                                {{ getInitials(member.name) }}
+                            </span>
+                            <span class="gs-text-strong text-xs font-semibold whitespace-nowrap">{{ member.name }}</span>
+                        </div>
+                    </div>
                     <div
-                        v-for="member in yet_to_mob_with"
-                        :key="member.id"
-                        class="gs-secondary-bg flex items-center gap-2.5 rounded-full py-1.5 pr-4 pl-1.5"
+                        v-else
+                        class="gs-secondary-bg gs-border flex flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center"
                     >
                         <span
-                            :style="{ backgroundColor: avatarColor(member.name) }"
-                            class="flex h-8 w-8 flex-none items-center justify-center rounded-full text-[11px] font-bold text-white"
+                            class="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-green-100 text-lg text-green-700 dark:bg-green-900/30 dark:text-green-400"
                         >
-                            {{ getInitials(member.name) }}
+                            <i class="fa fa-check" aria-hidden="true"></i>
                         </span>
-                        <span class="gs-text-strong text-xs font-semibold whitespace-nowrap">{{ member.name }}</span>
+                        <strong class="gs-text-strong text-sm font-semibold">You're all caught up!</strong>
+                        <p class="gs-text-body mt-1 max-w-md text-sm">
+                            You've mobbed with everyone on your current list. Nice work building connections.
+                        </p>
                     </div>
-                </div>
-                <div
-                    v-else
-                    class="gs-secondary-bg gs-border flex flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center"
-                >
-                    <span
-                        class="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-green-100 text-lg text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                    >
-                        <i class="fa fa-check" aria-hidden="true"></i>
-                    </span>
-                    <strong class="gs-text-strong text-sm font-semibold">You're all caught up!</strong>
-                    <p class="gs-text-body mt-1 max-w-md text-sm">
-                        You've mobbed with everyone on your current list. Nice work building connections.
-                    </p>
-                </div>
-            </section>
+                </section>
+            </div>
         </div>
     </PageContainer>
 </template>
