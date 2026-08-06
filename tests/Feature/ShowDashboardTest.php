@@ -205,9 +205,30 @@ class ShowDashboardTest extends TestCase
             ->assertSuccessful()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('summary.sessions_hosted_count', 3)
+                ->where('summary.sessions_attended_count', 1)
                 ->where('summary.upcoming_count', 1)
                 ->where('summary.total_attendees_count', 5)
             );
+    }
+
+    /**
+     * All three roles share one pivot table, so the attended total has to be the attendee role
+     * alone: counting the relationship unconstrained would fold in every session they ran or watched.
+     */
+    public function testTheAttendedTotalCountsNeitherHostedNorWatchedSessions()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        $this->attendedBy($host, today()->subDay(), 'Joined this one');
+        $this->attendedBy($host, today()->subDays(2), 'And this one');
+        $this->hostedBy($host, today(), 'Ran this one');
+        $this->watchedBy($host, today()->subDays(3), 'Only watched this one');
+
+        $this->actingAs($host)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.sessions_attended_count', 2));
     }
 
     public function testTheSummaryIsZeroedForAUserWhoHasHostedNothing()
@@ -217,6 +238,7 @@ class ShowDashboardTest extends TestCase
             ->assertSuccessful()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('summary.sessions_hosted_count', 0)
+                ->where('summary.sessions_attended_count', 0)
                 ->where('summary.upcoming_count', 0)
                 ->where('summary.total_attendees_count', 0)
             );
@@ -308,6 +330,138 @@ class ShowDashboardTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page->has('yet_to_mob_with', 0));
     }
 
+    public function testItSortsByDateNewestFirstByDefault()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        $this->hostedBy($host, today()->subDays(2), 'Older');
+        $this->hostedBy($host, today()->subDay(), 'Newer');
+
+        $this->actingAs($host)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('sort', 'date')
+                ->where('hosted_sessions.data.0.title', 'Newer')
+                ->where('hosted_sessions.data.1.title', 'Older')
+            );
+    }
+
+    public function testItSortsByNameAlphabetically()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        // Ordered so that the newest session is last alphabetically: date must not win.
+        $this->hostedBy($host, today()->subDays(2), 'Alpha');
+        $this->hostedBy($host, today()->subDay(), 'Zulu');
+
+        $this->actingAs($host)
+            ->get(route('dashboard', ['sort' => 'name']))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('sort', 'name')
+                ->where('hosted_sessions.data.0.title', 'Alpha')
+                ->where('hosted_sessions.data.1.title', 'Zulu')
+            );
+    }
+
+    public function testItSortsByAttendeeCountBusiestFirst()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        // The busier session is the older one, so date cannot be what puts it on top.
+        $busy = $this->hostedBy($host, today()->subDays(2), 'Three came');
+        $busy->attendees()->attach(User::factory()->count(3)->create()->pluck('id'), ['user_type_id' => UserType::ATTENDEE_ID]);
+        $this->hostedBy($host, today()->subDay(), 'Nobody came');
+
+        $this->actingAs($host)
+            ->get(route('dashboard', ['sort' => 'attendees']))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('sort', 'attendees')
+                ->where('hosted_sessions.data.0.title', 'Three came')
+                ->where('hosted_sessions.data.1.title', 'Nobody came')
+            );
+    }
+
+    public function testTheAttendeeSortBreaksTiesByDateDescending()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        $this->hostWithAttendees($host, today()->subDays(2), 'Older, two came', 2);
+        $this->hostWithAttendees($host, today(), 'Newer, two came', 2);
+
+        $this->actingAs($host)
+            ->get(route('dashboard', ['sort' => 'attendees']))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('hosted_sessions.data.0.title', 'Newer, two came')
+                ->where('hosted_sessions.data.1.title', 'Older, two came')
+            );
+    }
+
+    public function testAnUnrecognisedSortFallsBackToTheDefault()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        $this->hostedBy($host, today()->subDays(2), 'Older');
+        $this->hostedBy($host, today()->subDay(), 'Newer');
+
+        $this->actingAs($host)
+            ->get(route('dashboard', ['sort' => 'attendee_count; drop table users']))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('sort', 'date')
+                ->where('hosted_sessions.data.0.title', 'Newer')
+            );
+    }
+
+    public function testThePaginationLinksCarryTheSortForward()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        foreach (range(1, 12) as $daysAgo) {
+            $this->hostedBy($host, today()->subDays($daysAgo), "Session $daysAgo");
+        }
+
+        $this->actingAs($host)
+            ->get(route('dashboard', ['sort' => 'name']))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('hosted_sessions.next_page_url', fn (?string $url) => str_contains((string) $url, 'sort=name'))
+            );
+    }
+
+    /**
+     * The sort has to apply to the whole history before it is sliced, not to the page once cut:
+     * ordering a page of the date-ordered history would leave page two holding the wrong sessions.
+     */
+    public function testASortedListPagesThroughTheWholeHistoryInThatOrder()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        // Named so alphabetical order is the exact reverse of date order.
+        foreach (range(1, 12) as $daysAgo) {
+            $this->hostedBy($host, today()->subDays($daysAgo), sprintf('Session %02d', 13 - $daysAgo));
+        }
+
+        $this->actingAs($host)
+            ->get(route('dashboard', ['sort' => 'name', 'page' => 2]))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('hosted_sessions.data', 2)
+                ->where('hosted_sessions.data.0.title', 'Session 11')
+                ->where('hosted_sessions.data.1.title', 'Session 12')
+            );
+    }
+
     public function testItRanksTheTagsTheUserHostsUnderMostOftenFirst()
     {
         $this->setTestNowToASafeWednesday();
@@ -397,6 +551,20 @@ class ShowDashboardTest extends TestCase
         return GrowthSession::factory()
             ->hasAttached($host, ['user_type_id' => UserType::OWNER_ID], 'owners')
             ->create([...$attributes, 'date' => $date, 'title' => $title]);
+    }
+
+    private function hostWithAttendees(User $host, CarbonInterface $date, string $title, int $attendees): GrowthSession
+    {
+        $session = $this->hostedBy($host, $date, $title);
+
+        if ($attendees > 0) {
+            $session->attendees()->attach(
+                User::factory()->count($attendees)->create()->pluck('id'),
+                ['user_type_id' => UserType::ATTENDEE_ID]
+            );
+        }
+
+        return $session;
     }
 
     private function attendedBy(User $attendee, CarbonInterface $date, string $title): GrowthSession

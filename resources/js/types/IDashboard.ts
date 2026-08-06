@@ -14,12 +14,17 @@ export interface IHostedSession {
     tags: ITag[];
 }
 
-/** Totals across the user's whole hosting history, not just the page on screen. */
-export interface IHostingSummary {
+/** Totals across the user's whole history, not just the page on screen. */
+export interface ISessionSummary {
     sessions_hosted_count: number;
+    /** Sessions somebody else ran that this user joined. */
+    sessions_attended_count: number;
     upcoming_count: number;
     total_attendees_count: number;
 }
+
+/** The orders the hosted sessions list offers. The server owns the direction of each. */
+export type IHostedSessionSort = 'date' | 'name' | 'attendees';
 
 /** The slice of Laravel's length-aware paginator payload the Dashboard renders. */
 export interface IPaginated<T> {
@@ -41,8 +46,10 @@ export interface IMemberYetToMobWith {
 
 /** Props rendered by the Dashboard page, built by ShowDashboardController. */
 export interface IDashboard {
-    summary: IHostingSummary;
+    summary: ISessionSummary;
     hosted_sessions: IPaginated<IHostedSession>;
+    /** Which order the list came back in, so the controls can show the active one. */
+    sort: IHostedSessionSort;
     /** At most five, busiest first, counted over the sessions this user hosts. */
     top_tags: ITagUsage[];
     yet_to_mob_with: IMemberYetToMobWith[];

@@ -19,11 +19,26 @@ class ShowDashboardController extends Controller
 
     private const TOP_TAGS_LIMIT = 5;
 
+    private const DEFAULT_SORT = 'date';
+
+    /**
+     * The orders the hosted sessions list offers, keyed by the value the query string carries.
+     *
+     * Each names its own direction because the useful end differs per field: you want your most
+     * recent and best-attended sessions first, but names read alphabetically.
+     */
+    private const SORTS = [
+        'date' => ['column' => 'growth_sessions.date', 'direction' => 'desc'],
+        'name' => ['column' => 'growth_sessions.title', 'direction' => 'asc'],
+        'attendees' => ['column' => 'attendee_count', 'direction' => 'desc'],
+    ];
+
     public function __invoke(Request $request): Response
     {
         return Inertia::render('Dashboard', [
             'summary' => $this->summary($request->user()),
             'hosted_sessions' => $this->hostedSessions($request),
+            'sort' => $this->sort($request),
             'top_tags' => $this->topTags($request->user()),
             'yet_to_mob_with' => $this->yetToMobWith($request->user()),
         ]);
@@ -36,6 +51,7 @@ class ShowDashboardController extends Controller
     {
         return [
             'sessions_hosted_count' => $user->sessionsHosted()->count(),
+            'sessions_attended_count' => $user->sessionsAttended()->count(),
             'upcoming_count' => $user->sessionsHosted()->whereDate('growth_sessions.date', '>=', today())->count(),
             // The same count the rows report, summed over the whole history rather than a page.
             'total_attendees_count' => (int) $user->sessionsHosted()
@@ -46,23 +62,40 @@ class ShowDashboardController extends Controller
     }
 
     /**
-     * Every Growth Session this user owns, newest first, one page at a time.
+     * Every Growth Session this user owns, one page at a time, in the requested order.
      *
-     * Date is the primary sort, and start time only breaks ties within a day: they are two
-     * separate columns, and ordering by start time alone would interleave the whole history
-     * by the hour of the day.
+     * Whatever the chosen field, date then start time break its ties: they are two separate
+     * columns, and ordering by start time alone would interleave the whole history by the hour
+     * of the day. For the date sort those tie-breakers are the sort itself.
      */
     private function hostedSessions(Request $request): LengthAwarePaginator
     {
         $user = $request->user();
+        $sort = self::SORTS[$this->sort($request)];
 
         return $user->sessionsHosted()
             ->with('tags')
             ->withCount($this->attendeesExcludingHost($user))
+            ->orderBy($sort['column'], $sort['direction'])
             ->orderByDesc('growth_sessions.date')
             ->orderByDesc('growth_sessions.start_time')
             ->paginate(self::SESSIONS_PER_PAGE)
+            // Without this the pagination links drop the sort and the next page reorders itself.
+            ->withQueryString()
             ->through(fn (GrowthSession $session) => HostedGrowthSession::make($session)->resolve($request));
+    }
+
+    /**
+     * The requested order, or the default. Anything unrecognised is ignored rather than
+     * rejected: the sort reaches the server as a hand-editable query string.
+     */
+    private function sort(Request $request): string
+    {
+        $requested = $request->query('sort');
+
+        return is_string($requested) && array_key_exists($requested, self::SORTS)
+            ? $requested
+            : self::DEFAULT_SORT;
     }
 
     /**
