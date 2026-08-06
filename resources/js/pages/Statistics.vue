@@ -1,17 +1,53 @@
 <script lang="ts" setup>
+import MemberStatistics from '@/components/MemberStatistics.vue';
 import PageContainer from '@/components/PageContainer.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor } from '@/lib/sessionDisplay';
+import { DateRange } from '@/lib/statistics';
 import { IStatisticsDashboard } from '@/types';
-import { Head } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 const props = defineProps<IStatisticsDashboard>();
 
 const { getInitials } = useInitials();
 
 const maxTagCount = computed(() => Math.max(1, ...props.tags.map((tag) => tag.sessions_count)));
+
+const isReloadingMembers = ref(false);
+
+let cancelPendingReload: (() => void) | null = null;
+let latestReload = 0;
+
+/**
+ * Only the member table depends on the date range, so a range change is a partial reload
+ * of that prop — which also preserves the table's own filter and sort state. The range
+ * rides in the query string, which is what makes a shared link land the recipient on the
+ * same window.
+ *
+ * Inertia runs reloads concurrently, so editing the start date and then the end date puts
+ * two in flight. The earlier one is cancelled outright: without that, a slow first
+ * response can land last and snap the table back to a range the member has left behind.
+ */
+function reloadMembers({ startDate, endDate }: DateRange): void {
+    cancelPendingReload?.();
+
+    const reloadId = ++latestReload;
+
+    router.reload({
+        only: ['members', 'start_date', 'end_date'],
+        data: { start_date: startDate, end_date: endDate },
+        onCancelToken: ({ cancel }) => (cancelPendingReload = cancel),
+        onStart: () => (isReloadingMembers.value = true),
+        onFinish: () => {
+            if (reloadId === latestReload) {
+                cancelPendingReload = null;
+                isReloadingMembers.value = false;
+            }
+        },
+    });
+}
 </script>
 
 <template>
@@ -91,7 +127,7 @@ const maxTagCount = computed(() => Math.max(1, ...props.tags.map((tag) => tag.se
             </section>
         </div>
 
-        <section class="gs-card gs-border rounded-xl border p-6 shadow-sm">
+        <section class="gs-card gs-border mb-8 rounded-xl border p-6 shadow-sm">
             <h2 class="gs-text-strong mb-5 text-sm font-bold tracking-[0.05em] uppercase">Yet to mob with</h2>
             <div v-if="yet_to_mob_with.length" class="flex flex-wrap gap-3">
                 <div
@@ -121,5 +157,14 @@ const maxTagCount = computed(() => Math.max(1, ...props.tags.map((tag) => tag.se
                 <p class="gs-text-body mt-1 max-w-md text-sm">You've mobbed with everyone on your current list. Nice work building connections.</p>
             </div>
         </section>
+
+        <MemberStatistics
+            :members="members"
+            :start-date="start_date"
+            :end-date="end_date"
+            :first-session-date="first_session_date"
+            :is-loading="isReloadingMembers"
+            @range-change="reloadMembers"
+        />
     </PageContainer>
 </template>
