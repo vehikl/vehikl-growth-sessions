@@ -42,6 +42,8 @@ export interface IPaginated<T> {
 export interface IMemberYetToMobWith {
     id: number;
     name: string;
+    /** Empty for a member who has never had one, which is what the initials fall back for. */
+    avatar: string | null;
 }
 
 /** Somebody the signed-in user has mobbed with, and how often. */

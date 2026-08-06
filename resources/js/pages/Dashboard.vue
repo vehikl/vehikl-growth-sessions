@@ -1,18 +1,15 @@
 <script lang="ts" setup>
 import HostedSessionsList from '@/components/HostedSessionsList.vue';
 import HostedSessionsSort from '@/components/HostedSessionsSort.vue';
+import MemberAvatar from '@/components/MemberAvatar.vue';
 import MobSquadLeaderboard from '@/components/MobSquadLeaderboard.vue';
 import PageContainer from '@/components/PageContainer.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import TagUsageBars from '@/components/TagUsageBars.vue';
-import { useInitials } from '@/composables/useInitials';
-import { avatarColor } from '@/lib/sessionDisplay';
 import { IDashboard } from '@/types';
 import { Head } from '@inertiajs/vue3';
 
 defineProps<IDashboard>();
-
-const { getInitials } = useInitials();
 </script>
 
 <template>
@@ -104,12 +101,7 @@ const { getInitials } = useInitials();
                             :key="member.id"
                             class="gs-secondary-bg flex items-center gap-2.5 rounded-full py-1.5 pr-4 pl-1.5"
                         >
-                            <span
-                                :style="{ backgroundColor: avatarColor(member.name) }"
-                                class="flex h-8 w-8 flex-none items-center justify-center rounded-full text-[11px] font-bold text-white"
-                            >
-                                {{ getInitials(member.name) }}
-                            </span>
+                            <MemberAvatar data-testid="yet-to-mob-avatar" :name="member.name" :avatar="member.avatar" />
                             <span class="gs-text-strong text-xs font-semibold whitespace-nowrap">{{ member.name }}</span>
                         </div>
                     </div>

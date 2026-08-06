@@ -43,7 +43,7 @@ class ShowStatisticsController extends Controller
     private function topHosts(string $weekStart, string $weekEnd): array
     {
         return User::query()
-            ->select(['id', 'name'])
+            ->select(['id', 'name', 'avatar'])
             ->visibleInStatistics()
             ->withCount([
                 'sessionsHosted' => fn ($query) => $query->whereBetween('date', [$weekStart, $weekEnd]),
@@ -56,6 +56,7 @@ class ShowStatisticsController extends Controller
             ->map(fn (User $host) => [
                 'id' => $host->id,
                 'name' => $host->name,
+                'avatar' => $host->avatar,
                 'sessions_hosted_count' => $host->sessions_hosted_count,
             ])
             ->all();

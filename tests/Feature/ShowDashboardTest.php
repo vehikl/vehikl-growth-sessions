@@ -311,6 +311,34 @@ class ShowDashboardTest extends TestCase
             );
     }
 
+    public function testEachMemberYetToBeMobbedWithCarriesTheirAvatar()
+    {
+        $this->setTestNowToASafeWednesday();
+
+        [$host, $attendee, $nonParticipant] = User::factory()->vehiklMember()->count(3)
+            ->sequence(
+                ['name' => 'Host'],
+                ['name' => 'Attendee'],
+                ['name' => 'Non-Participant', 'avatar' => 'https://example.test/nobody.png'],
+            )
+            ->create(['is_visible_in_statistics' => true]);
+
+        $this->hostedBy($host, today()->subDay(), 'Mobbed together')
+            ->attendees()
+            ->attach($attendee->id, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->actingAs($host)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('yet_to_mob_with.0', fn (AssertableInertia $member) => $member
+                    ->where('id', $nonParticipant->id)
+                    ->where('name', 'Non-Participant')
+                    ->where('avatar', 'https://example.test/nobody.png')
+                )
+            );
+    }
+
     public function testTheYetToMobWithListIsNotLimitedToTheCurrentWeek()
     {
         $this->setTestNowToASafeWednesday();
