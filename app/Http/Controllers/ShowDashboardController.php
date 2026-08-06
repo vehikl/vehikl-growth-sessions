@@ -176,6 +176,11 @@ class ShowDashboardController extends Controller
      * daily, so it is normally served from cache rather than recomputing the matrix.
      *
      * A non-member is absent from the matrix and so receives an empty list.
+     *
+     * The avatars are looked up here rather than added to the matrix itself, which is cached for
+     * hours at a time: a payload already warm from before the deploy would have no such key.
+     *
+     * @return array<int, array{id: int, name: string, avatar: string|null}>
      */
     private function yetToMobWith(User $user): array
     {
@@ -185,8 +190,15 @@ class ShowDashboardController extends Controller
         $statistics = app(Statistics::class)
             ->getFormattedStatisticsFor($oldestSessionDate, today()->toDateString());
 
-        return collect($statistics->firstWhere('user_id', $user->id)['has_not_mobbed_with'] ?? [])
-            ->values()
+        $members = collect($statistics->firstWhere('user_id', $user->id)['has_not_mobbed_with'] ?? [])->values();
+        $avatars = User::query()->whereKey($members->pluck('id'))->pluck('avatar', 'id');
+
+        return $members
+            ->map(fn (array $member) => [
+                'id' => $member['id'],
+                'name' => $member['name'],
+                'avatar' => $avatars->get($member['id']),
+            ])
             ->all();
     }
 

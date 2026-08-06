@@ -10,6 +10,8 @@ export interface IStatisticsSummary {
 export interface ITopHost {
     id: number;
     name: string;
+    /** Empty for a member who has never had one, which is what the initials fall back for. */
+    avatar: string | null;
     sessions_hosted_count: number;
 }
 

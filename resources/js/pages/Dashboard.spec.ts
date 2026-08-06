@@ -56,7 +56,7 @@ function paginator(overrides: Partial<IPaginated<IHostedSession>> = {}): IPagina
     };
 }
 
-const yetToMobWith: IMemberYetToMobWith[] = [{ id: 2, name: 'Brady Deroy' }];
+const yetToMobWith: IMemberYetToMobWith[] = [{ id: 2, name: 'Brady Deroy', avatar: 'https://example.test/brady.png' }];
 
 const topTags: ITagUsage[] = [
     { id: 1, name: 'Vue', sessions_count: 6 },
@@ -274,6 +274,20 @@ describe('Dashboard', () => {
 
         expect(wrapper.text()).toContain('Yet to mob with');
         expect(wrapper.text()).toContain('Brady Deroy');
+    });
+
+    test('shows the photo of a member yet to be mobbed with', () => {
+        const avatar = mountDashboard().find('[data-testid="yet-to-mob-avatar"]');
+
+        expect(avatar.find('img').attributes('src')).toBe('https://example.test/brady.png');
+    });
+
+    test('falls back to initials for a member yet to be mobbed with who has no photo', () => {
+        const wrapper = mountDashboard({}, { yet_to_mob_with: [{ id: 2, name: 'Brady Deroy', avatar: null }] });
+        const avatar = wrapper.find('[data-testid="yet-to-mob-avatar"]');
+
+        expect(avatar.find('img').exists()).toBe(false);
+        expect(avatar.text()).toBe('BD');
     });
 
     test('shows an empty state when there is nobody left to mob with', () => {

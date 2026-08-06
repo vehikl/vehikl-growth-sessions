@@ -56,8 +56,8 @@ const dashboard: IStatisticsDashboard = {
         lifetime_minutes_count: 11610,
     },
     top_hosts: [
-        { id: 3, name: 'Alex Barry', sessions_hosted_count: 4 },
-        { id: 4, name: 'Sam Reed', sessions_hosted_count: 1 },
+        { id: 3, name: 'Alex Barry', avatar: 'https://example.test/alex.png', sessions_hosted_count: 4 },
+        { id: 4, name: 'Sam Reed', avatar: null, sessions_hosted_count: 1 },
     ],
     tags: [
         { id: 1, name: 'Client Work', sessions_count: 4 },
@@ -157,6 +157,14 @@ describe('Statistics dashboard', () => {
 
         expect(wrapper.text()).toContain('4 sessions');
         expect(wrapper.text()).toContain('1 session');
+    });
+
+    test('shows each top host’s photo, falling back to their initials', () => {
+        const avatars = mountStatistics().findAll('[data-testid="top-host-avatar"]');
+
+        expect(avatars[0].find('img').attributes('src')).toBe('https://example.test/alex.png');
+        expect(avatars[1].find('img').exists()).toBe(false);
+        expect(avatars[1].text()).toBe('SR');
     });
 
     test('shows an empty state when no sessions were hosted this week', () => {

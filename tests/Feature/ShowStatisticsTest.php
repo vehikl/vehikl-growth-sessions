@@ -87,6 +87,27 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
+    public function test_each_top_host_carries_the_avatar_the_list_renders()
+    {
+        $this->setTestNowToASafeWednesday();
+
+        $host = User::factory()->vehiklMember()->create([
+            'name' => 'Prolific',
+            'avatar' => 'https://example.test/prolific.png',
+            'is_visible_in_statistics' => true,
+        ]);
+
+        $this->makeGrowthSessionOwnedBy($host, today());
+
+        $this->actingAs($host)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('top_hosts.0.name', 'Prolific')
+                ->where('top_hosts.0.avatar', 'https://example.test/prolific.png')
+            );
+    }
+
     public function test_it_returns_tag_usage_counts_for_the_current_week()
     {
         $this->setTestNowToASafeWednesday();
