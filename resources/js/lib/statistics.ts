@@ -81,24 +81,21 @@ function mondayOfWeek(date: string): string {
     return new DateTime(date).addDays(-(weekday === 0 ? 6 : weekday - 1)).toDateString();
 }
 
-export function thisWeekRange(): DateRange {
-    const endDate = today();
+/**
+ * The week before the current one, Monday to Sunday. The presets deliberately cover
+ * finished windows: a part-grown current week reads as a drop in everyone's numbers.
+ */
+export function lastWeekRange(): DateRange {
+    const startDate = new DateTime(mondayOfWeek(today())).addDays(-7).toDateString();
 
-    return { startDate: mondayOfWeek(endDate), endDate };
+    return { startDate, endDate: new DateTime(startDate).addDays(6).toDateString() };
 }
 
-/**
- * Growth Session weeks run Monday to Friday, so a month starts at its first Monday rather
- * than its first day. Early in a month whose first Monday is still ahead, that would give
- * an inverted range, so this week stands in.
- */
-export function thisMonthRange(): DateRange {
-    const endDate = today();
-    const firstOfMonth = new DateTime(endDate).format('YYYY-MM-01');
-    const weekday = new DateTime(firstOfMonth).weekDayNumber();
-    const firstMonday = new DateTime(firstOfMonth).addDays(weekday === 1 ? 0 : (8 - weekday) % 7).toDateString();
+/** The whole of the previous calendar month. */
+export function lastMonthRange(): DateRange {
+    const endDate = new DateTime(new DateTime(today()).format('YYYY-MM-01')).addDays(-1).toDateString();
 
-    return firstMonday > endDate ? thisWeekRange() : { startDate: firstMonday, endDate };
+    return { startDate: new DateTime(endDate).format('YYYY-MM-01'), endDate };
 }
 
 export function allTimeRange(firstSessionDate: string): DateRange {

@@ -6,13 +6,13 @@ import {
     decodeSettings,
     encodeSettings,
     filterMembers,
+    lastMonthRange,
+    lastWeekRange,
     paginate,
     SortableField,
     SortDirection,
     sortMembers,
     StatisticsSettings,
-    thisMonthRange,
-    thisWeekRange,
     totalPages,
 } from '@/lib/statistics';
 import { IUserStatistics } from '@/types';
@@ -196,30 +196,68 @@ function clearList(): void {
 
     if (url.searchParams.has('settings')) {
         url.searchParams.delete('settings');
-        window.history.replaceState({}, '', url.toString());
+        window.history.replaceState(window.history.state, '', url.toString());
     }
 }
 
+/**
+ * The address bar is moved to the shareable link before anything is copied, so the link
+ * exists whether or not the copy lands — which is what makes the failure message's advice
+ * to copy from the address bar true. Inertia's own history state is carried over, so back
+ * and forward still restore this page.
+ */
 async function copyShareableUrl(): Promise<void> {
     const url = new URL(window.location.href);
     url.searchParams.set('settings', encodeSettings({ list: filter.list, shouldUseList: filter.shouldUseList }));
     url.searchParams.set('start_date', range.startDate);
     url.searchParams.set('end_date', range.endDate);
 
-    try {
-        if (!navigator.clipboard) {
-            throw new Error('The clipboard is unavailable outside a secure context.');
-        }
+    const shareableUrl = url.toString();
+    window.history.replaceState(window.history.state, '', shareableUrl);
 
-        await navigator.clipboard.writeText(url.toString());
-        shareResult.value = 'copied';
-    } catch (error) {
-        console.error('Could not copy the shareable URL:', error);
-        shareResult.value = 'failed';
-    }
+    shareResult.value = (await copyToClipboard(shareableUrl)) ? 'copied' : 'failed';
 
     clearTimeout(shareResultTimer);
     shareResultTimer = setTimeout(() => (shareResult.value = null), 5000);
+}
+
+/**
+ * `navigator.clipboard` is missing entirely outside a secure context, which is every
+ * plain-http development host, so the deprecated selection copy is the fallback rather
+ * than an immediate failure.
+ */
+async function copyToClipboard(text: string): Promise<boolean> {
+    try {
+        if (navigator.clipboard) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch (error) {
+        console.error('Could not copy the shareable URL to the clipboard:', error);
+    }
+
+    return copyBySelection(text);
+}
+
+function copyBySelection(text: string): boolean {
+    const field = document.createElement('textarea');
+    field.value = text;
+    field.setAttribute('readonly', '');
+    field.style.position = 'fixed';
+    field.style.top = '0';
+    field.style.opacity = '0';
+    document.body.appendChild(field);
+
+    try {
+        field.select();
+
+        return document.execCommand('copy');
+    } catch (error) {
+        console.error('Could not copy the shareable URL by selection:', error);
+        return false;
+    } finally {
+        field.remove();
+    }
 }
 </script>
 
@@ -298,16 +336,16 @@ async function copyShareableUrl(): Promise<void> {
                     <button
                         type="button"
                         class="gs-btn-secondary cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold"
-                        @click="applyRange(thisWeekRange())"
+                        @click="applyRange(lastWeekRange())"
                     >
-                        This week
+                        Last week
                     </button>
                     <button
                         type="button"
                         class="gs-btn-secondary cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold"
-                        @click="applyRange(thisMonthRange())"
+                        @click="applyRange(lastMonthRange())"
                     >
-                        This month
+                        Last month
                     </button>
                     <button
                         type="button"

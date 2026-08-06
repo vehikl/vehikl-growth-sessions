@@ -4,10 +4,10 @@ import {
     decodeSettings,
     encodeSettings,
     filterMembers,
+    lastMonthRange,
+    lastWeekRange,
     paginate,
     sortMembers,
-    thisMonthRange,
-    thisWeekRange,
     totalPages,
 } from '@/lib/statistics';
 import { IUserStatistics } from '@/types';
@@ -99,30 +99,30 @@ describe('paginate', () => {
 describe('date range presets', () => {
     beforeEach(() => DateTime.setTestNow('2026-08-06')); // A Thursday
 
-    test('this week runs from the most recent Monday to today', () => {
-        expect(thisWeekRange()).toEqual({ startDate: '2026-08-03', endDate: '2026-08-06' });
+    test('last week runs Monday to Sunday of the week just gone', () => {
+        expect(lastWeekRange()).toEqual({ startDate: '2026-07-27', endDate: '2026-08-02' });
     });
 
-    test('this week on a Monday starts today rather than reaching back a week', () => {
+    test('last week on a Monday is the week before this brand new one', () => {
         DateTime.setTestNow('2026-08-03');
 
-        expect(thisWeekRange()).toEqual({ startDate: '2026-08-03', endDate: '2026-08-03' });
+        expect(lastWeekRange()).toEqual({ startDate: '2026-07-27', endDate: '2026-08-02' });
     });
 
-    test('this week on a Sunday still starts on the Monday just gone', () => {
+    test('last week on a Sunday is still the previous week, not the one closing today', () => {
         DateTime.setTestNow('2026-08-09');
 
-        expect(thisWeekRange()).toEqual({ startDate: '2026-08-03', endDate: '2026-08-09' });
+        expect(lastWeekRange()).toEqual({ startDate: '2026-07-27', endDate: '2026-08-02' });
     });
 
-    test('this month runs from the first Monday of the month to today', () => {
-        expect(thisMonthRange()).toEqual({ startDate: '2026-08-03', endDate: '2026-08-06' });
+    test('last month covers the whole of the previous calendar month', () => {
+        expect(lastMonthRange()).toEqual({ startDate: '2026-07-01', endDate: '2026-07-31' });
     });
 
-    test('this month falls back to this week when the first Monday has not happened yet', () => {
-        DateTime.setTestNow('2026-08-01'); // Saturday; the first Monday is the 3rd
+    test('last month crosses the year boundary in January', () => {
+        DateTime.setTestNow('2026-01-14');
 
-        expect(thisMonthRange()).toEqual({ startDate: '2026-07-27', endDate: '2026-08-01' });
+        expect(lastMonthRange()).toEqual({ startDate: '2025-12-01', endDate: '2025-12-31' });
     });
 
     test('all time runs from the first ever session to today', () => {

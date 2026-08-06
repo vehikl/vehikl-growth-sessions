@@ -75,7 +75,7 @@ function buttonLabelled(wrapper: VueWrapper, label: string) {
 }
 
 function memberNames(wrapper: VueWrapper): string[] {
-    return wrapper.findAll('tbody tr').map((row) => row.findAll('td')[1].text());
+    return wrapper.findAll('tbody tr').map((row) => row.findAll('td')[0].text());
 }
 
 let reload: MockInstance;
@@ -90,7 +90,10 @@ beforeEach(() => {
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
 });
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+    vi.restoreAllMocks();
+    Reflect.deleteProperty(document, 'execCommand');
+});
 
 describe('Statistics dashboard', () => {
     test('renders the dashboard statistics', () => {
@@ -140,7 +143,7 @@ describe('Everyone’s numbers table', () => {
             .findAll('tbody tr')[0]
             .findAll('td')
             .map((cell) => cell.text());
-        expect(adaRow).toEqual(['1', 'Ada Lovelace', '2', '6', '1', '9', '2']);
+        expect(adaRow).toEqual(['Ada Lovelace', '2', '6', '1', '9', '2']);
     });
 
     test('celebrates a member who has mobbed with everyone instead of showing a zero', () => {
@@ -404,9 +407,33 @@ describe('Persisting and sharing the filter list', () => {
         expect(wrapper.get('[role="status"]').text()).toContain('Link copied to clipboard');
     });
 
-    test('says so rather than falsely confirming when the clipboard is unavailable', async () => {
+    test('puts the shareable link in the address bar so it can be copied by hand', async () => {
+        const wrapper = mountStatistics();
+
+        await wrapper.get('input[name="filter-by-name"]').setValue('Grace');
+        await buttonLabelled(wrapper, 'Add to list').trigger('click');
+        await buttonLabelled(wrapper, 'Share URL').trigger('click');
+        await flushPromises();
+
+        expect(new URLSearchParams(window.location.search).get('settings')).toBe(encodeSettings({ list: ['Grace'], shouldUseList: false }));
+    });
+
+    test('falls back to a selection copy where the clipboard API is missing', async () => {
         Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
-        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        const execCommand = vi.fn().mockReturnValue(true);
+        Object.defineProperty(document, 'execCommand', { value: execCommand, configurable: true });
+        const wrapper = mountStatistics();
+
+        await buttonLabelled(wrapper, 'Share URL').trigger('click');
+        await flushPromises();
+
+        expect(execCommand).toHaveBeenCalledWith('copy');
+        expect(wrapper.get('[role="status"]').text()).toContain('Link copied to clipboard');
+    });
+
+    test('says so rather than falsely confirming when no copy is possible at all', async () => {
+        Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+        Object.defineProperty(document, 'execCommand', { value: vi.fn().mockReturnValue(false), configurable: true });
         const wrapper = mountStatistics();
 
         await buttonLabelled(wrapper, 'Share URL').trigger('click');
@@ -437,21 +464,21 @@ describe('Choosing a date range', () => {
         expect(reload).not.toHaveBeenCalled();
     });
 
-    test('the This week preset runs from the most recent Monday to today', async () => {
+    test('the Last week preset runs Monday to Sunday of the week just gone', async () => {
         const wrapper = mountStatistics();
 
-        await buttonLabelled(wrapper, 'This week').trigger('click');
+        await buttonLabelled(wrapper, 'Last week').trigger('click');
 
         expect(reload).toHaveBeenCalledTimes(1);
-        expect(reload.mock.calls[0][0]).toMatchObject({ data: { start_date: '2026-08-03', end_date: '2026-08-06' } });
+        expect(reload.mock.calls[0][0]).toMatchObject({ data: { start_date: '2026-07-27', end_date: '2026-08-02' } });
     });
 
-    test('the This month preset runs from the first Monday of the month to today', async () => {
+    test('the Last month preset covers the whole of the previous calendar month', async () => {
         const wrapper = mountStatistics();
 
-        await buttonLabelled(wrapper, 'This month').trigger('click');
+        await buttonLabelled(wrapper, 'Last month').trigger('click');
 
-        expect(reload.mock.calls[0][0]).toMatchObject({ data: { start_date: '2026-08-03', end_date: '2026-08-06' } });
+        expect(reload.mock.calls[0][0]).toMatchObject({ data: { start_date: '2026-07-01', end_date: '2026-07-31' } });
     });
 
     test('the All time preset runs from the first ever session to today', async () => {
@@ -481,7 +508,7 @@ describe('Choosing a date range', () => {
     test('a preset issues a single reload rather than one per date', async () => {
         const wrapper = mountStatistics({ start_date: '2020-01-01', end_date: '2020-01-02' });
 
-        await buttonLabelled(wrapper, 'This week').trigger('click');
+        await buttonLabelled(wrapper, 'Last week').trigger('click');
 
         expect(reload).toHaveBeenCalledTimes(1);
     });
