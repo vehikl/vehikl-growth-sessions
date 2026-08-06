@@ -12,7 +12,6 @@ const onLastPage = computed(() => props.sessions.current_page >= props.sessions.
 
 const pageButtonClass =
     'gs-btn-secondary cursor-pointer rounded-lg px-3 py-1.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40';
-// Paging is a partial reload of this prop alone, so the rest of the Dashboard stays put.
 const pageVisitOptions = { only: ['hosted_sessions'], preserveScroll: true, preserveState: true };
 </script>
 

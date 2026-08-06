@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import HostedSessionsList from '@/components/HostedSessionsList.vue';
+import HostedSessionsSort from '@/components/HostedSessionsSort.vue';
 import PageContainer from '@/components/PageContainer.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import TagUsageBars from '@/components/TagUsageBars.vue';
@@ -23,10 +24,14 @@ const { getInitials } = useInitials();
 
         <div data-testid="dashboard-columns" class="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
             <div data-testid="dashboard-main-column" class="flex flex-col gap-4 lg:col-span-2">
-                <section class="grid auto-rows-min grid-cols-1 gap-4 sm:grid-cols-3" aria-label="Hosting summary">
+                <section class="grid auto-rows-min grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Session summary">
                     <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                         <strong class="gs-accent-text font-display block text-4xl font-bold">{{ summary.sessions_hosted_count }}</strong>
                         <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Sessions hosted</span>
+                    </article>
+                    <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
+                        <strong class="gs-text-strong font-display block text-4xl font-bold">{{ summary.sessions_attended_count }}</strong>
+                        <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Sessions attended</span>
                     </article>
                     <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                         <strong class="font-display block text-4xl font-bold text-green-600">{{ summary.upcoming_count }}</strong>
@@ -41,7 +46,10 @@ const { getInitials } = useInitials();
                 </section>
 
                 <section class="gs-card gs-border rounded-xl border p-4 shadow-sm sm:p-6" aria-labelledby="hosted-sessions-heading">
-                    <h2 id="hosted-sessions-heading" class="gs-section-heading mb-5">Sessions you've hosted</h2>
+                    <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                        <h2 id="hosted-sessions-heading" class="gs-section-heading">Sessions you've hosted</h2>
+                        <HostedSessionsSort v-if="hosted_sessions.total" :sort="sort" />
+                    </div>
                     <HostedSessionsList :sessions="hosted_sessions" />
                 </section>
             </div>

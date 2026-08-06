@@ -1,10 +1,15 @@
 import Dashboard from '@/pages/Dashboard.vue';
 import { mountWithInertia } from '@/test-utils/inertia-test-helper';
-import { IDashboard, IHostedSession, IHostingSummary, IMemberYetToMobWith, IPaginated, ITagUsage } from '@/types';
+import { IDashboard, IHostedSession, IMemberYetToMobWith, IPaginated, ISessionSummary, ITagUsage } from '@/types';
 import { describe, expect, test, vi } from 'vitest';
 
 vi.mock('ziggy-js', () => ({
-    route: (name: string, params?: Record<string, unknown>) => (name === 'home' ? '/' : `/growth_sessions/${params?.growth_session}`),
+    route: (name: string, params?: Record<string, unknown>) => {
+        if (name === 'home') return '/';
+        if (name === 'dashboard') return params?.sort ? `/dashboard?sort=${params.sort}` : '/dashboard';
+
+        return `/growth_sessions/${params?.growth_session}`;
+    },
 }));
 
 const vueTesting: IHostedSession = {
@@ -30,8 +35,9 @@ const paintingWithCode: IHostedSession = {
     tags: [],
 };
 
-const summary: IHostingSummary = {
+const summary: ISessionSummary = {
     sessions_hosted_count: 2,
+    sessions_attended_count: 5,
     upcoming_count: 1,
     total_attendees_count: 4,
 };
@@ -61,6 +67,7 @@ function mountDashboard(overrides: Partial<IPaginated<IHostedSession>> = {}, res
     const props: IDashboard = {
         summary,
         hosted_sessions: paginator(overrides),
+        sort: 'date',
         top_tags: topTags,
         yet_to_mob_with: yetToMobWith,
         ...rest,
@@ -70,17 +77,64 @@ function mountDashboard(overrides: Partial<IPaginated<IHostedSession>> = {}, res
 }
 
 describe('Dashboard', () => {
-    test('renders the hosting summary', () => {
-        const wrapper = mountDashboard({}, { summary: { sessions_hosted_count: 3, upcoming_count: 1, total_attendees_count: 10 } });
+    test('renders the session summary', () => {
+        const wrapper = mountDashboard(
+            {},
+            { summary: { sessions_hosted_count: 3, sessions_attended_count: 7, upcoming_count: 1, total_attendees_count: 10 } },
+        );
 
-        expect(wrapper.text()).toContain('Sessions hosted');
-        expect(wrapper.text()).toContain('Upcoming');
-        expect(wrapper.text()).toContain('Total attendees');
+        const tiles = wrapper.findAll('section[aria-label="Session summary"] article');
+        const readTile = (tile: (typeof tiles)[number]) => tile.text().replace(/\s+/g, ' ').trim();
 
-        const tiles = wrapper.findAll('section[aria-label="Hosting summary"] article');
-        expect(tiles[0].text()).toContain('3');
-        expect(tiles[1].text()).toContain('1');
-        expect(tiles[2].text()).toContain('10');
+        expect(tiles).toHaveLength(4);
+        expect(readTile(tiles[0])).toBe('3 Hosted');
+        expect(readTile(tiles[1])).toBe('7 Attended');
+        expect(readTile(tiles[2])).toBe('1 Upcoming');
+        expect(readTile(tiles[3])).toBe('10 Total attendees');
+    });
+
+    test('offers a sort control per orderable field', () => {
+        const wrapper = mountDashboard();
+
+        expect(wrapper.find('[data-testid="sort-date"]').attributes('href')).toBe('/dashboard?sort=date');
+        expect(wrapper.find('[data-testid="sort-name"]').attributes('href')).toBe('/dashboard?sort=name');
+        expect(wrapper.find('[data-testid="sort-attendees"]').attributes('href')).toBe('/dashboard?sort=attendees');
+    });
+
+    test('marks the sort the list came back in as the current one', () => {
+        const wrapper = mountDashboard({}, { sort: 'attendees' });
+
+        expect(wrapper.find('[data-testid="sort-attendees"]').attributes('aria-current')).toBe('true');
+        expect(wrapper.find('[data-testid="sort-date"]').attributes('aria-current')).toBeUndefined();
+        expect(wrapper.find('[data-testid="sort-name"]').attributes('aria-current')).toBeUndefined();
+    });
+
+    test('picks the active sort out in the accent colour, not just by weight', () => {
+        const wrapper = mountDashboard({}, { sort: 'name' });
+
+        expect(wrapper.find('[data-testid="sort-name"]').classes()).toContain('gs-accent-text');
+        expect(wrapper.find('[data-testid="sort-date"]').classes()).not.toContain('gs-accent-text');
+        expect(wrapper.find('[data-testid="sort-attendees"]').classes()).not.toContain('gs-accent-text');
+    });
+
+    test('sits the sort control in the hosted sessions heading rather than above the rows', () => {
+        const heading = mountDashboard().find('#hosted-sessions-heading');
+        const header = heading.element.parentElement;
+
+        expect(header?.querySelector('[data-testid="sort-date"]')).not.toBeNull();
+    });
+
+    test('labels the sorts by field alone, with no separate caption', () => {
+        const control = mountDashboard().find('nav[aria-label="Sort sessions"]');
+
+        expect(control.exists()).toBe(true);
+        expect(control.text().replace(/\s+/g, ' ').trim()).toBe('Date Name Attendees');
+    });
+
+    test('hides the sort controls when there is nothing to sort', () => {
+        const wrapper = mountDashboard({ data: [], from: null, to: null, total: 0 });
+
+        expect(wrapper.find('[data-testid="sort-date"]').exists()).toBe(false);
     });
 
     test('renders one row per hosted session', () => {
@@ -149,7 +203,7 @@ describe('Dashboard', () => {
         const wrapper = mountDashboard();
         const mainColumn = wrapper.find('[data-testid="dashboard-main-column"]');
 
-        expect(mainColumn.find('section[aria-label="Hosting summary"]').exists()).toBe(true);
+        expect(mainColumn.find('section[aria-label="Session summary"]').exists()).toBe(true);
         expect(mainColumn.find('section[aria-labelledby="hosted-sessions-heading"]').exists()).toBe(true);
         expect(mainColumn.find('[data-testid="dashboard-sidebar"]').exists()).toBe(false);
     });
