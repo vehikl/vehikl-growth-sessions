@@ -1,17 +1,15 @@
 <script lang="ts" setup>
 import PageContainer from '@/components/PageContainer.vue';
 import PageHeader from '@/components/PageHeader.vue';
+import TagUsageBars from '@/components/TagUsageBars.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor } from '@/lib/sessionDisplay';
 import { IStatisticsDashboard } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { computed } from 'vue';
 
-const props = defineProps<IStatisticsDashboard>();
+defineProps<IStatisticsDashboard>();
 
 const { getInitials } = useInitials();
-
-const maxTagCount = computed(() => Math.max(1, ...props.tags.map((tag) => tag.sessions_count)));
 </script>
 
 <template>
@@ -62,32 +60,21 @@ const maxTagCount = computed(() => Math.max(1, ...props.tags.map((tag) => tag.se
 
             <section class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                 <h2 class="gs-text-strong mb-5 text-sm font-bold tracking-[0.05em] uppercase">Sessions by tag</h2>
-                <div v-if="tags.length" class="flex flex-col gap-4">
-                    <div v-for="tag in tags" :key="tag.id" class="flex items-center gap-4">
-                        <span class="gs-text-muted w-32 flex-none truncate text-xs font-semibold tracking-[0.06em] uppercase">
-                            {{ tag.name }}
-                        </span>
-                        <div class="gs-secondary-bg relative h-2.5 flex-1 overflow-hidden rounded-full">
-                            <div
-                                class="gs-accent-bg absolute inset-y-0 left-0 rounded-full"
-                                :style="{ width: `${(tag.sessions_count / maxTagCount) * 100}%` }"
-                            ></div>
+                <TagUsageBars :tags="tags">
+                    <template #empty>
+                        <div
+                            class="gs-secondary-bg gs-border flex w-full flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center"
+                        >
+                            <span
+                                class="gs-card gs-border gs-accent-text mb-3 flex h-11 w-11 items-center justify-center rounded-full border text-lg shadow-sm"
+                            >
+                                <i class="fa fa-tags" aria-hidden="true"></i>
+                            </span>
+                            <strong class="gs-text-strong text-sm font-semibold">No tagged sessions yet</strong>
+                            <p class="gs-text-body mt-1 max-w-md text-sm">Tags will appear here when this week's sessions are categorized.</p>
                         </div>
-                        <span class="gs-text-strong w-6 flex-none text-right text-sm font-bold tabular-nums">{{ tag.sessions_count }}</span>
-                    </div>
-                </div>
-                <div
-                    v-else
-                    class="gs-secondary-bg gs-border flex w-full flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center"
-                >
-                    <span
-                        class="gs-card gs-border gs-accent-text mb-3 flex h-11 w-11 items-center justify-center rounded-full border text-lg shadow-sm"
-                    >
-                        <i class="fa fa-tags" aria-hidden="true"></i>
-                    </span>
-                    <strong class="gs-text-strong text-sm font-semibold">No tagged sessions yet</strong>
-                    <p class="gs-text-body mt-1 max-w-md text-sm">Tags will appear here when this week's sessions are categorized.</p>
-                </div>
+                    </template>
+                </TagUsageBars>
             </section>
         </div>
     </PageContainer>

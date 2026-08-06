@@ -1,5 +1,4 @@
-import type { ITagUsage } from './IStatistics';
-import type { ITag } from './ITag';
+import type { ITag, ITagUsage } from './ITag';
 
 /** One row of the Dashboard's hosted sessions list, built server-side by HostedGrowthSession. */
 export interface IHostedSession {

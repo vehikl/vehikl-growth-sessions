@@ -17,7 +17,7 @@ class ShowDashboardController extends Controller
 {
     private const SESSIONS_PER_PAGE = 10;
 
-    private const TOP_TAGS = 5;
+    private const TOP_TAGS_LIMIT = 5;
 
     public function __invoke(Request $request): Response
     {
@@ -74,24 +74,10 @@ class ShowDashboardController extends Controller
      */
     private function topTags(User $user): array
     {
-        return Tag::query()
-            ->withCount([
-                'growthSessions as sessions_count' => fn (Builder $query) => $query->whereIn(
-                    'growth_sessions.id',
-                    $user->sessionsHosted()->select('growth_sessions.id')
-                ),
-            ])
-            ->having('sessions_count', '>', 0)
-            ->orderByDesc('sessions_count')
-            ->orderBy('name')
-            ->limit(self::TOP_TAGS)
-            ->get(['id', 'name'])
-            ->map(fn (Tag $tag) => [
-                'id' => $tag->id,
-                'name' => $tag->name,
-                'sessions_count' => $tag->sessions_count,
-            ])
-            ->all();
+        return Tag::usageRanking(
+            fn (Builder $query) => $query->whereIn('growth_sessions.id', $user->sessionsHosted()->select('growth_sessions.id')),
+            self::TOP_TAGS_LIMIT,
+        );
     }
 
     /**
