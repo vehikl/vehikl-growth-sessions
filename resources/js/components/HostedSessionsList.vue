@@ -26,12 +26,9 @@ const pageVisitOptions = { only: ['hosted_sessions'], preserveScroll: true, pres
                 class="gs-border flex items-start justify-between gap-4 border-b py-5 first:pt-0 last:border-b-0 last:pb-0"
             >
                 <div class="min-w-0">
-                    <Link
-                        :href="route('growth_sessions.show', { growth_session: session.id })"
-                        class="gs-text-strong break-words-fixed text-lg font-bold hover:underline"
-                    >
+                    <div class="gs-text-strong break-words-fixed text-lg font-bold">
                         {{ session.title }}
-                    </Link>
+                    </div>
 
                     <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
                         <span class="gs-text-muted flex items-center gap-2 text-sm">
