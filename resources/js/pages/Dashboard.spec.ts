@@ -1,6 +1,6 @@
 import Dashboard from '@/pages/Dashboard.vue';
 import { mountWithInertia } from '@/test-utils/inertia-test-helper';
-import { IDashboard, IHostedSession, IMemberYetToMobWith, IPaginated, ISessionSummary, ITagUsage } from '@/types';
+import { IDashboard, IHostedSession, IMemberYetToMobWith, IMobSquadMember, IPaginated, ISessionSummary, ITagUsage } from '@/types';
 import { describe, expect, test, vi } from 'vitest';
 
 vi.mock('ziggy-js', () => ({
@@ -63,12 +63,18 @@ const topTags: ITagUsage[] = [
     { id: 2, name: 'Testing', sessions_count: 2 },
 ];
 
+const mobSquad: IMobSquadMember[] = [
+    { id: 3, name: 'Alex Barry', avatar: 'https://example.test/alex.png', sessions_together_count: 7 },
+    { id: 4, name: 'Gavin Abeele', avatar: null, sessions_together_count: 1 },
+];
+
 function mountDashboard(overrides: Partial<IPaginated<IHostedSession>> = {}, rest: Partial<IDashboard> = {}) {
     const props: IDashboard = {
         summary,
         hosted_sessions: paginator(overrides),
         sort: 'date',
         top_tags: topTags,
+        mob_squad: mobSquad,
         yet_to_mob_with: yetToMobWith,
         ...rest,
     };
@@ -87,8 +93,8 @@ describe('Dashboard', () => {
         const readTile = (tile: (typeof tiles)[number]) => tile.text().replace(/\s+/g, ' ').trim();
 
         expect(tiles).toHaveLength(4);
-        expect(readTile(tiles[0])).toBe('3 Hosted');
-        expect(readTile(tiles[1])).toBe('7 Attended');
+        expect(readTile(tiles[0])).toBe('3 Sessions hosted');
+        expect(readTile(tiles[1])).toBe('7 Sessions attended');
         expect(readTile(tiles[2])).toBe('1 Upcoming');
         expect(readTile(tiles[3])).toBe('10 Total attendees');
     });
@@ -213,6 +219,30 @@ describe('Dashboard', () => {
         const testIds = columns.element.children ? [...columns.element.children].map((child) => child.getAttribute('data-testid')) : [];
 
         expect(testIds).toEqual(['dashboard-main-column', 'dashboard-sidebar']);
+    });
+
+    test('renders the mob squad with each member’s shared session count', () => {
+        const rows = mountDashboard().findAll('[data-testid="mob-squad-member"]');
+
+        expect(rows).toHaveLength(2);
+        expect(rows[0].text()).toContain('Alex Barry');
+        expect(rows[0].text()).toContain('7 mobs');
+        expect(rows[1].text()).toContain('Gavin Abeele');
+        expect(rows[1].text()).toContain('1 mob');
+    });
+
+    test('puts the mob squad at the top of the sidebar, above the top tags', () => {
+        const sidebar = mountDashboard().find('[data-testid="dashboard-sidebar"]');
+
+        expect(sidebar.find('[data-testid="mob-squad-member"]').exists()).toBe(true);
+        expect(sidebar.text().indexOf('Mob Squad')).toBeLessThan(sidebar.text().indexOf('Top tags'));
+    });
+
+    test('shows an empty state when the user has never mobbed with anybody', () => {
+        const wrapper = mountDashboard({}, { mob_squad: [] });
+
+        expect(wrapper.findAll('[data-testid="mob-squad-member"]')).toHaveLength(0);
+        expect(wrapper.text()).toContain('No mob squad yet.');
     });
 
     test('renders the top tags with their usage counts, in the order given', () => {

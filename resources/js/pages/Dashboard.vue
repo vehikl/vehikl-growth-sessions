@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import HostedSessionsList from '@/components/HostedSessionsList.vue';
 import HostedSessionsSort from '@/components/HostedSessionsSort.vue';
+import MobSquadLeaderboard from '@/components/MobSquadLeaderboard.vue';
 import PageContainer from '@/components/PageContainer.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import TagUsageBars from '@/components/TagUsageBars.vue';
@@ -35,7 +36,7 @@ const { getInitials } = useInitials();
                     </article>
                     <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                         <strong class="font-display block text-4xl font-bold text-green-600">{{ summary.upcoming_count }}</strong>
-                        <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Upcoming</span>
+                        <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Upcoming sessions</span>
                     </article>
                     <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                         <strong class="font-display block text-4xl font-bold text-blue-600 dark:text-blue-400">
@@ -55,6 +56,27 @@ const { getInitials } = useInitials();
             </div>
 
             <div data-testid="dashboard-sidebar" class="flex flex-col gap-4">
+                <section class="gs-card gs-border rounded-xl border p-6 shadow-sm" aria-labelledby="mob-squad-heading">
+                    <h2 id="mob-squad-heading" class="gs-section-heading mb-5">Mob Squad</h2>
+                    <MobSquadLeaderboard :members="mob_squad">
+                        <template #empty>
+                            <div
+                                class="gs-secondary-bg gs-border flex flex-col items-center justify-center rounded-xl border border-dashed px-6 py-10 text-center"
+                            >
+                                <span
+                                    class="gs-card gs-border gs-accent-text mb-3 flex h-11 w-11 items-center justify-center rounded-full border text-lg shadow-sm"
+                                >
+                                    <i class="fa fa-users" aria-hidden="true"></i>
+                                </span>
+                                <strong class="gs-text-strong text-sm font-semibold">No mob squad yet.</strong>
+                                <p class="gs-text-body mt-1 max-w-md text-sm">
+                                    Join or host a session and the people you mob with most show up here.
+                                </p>
+                            </div>
+                        </template>
+                    </MobSquadLeaderboard>
+                </section>
+
                 <section class="gs-card gs-border rounded-xl border p-6 shadow-sm" aria-labelledby="top-tags-heading">
                     <h2 id="top-tags-heading" class="gs-section-heading mb-5">Top tags</h2>
                     <TagUsageBars :tags="top_tags">

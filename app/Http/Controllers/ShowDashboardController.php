@@ -7,9 +7,11 @@ use App\Http\Resources\HostedGrowthSession;
 use App\Models\GrowthSession;
 use App\Models\Tag;
 use App\Models\User;
+use App\Models\UserType;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,7 +21,16 @@ class ShowDashboardController extends Controller
 
     private const TOP_TAGS_LIMIT = 5;
 
+    private const MOB_SQUAD_LIMIT = 5;
+
     private const DEFAULT_SORT = 'date';
+
+    /**
+     * The pivot roles that put someone in the mob. Watching is not mobbing, which is the line
+     * the statistics matrix behind `yet_to_mob_with` already draws: one Dashboard cannot call
+     * the same pairing a mob in one section and an absent one in the other.
+     */
+    private const MOBBING_ROLES = [UserType::OWNER_ID, UserType::ATTENDEE_ID];
 
     /**
      * The orders the hosted sessions list offers, keyed by the value the query string carries.
@@ -40,6 +51,7 @@ class ShowDashboardController extends Controller
             'hosted_sessions' => $this->hostedSessions($request),
             'sort' => $this->sort($request),
             'top_tags' => $this->topTags($request->user()),
+            'mob_squad' => $this->mobSquad($request->user()),
             'yet_to_mob_with' => $this->yetToMobWith($request->user()),
         ]);
     }
@@ -111,6 +123,51 @@ class ShowDashboardController extends Controller
             fn (Builder $query) => $query->whereIn('growth_sessions.id', $user->sessionsHosted()->select('growth_sessions.id')),
             self::TOP_TAGS_LIMIT,
         );
+    }
+
+    /**
+     * The people this user has shared the most Growth Sessions with, busiest first.
+     *
+     * Counted over every session they were in the room for, hosted or joined alike, and over
+     * the whole history rather than a window: this is who they mob with, not who they mobbed
+     * with lately. Anyone they have never mobbed with is absent rather than sitting at zero,
+     * so a short list means a short history. Ties break alphabetically so the leaderboard does
+     * not reshuffle between requests.
+     *
+     * Guests are left out: this is a board of co-workers, and naming them here would undo the
+     * anonymising that GrowthSession does for every non-member elsewhere in the app.
+     *
+     * @return array<int, array{id: int, name: string, avatar: string|null, sessions_together_count: int}>
+     */
+    private function mobSquad(User $user): array
+    {
+        $sessionsMobbed = $user->allSessions()
+            ->wherePivotIn('user_type_id', self::MOBBING_ROLES)
+            ->select('growth_sessions.id');
+
+        return User::query()
+            ->join('growth_session_user', 'growth_session_user.user_id', '=', 'users.id')
+            ->whereIn('growth_session_user.growth_session_id', $sessionsMobbed)
+            ->whereIn('growth_session_user.user_type_id', self::MOBBING_ROLES)
+            ->whereKeyNot($user->id)
+            ->vehikaliens()
+            ->groupBy('users.id', 'users.name', 'users.avatar')
+            ->orderByDesc('sessions_together_count')
+            ->orderBy('users.name')
+            ->limit(self::MOB_SQUAD_LIMIT)
+            ->get([
+                'users.id',
+                'users.name',
+                'users.avatar',
+                DB::raw('COUNT(growth_session_user.growth_session_id) AS sessions_together_count'),
+            ])
+            ->map(fn (User $peer) => [
+                'id' => $peer->id,
+                'name' => $peer->name,
+                'avatar' => $peer->avatar,
+                'sessions_together_count' => (int) $peer->sessions_together_count,
+            ])
+            ->all();
     }
 
     /**
