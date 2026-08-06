@@ -1,4 +1,5 @@
 import type { ITagUsage } from './ITag';
+import type { IMemberSummary } from './IUser';
 
 export interface IStatisticsSummary {
     lifetime_sessions_count: number;
@@ -7,11 +8,7 @@ export interface IStatisticsSummary {
     average_attendance_count: number;
 }
 
-export interface ITopHost {
-    id: number;
-    name: string;
-    /** Empty for a member who has never had one, which is what the initials fall back for. */
-    avatar: string | null;
+export interface ITopHost extends IMemberSummary {
     sessions_hosted_count: number;
 }
 

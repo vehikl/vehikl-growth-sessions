@@ -7,6 +7,7 @@ use App\Http\Resources\HostedGrowthSession;
 use App\Models\GrowthSession;
 use App\Models\Tag;
 use App\Models\User;
+use App\Models\UserHasMobbedWithView;
 use App\Models\UserType;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,9 +27,8 @@ class ShowDashboardController extends Controller
     private const DEFAULT_SORT = 'date';
 
     /**
-     * The pivot roles that put someone in the mob. Watching is not mobbing, which is the line
-     * the statistics matrix behind `yet_to_mob_with` already draws: one Dashboard cannot call
-     * the same pairing a mob in one section and an absent one in the other.
+     * The pivot roles that put someone in the mob, at either end of the pairing. Watching is
+     * not mobbing, which is the line the statistics matrix behind `yet_to_mob_with` draws too.
      */
     private const MOBBING_ROLES = [UserType::OWNER_ID, UserType::ATTENDEE_ID];
 
@@ -126,46 +126,41 @@ class ShowDashboardController extends Controller
     }
 
     /**
-     * The people this user has shared the most Growth Sessions with, busiest first.
+     * The people this user has mobbed with most often, busiest first.
      *
-     * Counted over every session they were in the room for, hosted or joined alike, and over
-     * the whole history rather than a window: this is who they mob with, not who they mobbed
-     * with lately. Anyone they have never mobbed with is absent rather than sitting at zero,
-     * so a short list means a short history. Ties break alphabetically so the leaderboard does
-     * not reshuffle between requests.
-     *
-     * Guests are left out: this is a board of co-workers, and naming them here would undo the
-     * anonymising that GrowthSession does for every non-member elsewhere in the app.
+     * Counted off the same view `yet_to_mob_with` is built from, so the two sections cannot
+     * disagree about what a mob is — keep it that way rather than reaching for the pivot.
      *
      * @return array<int, array{id: int, name: string, avatar: string|null, sessions_together_count: int}>
      */
     private function mobSquad(User $user): array
     {
-        $sessionsMobbed = $user->allSessions()
-            ->wherePivotIn('user_type_id', self::MOBBING_ROLES)
-            ->select('growth_sessions.id');
-
-        return User::query()
-            ->join('growth_session_user', 'growth_session_user.user_id', '=', 'users.id')
-            ->whereIn('growth_session_user.growth_session_id', $sessionsMobbed)
-            ->whereIn('growth_session_user.user_type_id', self::MOBBING_ROLES)
-            ->whereKeyNot($user->id)
-            ->vehikaliens()
-            ->groupBy('users.id', 'users.name', 'users.avatar')
+        $pairings = UserHasMobbedWithView::query()
+            ->where('main_user_id', $user->id)
+            ->whereIn('main_user_type_id', self::MOBBING_ROLES)
+            ->whereIn('other_user_type_id', self::MOBBING_ROLES)
+            ->where('total_number_of_attendees', '<', config('statistics.max_mob_size'))
+            ->whereIn('other_user_id', User::query()->vehikaliens()->select('id'))
+            ->whereHas('growthSession', fn (Builder $query) => $query->whereDate('date', '<=', today()))
+            ->groupBy('other_user_id', 'other_user_name')
             ->orderByDesc('sessions_together_count')
-            ->orderBy('users.name')
+            ->orderBy('other_user_name')
             ->limit(self::MOB_SQUAD_LIMIT)
             ->get([
-                'users.id',
-                'users.name',
-                'users.avatar',
-                DB::raw('COUNT(growth_session_user.growth_session_id) AS sessions_together_count'),
-            ])
-            ->map(fn (User $peer) => [
-                'id' => $peer->id,
-                'name' => $peer->name,
-                'avatar' => $peer->avatar,
-                'sessions_together_count' => (int) $peer->sessions_together_count,
+                'other_user_id',
+                'other_user_name',
+                DB::raw('COUNT(DISTINCT growth_session_id) AS sessions_together_count'),
+            ]);
+
+        // The view carries names but no avatars, and it is a join over users twice over.
+        $avatars = User::query()->whereKey($pairings->pluck('other_user_id'))->pluck('avatar', 'id');
+
+        return $pairings
+            ->map(fn (UserHasMobbedWithView $pairing) => [
+                'id' => $pairing->other_user_id,
+                'name' => $pairing->other_user_name,
+                'avatar' => $avatars->get($pairing->other_user_id),
+                'sessions_together_count' => (int) $pairing->sessions_together_count,
             ])
             ->all();
     }

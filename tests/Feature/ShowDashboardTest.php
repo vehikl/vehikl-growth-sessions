@@ -686,6 +686,60 @@ class ShowDashboardTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page->has('mob_squad', 0));
     }
 
+    /**
+     * The leaderboard and the "yet to mob with" list beneath it read the same view, so a pairing
+     * the matrix refuses to call a mob must not be counted as one a few pixels higher up.
+     */
+    public function testARoomTooBigToBeAMobIsNotCountedAsOne()
+    {
+        $this->setTestNowToASafeWednesday();
+        [$user, $peer] = User::factory()->vehiklMember()->count(2)
+            ->sequence(['name' => 'Me'], ['name' => 'Peer'])
+            ->create();
+
+        // The pair plus enough others to reach the size the statistics matrix stops calling a mob.
+        $crowd = User::factory()->vehiklMember()->count(config('statistics.max_mob_size') - 2)->create();
+        $this->mobbedTogether($user, today()->subDay(), $peer, ...$crowd->all());
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->has('mob_squad', 0));
+    }
+
+    public function testASessionStillToComeIsNotAMobYet()
+    {
+        $this->setTestNowToASafeWednesday();
+        [$user, $peer] = User::factory()->vehiklMember()->count(2)
+            ->sequence(['name' => 'Me'], ['name' => 'Peer'])
+            ->create();
+
+        $this->mobbedTogether($user, today()->subDay(), $peer);
+        $this->mobbedTogether($user, today()->addWeek(), $peer);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('mob_squad', 1)
+                ->where('mob_squad.0.sessions_together_count', 1)
+            );
+    }
+
+    public function testSomebodyHiddenFromStatisticsIsNotListed()
+    {
+        $this->setTestNowToASafeWednesday();
+        $user = User::factory()->vehiklMember()->create(['name' => 'Me']);
+        $hidden = User::factory()->vehiklMember()->create(['name' => 'Hidden', 'is_visible_in_statistics' => false]);
+
+        $this->mobbedTogether($user, today()->subDay(), $hidden);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->has('mob_squad', 0));
+    }
+
     public function testItReportsAtMostFiveCoWorkers()
     {
         $this->setTestNowToASafeWednesday();

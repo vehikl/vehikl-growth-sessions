@@ -10,7 +10,6 @@ function mobsLabel(sessionsTogetherCount: number): string {
 </script>
 
 <template>
-    <!-- Ordered because the position is the point: the rank is read off the list, not stored on a row. -->
     <ol v-if="members.length" class="flex flex-col gap-4">
         <li v-for="(member, index) in members" :key="member.id" data-testid="mob-squad-member" class="flex items-center gap-3">
             <span data-testid="mob-squad-rank" class="gs-text-muted w-3 flex-none text-sm font-semibold tabular-nums">{{ index + 1 }}</span>
@@ -19,6 +18,4 @@ function mobsLabel(sessionsTogetherCount: number): string {
             <span class="gs-text-muted flex-none text-sm tabular-nums">{{ mobsLabel(member.sessions_together_count) }}</span>
         </li>
     </ol>
-
-    <slot v-else name="empty" />
 </template>

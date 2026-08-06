@@ -1,4 +1,5 @@
 import type { ITag, ITagUsage } from './ITag';
+import type { IMemberSummary } from './IUser';
 
 /** One row of the Dashboard's hosted sessions list, built server-side by HostedGrowthSession. */
 export interface IHostedSession {
@@ -39,19 +40,10 @@ export interface IPaginated<T> {
 }
 
 /** A Vehikl member the signed-in user has never been in a Growth Session with. */
-export interface IMemberYetToMobWith {
-    id: number;
-    name: string;
-    /** Empty for a member who has never had one, which is what the initials fall back for. */
-    avatar: string | null;
-}
+export type IMemberYetToMobWith = IMemberSummary;
 
 /** Somebody the signed-in user has mobbed with, and how often. */
-export interface IMobSquadMember {
-    id: number;
-    name: string;
-    /** Empty for a member who has never had one, which is what the initials fall back for. */
-    avatar: string | null;
+export interface IMobSquadMember extends IMemberSummary {
     /** Sessions the two of them were both in the room for, hosted or joined alike. */
     sessions_together_count: number;
 }
