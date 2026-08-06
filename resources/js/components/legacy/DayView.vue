@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
+import LinkifiedText from '@/components/legacy/LinkifiedText.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
@@ -125,7 +126,7 @@ function isFull(session: GrowthSession): boolean {
                         @click="emit('open-detail', session)"
                     ></button>
                     <div class="flex flex-wrap items-start justify-between gap-2">
-                        <div class="flex min-w-0 items-start gap-3">
+                        <div class="flex min-w-0 flex-1 items-start gap-3">
                             <span
                                 class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
                                 :style="{ backgroundColor: avatarColor(session.owner.name) }"
@@ -152,8 +153,10 @@ function isFull(session: GrowthSession): boolean {
                                 </div>
                                 <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">{{ session.owner.name }}</div>
                                 <div v-if="tagline(session)" class="gs-text-sub mt-1 text-sm">{{ tagline(session) }}</div>
-                                <div class="gs-text-body mt-2 max-w-140 text-sm leading-normal">{{ session.topic }}</div>
-                                <div class="gs-text-muted mt-2 flex items-center gap-1.5 text-sm font-medium break-all">
+                                <div class="gs-text-body pointer-events-none relative z-20 mt-2 max-w-full xl:max-w-1/2 text-sm leading-normal whitespace-pre-wrap">
+                                    <LinkifiedText :text="session.topic" />
+                                </div>
+                                <div class="gs-text-muted pointer-events-none relative z-20 mt-2 flex items-center gap-1.5 text-sm font-medium">
                                     <i class="fa fa-compass flex-none" aria-hidden="true"></i>
                                     <location-renderer :locationString="session.location" />
                                 </div>
