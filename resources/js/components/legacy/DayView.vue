@@ -51,14 +51,15 @@ function isFull(session: GrowthSession): boolean {
 </script>
 
 <template>
-    <div class="flex min-h-[24rem] flex-1">
-        <!-- Day rail -->
-        <div class="gs-col gs-border flex w-[clamp(80px,16vw,120px)] flex-none flex-col items-center gap-1.5 border-r py-4">
+    <div class="flex min-h-96 flex-1 flex-col md:flex-row">
+        <div
+            class="gs-col gs-border flex w-full flex-none items-center justify-center gap-1.5 border-b px-3 py-2 md:w-[clamp(80px,16vw,120px)] md:flex-col md:justify-start md:border-r md:border-b-0 md:px-0 md:py-4"
+        >
             <button
                 v-for="(day, i) in days"
                 :key="day.toDateString()"
                 type="button"
-                class="transition-smooth flex w-[86%] cursor-pointer flex-col items-center gap-0.5 rounded-[10px] py-2.5"
+                class="transition-smooth flex flex-1 cursor-pointer flex-col items-center gap-0.5 rounded-[10px] py-2.5 md:w-[86%] md:flex-none"
                 :class="i === selectedIndex ? 'gs-accent-bg text-white' : 'hover:bg-black/5 dark:hover:bg-white/5'"
                 @click="emit('select-day', i)"
             >
@@ -70,7 +71,7 @@ function isFull(session: GrowthSession): boolean {
         </div>
 
         <!-- Session timeline -->
-        <div class="@container min-w-0 flex-1 px-[clamp(12px,4vw,28px)] py-5">
+        <div class="@container mt-2 min-w-0 flex-1 px-[clamp(12px,4vw,28px)] py-5 md:mt-0">
             <div class="mb-4 flex items-center gap-2.5">
                 <span class="gs-text-strong font-display text-base font-bold tracking-[0.03em] uppercase">{{ currentLabel }}</span>
                 <button
