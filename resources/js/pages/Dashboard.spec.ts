@@ -90,7 +90,7 @@ describe('Dashboard', () => {
         );
 
         const tiles = wrapper.findAll('section[aria-label="Session summary"] article');
-        const readTile = (tile: (typeof tiles)[number]) => tile.text().replace(/\s+/g, ' ').trim();
+        const readTile = (tile: (typeof tiles)[number]) => `${tile.get('strong').text()} ${tile.get('span').text()}`;
 
         expect(tiles).toHaveLength(4);
         expect(readTile(tiles[0])).toBe('3 Sessions hosted');
@@ -115,12 +115,12 @@ describe('Dashboard', () => {
         expect(wrapper.find('[data-testid="sort-name"]').attributes('aria-current')).toBeUndefined();
     });
 
-    test('picks the active sort out in the accent colour, not just by weight', () => {
+    test('picks the active sort out by colour, not just by weight', () => {
         const wrapper = mountDashboard({}, { sort: 'name' });
 
-        expect(wrapper.find('[data-testid="sort-name"]').classes()).toContain('gs-accent-text');
-        expect(wrapper.find('[data-testid="sort-date"]').classes()).not.toContain('gs-accent-text');
-        expect(wrapper.find('[data-testid="sort-attendees"]').classes()).not.toContain('gs-accent-text');
+        expect(wrapper.find('[data-testid="sort-name"]').classes()).toContain('gs-text-input');
+        expect(wrapper.find('[data-testid="sort-date"]').classes()).not.toContain('gs-text-input');
+        expect(wrapper.find('[data-testid="sort-attendees"]').classes()).not.toContain('gs-text-input');
     });
 
     test('sits the sort control in the hosted sessions heading rather than above the rows', () => {
@@ -134,7 +134,11 @@ describe('Dashboard', () => {
         const control = mountDashboard().find('nav[aria-label="Sort sessions"]');
 
         expect(control.exists()).toBe(true);
-        expect(control.text().replace(/\s+/g, ' ').trim()).toBe('Date Name Attendees');
+
+        const labels = control.findAll('a').map((link) => link.text());
+
+        expect(labels).toEqual(['Date', 'Name', 'Attendees']);
+        expect(control.text()).toBe(labels.join(''));
     });
 
     test('hides the sort controls when there is nothing to sort', () => {
