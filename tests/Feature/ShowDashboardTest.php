@@ -308,6 +308,90 @@ class ShowDashboardTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page->has('yet_to_mob_with', 0));
     }
 
+    public function testItRanksTheTagsTheUserHostsUnderMostOftenFirst()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        $this->hostTaggedSession($host, today()->subDay(), 'Vue', 'Testing');
+        $this->hostTaggedSession($host, today()->subDays(2), 'Vue', 'Testing');
+        $this->hostTaggedSession($host, today()->subDays(3), 'Vue');
+
+        $this->actingAs($host)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('top_tags', 2)
+                ->where('top_tags.0.name', 'Vue')
+                ->where('top_tags.0.sessions_count', 3)
+                ->where('top_tags.1.name', 'Testing')
+                ->where('top_tags.1.sessions_count', 2)
+            );
+    }
+
+    public function testItReportsAtMostFiveTags()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        // Six distinct tags, each used once more than the next, so the sixth is the one dropped.
+        foreach (['A' => 6, 'B' => 5, 'C' => 4, 'D' => 3, 'E' => 2, 'F' => 1] as $name => $uses) {
+            for ($use = 0; $use < $uses; $use++) {
+                $this->hostTaggedSession($host, today()->subDay(), $name);
+            }
+        }
+
+        $this->actingAs($host)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('top_tags', 5)
+                ->where('top_tags.0.name', 'A')
+                ->where('top_tags.4.name', 'E')
+            );
+    }
+
+    public function testTagsOnSessionsTheUserDidNotHostAreNotCounted()
+    {
+        $this->setTestNowToASafeWednesday();
+        $host = User::factory()->vehiklMember()->create();
+
+        $this->hostTaggedSession($host, today()->subDay(), 'Mine');
+        $this->attendedBy($host, today()->subDays(2), 'Merely attended')
+            ->tags()
+            ->attach($this->tag('Theirs'));
+
+        $this->actingAs($host)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('top_tags', 1)
+                ->where('top_tags.0.name', 'Mine')
+            );
+    }
+
+    public function testTheTopTagsAreEmptyForAUserWhoHasNeverTaggedASession()
+    {
+        $this->actingAs(User::factory()->vehiklMember()->create())
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->has('top_tags', 0));
+    }
+
+    private function hostTaggedSession(User $host, CarbonInterface $date, string ...$tagNames): GrowthSession
+    {
+        $session = $this->hostedBy($host, $date, 'Tagged session');
+        $session->tags()->attach(array_map(fn (string $name) => $this->tag($name), $tagNames));
+
+        return $session;
+    }
+
+    /** Tags are shared across sessions, so the same name must resolve to the same row. */
+    private function tag(string $name): Tag
+    {
+        return Tag::firstOrCreate(['name' => $name]);
+    }
+
     private function hostedBy(User $host, CarbonInterface $date, string $title, array $attributes = []): GrowthSession
     {
         return GrowthSession::factory()

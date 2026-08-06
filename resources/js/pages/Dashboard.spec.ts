@@ -1,6 +1,6 @@
 import Dashboard from '@/pages/Dashboard.vue';
 import { mountWithInertia } from '@/test-utils/inertia-test-helper';
-import { IDashboard, IHostedSession, IHostingSummary, IMemberYetToMobWith, IPaginated } from '@/types';
+import { IDashboard, IHostedSession, IHostingSummary, IMemberYetToMobWith, IPaginated, ITagUsage } from '@/types';
 import { describe, expect, test, vi } from 'vitest';
 
 vi.mock('ziggy-js', () => ({
@@ -52,10 +52,16 @@ function paginator(overrides: Partial<IPaginated<IHostedSession>> = {}): IPagina
 
 const yetToMobWith: IMemberYetToMobWith[] = [{ id: 2, name: 'Brady Deroy' }];
 
+const topTags: ITagUsage[] = [
+    { id: 1, name: 'Vue', sessions_count: 6 },
+    { id: 2, name: 'Testing', sessions_count: 2 },
+];
+
 function mountDashboard(overrides: Partial<IPaginated<IHostedSession>> = {}, rest: Partial<IDashboard> = {}) {
     const props: IDashboard = {
         summary,
         hosted_sessions: paginator(overrides),
+        top_tags: topTags,
         yet_to_mob_with: yetToMobWith,
         ...rest,
     };
@@ -154,6 +160,30 @@ describe('Dashboard', () => {
         const testIds = columns.element.children ? [...columns.element.children].map((child) => child.getAttribute('data-testid')) : [];
 
         expect(testIds).toEqual(['dashboard-main-column', 'dashboard-sidebar']);
+    });
+
+    test('renders the top tags with their usage counts, in the order given', () => {
+        const entries = mountDashboard().findAll('[data-testid="top-tag"]');
+
+        expect(entries).toHaveLength(2);
+        expect(entries[0].text()).toContain('Vue');
+        expect(entries[0].text()).toContain('6');
+        expect(entries[1].text()).toContain('Testing');
+        expect(entries[1].text()).toContain('2');
+    });
+
+    test('puts the top tags in the sidebar, above the people left to mob with', () => {
+        const sidebar = mountDashboard().find('[data-testid="dashboard-sidebar"]');
+
+        expect(sidebar.find('[data-testid="top-tag"]').exists()).toBe(true);
+        expect(sidebar.text().indexOf('Top tags')).toBeLessThan(sidebar.text().indexOf('Yet to mob with'));
+    });
+
+    test('shows an empty state when the user has never tagged a session', () => {
+        const wrapper = mountDashboard({}, { top_tags: [] });
+
+        expect(wrapper.findAll('[data-testid="top-tag"]')).toHaveLength(0);
+        expect(wrapper.text()).toContain('No tags yet.');
     });
 
     test('renders the members the user has yet to mob with', () => {
