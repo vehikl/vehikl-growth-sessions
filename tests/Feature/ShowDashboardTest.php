@@ -532,6 +532,199 @@ class ShowDashboardTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page->has('top_tags', 0));
     }
 
+    public function testItRanksTheCoWorkersTheUserMobsWithMostOftenFirst()
+    {
+        $this->setTestNowToASafeWednesday();
+        [$user, $regular, $occasional] = User::factory()->vehiklMember()->count(3)
+            ->sequence(['name' => 'Me'], ['name' => 'Regular'], ['name' => 'Occasional'])
+            ->create();
+
+        $this->mobbedTogether($user, today()->subDay(), $regular, $occasional);
+        $this->mobbedTogether($user, today()->subDays(2), $regular);
+        $this->mobbedTogether($user, today()->subDays(3), $regular);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('mob_squad', 2)
+                ->where('mob_squad.0.id', $regular->id)
+                ->where('mob_squad.0.name', 'Regular')
+                ->where('mob_squad.0.sessions_together_count', 3)
+                ->where('mob_squad.1.name', 'Occasional')
+                ->where('mob_squad.1.sessions_together_count', 1)
+            );
+    }
+
+    public function testEachCoWorkerCarriesTheAvatarTheLeaderboardRenders()
+    {
+        $this->setTestNowToASafeWednesday();
+        [$user, $peer] = User::factory()->vehiklMember()->count(2)
+            ->sequence(['name' => 'Me'], ['name' => 'Peer', 'avatar' => 'https://example.test/peer.png'])
+            ->create();
+
+        $this->mobbedTogether($user, today()->subDay(), $peer);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('mob_squad.0', fn (AssertableInertia $member) => $member
+                    ->where('id', $peer->id)
+                    ->where('name', 'Peer')
+                    ->where('avatar', 'https://example.test/peer.png')
+                    ->where('sessions_together_count', 1)
+                )
+            );
+    }
+
+    /**
+     * Guests are anonymised everywhere a Growth Session is rendered, so a leaderboard that named
+     * them would be the one place their real name leaked.
+     */
+    public function testGuestsAreNotCoWorkers()
+    {
+        $this->setTestNowToASafeWednesday();
+        $user = User::factory()->vehiklMember()->create(['name' => 'Me']);
+        $guest = User::factory()->vehiklMember(false)->create(['name' => 'Guest In The Room']);
+
+        $this->mobbedTogether($user, today()->subDay(), $guest);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->has('mob_squad', 0));
+    }
+
+    public function testTheMobSquadCountsSessionsTheUserJoinedAsWellAsOnesTheyRan()
+    {
+        $this->setTestNowToASafeWednesday();
+        [$user, $peer] = User::factory()->vehiklMember()->count(2)
+            ->sequence(['name' => 'Me'], ['name' => 'Peer'])
+            ->create();
+
+        $this->mobbedTogether($user, today()->subDay(), $peer);
+        $this->mobbedTogether($peer, today()->subDays(2), $user);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('mob_squad', 1)
+                ->where('mob_squad.0.name', 'Peer')
+                ->where('mob_squad.0.sessions_together_count', 2)
+            );
+    }
+
+    public function testTheMobSquadNeverListsTheUserThemselves()
+    {
+        $this->setTestNowToASafeWednesday();
+        [$user, $peer] = User::factory()->vehiklMember()->count(2)
+            ->sequence(['name' => 'Me'], ['name' => 'Peer'])
+            ->create();
+
+        $this->mobbedTogether($user, today()->subDay(), $peer);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('mob_squad', 1)
+                ->where('mob_squad.0.id', $peer->id)
+            );
+    }
+
+    /**
+     * Watching is not mobbing, so neither end of the pair may reach the leaderboard through it.
+     * The "yet to mob with" list below it draws the same line, and one Dashboard cannot call the
+     * same pairing a mob in one section and an absent one in the other.
+     */
+    public function testWatchingASessionMobsWithNobody()
+    {
+        $this->setTestNowToASafeWednesday();
+        [$user, $watcher] = User::factory()->vehiklMember()->count(2)
+            ->sequence(['name' => 'Me'], ['name' => 'Watcher'])
+            ->create();
+
+        $this->hostedBy($user, today()->subDay(), 'They only watched')
+            ->watchers()
+            ->attach($watcher->id, ['user_type_id' => UserType::WATCHER_ID]);
+
+        $this->watchedBy($user, today()->subDays(2), 'I only watched');
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->has('mob_squad', 0));
+    }
+
+    public function testItReportsAtMostFiveCoWorkers()
+    {
+        $this->setTestNowToASafeWednesday();
+        $user = User::factory()->vehiklMember()->create();
+
+        // Six peers, each mobbed with one time more than the next, so the sixth is the one dropped.
+        foreach (['A' => 6, 'B' => 5, 'C' => 4, 'D' => 3, 'E' => 2, 'F' => 1] as $name => $mobs) {
+            $peer = User::factory()->vehiklMember()->create(['name' => $name]);
+
+            for ($mob = 0; $mob < $mobs; $mob++) {
+                $this->mobbedTogether($user, today()->subDay(), $peer);
+            }
+        }
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('mob_squad', 5)
+                ->where('mob_squad.0.name', 'A')
+                ->where('mob_squad.4.name', 'E')
+            );
+    }
+
+    public function testCoWorkersMobbedWithEquallyOftenAreListedAlphabetically()
+    {
+        $this->setTestNowToASafeWednesday();
+        [$user, $zulu, $alpha] = User::factory()->vehiklMember()->count(3)
+            ->sequence(['name' => 'Me'], ['name' => 'Zulu'], ['name' => 'Alpha'])
+            ->create();
+
+        $this->mobbedTogether($user, today()->subDay(), $zulu, $alpha);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('mob_squad.0.name', 'Alpha')
+                ->where('mob_squad.1.name', 'Zulu')
+            );
+    }
+
+    public function testTheMobSquadIsEmptyForAUserWhoHasNeverMobbed()
+    {
+        $this->setTestNowToASafeWednesday();
+        $user = User::factory()->vehiklMember()->create();
+
+        $this->hostedBy($user, today()->subDay(), 'Nobody came');
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->has('mob_squad', 0));
+    }
+
+    /** A Growth Session $host ran with each of $peers in the room. */
+    private function mobbedTogether(User $host, CarbonInterface $date, User ...$peers): GrowthSession
+    {
+        $session = $this->hostedBy($host, $date, 'Mobbed together');
+        $session->attendees()->attach(
+            collect($peers)->pluck('id'),
+            ['user_type_id' => UserType::ATTENDEE_ID]
+        );
+
+        return $session;
+    }
+
     private function hostTaggedSession(User $host, CarbonInterface $date, string ...$tagNames): GrowthSession
     {
         $session = $this->hostedBy($host, $date, 'Tagged session');

@@ -44,6 +44,16 @@ export interface IMemberYetToMobWith {
     name: string;
 }
 
+/** Somebody the signed-in user has mobbed with, and how often. */
+export interface IMobSquadMember {
+    id: number;
+    name: string;
+    /** Empty for a member who has never had one, which is what the initials fall back for. */
+    avatar: string | null;
+    /** Sessions the two of them were both in the room for, hosted or joined alike. */
+    sessions_together_count: number;
+}
+
 /** Props rendered by the Dashboard page, built by ShowDashboardController. */
 export interface IDashboard {
     summary: ISessionSummary;
@@ -52,5 +62,7 @@ export interface IDashboard {
     sort: IHostedSessionSort;
     /** At most five, busiest first, counted over the sessions this user hosts. */
     top_tags: ITagUsage[];
+    /** At most five, most-mobbed-with first. Nobody sits at zero: they simply aren't listed. */
+    mob_squad: IMobSquadMember[];
     yet_to_mob_with: IMemberYetToMobWith[];
 }
