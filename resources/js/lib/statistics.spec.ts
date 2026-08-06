@@ -1,14 +1,15 @@
 import { DateTime } from '@/classes/DateTime';
 import {
+    allTimeRange,
     decodeSettings,
     encodeSettings,
     filterMembers,
     formatRangeLabel,
-    lastMonthRange,
-    lastWeekRange,
     paginate,
     sortMembers,
     suggestMembers,
+    thisMonthRange,
+    thisWeekRange,
     totalPages,
 } from '@/lib/statistics';
 import { IUserStatistics } from '@/types';
@@ -110,30 +111,28 @@ describe('paginate', () => {
 describe('date range presets', () => {
     beforeEach(() => DateTime.setTestNow('2026-08-06')); // A Thursday
 
-    test('last week runs Monday to Sunday of the week just gone', () => {
-        expect(lastWeekRange()).toEqual({ startDate: '2026-07-27', endDate: '2026-08-02' });
+    test('this week runs from the most recent Monday to today', () => {
+        expect(thisWeekRange()).toEqual({ startDate: '2026-08-03', endDate: '2026-08-06' });
     });
 
-    test('last week on a Monday is the week before this brand new one', () => {
+    test('this week on a Monday starts today rather than reaching back a week', () => {
         DateTime.setTestNow('2026-08-03');
 
-        expect(lastWeekRange()).toEqual({ startDate: '2026-07-27', endDate: '2026-08-02' });
+        expect(thisWeekRange()).toEqual({ startDate: '2026-08-03', endDate: '2026-08-03' });
     });
 
-    test('last week on a Sunday is still the previous week, not the one closing today', () => {
+    test('this week on a Sunday still starts on the Monday just gone', () => {
         DateTime.setTestNow('2026-08-09');
 
-        expect(lastWeekRange()).toEqual({ startDate: '2026-07-27', endDate: '2026-08-02' });
+        expect(thisWeekRange()).toEqual({ startDate: '2026-08-03', endDate: '2026-08-09' });
     });
 
-    test('last month covers the whole of the previous calendar month', () => {
-        expect(lastMonthRange()).toEqual({ startDate: '2026-07-01', endDate: '2026-07-31' });
+    test('this month runs from the first of the month to today', () => {
+        expect(thisMonthRange()).toEqual({ startDate: '2026-08-01', endDate: '2026-08-06' });
     });
 
-    test('last month crosses the year boundary in January', () => {
-        DateTime.setTestNow('2026-01-14');
-
-        expect(lastMonthRange()).toEqual({ startDate: '2025-12-01', endDate: '2025-12-31' });
+    test('all time runs from the first ever session to today', () => {
+        expect(allTimeRange('2020-05-21')).toEqual({ startDate: '2020-05-21', endDate: '2026-08-06' });
     });
 });
 

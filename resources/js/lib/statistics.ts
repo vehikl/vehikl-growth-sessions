@@ -84,21 +84,23 @@ function mondayOfWeek(date: string): string {
     return new DateTime(date).addDays(-(weekday === 0 ? 6 : weekday - 1)).toDateString();
 }
 
-/**
- * The week before the current one, Monday to Sunday. The presets deliberately cover
- * finished windows: a part-grown current week reads as a drop in everyone's numbers.
- */
-export function lastWeekRange(): DateRange {
-    const startDate = new DateTime(mondayOfWeek(today())).addDays(-7).toDateString();
+/** The Monday just gone through to today, so the week fills in as it goes. */
+export function thisWeekRange(): DateRange {
+    const endDate = today();
 
-    return { startDate, endDate: new DateTime(startDate).addDays(6).toDateString() };
+    return { startDate: mondayOfWeek(endDate), endDate };
 }
 
-/** The whole of the previous calendar month. */
-export function lastMonthRange(): DateRange {
-    const endDate = new DateTime(new DateTime(today()).format('YYYY-MM-01')).addDays(-1).toDateString();
+/** The first of this month through to today. */
+export function thisMonthRange(): DateRange {
+    const endDate = today();
 
     return { startDate: new DateTime(endDate).format('YYYY-MM-01'), endDate };
+}
+
+/** Everything on record: the first ever session through to today. */
+export function allTimeRange(firstSessionDate: string): DateRange {
+    return { startDate: new DateTime(firstSessionDate).toDateString(), endDate: today() };
 }
 
 /**

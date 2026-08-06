@@ -542,21 +542,29 @@ describe('Choosing a date range', () => {
         expect(reload).not.toHaveBeenCalled();
     });
 
-    test('the Last week preset runs Monday to Sunday of the week just gone', async () => {
+    test('the This week preset runs from the most recent Monday to today', async () => {
         const wrapper = mountStatistics();
 
-        await buttonLabelled(wrapper, 'Last week').trigger('click');
+        await buttonLabelled(wrapper, 'This week').trigger('click');
 
         expect(reload).toHaveBeenCalledTimes(1);
-        expect(reload.mock.calls[0][0]).toMatchObject({ data: { start_date: '2026-07-27', end_date: '2026-08-02' } });
+        expect(reload.mock.calls[0][0]).toMatchObject({ data: { start_date: '2026-08-03', end_date: '2026-08-06' } });
     });
 
-    test('the Last month preset covers the whole of the previous calendar month', async () => {
+    test('the This month preset runs from the first of the month to today', async () => {
         const wrapper = mountStatistics();
 
-        await buttonLabelled(wrapper, 'Last month').trigger('click');
+        await buttonLabelled(wrapper, 'This month').trigger('click');
 
-        expect(reload.mock.calls[0][0]).toMatchObject({ data: { start_date: '2026-07-01', end_date: '2026-07-31' } });
+        expect(reload.mock.calls[0][0]).toMatchObject({ data: { start_date: '2026-08-01', end_date: '2026-08-06' } });
+    });
+
+    test('the All time preset runs from the first ever session to today', async () => {
+        const wrapper = mountStatistics({ start_date: '2026-08-01', end_date: '2026-08-06' });
+
+        await buttonLabelled(wrapper, 'All time').trigger('click');
+
+        expect(reload.mock.calls[0][0]).toMatchObject({ data: { start_date: '2020-05-21', end_date: '2026-08-06' } });
     });
 
     test('the First day shortcut moves the start without touching the end', async () => {
@@ -578,7 +586,7 @@ describe('Choosing a date range', () => {
     test('a preset issues a single reload rather than one per date', async () => {
         const wrapper = mountStatistics({ start_date: '2020-01-01', end_date: '2020-01-02' });
 
-        await buttonLabelled(wrapper, 'Last week').trigger('click');
+        await buttonLabelled(wrapper, 'This week').trigger('click');
 
         expect(reload).toHaveBeenCalledTimes(1);
     });

@@ -6,16 +6,17 @@ import {
     DateRange,
     decodeSettings,
     encodeSettings,
+    allTimeRange,
     filterMembers,
     formatRangeLabel,
-    lastMonthRange,
-    lastWeekRange,
     paginate,
     SortableField,
     SortDirection,
     sortMembers,
     StatisticsSettings,
     suggestMembers,
+    thisMonthRange,
+    thisWeekRange,
     totalPages,
 } from '@/lib/statistics';
 import { IUserStatistics } from '@/types';
@@ -79,6 +80,13 @@ function loadSettings(): StatisticsSettings {
 
     return { ...DEFAULT_SETTINGS };
 }
+
+/**
+ * The plain page is the reading view: who is here and who they have yet to mob with.
+ * `?full-display=` opts into the working view — the filters, the date range and every
+ * participation count — so the link someone shares around stays the simple one.
+ */
+const isFullDisplay = new URLSearchParams(window.location.search).has('full-display');
 
 const initialSettings = loadSettings();
 
@@ -495,16 +503,23 @@ function copyBySelection(text: string): boolean {
                             <button
                                 type="button"
                                 class="gs-text-strong cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold hover:underline"
-                                @click="applyRange(lastWeekRange())"
+                                @click="applyRange(thisWeekRange())"
                             >
-                                Last week
+                                This week
                             </button>
                             <button
                                 type="button"
                                 class="gs-text-strong cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold hover:underline"
-                                @click="applyRange(lastMonthRange())"
+                                @click="applyRange(thisMonthRange())"
                             >
-                                Last month
+                                This month
+                            </button>
+                            <button
+                                type="button"
+                                class="gs-text-strong cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold hover:underline"
+                                @click="applyRange(allTimeRange(props.firstSessionDate))"
+                            >
+                                All time
                             </button>
                         </div>
                     </div>
