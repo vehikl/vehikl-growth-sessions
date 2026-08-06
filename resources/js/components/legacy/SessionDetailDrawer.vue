@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { GrowthSession } from '@/classes/GrowthSession';
 import CommentList from '@/components/legacy/CommentList.vue';
+import LinkifiedText from '@/components/legacy/LinkifiedText.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
@@ -138,7 +139,9 @@ async function leave() {
                 >
             </div>
 
-            <p class="gs-text-body mb-5 text-sm leading-[1.6] whitespace-pre-wrap">{{ growthSession.topic }}</p>
+            <p class="gs-text-body mb-5 text-sm leading-[1.6] whitespace-pre-wrap">
+                <LinkifiedText :text="growthSession.topic" />
+            </p>
 
             <div class="mb-6 flex flex-col gap-2.5">
                 <button
