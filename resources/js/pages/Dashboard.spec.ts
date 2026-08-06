@@ -13,7 +13,6 @@ const vueTesting: IHostedSession = {
     date: '2020-01-15',
     date_label: 'Jan 15, 2020',
     is_upcoming: true,
-    time_label: '3:30 pm – 5:00 pm',
     attendee_count: 4,
     tags: [
         { id: 1, name: 'Vue' },
@@ -27,7 +26,6 @@ const paintingWithCode: IHostedSession = {
     date: '2020-01-13',
     date_label: 'Jan 13, 2020',
     is_upcoming: false,
-    time_label: '10:00 am – 11:00 am',
     attendee_count: 0,
     tags: [],
 };
@@ -85,11 +83,10 @@ describe('Dashboard', () => {
         expect(wrapper.findAll('ul li')).toHaveLength(2);
     });
 
-    test('renders each session’s date, time, title, attendee count and tags', () => {
+    test('renders each session’s date, title, attendee count and tags', () => {
         const rows = mountDashboard().findAll('ul li');
 
         expect(rows[0].text()).toContain('Jan 15, 2020');
-        expect(rows[0].text()).toContain('3:30 pm – 5:00 pm');
         expect(rows[0].text()).toContain('Vue Testing Deep Dive');
         expect(rows[0].text()).toContain('Vue');
         expect(rows[0].text()).toContain('Testing');
@@ -140,6 +137,23 @@ describe('Dashboard', () => {
 
         expect(wrapper.find('[data-testid="previous-page"]').attributes('disabled')).toBeUndefined();
         expect(wrapper.find('[data-testid="next-page"]').attributes('disabled')).toBeDefined();
+    });
+
+    test('groups the summary and the hosted sessions into one column, leaving the sidebar its own', () => {
+        const wrapper = mountDashboard();
+        const mainColumn = wrapper.find('[data-testid="dashboard-main-column"]');
+
+        expect(mainColumn.find('section[aria-label="Hosting summary"]').exists()).toBe(true);
+        expect(mainColumn.find('section[aria-labelledby="hosted-sessions-heading"]').exists()).toBe(true);
+        // "Yet to mob with" is the sidebar itself, so it must not be nested in the left column.
+        expect(mainColumn.find('[data-testid="dashboard-sidebar"]').exists()).toBe(false);
+    });
+
+    test('orders the sidebar after the sessions column so it stacks underneath when the columns collapse', () => {
+        const columns = mountDashboard().find('[data-testid="dashboard-columns"]');
+        const testIds = columns.element.children ? [...columns.element.children].map((child) => child.getAttribute('data-testid')) : [];
+
+        expect(testIds).toEqual(['dashboard-main-column', 'dashboard-sidebar']);
     });
 
     test('renders the members the user has yet to mob with', () => {

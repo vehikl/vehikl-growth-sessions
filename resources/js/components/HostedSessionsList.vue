@@ -40,7 +40,6 @@ const pageVisitOptions = { only: ['hosted_sessions'], preserveScroll: true, pres
                             <span class="sr-only">{{ session.is_upcoming ? 'Upcoming' : 'Finished' }}</span>
                             {{ session.date_label }}
                         </span>
-                        <span class="gs-text-muted text-sm">{{ session.time_label }}</span>
                         <span
                             v-for="tag in session.tags"
                             :key="tag.id"

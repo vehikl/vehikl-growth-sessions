@@ -17,4 +17,10 @@ describe('PageContainer', () => {
 
         expect(wrapper.find('main > div').classes()).toContain('max-w-6xl');
     });
+
+    it('drops the max-width constraint when full width', () => {
+        const wrapper = mount(PageContainer, { props: { fullWidth: true }, slots: { default: '<span>x</span>' } });
+
+        expect(wrapper.find('main > div').classes()).not.toContain('max-w-6xl');
+    });
 });
