@@ -4,10 +4,7 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
 function mountLeaderboard(members: IMobSquadMember[]) {
-    return mount(MobSquadLeaderboard, {
-        props: { members },
-        slots: { empty: '<p class="empty">Nobody yet.</p>' },
-    });
+    return mount(MobSquadLeaderboard, { props: { members } });
 }
 
 const alex: IMobSquadMember = { id: 1, name: 'Alex Barry', avatar: 'https://example.test/alex.png', sessions_together_count: 7 };
@@ -56,10 +53,11 @@ describe('MobSquadLeaderboard', () => {
         expect(avatar.text()).toBe('AB');
     });
 
-    it('renders the empty slot instead of any rows when nobody has been mobbed with', () => {
+    /** The Dashboard hides the whole card in this case, so the leaderboard has nothing to say. */
+    it('draws nothing at all when nobody has been mobbed with', () => {
         const wrapper = mountLeaderboard([]);
 
         expect(wrapper.findAll('[data-testid="mob-squad-member"]')).toHaveLength(0);
-        expect(wrapper.find('.empty').text()).toBe('Nobody yet.');
+        expect(wrapper.find('ol').exists()).toBe(false);
     });
 });

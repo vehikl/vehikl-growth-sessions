@@ -238,11 +238,18 @@ describe('Dashboard', () => {
         expect(sidebar.text().indexOf('Mob Squad')).toBeLessThan(sidebar.text().indexOf('Top tags'));
     });
 
-    test('shows an empty state when the user has never mobbed with anybody', () => {
+    test('hides the whole Mob Squad card when the user has never mobbed with anybody', () => {
         const wrapper = mountDashboard({}, { mob_squad: [] });
 
-        expect(wrapper.findAll('[data-testid="mob-squad-member"]')).toHaveLength(0);
-        expect(wrapper.text()).toContain('No mob squad yet.');
+        expect(wrapper.find('[aria-labelledby="mob-squad-heading"]').exists()).toBe(false);
+        expect(wrapper.text()).not.toContain('Mob Squad');
+    });
+
+    test('leaves the rest of the sidebar in place when the Mob Squad card is hidden', () => {
+        const sidebar = mountDashboard({}, { mob_squad: [] }).find('[data-testid="dashboard-sidebar"]');
+
+        expect(sidebar.text()).toContain('Top tags');
+        expect(sidebar.text()).toContain('Yet to mob with');
     });
 
     test('renders the top tags with their usage counts, in the order given', () => {
