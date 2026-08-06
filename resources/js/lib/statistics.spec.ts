@@ -1,13 +1,14 @@
 import { DateTime } from '@/classes/DateTime';
 import {
-    allTimeRange,
     decodeSettings,
     encodeSettings,
     filterMembers,
+    formatRangeLabel,
     lastMonthRange,
     lastWeekRange,
     paginate,
     sortMembers,
+    suggestMembers,
     totalPages,
 } from '@/lib/statistics';
 import { IUserStatistics } from '@/types';
@@ -35,27 +36,37 @@ const members = [ada, grace, alan];
 
 describe('filterMembers', () => {
     test('returns everyone when nothing is filtering', () => {
-        expect(filterMembers(members, { name: '', list: [], shouldUseList: false })).toEqual(members);
-    });
-
-    test('matches the name box anywhere in the name, ignoring case', () => {
-        expect(filterMembers(members, { name: 'LOVE', list: [], shouldUseList: false })).toEqual([ada]);
+        expect(filterMembers(members, { list: [], shouldUseList: false })).toEqual(members);
     });
 
     test('ignores the list until it is switched on', () => {
-        expect(filterMembers(members, { name: '', list: ['Grace'], shouldUseList: false })).toEqual(members);
+        expect(filterMembers(members, { list: ['Grace Hopper'], shouldUseList: false })).toEqual(members);
     });
 
     test('keeps rows matching any name in the list once it is switched on', () => {
-        expect(filterMembers(members, { name: '', list: ['grace', 'alan'], shouldUseList: true })).toEqual([grace, alan]);
+        expect(filterMembers(members, { list: ['grace', 'alan'], shouldUseList: true })).toEqual([grace, alan]);
     });
 
     test('falls back to everyone when the list is switched on but empty', () => {
-        expect(filterMembers(members, { name: '', list: [], shouldUseList: true })).toEqual(members);
+        expect(filterMembers(members, { list: [], shouldUseList: true })).toEqual(members);
+    });
+});
+
+describe('suggestMembers', () => {
+    test('offers everyone when nothing has been typed', () => {
+        expect(suggestMembers(members, '', [], 8)).toEqual(members);
     });
 
-    test('composes the name box with the list', () => {
-        expect(filterMembers(members, { name: 'turing', list: ['grace', 'alan'], shouldUseList: true })).toEqual([alan]);
+    test('matches anywhere in the name, ignoring case and surrounding spaces', () => {
+        expect(suggestMembers(members, '  LOVE ', [], 8)).toEqual([ada]);
+    });
+
+    test('leaves out anyone already saved to the list', () => {
+        expect(suggestMembers(members, 'a', ['Ada Lovelace'], 8)).toEqual([grace, alan]);
+    });
+
+    test('stops at the limit rather than filling the screen', () => {
+        expect(suggestMembers(members, '', [], 2)).toEqual([ada, grace]);
     });
 });
 
@@ -124,9 +135,17 @@ describe('date range presets', () => {
 
         expect(lastMonthRange()).toEqual({ startDate: '2025-12-01', endDate: '2025-12-31' });
     });
+});
 
-    test('all time runs from the first ever session to today', () => {
-        expect(allTimeRange('2020-05-21')).toEqual({ startDate: '2020-05-21', endDate: '2026-08-06' });
+describe('formatRangeLabel', () => {
+    beforeEach(() => DateTime.setTestNow('2026-08-06'));
+
+    test('leaves the current year out', () => {
+        expect(formatRangeLabel({ startDate: '2026-07-16', endDate: '2026-08-06' })).toBe('Jul 16 – Aug 6');
+    });
+
+    test('names the year on any side that is not the current one', () => {
+        expect(formatRangeLabel({ startDate: '2020-05-21', endDate: '2026-08-06' })).toBe('May 21, 2020 – Aug 6');
     });
 });
 

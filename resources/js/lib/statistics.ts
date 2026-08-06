@@ -28,27 +28,30 @@ export interface StatisticsSettings {
     shouldUseList: boolean;
 }
 
-export interface MemberFilter {
-    name: string;
-    list: string[];
-    shouldUseList: boolean;
-}
-
 function matchesName(member: IUserStatistics, needle: string): boolean {
     return member.name.toLowerCase().includes(needle.toLowerCase());
 }
 
 /**
- * The name box and the saved list compose: the list picks the cohort, the name box
- * searches within it. An empty list never narrows anything, even with the box ticked.
+ * The saved list picks the cohort, and only the checkbox applies it. The search box no
+ * longer narrows the table at all — it exists to pick people for the list, so typing in
+ * it never hides the numbers someone is reading.
  */
-export function filterMembers(members: IUserStatistics[], filter: MemberFilter): IUserStatistics[] {
-    const inCohort =
-        filter.shouldUseList && filter.list.length > 0
-            ? members.filter((member) => filter.list.some((listedName) => matchesName(member, listedName)))
-            : members;
+export function filterMembers(members: IUserStatistics[], filter: StatisticsSettings): IUserStatistics[] {
+    if (!filter.shouldUseList || filter.list.length === 0) {
+        return members;
+    }
 
-    return inCohort.filter((member) => matchesName(member, filter.name));
+    return members.filter((member) => filter.list.some((listedName) => matchesName(member, listedName)));
+}
+
+/**
+ * Candidates for the search box, with anyone already saved left out — re-picking a name
+ * is a no-op, so offering it is noise. An empty box offers everyone rather than nothing,
+ * which makes the box usable by browsing as well as by typing.
+ */
+export function suggestMembers(members: IUserStatistics[], needle: string, saved: string[], limit: number): IUserStatistics[] {
+    return members.filter((member) => !saved.includes(member.name) && matchesName(member, needle.trim())).slice(0, limit);
 }
 
 export function sortMembers(members: IUserStatistics[], field: SortableField, direction: SortDirection): IUserStatistics[] {
@@ -98,8 +101,16 @@ export function lastMonthRange(): DateRange {
     return { startDate: new DateTime(endDate).format('YYYY-MM-01'), endDate };
 }
 
-export function allTimeRange(firstSessionDate: string): DateRange {
-    return { startDate: new DateTime(firstSessionDate).toDateString(), endDate: today() };
+/**
+ * The range as it reads on the button that opens the date picker. Years are shown only
+ * where they are not the current one, so an ordinary range stays short while a range
+ * reaching back to the first ever session still says which year that was.
+ */
+export function formatRangeLabel({ startDate, endDate }: DateRange): string {
+    const thisYear = new DateTime(today()).format('YYYY');
+    const label = (date: string) => new DateTime(date).format(new DateTime(date).format('YYYY') === thisYear ? 'MMM D' : 'MMM D, YYYY');
+
+    return `${label(startDate)} – ${label(endDate)}`;
 }
 
 /** base64url, so the result survives a query string untouched and names outside Latin-1 survive at all. */

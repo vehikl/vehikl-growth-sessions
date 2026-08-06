@@ -74,6 +74,29 @@ function buttonLabelled(wrapper: VueWrapper, label: string) {
     return button;
 }
 
+function suggestionFor(wrapper: VueWrapper, name: string) {
+    const option = wrapper.findAll('[role="option"] button').find((candidate) => candidate.text() === name);
+
+    if (!option) {
+        throw new Error(`No suggestion offering "${name}"`);
+    }
+
+    return option;
+}
+
+/** The search box is a picker now, so saving someone means typing and then choosing them. */
+async function saveToList(wrapper: VueWrapper, typed: string, chosen = typed): Promise<void> {
+    const searchBox = wrapper.get('input[name="filter-by-name"]');
+
+    await searchBox.trigger('focus');
+    await searchBox.setValue(typed);
+    await suggestionFor(wrapper, chosen).trigger('click');
+}
+
+function savedNames(wrapper: VueWrapper): string[] {
+    return wrapper.findAll('[aria-label="Saved filter list"] li').map((pill) => pill.text().replace('×', '').trim());
+}
+
 function memberNames(wrapper: VueWrapper): string[] {
     return wrapper.findAll('tbody tr').map((row) => row.findAll('td')[0].text());
 }
@@ -215,78 +238,90 @@ describe('Everyone’s numbers table', () => {
     });
 });
 
-describe('Filtering the members table', () => {
-    test('filters live on the name box, matching anywhere and ignoring case', async () => {
+describe('Finding and saving people', () => {
+    test('suggests members matching what has been typed', async () => {
         const wrapper = mountStatistics();
 
-        await wrapper.get('input[name="filter-by-name"]').setValue('hopper');
+        await wrapper.get('input[name="filter-by-name"]').setValue('a');
 
-        expect(memberNames(wrapper)).toEqual(['Grace Hopper']);
+        expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['Ada Lovelace', 'Grace Hopper', 'Alan Turing']);
     });
 
-    test('says so when nothing matches', async () => {
+    test('saves the chosen member and empties the box', async () => {
+        const wrapper = mountStatistics();
+
+        await saveToList(wrapper, 'Grace', 'Grace Hopper');
+
+        expect(savedNames(wrapper)).toContain('Grace Hopper');
+        expect((wrapper.get('input[name="filter-by-name"]').element as HTMLInputElement).value).toBe('');
+    });
+
+    test('saves the highlighted suggestion on Enter', async () => {
+        const wrapper = mountStatistics();
+        const searchBox = wrapper.get('input[name="filter-by-name"]');
+
+        await searchBox.trigger('focus');
+        await searchBox.setValue('Turing');
+        await searchBox.trigger('keydown.enter');
+
+        expect(savedNames(wrapper)).toContain('Alan Turing');
+    });
+
+    test('walks the suggestions with the arrow keys', async () => {
+        const wrapper = mountStatistics();
+        const searchBox = wrapper.get('input[name="filter-by-name"]');
+
+        await searchBox.trigger('focus');
+        await searchBox.trigger('keydown.down');
+        await searchBox.trigger('keydown.enter');
+
+        expect(savedNames(wrapper)).toContain('Grace Hopper');
+    });
+
+    test('stops offering someone already saved', async () => {
+        const wrapper = mountStatistics();
+
+        await saveToList(wrapper, 'Grace Hopper');
+
+        expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['Ada Lovelace', 'Alan Turing']);
+    });
+
+    test('says when nobody matches what has been typed', async () => {
         const wrapper = mountStatistics();
 
         await wrapper.get('input[name="filter-by-name"]').setValue('nobody');
 
-        expect(memberNames(wrapper)).toEqual([]);
-        expect(wrapper.text()).toContain('No members match these filters.');
+        expect(wrapper.findAll('[role="option"]')).toHaveLength(0);
+        expect(wrapper.get('#member-suggestions').text()).toContain('No members match');
     });
 
-    test('adds the typed name to the list and clears the box', async () => {
+    test('never narrows the table on its own', async () => {
         const wrapper = mountStatistics();
-        const nameBox = wrapper.get('input[name="filter-by-name"]');
 
-        await nameBox.setValue('Grace');
-        await buttonLabelled(wrapper, 'Add to list').trigger('click');
+        await wrapper.get('input[name="filter-by-name"]').setValue('hopper');
 
-        expect(wrapper.get('[aria-label="Saved filter list"]').text()).toContain('Grace');
-        expect((nameBox.element as HTMLInputElement).value).toBe('');
+        expect(memberNames(wrapper)).toHaveLength(3);
     });
 
-    test('adds the typed name to the list on Enter', async () => {
+    test('shows no pills until someone has been saved', () => {
         const wrapper = mountStatistics();
 
-        const nameBox = wrapper.get('input[name="filter-by-name"]');
-        await nameBox.setValue('Grace');
-        await nameBox.trigger('keydown.enter');
-
-        expect(wrapper.get('[aria-label="Saved filter list"]').text()).toContain('Grace');
-    });
-
-    test('ignores a name already in the list', async () => {
-        const wrapper = mountStatistics();
-        const nameBox = wrapper.get('input[name="filter-by-name"]');
-
-        await nameBox.setValue('Grace');
-        await buttonLabelled(wrapper, 'Add to list').trigger('click');
-        await nameBox.setValue('Grace');
-        await buttonLabelled(wrapper, 'Add to list').trigger('click');
-
-        expect(wrapper.findAll('[aria-label="Saved filter list"] li')).toHaveLength(1);
-    });
-
-    test('says the list is empty when it is', () => {
-        const wrapper = mountStatistics();
-
-        expect(wrapper.get('[aria-label="Saved filter list"]').text()).toContain('The list is empty');
+        expect(savedNames(wrapper)).toEqual([]);
     });
 
     test('removes a name from the list', async () => {
         const wrapper = mountStatistics();
 
-        await wrapper.get('input[name="filter-by-name"]').setValue('Grace');
-        await buttonLabelled(wrapper, 'Add to list').trigger('click');
-        await wrapper.get('[aria-label="Remove Grace from the list"]').trigger('click');
+        await saveToList(wrapper, 'Grace Hopper');
+        await wrapper.get('[aria-label="Remove Grace Hopper from the list"]').trigger('click');
 
-        expect(wrapper.get('[aria-label="Saved filter list"]').text()).toContain('The list is empty');
+        expect(savedNames(wrapper)).toEqual([]);
     });
 
     test('leaves the table alone until the list filter is switched on', async () => {
         const wrapper = mountStatistics();
 
-        await wrapper.get('input[name="filter-by-name"]').setValue('Grace');
-        await buttonLabelled(wrapper, 'Add to list').trigger('click');
+        await saveToList(wrapper, 'Grace Hopper');
 
         expect(memberNames(wrapper)).toHaveLength(3);
 
@@ -303,28 +338,31 @@ describe('Filtering the members table', () => {
         expect(memberNames(wrapper)).toHaveLength(3);
     });
 
-    test('composes the list filter with the name box', async () => {
+    test('says so when the saved cohort matches nobody', () => {
+        localStorage.setItem('statistics_filter', JSON.stringify({ list: ['Nobody At All'], shouldUseList: true }));
         const wrapper = mountStatistics();
-        const nameBox = wrapper.get('input[name="filter-by-name"]');
 
-        await nameBox.setValue('Grace');
-        await buttonLabelled(wrapper, 'Add to list').trigger('click');
-        await nameBox.setValue('Ada');
-        await buttonLabelled(wrapper, 'Add to list').trigger('click');
+        expect(memberNames(wrapper)).toEqual([]);
+        expect(wrapper.text()).toContain('No members match these filters.');
+    });
+
+    test('narrows to every saved member at once', async () => {
+        const wrapper = mountStatistics();
+
+        await saveToList(wrapper, 'Grace Hopper');
+        await saveToList(wrapper, 'Ada Lovelace');
         await wrapper.get('input[name="apply-list"]').setValue(true);
-        await nameBox.setValue('lovelace');
 
-        expect(memberNames(wrapper)).toEqual(['Ada Lovelace']);
+        expect(memberNames(wrapper)).toEqual(['Ada Lovelace', 'Grace Hopper']);
     });
 
     test('clears the list', async () => {
         const wrapper = mountStatistics();
 
-        await wrapper.get('input[name="filter-by-name"]').setValue('Grace');
-        await buttonLabelled(wrapper, 'Add to list').trigger('click');
+        await saveToList(wrapper, 'Grace Hopper');
         await buttonLabelled(wrapper, 'Clear').trigger('click');
 
-        expect(wrapper.get('[aria-label="Saved filter list"]').text()).toContain('The list is empty');
+        expect(savedNames(wrapper)).toEqual([]);
     });
 
     test('drops shared settings from the address bar when the list is cleared', async () => {
@@ -341,11 +379,10 @@ describe('Persisting and sharing the filter list', () => {
     test('saves the list and the checkbox locally', async () => {
         const wrapper = mountStatistics();
 
-        await wrapper.get('input[name="filter-by-name"]').setValue('Grace');
-        await buttonLabelled(wrapper, 'Add to list').trigger('click');
+        await saveToList(wrapper, 'Grace Hopper');
         await wrapper.get('input[name="apply-list"]').setValue(true);
 
-        expect(JSON.parse(localStorage.getItem('statistics_filter') as string)).toEqual({ list: ['Grace'], shouldUseList: true });
+        expect(JSON.parse(localStorage.getItem('statistics_filter') as string)).toEqual({ list: ['Grace Hopper'], shouldUseList: true });
     });
 
     test('restores saved settings on a later visit', () => {
@@ -386,8 +423,7 @@ describe('Persisting and sharing the filter list', () => {
     test('copies a link carrying the list, the checkbox and the date range', async () => {
         const wrapper = mountStatistics();
 
-        await wrapper.get('input[name="filter-by-name"]').setValue('Grace');
-        await buttonLabelled(wrapper, 'Add to list').trigger('click');
+        await saveToList(wrapper, 'Grace Hopper');
         await wrapper.get('input[name="apply-list"]').setValue(true);
         await buttonLabelled(wrapper, 'Share URL').trigger('click');
         await flushPromises();
@@ -395,7 +431,7 @@ describe('Persisting and sharing the filter list', () => {
         const copied = new URL(writeText.mock.calls[0][0]);
         expect(copied.searchParams.get('start_date')).toBe('2020-05-21');
         expect(copied.searchParams.get('end_date')).toBe('2026-08-06');
-        expect(copied.searchParams.get('settings')).toBe(encodeSettings({ list: ['Grace'], shouldUseList: true }));
+        expect(copied.searchParams.get('settings')).toBe(encodeSettings({ list: ['Grace Hopper'], shouldUseList: true }));
     });
 
     test('confirms that the link was copied', async () => {
@@ -410,12 +446,11 @@ describe('Persisting and sharing the filter list', () => {
     test('puts the shareable link in the address bar so it can be copied by hand', async () => {
         const wrapper = mountStatistics();
 
-        await wrapper.get('input[name="filter-by-name"]').setValue('Grace');
-        await buttonLabelled(wrapper, 'Add to list').trigger('click');
+        await saveToList(wrapper, 'Grace Hopper');
         await buttonLabelled(wrapper, 'Share URL').trigger('click');
         await flushPromises();
 
-        expect(new URLSearchParams(window.location.search).get('settings')).toBe(encodeSettings({ list: ['Grace'], shouldUseList: false }));
+        expect(new URLSearchParams(window.location.search).get('settings')).toBe(encodeSettings({ list: ['Grace Hopper'], shouldUseList: false }));
     });
 
     test('falls back to a selection copy where the clipboard API is missing', async () => {
@@ -444,6 +479,22 @@ describe('Persisting and sharing the filter list', () => {
 });
 
 describe('Choosing a date range', () => {
+    test('keeps the picker shut until the range button is pressed', async () => {
+        const wrapper = mountStatistics({ start_date: '2026-07-16' });
+
+        expect(wrapper.get('[role="dialog"]').isVisible()).toBe(false);
+
+        await buttonLabelled(wrapper, 'Jul 16 – Aug 6').trigger('click');
+
+        expect(wrapper.get('[role="dialog"]').isVisible()).toBe(true);
+    });
+
+    test('names the chosen range on the button that opens the picker', () => {
+        const wrapper = mountStatistics({ start_date: '2026-07-16' });
+
+        expect(wrapper.text()).toContain('Jul 16 – Aug 6');
+    });
+
     test('reloads only the members table when a date changes', async () => {
         const wrapper = mountStatistics();
 
@@ -479,14 +530,6 @@ describe('Choosing a date range', () => {
         await buttonLabelled(wrapper, 'Last month').trigger('click');
 
         expect(reload.mock.calls[0][0]).toMatchObject({ data: { start_date: '2026-07-01', end_date: '2026-07-31' } });
-    });
-
-    test('the All time preset runs from the first ever session to today', async () => {
-        const wrapper = mountStatistics({ start_date: '2026-08-01', end_date: '2026-08-06' });
-
-        await buttonLabelled(wrapper, 'All time').trigger('click');
-
-        expect(reload.mock.calls[0][0]).toMatchObject({ data: { start_date: '2020-05-21', end_date: '2026-08-06' } });
     });
 
     test('the First day shortcut moves the start without touching the end', async () => {

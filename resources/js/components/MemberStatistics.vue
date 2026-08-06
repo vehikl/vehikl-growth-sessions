@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { DateTime } from '@/classes/DateTime';
 import {
-    allTimeRange,
     DateRange,
     decodeSettings,
     encodeSettings,
     filterMembers,
+    formatRangeLabel,
     lastMonthRange,
     lastWeekRange,
     paginate,
@@ -13,6 +13,7 @@ import {
     SortDirection,
     sortMembers,
     StatisticsSettings,
+    suggestMembers,
     totalPages,
 } from '@/lib/statistics';
 import { IUserStatistics } from '@/types';
@@ -30,6 +31,7 @@ const props = defineProps<IProps>();
 const emit = defineEmits<{ (event: 'rangeChange', range: DateRange): void }>();
 
 const PER_PAGE = 25;
+const SUGGESTION_LIMIT = 8;
 const FILTER_STORAGE_KEY = 'statistics_filter';
 const DEFAULT_SETTINGS: StatisticsSettings = { list: [], shouldUseList: false };
 
@@ -76,11 +78,17 @@ function loadSettings(): StatisticsSettings {
 
 const initialSettings = loadSettings();
 
-const filter = reactive({
-    name: '',
+const filter = reactive<StatisticsSettings>({
     list: initialSettings.list,
     shouldUseList: initialSettings.shouldUseList,
 });
+
+const search = ref('');
+const isSearchOpen = ref(false);
+const highlighted = ref(0);
+const isRangeOpen = ref(false);
+const searchField = ref<HTMLElement | null>(null);
+const rangeField = ref<HTMLElement | null>(null);
 
 const sort = reactive<{ field: SortableField; direction: SortDirection }>({ field: 'name', direction: 'asc' });
 const range = reactive<DateRange>({ startDate: props.startDate, endDate: props.endDate });
@@ -89,19 +97,45 @@ const openMember = ref<IUserStatistics | null>(null);
 const shareResult = ref<'copied' | 'failed' | null>(null);
 let shareResultTimer: ReturnType<typeof setTimeout>;
 
-function closeDialogOnEscape(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-        openMember.value = null;
+function closeOnEscape(event: KeyboardEvent): void {
+    if (event.key !== 'Escape') {
+        return;
+    }
+
+    openMember.value = null;
+    isSearchOpen.value = false;
+    isRangeOpen.value = false;
+}
+
+/**
+ * Both overlays close on a press that lands outside them rather than on a click, so a
+ * drag that starts in the suggestions and ends outside doesn't count as leaving.
+ */
+function closeOnOutsidePress(event: MouseEvent): void {
+    const target = event.target as Node | null;
+
+    if (target && !searchField.value?.contains(target)) {
+        isSearchOpen.value = false;
+    }
+
+    if (target && !rangeField.value?.contains(target)) {
+        isRangeOpen.value = false;
     }
 }
 
-onMounted(() => document.addEventListener('keydown', closeDialogOnEscape));
+onMounted(() => {
+    document.addEventListener('keydown', closeOnEscape);
+    document.addEventListener('mousedown', closeOnOutsidePress);
+});
 onUnmounted(() => {
-    document.removeEventListener('keydown', closeDialogOnEscape);
+    document.removeEventListener('keydown', closeOnEscape);
+    document.removeEventListener('mousedown', closeOnOutsidePress);
     clearTimeout(shareResultTimer);
 });
 
 const matchingMembers = computed(() => sortMembers(filterMembers(props.members, filter), sort.field, sort.direction));
+const suggestions = computed(() => suggestMembers(props.members, search.value, filter.list, SUGGESTION_LIMIT));
+const rangeLabel = computed(() => formatRangeLabel(range));
 const pageCount = computed(() => totalPages(matchingMembers.value.length, PER_PAGE));
 const rows = computed(() => paginate(matchingMembers.value, page.value, PER_PAGE));
 
@@ -117,7 +151,8 @@ const showingSummary = computed(() => {
     return `Showing ${firstRow}–${Math.min(firstRow + PER_PAGE - 1, total)} of ${total}`;
 });
 
-watch([() => filter.name, () => filter.list, () => filter.shouldUseList], () => (page.value = 1), { deep: true });
+watch([() => filter.list, () => filter.shouldUseList], () => (page.value = 1), { deep: true });
+watch(search, () => (highlighted.value = 0));
 watch(pageCount, (count) => (page.value = Math.min(page.value, count)));
 
 watch(
@@ -174,14 +209,34 @@ function ariaSortFor(field: SortableField): 'ascending' | 'descending' | 'none' 
     return sort.direction === 'asc' ? 'ascending' : 'descending';
 }
 
-function addNameToList(): void {
-    const name = filter.name.trim();
-
-    if (name && !filter.list.includes(name)) {
+/**
+ * Picking a member saves them to the list; it never narrows the table on its own, so the
+ * numbers on screen only ever change when the checkbox below says they should.
+ */
+function chooseMember(name: string): void {
+    if (!filter.list.includes(name)) {
         filter.list = [...filter.list, name];
     }
 
-    filter.name = '';
+    search.value = '';
+    isSearchOpen.value = false;
+}
+
+function chooseHighlightedMember(): void {
+    const candidate = suggestions.value[highlighted.value];
+
+    if (isSearchOpen.value && candidate) {
+        chooseMember(candidate.name);
+    }
+}
+
+/** Wraps at both ends, so holding one arrow key cycles rather than dead-ending. */
+function moveHighlight(step: number): void {
+    isSearchOpen.value = true;
+
+    if (suggestions.value.length > 0) {
+        highlighted.value = (highlighted.value + step + suggestions.value.length) % suggestions.value.length;
+    }
 }
 
 function removeNameFromList(name: string): void {
@@ -265,134 +320,180 @@ function copyBySelection(text: string): boolean {
     <section class="gs-card gs-border rounded-xl border p-6 shadow-sm" aria-labelledby="member-statistics-heading">
         <header class="mb-5 flex flex-wrap items-baseline justify-between gap-2">
             <h2 id="member-statistics-heading" class="gs-text-strong text-sm font-bold tracking-[0.05em] uppercase">Everyone's numbers</h2>
-            <p class="gs-text-muted text-xs">Participation for every member visible in statistics, over the selected range.</p>
         </header>
 
         <div class="gs-secondary-bg mb-5 flex flex-col gap-4 rounded-xl p-4">
-            <div class="flex flex-wrap items-end gap-4">
-                <div class="flex flex-col gap-1.5">
-                    <label for="filter-by-name" class="gs-text-sub text-xs font-bold tracking-[0.06em] uppercase">Name</label>
-                    <div class="flex gap-2">
-                        <input
-                            id="filter-by-name"
-                            v-model="filter.name"
-                            name="filter-by-name"
-                            type="search"
-                            placeholder="Search members"
-                            class="gs-input gs-text-input w-48 rounded-lg px-3 py-2 text-sm"
-                            @keydown.enter.prevent="addNameToList"
-                        />
-                        <button
-                            type="button"
-                            class="gs-btn-secondary cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold"
-                            @click="addNameToList"
-                        >
-                            Add to list
-                        </button>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-1.5">
-                    <div class="flex items-baseline gap-2">
-                        <label for="start-date" class="gs-text-sub text-xs font-bold tracking-[0.06em] uppercase">Start date</label>
-                        <button
-                            type="button"
-                            class="gs-accent-text cursor-pointer text-[11px] font-semibold"
-                            @click="range.startDate = props.firstSessionDate"
-                        >
-                            First day
-                        </button>
-                    </div>
+            <div class="flex flex-wrap items-start gap-4">
+                <div ref="searchField" class="relative min-w-64 flex-1">
+                    <label for="filter-by-name" class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.06em] uppercase">
+                        Find &amp; save people
+                    </label>
                     <input
-                        id="start-date"
-                        v-model="range.startDate"
-                        name="start-date"
-                        type="date"
-                        class="gs-input gs-text-input rounded-lg px-3 py-2 text-sm"
+                        id="filter-by-name"
+                        v-model="search"
+                        name="filter-by-name"
+                        type="text"
+                        role="combobox"
+                        autocomplete="off"
+                        aria-controls="member-suggestions"
+                        :aria-expanded="isSearchOpen"
+                        :aria-activedescendant="isSearchOpen && suggestions[highlighted] ? `member-suggestion-${highlighted}` : undefined"
+                        placeholder="Search members"
+                        class="gs-input gs-text-input w-full rounded-lg px-3 py-2.5 text-sm"
+                        @focus="isSearchOpen = true"
+                        @keydown.down.prevent="moveHighlight(1)"
+                        @keydown.up.prevent="moveHighlight(-1)"
+                        @keydown.enter.prevent="chooseHighlightedMember"
                     />
-                </div>
 
-                <div class="flex flex-col gap-1.5">
-                    <div class="flex items-baseline gap-2">
-                        <label for="end-date" class="gs-text-sub text-xs font-bold tracking-[0.06em] uppercase">End date</label>
-                        <button
-                            type="button"
-                            class="gs-accent-text cursor-pointer text-[11px] font-semibold"
-                            @click="range.endDate = DateTime.today().toDateString()"
+                    <ul
+                        v-show="isSearchOpen"
+                        id="member-suggestions"
+                        role="listbox"
+                        aria-label="Matching members"
+                        class="gs-card gs-border absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border py-1 shadow-lg"
+                    >
+                        <li
+                            v-for="(candidate, index) in suggestions"
+                            :id="`member-suggestion-${index}`"
+                            :key="candidate.user_id"
+                            role="option"
+                            :aria-selected="index === highlighted"
                         >
-                            Today
-                        </button>
-                    </div>
-                    <input
-                        id="end-date"
-                        v-model="range.endDate"
-                        name="end-date"
-                        type="date"
-                        class="gs-input gs-text-input rounded-lg px-3 py-2 text-sm"
-                    />
+                            <button
+                                type="button"
+                                :class="[
+                                    'w-full cursor-pointer px-4 py-2.5 text-left text-sm',
+                                    index === highlighted ? 'gs-secondary-bg gs-text-strong font-semibold' : 'gs-text-body',
+                                ]"
+                                @mousemove="highlighted = index"
+                                @click="chooseMember(candidate.name)"
+                            >
+                                {{ candidate.name }}
+                            </button>
+                        </li>
+                        <li v-if="suggestions.length === 0" class="gs-text-muted px-4 py-2.5 text-sm">No members match</li>
+                    </ul>
+
+                    <ul v-if="filter.list.length > 0" class="mt-3 flex flex-wrap gap-2" aria-label="Saved filter list">
+                        <li
+                            v-for="listedName in filter.list"
+                            :key="listedName"
+                            class="gs-card gs-border flex items-center gap-2 rounded-full border py-1.5 pr-2 pl-4 text-sm"
+                        >
+                            <span class="gs-text-strong font-semibold">{{ listedName }}</span>
+                            <button
+                                type="button"
+                                class="gs-text-muted cursor-pointer rounded-full px-1.5 leading-none hover:text-red-600"
+                                :aria-label="`Remove ${listedName} from the list`"
+                                @click="removeNameFromList(listedName)"
+                            >
+                                ×
+                            </button>
+                        </li>
+                    </ul>
                 </div>
 
-                <div class="flex gap-2" role="group" aria-label="Date range presets">
+                <div ref="rangeField" class="relative">
+                    <span id="date-range-label" class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.06em] uppercase">Date range</span>
                     <button
                         type="button"
-                        class="gs-btn-secondary cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold"
-                        @click="applyRange(lastWeekRange())"
+                        class="gs-card gs-border gs-text-strong flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-bold whitespace-nowrap"
+                        aria-haspopup="dialog"
+                        :aria-expanded="isRangeOpen"
+                        :aria-label="`Date range: ${rangeLabel}`"
+                        @click="isRangeOpen = !isRangeOpen"
                     >
-                        Last week
+                        <i class="fa fa-calendar gs-text-muted" aria-hidden="true"></i>
+                        {{ rangeLabel }}
                     </button>
-                    <button
-                        type="button"
-                        class="gs-btn-secondary cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold"
-                        @click="applyRange(lastMonthRange())"
+
+                    <div
+                        v-show="isRangeOpen"
+                        role="dialog"
+                        aria-labelledby="date-range-label"
+                        class="gs-card gs-border absolute right-0 z-20 mt-2 rounded-xl border p-5 shadow-lg"
                     >
-                        Last month
-                    </button>
-                    <button
-                        type="button"
-                        class="gs-btn-secondary cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold"
-                        @click="applyRange(allTimeRange(props.firstSessionDate))"
-                    >
-                        All time
-                    </button>
+                        <div class="flex gap-4">
+                            <div class="flex flex-col gap-1.5">
+                                <div class="flex items-baseline gap-2">
+                                    <label for="start-date" class="gs-text-sub text-xs font-bold tracking-[0.06em] uppercase">Start date</label>
+                                    <button
+                                        type="button"
+                                        class="gs-accent-text cursor-pointer text-[11px] font-semibold"
+                                        @click="range.startDate = props.firstSessionDate"
+                                    >
+                                        First day
+                                    </button>
+                                </div>
+                                <input
+                                    id="start-date"
+                                    v-model="range.startDate"
+                                    name="start-date"
+                                    type="date"
+                                    class="gs-input gs-text-input rounded-lg px-3 py-2 text-sm"
+                                />
+                            </div>
+
+                            <div class="flex flex-col gap-1.5">
+                                <div class="flex items-baseline gap-2">
+                                    <label for="end-date" class="gs-text-sub text-xs font-bold tracking-[0.06em] uppercase">End date</label>
+                                    <button
+                                        type="button"
+                                        class="gs-accent-text cursor-pointer text-[11px] font-semibold"
+                                        @click="range.endDate = DateTime.today().toDateString()"
+                                    >
+                                        Today
+                                    </button>
+                                </div>
+                                <input
+                                    id="end-date"
+                                    v-model="range.endDate"
+                                    name="end-date"
+                                    type="date"
+                                    class="gs-input gs-text-input rounded-lg px-3 py-2 text-sm"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex gap-2" role="group" aria-label="Date range presets">
+                            <button
+                                type="button"
+                                class="gs-text-strong cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold hover:underline"
+                                @click="applyRange(lastWeekRange())"
+                            >
+                                Last week
+                            </button>
+                            <button
+                                type="button"
+                                class="gs-text-strong cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold hover:underline"
+                                @click="applyRange(lastMonthRange())"
+                            >
+                                Last month
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="gs-border flex flex-col gap-3 border-t pt-4">
-                <div class="flex flex-wrap items-center gap-3">
-                    <label class="gs-text-strong flex cursor-pointer items-center gap-2 text-sm font-semibold">
-                        <input v-model="filter.shouldUseList" name="apply-list" type="checkbox" class="accent-vehikl-orange cursor-pointer" />
-                        Apply list to filter
-                    </label>
-                    <button type="button" class="gs-btn-secondary cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold" @click="clearList">
-                        Clear
-                    </button>
-                    <button type="button" class="gs-btn-primary cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold" @click="copyShareableUrl">
-                        Share URL
-                    </button>
+            <div class="gs-border flex flex-wrap items-center gap-3 border-t pt-4">
+                <label class="gs-text-strong flex cursor-pointer items-center gap-2 text-sm font-semibold">
+                    <input v-model="filter.shouldUseList" name="apply-list" type="checkbox" class="accent-vehikl-orange cursor-pointer" />
+                    Apply list to filter
+                </label>
+                <button type="button" class="gs-btn-secondary cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold" @click="clearList">
+                    Clear
+                </button>
+
+                <div class="ml-auto flex flex-wrap items-center justify-end gap-3">
                     <span v-if="shareResult === 'copied'" role="status" class="text-sm font-semibold text-green-600">Link copied to clipboard</span>
                     <span v-else-if="shareResult === 'failed'" role="status" class="text-sm font-semibold text-red-600">
                         Could not copy the link — copy it from the address bar instead
                     </span>
+                    <button type="button" class="gs-btn-primary cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold" @click="copyShareableUrl">
+                        Share URL
+                    </button>
                 </div>
-
-                <ul class="flex flex-wrap gap-2" aria-label="Saved filter list">
-                    <li v-if="filter.list.length === 0" class="gs-text-muted text-sm italic">The list is empty</li>
-                    <li
-                        v-for="listedName in filter.list"
-                        :key="listedName"
-                        class="gs-card gs-border flex items-center gap-2 rounded-full border py-1 pr-2 pl-3 text-sm"
-                    >
-                        <span class="gs-text-strong font-semibold">{{ listedName }}</span>
-                        <button
-                            type="button"
-                            class="gs-text-muted cursor-pointer rounded-full px-1.5 leading-none hover:text-red-600"
-                            :aria-label="`Remove ${listedName} from the list`"
-                            @click="removeNameFromList(listedName)"
-                        >
-                            ×
-                        </button>
-                    </li>
-                </ul>
             </div>
         </div>
 
