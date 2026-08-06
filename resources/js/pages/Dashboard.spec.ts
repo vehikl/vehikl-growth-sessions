@@ -238,6 +238,14 @@ describe('Dashboard', () => {
         expect(sidebar.text().indexOf('Mob Squad')).toBeLessThan(sidebar.text().indexOf('Top tags'));
     });
 
+    test('explains what the Mob Squad is on demand, since “top five collaborators” is not obvious from the title', async () => {
+        const card = mountDashboard().find('[aria-labelledby="mob-squad-heading"]');
+
+        await card.find('[data-testid="info-popover-trigger"]').trigger('click');
+
+        expect(card.find('[data-testid="info-popover-panel"]').text()).toContain('five people');
+    });
+
     test('hides the whole Mob Squad card when the user has never mobbed with anybody', () => {
         const wrapper = mountDashboard({}, { mob_squad: [] });
 

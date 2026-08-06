@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import HostedSessionsList from '@/components/HostedSessionsList.vue';
 import HostedSessionsSort from '@/components/HostedSessionsSort.vue';
+import InfoPopover from '@/components/InfoPopover.vue';
 import MemberAvatar from '@/components/MemberAvatar.vue';
 import MobSquadLeaderboard from '@/components/MobSquadLeaderboard.vue';
 import PageContainer from '@/components/PageContainer.vue';
@@ -53,10 +54,14 @@ defineProps<IDashboard>();
             </div>
 
             <div data-testid="dashboard-sidebar" class="flex flex-col gap-4">
-                <!-- No empty state: until you have mobbed with somebody there is no leaderboard to
-                     head, so the card stays away rather than announcing that you have no squad. -->
                 <section v-if="mob_squad.length" class="gs-card gs-border rounded-xl border p-6 shadow-sm" aria-labelledby="mob-squad-heading">
-                    <h2 id="mob-squad-heading" class="gs-section-heading mb-5">Mob Squad</h2>
+                    <div class="mb-5 flex items-center gap-2">
+                        <h2 id="mob-squad-heading" class="gs-section-heading">Mob Squad</h2>
+                        <InfoPopover label="About Mob Squad">
+                            The five people you've shared the most growth with. Bigger group sessions don't count &mdash; only the ones small
+                            enough to really mob.
+                        </InfoPopover>
+                    </div>
                     <MobSquadLeaderboard :members="mob_squad" />
                 </section>
 
