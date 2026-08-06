@@ -37,12 +37,12 @@ function isURL(candidate: string): boolean {
 </script>
 
 <template>
-    <span>
+    <span class="min-w-0 wrap-anywhere">
         <template v-for="(part, index) in parts" :key="index">
-            <template v-if="part.isURL"
-                >{{ part.gap
-                }}<a :href="part.content" class="gs-accent-text font-medium break-all" target="_blank" @click.stop>{{ part.content }}</a></template
-            >
+            <template v-if="part.isURL">
+                {{ part.gap }}
+                <a :href="part.content" class="gs-accent-text font-medium break-all" target="_blank" @click.stop>{{ part.content }}</a>
+            </template>
             <template v-else>{{ part.gap + part.content }}</template>
         </template>
     </span>
