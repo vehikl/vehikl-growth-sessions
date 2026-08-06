@@ -72,7 +72,7 @@ function isFull(session: GrowthSession): boolean {
         </div>
 
         <!-- Session timeline -->
-        <div class="@container mt-2 min-w-0 flex-1 px-[clamp(12px,4vw,28px)] py-5 md:mt-0">
+        <div class="mt-2 min-w-0 flex-1 px-[clamp(12px,4vw,28px)] py-5 md:mt-0">
             <div class="mb-4 flex items-center gap-2.5">
                 <span class="gs-text-strong font-display text-base font-bold tracking-[0.03em] uppercase">{{ currentLabel }}</span>
                 <button
@@ -111,7 +111,7 @@ function isFull(session: GrowthSession): boolean {
             </p>
 
             <div v-for="session in sessions" :key="session.id" class="gs-divider-color flex flex-wrap gap-x-3.5 gap-y-1.5 border-b py-3">
-                <div class="gs-text-sub w-full flex-none text-sm font-semibold uppercase @xl:w-32 @xl:pt-3.5">
+                <div class="gs-text-sub w-full flex-none text-sm font-semibold uppercase md:w-32 md:pt-3.5">
                     {{ session.startTime }} – {{ session.endTime }}
                 </div>
 
@@ -153,7 +153,9 @@ function isFull(session: GrowthSession): boolean {
                                 </div>
                                 <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">{{ session.owner.name }}</div>
                                 <div v-if="tagline(session)" class="gs-text-sub mt-1 text-sm">{{ tagline(session) }}</div>
-                                <div class="gs-text-body pointer-events-none relative z-20 mt-2 max-w-full xl:max-w-1/2 text-sm leading-normal whitespace-pre-wrap">
+                                <div
+                                    class="gs-text-body pointer-events-none relative z-20 mt-2 max-w-full text-sm leading-normal whitespace-pre-wrap xl:max-w-1/2"
+                                >
                                     <LinkifiedText :text="session.topic" />
                                 </div>
                                 <div class="gs-text-muted pointer-events-none relative z-20 mt-2 flex items-center gap-1.5 text-sm font-medium">
