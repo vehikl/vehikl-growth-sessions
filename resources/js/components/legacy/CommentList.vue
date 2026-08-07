@@ -12,7 +12,7 @@ interface IProps {
 
 const props = defineProps<IProps>();
 const newComment = ref('');
-const brokenImageUrls = ref(new Set<string>());
+const brokenImageKeys = ref(new Set<string>());
 const allowsNewCommentSubmission = computed<boolean>(() => !!props.user && !!newComment.value);
 const commentFormPlaceholder = computed<string>(() => (props.user ? 'Leave a comment...' : 'You must be logged in to comment...'));
 
@@ -23,6 +23,10 @@ async function createNewComment() {
 
 function getGithubURL(comment: IComment): string {
     return new User(comment.user).githubURL;
+}
+
+function brokenImageKey(comment: IComment, index: number): string {
+    return `${comment.id}:${index}`;
 }
 
 /** Compact the backend's "1 hour ago" style timestamp into "1h ago". */
@@ -65,13 +69,13 @@ function shortTimestamp(timeStamp: string): string {
                     <p class="gs-text-body mt-1 text-sm leading-relaxed break-words whitespace-pre-wrap">
                         <template v-for="(segment, index) in comment.segments" :key="index">
                             <img
-                                v-if="segment.type === 'image' && !brokenImageUrls.has(segment.value)"
+                                v-if="segment.type === 'image' && !brokenImageKeys.has(brokenImageKey(comment, index))"
                                 :src="segment.value"
                                 alt="Shared image"
                                 referrerpolicy="no-referrer"
                                 loading="lazy"
                                 class="my-1 block max-h-64 max-w-full rounded-md"
-                                @error="brokenImageUrls.add(segment.value)"
+                                @error="brokenImageKeys.add(brokenImageKey(comment, index))"
                             />
                             <template v-else>{{ segment.value }}</template>
                         </template>
