@@ -1,31 +1,32 @@
+import { findUrls } from '@/lib/linkify';
+
 export interface CommentContentSegment {
     type: 'text' | 'image';
     value: string;
 }
 
-const URL_PATTERN = /https?:\/\/\S+/gi;
 const IMAGE_EXTENSION_PATTERN = /\.(gif|png|jpe?g|webp)(?:[?#]\S*)?$/i;
-const TRAILING_PUNCTUATION_PATTERN = /[.,!?;:)\]]+$/;
 
-/** Splits comment text into text/image segments so image & GIF URLs can be rendered as `<img>`s. */
+/**
+ * Splits comment text into text/image segments so image & GIF URLs can be rendered as `<img>`s.
+ * Finding the urls is `linkify`'s job; all this adds is deciding which of them are images.
+ */
 export function parseCommentContent(content: string): CommentContentSegment[] {
     const segments: CommentContentSegment[] = [];
     let lastIndex = 0;
 
-    for (const match of content.matchAll(URL_PATTERN)) {
-        const matchStart = match.index ?? 0;
-        const trailingPunctuation = match[0].match(TRAILING_PUNCTUATION_PATTERN)?.[0] ?? '';
-        const url = trailingPunctuation ? match[0].slice(0, -trailingPunctuation.length) : match[0];
+    for (const url of findUrls(content)) {
+        if (!IMAGE_EXTENSION_PATTERN.test(url.value)) continue;
 
-        if (!IMAGE_EXTENSION_PATTERN.test(url)) continue;
-
-        if (matchStart > lastIndex) {
-            segments.push({ type: 'text', value: content.slice(lastIndex, matchStart) });
+        if (url.start > lastIndex) {
+            segments.push({ type: 'text', value: content.slice(lastIndex, url.start) });
         }
-        segments.push({ type: 'image', value: url });
-        lastIndex = matchStart + url.length;
+        segments.push({ type: 'image', value: url.value });
+        lastIndex = url.start + url.value.length;
     }
 
+    // Unlike `toTextSegments`, an empty comment still yields one (empty) text segment so
+    // callers can render the result without special-casing nothing-to-show.
     if (lastIndex < content.length || segments.length === 0) {
         segments.push({ type: 'text', value: content.slice(lastIndex) });
     }

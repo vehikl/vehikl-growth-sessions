@@ -6,6 +6,7 @@ import { Nothingator } from '@/classes/Nothingator';
 import { WeekGrowthSessions } from '@/classes/WeekGrowthSessions';
 import DayView from '@/components/legacy/DayView.vue';
 import GrowthSessionCard from '@/components/legacy/GrowthSessionCard.vue';
+import SessionDetailDrawer from '@/components/legacy/SessionDetailDrawer.vue';
 import WeekView from '@/components/legacy/WeekView.vue';
 import Board from '@/pages/Board.vue';
 import { AnydesksApi } from '@/services/AnydesksApi';
@@ -564,6 +565,136 @@ describe('Board', () => {
             DateTime.setTestNow(`${todayDate} 18:00:00`);
 
             expect((await boardShowing({ end_time: '05:00 pm' }, authVehiklUser)).exists()).toBe(false);
+        });
+    });
+
+    describe('the detail drawer', () => {
+        async function openFirstSessionDetail() {
+            await wrapper.findComponent(GrowthSessionCard).find('button[aria-label^="View details for"]').trigger('click');
+            await flushPromises();
+        }
+
+        it('opens when a session card is clicked', async () => {
+            expect(wrapper.findComponent(SessionDetailDrawer).exists()).toBe(false);
+
+            await openFirstSessionDetail();
+
+            expect(wrapper.findComponent(SessionDetailDrawer).exists()).toBe(true);
+        });
+
+        // Mounted bare, the drawer's leave is a hard close: v-if rips it out of the DOM with no
+        // chance to animate. The transition is what keeps it mounted long enough to slide back
+        // out, and its name has to match the gs-drawer-* rules in SessionDetailDrawer.vue. Vue
+        // Test Utils stubs <Transition>, so only the wiring is observable here, not the motion.
+        it('renders the drawer inside the gs-drawer transition so it animates out', async () => {
+            await openFirstSessionDetail();
+
+            const transition = wrapper.findComponent(SessionDetailDrawer).element.parentElement;
+
+            expect(transition?.getAttribute('name')).toBe('gs-drawer');
+        });
+
+        it('closes when the drawer asks to be closed', async () => {
+            await openFirstSessionDetail();
+
+            wrapper.findComponent(SessionDetailDrawer).vm.$emit('close');
+            await flushPromises();
+
+            expect(wrapper.findComponent(SessionDetailDrawer).exists()).toBe(false);
+        });
+    });
+
+    describe('deep-linked session detail', () => {
+        const sessionOnAnotherDay = growthSessionsThisWeek.allGrowthSessions.find((gs) => gs.date === '2020-01-13')!;
+
+        async function boardAt(search: string): Promise<VueWrapper> {
+            window.history.replaceState({}, '', search);
+            const board = mount(Board);
+            await flushPromises();
+            return board;
+        }
+
+        function drawer(): VueWrapper {
+            return wrapper.findComponent(SessionDetailDrawer);
+        }
+
+        it('opens the drawer of the session named in the query string', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+
+            expect(drawer().exists()).toBe(true);
+            expect((drawer().props() as { growthSession: GrowthSession }).growthSession.id).toBe(sessionOnAnotherDay.id);
+        });
+
+        it('moves the day view to the day the deep-linked session is on', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+
+            expect(wrapper.findComponent(DayView).props('selectedIndex')).toBe(
+                growthSessionsThisWeek.weekDates.findIndex((day) => day.toDateString() === sessionOnAnotherDay.date),
+            );
+        });
+
+        it('leaves the drawer closed when the query string names a session that is not visible', async () => {
+            wrapper = await boardAt('?session=99999');
+
+            expect(drawer().exists()).toBe(false);
+        });
+
+        it('records the open session in the url so the drawer can be shared and restored', async () => {
+            wrapper.findComponent(DayView).vm.$emit('open-detail', sessionOnAnotherDay);
+            await flushPromises();
+
+            expect(new URLSearchParams(window.location.search).get('session')).toBe(String(sessionOnAnotherDay.id));
+        });
+
+        it('drops the session from the url when the drawer is closed', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+
+            drawer().vm.$emit('close');
+            await flushPromises();
+
+            expect(drawer().exists()).toBe(false);
+            expect(new URLSearchParams(window.location.search).has('session')).toBe(false);
+            expect(new URLSearchParams(window.location.search).get('date')).toBe(todayDate);
+        });
+
+        // The session belongs to the week being left behind, so carrying it into the next week's URL
+        // would hand out a link that opens no drawer at all.
+        it('drops the session when the board moves to another week', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+
+            await wrapper.find('.load-next-week').trigger('click');
+            await flushPromises();
+
+            expect(drawer().exists()).toBe(false);
+            expect(new URLSearchParams(window.location.search).has('session')).toBe(false);
+        });
+
+        // Closing the drawer and moving the week are one gesture, so undoing it is one press of
+        // Back. Two pushes here would leave the visitor pressing Back twice to get the week they left.
+        it('spends a single history entry on closing the drawer and moving the week', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+            const pushState = vi.spyOn(window.history, 'pushState');
+
+            await wrapper.find('.load-next-week').trigger('click');
+            await flushPromises();
+
+            expect(pushState).toHaveBeenCalledTimes(1);
+
+            const pushedUrl = new URLSearchParams(pushState.mock.calls[0][2] as string);
+            expect(pushedUrl.has('session')).toBe(false);
+            expect(pushedUrl.get('date')).not.toBe(todayDate);
+
+            pushState.mockRestore();
+        });
+
+        it('drops the session when the signed-in user changes', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+
+            await wrapper.setProps({ user: authVehiklUser });
+            await flushPromises();
+
+            expect(drawer().exists()).toBe(false);
+            expect(new URLSearchParams(window.location.search).has('session')).toBe(false);
         });
     });
 

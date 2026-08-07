@@ -80,6 +80,16 @@ describe('useReferenceDate', () => {
             expect(win.history.pushState).toHaveBeenCalledWith({}, '', `?view=week&date=${nextWeek}`);
         });
 
+        it('moves the reference date without touching history when the caller pushes its own url', () => {
+            const win = fakeWindow();
+            const { referenceDate, shiftBy } = useReferenceDate(win);
+
+            shiftBy(7, { pushUrl: false });
+
+            expect(referenceDate.value.toDateString()).toBe(nextWeek);
+            expect(win.history.pushState).not.toHaveBeenCalled();
+        });
+
         it('shifts from the date already in the url rather than from today', () => {
             const win = fakeWindow(`?date=${nextWeek}`);
             const { referenceDate, syncFromUrl, shiftBy } = useReferenceDate(win);

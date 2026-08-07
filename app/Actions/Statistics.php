@@ -10,12 +10,19 @@ use Illuminate\Support\Facades\Cache;
 
 class Statistics
 {
-    public function getFormattedStatisticsFor(string $startDate, string $endDate): Collection
+    /**
+     * Ranges already built during this request. The statistics page asks for the same range
+     * from more than one prop, and even a cache hit costs a full deserialisation of the matrix.
+     *
+     * @var array<string, Collection>
+     */
+    private array $resolved = [];
+
+    public function getFormattedStatisticsFor(string $startDate, string $endDate, ?int $cacheSeconds = null): Collection
     {
-        return Cache::remember(
+        return $this->resolved["{$startDate}-{$endDate}"] ??= Cache::remember(
             "statistics-{$startDate}-{$endDate}",
-            config('statistics.cache_duration_in_seconds'
-            ),
+            $cacheSeconds ?? config('statistics.cache_duration_in_seconds'),
             function () use ($startDate, $endDate) {
                 $exceptionUserIds = implode(',', config('statistics.loosen_participation_rules.user_ids', []));
                 $loosenParticipationRules = config('statistics.loosen_participation_rules.user_ids')
@@ -25,12 +32,11 @@ class Statistics
                 $atendeeId = UserType::ATTENDEE_ID;
                 $ownerId = UserType::OWNER_ID;
 
-
                 $participationCountStatistics = User::query()
                     ->withCount([
-                        'sessionsAttended' => fn($query) => $query->whereBetween('date', [$startDate, $endDate]),
-                        'sessionsHosted' => fn($query) => $query->whereBetween('date', [$startDate, $endDate]),
-                        'sessionsWatched' => fn($query) => $query->whereBetween('date', [$startDate, $endDate])
+                        'sessionsAttended' => fn ($query) => $query->whereBetween('date', [$startDate, $endDate]),
+                        'sessionsHosted' => fn ($query) => $query->whereBetween('date', [$startDate, $endDate]),
+                        'sessionsWatched' => fn ($query) => $query->whereBetween('date', [$startDate, $endDate]),
                     ])
                     ->get()
                     ->keyBy('id');
@@ -55,7 +61,7 @@ class Statistics
                    END) AS has_mobbed
                    SelectStatement
                     )
-                    ->whereHas('growthSession', fn($query) => $query->whereBetween('date', [$startDate, $endDate]))
+                    ->whereHas('growthSession', fn ($query) => $query->whereBetween('date', [$startDate, $endDate]))
                     ->groupBy(['main_user_id', 'main_user_name', 'other_user_id', 'other_user_name'])
                     ->get();
 
@@ -65,15 +71,15 @@ class Statistics
 
                 return $allVisibleUsers->map(function ($user) use ($userStatistics, $participationCountStatistics, $allVisibleUsers) {
                     $userStats = $userStatistics->where('main_user_id', $user->id);
-                    $hasMobbedWith = $userStats->filter(fn($stat) => $stat->has_mobbed);
+                    $hasMobbedWith = $userStats->filter(fn ($stat) => $stat->has_mobbed);
 
                     // Get all users that this user has mobbed with
                     $hasMobbedWithIds = $hasMobbedWith->pluck('other_user_id')->toArray();
 
                     // Get all users that this user has not mobbed with
                     $hasNotMobbedWith = $allVisibleUsers
-                        ->reject(fn($otherUser) => $otherUser->id === $user->id || in_array($otherUser->id, $hasMobbedWithIds))
-                        ->map(fn($otherUser) => [
+                        ->reject(fn ($otherUser) => $otherUser->id === $user->id || in_array($otherUser->id, $hasMobbedWithIds))
+                        ->map(fn ($otherUser) => [
                             'id' => $otherUser->id,
                             'name' => $otherUser->name,
                         ]);
@@ -85,12 +91,13 @@ class Statistics
                     return [
                         'name' => $user->name,
                         'user_id' => $user->id,
+                        'avatar' => $user->avatar,
                         'sessions_attended_count' => $attendedCount,
                         'sessions_hosted_count' => $hostedCount,
                         'sessions_watched_count' => $watchedCount,
                         'total_sessions_count' => $attendedCount + $hostedCount + $watchedCount,
                         'has_mobbed_with_count' => $hasMobbedWith->count(),
-                        'has_mobbed_with' => $hasMobbedWith->map(fn($mobbedWith) => [
+                        'has_mobbed_with' => $hasMobbedWith->map(fn ($mobbedWith) => [
                             'id' => $mobbedWith->other_user_id,
                             'name' => $mobbedWith->other_user_name,
                         ])->values(),

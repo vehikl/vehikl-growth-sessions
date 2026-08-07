@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import { GrowthSession } from '@/classes/GrowthSession';
 import CommentList from '@/components/legacy/CommentList.vue';
+import LinkifiedText from '@/components/legacy/LinkifiedText.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
-import { useInitials } from '@/composables/useInitials';
-import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
+import UserAvatar from '@/components/UserAvatar.vue';
+import { useCopyStatus } from '@/composables/useCopyStatus';
+import { capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
-import { ChevronRight } from 'lucide-vue-next';
+import { ChevronRight, Forward, X } from 'lucide-vue-next';
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 
 interface IProps {
@@ -19,6 +21,24 @@ const emit = defineEmits(['close', 'edit-requested', 'delete-requested', 'refres
 const panel = ref<HTMLElement | null>(null);
 let previouslyFocused: HTMLElement | null = null;
 
+/**
+ * The caller keeps us mounted for the leave transition, so unmount is too late to stop
+ * trapping focus: a `Tab` straight after `Escape` would be pulled back into the panel that
+ * is already sliding away. Every exit goes through `close()`, which stands the trap down first.
+ */
+const isActive = ref(true);
+
+function close(): void {
+    isActive.value = false;
+    emit('close');
+}
+
+/** Edit and delete close the drawer on the caller's side, so they stand the trap down too. */
+function request(event: 'edit-requested' | 'delete-requested'): void {
+    isActive.value = false;
+    emit(event, props.growthSession);
+}
+
 function focusableElements(): HTMLElement[] {
     if (!panel.value) return [];
     return Array.from(
@@ -27,8 +47,10 @@ function focusableElements(): HTMLElement[] {
 }
 
 function onKeydown(event: KeyboardEvent) {
+    if (!isActive.value) return;
+
     if (event.key === 'Escape') {
-        emit('close');
+        close();
         return;
     }
 
@@ -59,8 +81,6 @@ onUnmounted(() => {
     previouslyFocused?.focus();
 });
 
-const { getInitials } = useInitials();
-
 const status = computed(() => sessionStatus(props.growthSession));
 const meta = computed(() => statusMeta(status.value));
 const mobtimeUrl = computed(() => `https://mobtime.vehikl.com/vgs-${props.growthSession.id}`);
@@ -79,49 +99,54 @@ async function leave() {
     await props.growthSession.leave();
     emit('refresh');
 }
+
+const { status: shareResult, copy } = useCopyStatus();
+
+async function share() {
+    await copy(props.growthSession.shareUrl);
+}
 </script>
 
 <template>
-    <div
-        class="gs-overlay-bg gs-fade-in fixed inset-0 z-30 flex justify-end"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="drawer-title"
-        @click="emit('close')"
-    >
-        <div ref="panel" tabindex="-1" class="gs-card gs-drawer-panel h-full w-full max-w-2xl overflow-y-auto p-7 shadow-2xl outline-none" @click.stop>
+    <div class="gs-overlay-bg fixed inset-0 z-30 flex justify-end" role="dialog" aria-modal="true" aria-labelledby="drawer-title" @click="close">
+        <div
+            ref="panel"
+            tabindex="-1"
+            class="gs-card gs-drawer-panel h-full w-full max-w-2xl overflow-y-auto p-7 shadow-2xl outline-none"
+            @click.stop
+        >
             <div class="mb-3 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <span
-                        class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                        :style="{ backgroundColor: avatarColor(growthSession.owner.name) }"
-                    >
-                        <img
-                            v-if="growthSession.owner.avatar"
-                            :src="growthSession.owner.avatar"
-                            :alt="growthSession.owner.name"
-                            class="h-full w-full object-cover"
-                        />
-                        <template v-else>{{ getInitials(growthSession.owner.name) }}</template>
-                    </span>
+                    <UserAvatar :name="growthSession.owner.name" :avatar="growthSession.owner.avatar" />
                     <span class="gs-text-sub text-sm font-semibold tracking-[0.03em]">{{ growthSession.owner.name }}</span>
                 </div>
                 <button
                     type="button"
                     class="gs-text-muted transition-smooth hover:text-gs-accent cursor-pointer text-xs font-semibold tracking-[0.04em]"
-                    @click="emit('close')"
+                    aria-label="Close"
+                    @click="close"
                 >
-                    CLOSE ✕
+                    <X :size="16" aria-hidden="true" />
                 </button>
             </div>
 
             <h2 id="drawer-title" class="gs-text-strong font-display mb-2.5 text-2xl leading-tight font-bold">{{ growthSession.title }}</h2>
 
-            <div class="mb-3 flex items-center gap-2.5">
-                <span class="gs-text-sub text-xs font-semibold">{{ growthSession.startTime }}–{{ growthSession.endTime }}</span>
-                <span class="flex items-center gap-1.5 text-xs font-bold tracking-[0.05em]" :style="{ color: meta.color }">
-                    <span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: meta.color }"></span>{{ meta.label }}
-                </span>
+            <div class="mb-3 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="gs-text-sub text-xs font-semibold">{{ growthSession.startTime }}–{{ growthSession.endTime }}</span>
+                    <span class="flex items-center gap-1.5 text-xs font-bold tracking-[0.05em]" :style="{ color: meta.color }">
+                        <span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: meta.color }"></span>{{ meta.label }}
+                    </span>
+                </div>
+                <button
+                    type="button"
+                    class="share-button gs-btn-secondary flex flex-none cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold"
+                    @click="share"
+                >
+                    <Forward :size="16" aria-hidden="true" />
+                    Share
+                </button>
             </div>
 
             <div v-if="growthSession.tags.length" class="mb-4 flex flex-wrap gap-1.5">
@@ -133,7 +158,9 @@ async function leave() {
                 >
             </div>
 
-            <p class="gs-text-body mb-5 text-sm leading-[1.6] whitespace-pre-wrap">{{ growthSession.topic }}</p>
+            <p class="gs-text-body mb-5 text-sm leading-[1.6] whitespace-pre-wrap">
+                <LinkifiedText :text="growthSession.topic" />
+            </p>
 
             <div class="mb-6 flex flex-col gap-2.5">
                 <button
@@ -164,7 +191,7 @@ async function leave() {
                     v-if="growthSession.canEditOrDelete(user)"
                     type="button"
                     class="update-button gs-btn-primary cursor-pointer rounded-md py-3 text-sm font-semibold"
-                    @click="emit('edit-requested', growthSession)"
+                    @click="request('edit-requested')"
                 >
                     Edit
                 </button>
@@ -172,10 +199,16 @@ async function leave() {
                     v-if="growthSession.canEditOrDelete(user)"
                     type="button"
                     class="delete-button transition-smooth cursor-pointer rounded-md border border-red-500 py-3 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
-                    @click="emit('delete-requested', growthSession)"
+                    @click="request('delete-requested')"
                 >
                     Delete
                 </button>
+                <span v-if="shareResult === 'copied'" role="status" class="text-center text-sm font-semibold text-green-600">
+                    Link copied to clipboard
+                </span>
+                <span v-else-if="shareResult === 'failed'" role="status" class="gs-text-body text-center text-sm">
+                    Could not copy the link — <span class="gs-accent-text font-medium break-all select-all">{{ growthSession.shareUrl }}</span>
+                </span>
             </div>
 
             <div class="gs-border flex flex-col gap-3.5 border-t pt-4">
@@ -201,13 +234,7 @@ async function leave() {
                                 rel="noopener noreferrer"
                                 class="group focus-visible:ring-gs-accent flex items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-black/5 focus-visible:ring-2 focus-visible:outline-none dark:hover:bg-white/8"
                             >
-                                <span
-                                    class="flex h-8 w-8 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                                    :style="{ backgroundColor: avatarColor(attendee.name) }"
-                                >
-                                    <img v-if="attendee.avatar" :src="attendee.avatar" :alt="attendee.name" class="h-full w-full object-cover" />
-                                    <template v-else>{{ getInitials(attendee.name) }}</template>
-                                </span>
+                                <UserAvatar :name="attendee.name" :avatar="attendee.avatar" />
                                 <span
                                     class="gs-text-strong group-hover:text-gs-accent min-w-0 flex-1 text-sm font-semibold tracking-[0.02em] transition-colors"
                                     >{{ attendee.name }}</span
@@ -226,13 +253,7 @@ async function leave() {
                     <div class="gs-text-muted mb-2.5 text-xs font-bold tracking-[0.06em]">WATCHERS ({{ growthSession.watchers.length }})</div>
                     <ul class="flex flex-col gap-2.5">
                         <li v-for="w in growthSession.watchers" :key="w.id" class="flex items-center gap-2.5">
-                            <span
-                                class="flex h-8 w-8 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                                :style="{ backgroundColor: avatarColor(w.name) }"
-                            >
-                                <img v-if="w.avatar" :src="w.avatar" :alt="w.name" class="h-full w-full object-cover" />
-                                <template v-else>{{ getInitials(w.name) }}</template>
-                            </span>
+                            <UserAvatar :name="w.name" :avatar="w.avatar" />
                             <span class="gs-text-strong text-sm font-semibold tracking-[0.02em] uppercase">{{ w.name }}</span>
                         </li>
                     </ul>
@@ -245,3 +266,34 @@ async function leave() {
         </div>
     </div>
 </template>
+
+<style scoped>
+/* Open and close animation. The caller mounts this component behind a <Transition name="gs-drawer">
+   so closing plays in reverse instead of tearing the drawer out of the DOM; Vue puts the
+   gs-drawer-* classes on our root element, which carries this block's scope id. */
+.gs-drawer-enter-active,
+.gs-drawer-leave-active {
+    transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Same duration as the overlay fade, so Vue does not unmount us mid-slide. */
+.gs-drawer-enter-active .gs-drawer-panel,
+.gs-drawer-leave-active .gs-drawer-panel {
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gs-drawer-enter-from,
+.gs-drawer-leave-to {
+    opacity: 0;
+}
+
+.gs-drawer-enter-from .gs-drawer-panel,
+.gs-drawer-leave-to .gs-drawer-panel {
+    transform: translateX(100%);
+}
+
+/* Let clicks reach the page again as soon as we start closing. */
+.gs-drawer-leave-active {
+    pointer-events: none;
+}
+</style>

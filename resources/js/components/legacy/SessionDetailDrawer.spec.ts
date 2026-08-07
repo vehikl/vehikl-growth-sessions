@@ -91,10 +91,7 @@ describe('SessionDetailDrawer', () => {
 
     it('emits close from the close button, the overlay and the Escape key', async () => {
         const closeButton = mountDrawer(makeSession(), vehiklUser);
-        await closeButton
-            .findAll('button')
-            .find((b) => b.text().includes('CLOSE'))!
-            .trigger('click');
+        await closeButton.find('button[aria-label="Close"]').trigger('click');
         expect(closeButton.emitted('close')).toBeTruthy();
 
         const overlay = mountDrawer(makeSession(), vehiklUser);
@@ -105,6 +102,47 @@ describe('SessionDetailDrawer', () => {
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
         await escape.vm.$nextTick();
         expect(escape.emitted('close')).toBeTruthy();
+    });
+
+    /**
+     * The caller keeps the drawer mounted for its leave transition, so unmount is too late to
+     * stop trapping focus — the keyboard has to stop reaching it the moment it starts closing.
+     */
+    describe('once it has started closing', () => {
+        it('ignores a second Escape', async () => {
+            const wrapper = mountDrawer(makeSession(), vehiklUser);
+
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.emitted('close')).toHaveLength(1);
+        });
+
+        it('lets Tab through rather than pulling focus back into the panel', async () => {
+            const wrapper = mountDrawer(makeSession(), vehiklUser);
+            const lastFocusable = wrapper.findAll('button').at(-1)!.element as HTMLElement;
+
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+            await wrapper.vm.$nextTick();
+            lastFocusable.focus();
+
+            const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true });
+            document.dispatchEvent(tab);
+
+            expect(tab.defaultPrevented).toBe(false);
+        });
+
+        it('ignores Escape after the edit button has handed off to the form', async () => {
+            const wrapper = mountDrawer(makeSession(), owner);
+
+            await wrapper.find('.update-button').trigger('click');
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.emitted('edit-requested')).toHaveLength(1);
+            expect(wrapper.emitted('close')).toBeFalsy();
+        });
     });
 
     it('joins the session and asks for a refresh when the join button is clicked', async () => {
@@ -120,6 +158,40 @@ describe('SessionDetailDrawer', () => {
 
         await flushPromises();
         expect(wrapper.emitted('refresh')).toBeTruthy();
+    });
+
+    describe('sharing', () => {
+        afterEach(() => {
+            Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+        });
+
+        it('copies a link to this session and confirms the copy', async () => {
+            const writeText = vi.fn().mockResolvedValue(undefined);
+            Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+            const session = makeSession();
+            const wrapper = mountDrawer(session, vehiklUser);
+
+            await wrapper.find('.share-button').trigger('click');
+            await flushPromises();
+
+            expect(writeText).toHaveBeenCalledWith(session.shareUrl);
+            expect(wrapper.get('[role="status"]').text()).toContain('Link copied');
+        });
+
+        it('offers sharing to a visitor who cannot act on the session', () => {
+            expect(mountDrawer(makeSession()).find('.share-button').exists()).toBe(true);
+        });
+
+        it('says so when the link could not be copied', async () => {
+            Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+            Object.defineProperty(document, 'execCommand', { value: vi.fn().mockReturnValue(false), configurable: true });
+            const wrapper = mountDrawer(makeSession(), vehiklUser);
+
+            await wrapper.find('.share-button').trigger('click');
+            await flushPromises();
+
+            expect(wrapper.get('[role="status"]').text()).toContain('Could not copy');
+        });
     });
 
     it('emits edit-requested and delete-requested for the owner', async () => {
