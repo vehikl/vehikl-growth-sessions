@@ -1,3 +1,4 @@
+import trailingPunctuationCases from '@/../../tests/fixtures/UrlTrailingPunctuation.json';
 import { findUrls, toTextSegments } from './linkify';
 
 describe('toTextSegments', () => {
@@ -66,6 +67,16 @@ describe('toTextSegments', () => {
 
     it('does not link a scheme with nothing after it', () => {
         expect(toTextSegments('reach us at tel: or mailto: whichever')).toEqual([{ type: 'text', value: 'reach us at tel: or mailto: whichever' }]);
+    });
+});
+
+describe('trailing punctuation fixture shared with CommentContentParserTest.php', () => {
+    // This parser and the backend's image url grammar (app/Support/CommentContentParser.php) trim
+    // trailing punctuation independently and have already diverged on a few characters - this fixture
+    // pins down every known case, agreement and divergence alike, so a future change to either side
+    // shows up as a failing test instead of silent drift.
+    test.each(trailingPunctuationCases)('$description', ({ input, js }) => {
+        expect(findUrls(input).map((url) => url.value)).toEqual([js]);
     });
 });
 

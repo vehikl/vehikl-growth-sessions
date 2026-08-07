@@ -2,6 +2,13 @@
 
 namespace App\Support;
 
+/**
+ * Detects image URLs in comment text. This runs server-side because it's a trust boundary (see
+ * `parse()`), unlike the frontend's general-purpose url grammar in resources/js/lib/linkify.ts,
+ * which links any url in any piece of text and has no security role. The two intentionally aren't
+ * shared, but their punctuation-trimming rules have already diverged in places - see
+ * tests/fixtures/UrlTrailingPunctuation.json, exercised by both suites, for the known cases.
+ */
 class CommentContentParser
 {
     // `(?!https?:\/\/)` stops a match right before a second URL starts, so two URLs joined by any
@@ -10,7 +17,9 @@ class CommentContentParser
     // link (quotes, markdown, code spans) — unlike e.g. a comma, which is legal inside a URL's own
     // path or query.
     private const URL_PATTERN = '/https?:\/\/(?:(?!https?:\/\/)[^\s"\'<>`|])+/i';
+
     private const IMAGE_EXTENSION_PATTERN = '/\.(gif|png|jpe?g|webp)$/i';
+
     // `!` and `:` are deliberately excluded: unlike the rest of this set they're plausible literal
     // characters in a signed CDN URL's query string, and there's no reliable way to tell that apart
     // from sentence punctuation, so we err on the side of not corrupting the URL.
@@ -27,7 +36,7 @@ class CommentContentParser
      */
     public static function parse(string $content, bool $allowImages): array
     {
-        if (!$allowImages) {
+        if (! $allowImages) {
             return [['type' => 'text', 'value' => $content]];
         }
 
@@ -39,7 +48,7 @@ class CommentContentParser
         foreach ($matches[0] as [$rawUrl, $matchStart]) {
             $url = self::stripTrailingPunctuation($rawUrl);
 
-            if (!self::hasImageExtension($url)) {
+            if (! self::hasImageExtension($url)) {
                 continue;
             }
 
@@ -62,7 +71,7 @@ class CommentContentParser
     {
         $path = parse_url($url, PHP_URL_PATH);
 
-        if (!is_string($path)) {
+        if (! is_string($path)) {
             return false;
         }
 
@@ -88,7 +97,7 @@ class CommentContentParser
                 if ($closeParens <= $openParens) {
                     break;
                 }
-            } elseif (!in_array($char, self::TRAILING_PUNCTUATION_CHARS, true)) {
+            } elseif (! in_array($char, self::TRAILING_PUNCTUATION_CHARS, true)) {
                 break;
             }
 

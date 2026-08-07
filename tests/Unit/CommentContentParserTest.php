@@ -255,4 +255,31 @@ class CommentContentParserTest extends TestCase
             CommentContentParser::parse($url, true)
         );
     }
+
+    /**
+     * Shared with linkify.spec.ts via UrlTrailingPunctuation.json. This parser and the frontend's
+     * url grammar (resources/js/lib/linkify.ts) trim trailing punctuation independently and have
+     * already diverged on a few characters - this fixture pins down every known case, agreement and
+     * divergence alike, so a future change to either side shows up as a failing test instead of
+     * silent drift.
+     *
+     * @dataProvider trailingPunctuationProvider
+     */
+    public function testItMatchesTheSharedTrailingPunctuationFixture(string $description, string $input, string $expectedPhp)
+    {
+        $result = CommentContentParser::parse($input, true);
+        $imageSegment = collect($result)->firstWhere('type', 'image');
+
+        $this->assertNotNull($imageSegment, "$description: no image segment found");
+        $this->assertEquals($expectedPhp, $imageSegment['value'], $description);
+    }
+
+    public static function trailingPunctuationProvider(): array
+    {
+        $cases = json_decode(file_get_contents(__DIR__.'/../fixtures/UrlTrailingPunctuation.json'), true);
+
+        return collect($cases)
+            ->mapWithKeys(fn (array $case) => [$case['description'] => [$case['description'], $case['input'], $case['php']]])
+            ->all();
+    }
 }
