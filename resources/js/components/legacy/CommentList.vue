@@ -2,7 +2,6 @@
 import { GrowthSession } from '@/classes/GrowthSession';
 import { User } from '@/classes/User';
 import VAvatar from '@/components/legacy/VAvatar.vue';
-import { parseCommentContent } from '@/lib/commentContent';
 import { IComment, IUser } from '@/types';
 import { computed, ref } from 'vue';
 
@@ -16,12 +15,6 @@ const newComment = ref('');
 const brokenImageUrls = ref(new Set<string>());
 const allowsNewCommentSubmission = computed<boolean>(() => !!props.user && !!newComment.value);
 const commentFormPlaceholder = computed<string>(() => (props.user ? 'Leave a comment...' : 'You must be logged in to comment...'));
-const commentSegmentsById = computed(
-    () =>
-        new Map(
-            props.growthSession.comments.map((comment) => [comment.id, parseCommentContent(comment.content, comment.user.is_vehikl_member === true)]),
-        ),
-);
 
 async function createNewComment() {
     await props.growthSession.postComment(newComment.value);
@@ -70,7 +63,7 @@ function shortTimestamp(timeStamp: string): string {
                         </button>
                     </div>
                     <p class="gs-text-body mt-1 text-sm leading-relaxed break-words whitespace-pre-wrap">
-                        <template v-for="(segment, index) in commentSegmentsById.get(comment.id) ?? []" :key="index">
+                        <template v-for="(segment, index) in comment.segments" :key="index">
                             <img
                                 v-if="segment.type === 'image' && !brokenImageUrls.has(segment.value)"
                                 :src="segment.value"

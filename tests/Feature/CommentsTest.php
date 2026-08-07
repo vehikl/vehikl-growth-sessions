@@ -94,6 +94,37 @@ class CommentsTest extends TestCase
         $this->assertFalse($comments->firstWhere('id', $guestComment->id)['user']['is_vehikl_member']);
     }
 
+    public function testCommentSegmentsRenderImagesOnlyForVehiklMemberAuthors()
+    {
+        $vehiklMember = User::factory()->create(['is_vehikl_member' => true]);
+        $nonMember = User::factory()->create(['is_vehikl_member' => false]);
+        $growthSession = GrowthSession::factory()->create();
+        $imageUrl = 'https://example.com/funny.gif';
+        $memberComment = Comment::factory()->create([
+            'growth_session_id' => $growthSession->id,
+            'user_id' => $vehiklMember->id,
+            'content' => $imageUrl,
+        ]);
+        $guestComment = Comment::factory()->create([
+            'growth_session_id' => $growthSession->id,
+            'user_id' => $nonMember->id,
+            'content' => $imageUrl,
+        ]);
+
+        $comments = collect(
+            $this->getJson(route('growth_sessions.comments.index', $growthSession))->json()
+        );
+
+        $this->assertEquals(
+            [['type' => 'image', 'value' => $imageUrl]],
+            $comments->firstWhere('id', $memberComment->id)['segments']
+        );
+        $this->assertEquals(
+            [['type' => 'text', 'value' => $imageUrl]],
+            $comments->firstWhere('id', $guestComment->id)['segments']
+        );
+    }
+
     public function testAUserCanDeleteTheirComment()
     {
         $comment = Comment::factory()->create();
