@@ -116,16 +116,13 @@ onBeforeUnmount(() => {
 
         <div class="hidden items-center justify-end gap-x-3 md:flex lg:gap-x-4">
             <template v-if="$page.props.auth.user">
-                <template v-if="$page.props.auth.user.is_vehikl_member">
-                    <Link :href="route('home')" :class="navigationClass('home')">Board</Link>
-                    <Link :href="route('statistics.index')" :class="navigationClass('statistics.index')">Statistics</Link>
-                    <Link :href="route('about')" :class="navigationClass('about')">About</Link>
-                </template>
-
-                <template v-else>
-                    <Link :href="route('home')" :class="navigationClass('home')">Board</Link>
-                    <Link :href="route('about')" :class="navigationClass('about')">About</Link>
-                </template>
+                <!-- Dashboard leads: it is the only "you" surface, and the rest are "everyone" surfaces. -->
+                <Link :href="route('dashboard')" :class="navigationClass('dashboard')">Dashboard</Link>
+                <Link :href="route('home')" :class="navigationClass('home')">Board</Link>
+                <Link v-if="$page.props.auth.user.is_vehikl_member" :href="route('statistics.index')" :class="navigationClass('statistics.index')">
+                    Statistics
+                </Link>
+                <Link :href="route('about')" :class="navigationClass('about')">About</Link>
 
                 <span class="mx-1 h-6 w-px bg-white/15 sm:mx-2"></span>
 
@@ -265,6 +262,13 @@ onBeforeUnmount(() => {
                 >
                     <nav v-if="$page.props.auth.user" class="space-y-1" aria-label="Mobile navigation">
                         <Link
+                            :href="route('dashboard')"
+                            class="gs-text-body block rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
+                            @click="mobileMenuOpen = false"
+                        >
+                            Dashboard
+                        </Link>
+                        <Link
                             :href="route('home')"
                             class="gs-text-body block rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
                             @click="mobileMenuOpen = false"
@@ -320,9 +324,8 @@ onBeforeUnmount(() => {
                             <kbd class="gs-text-muted text-xs">T</kbd>
                         </button>
                     </div>
-                    <div class="gs-border mt-2 space-y-1 border-t pt-2">
+                    <div v-if="$page.props.auth.user" class="gs-border mt-2 space-y-1 border-t pt-2">
                         <Link
-                            v-if="$page.props.auth.user"
                             :href="route('logout')"
                             method="post"
                             as="button"

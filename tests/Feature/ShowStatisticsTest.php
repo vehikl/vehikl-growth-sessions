@@ -73,6 +73,27 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
+    public function testEachTopHostCarriesTheAvatarTheListRenders()
+    {
+        $this->setTestNowToASafeWednesday();
+
+        $host = User::factory()->vehiklMember()->create([
+            'name' => 'Prolific',
+            'avatar' => 'https://example.test/prolific.png',
+            'is_visible_in_statistics' => true,
+        ]);
+
+        $this->makeGrowthSessionOwnedBy($host, today());
+
+        $this->actingAs($host)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('top_hosts.0.name', 'Prolific')
+                ->where('top_hosts.0.avatar', 'https://example.test/prolific.png')
+            );
+    }
+
     public function testItReturnsTagUsageCountsForTheCurrentWeek()
     {
         $this->setTestNowToASafeWednesday();
@@ -97,37 +118,6 @@ class ShowStatisticsTest extends TestCase
                 ->where('tags.1.name', 'Vue')
                 ->where('tags.1.sessions_count', 1)
             );
-    }
-
-    public function testItReturnsTheCurrentUsersYetToMobWithListForAllTime()
-    {
-        [$owner, , $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
-
-        $this->actingAs($owner)
-            ->get(route('statistics.index'))
-            ->assertSuccessful()
-            ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('yet_to_mob_with', 1)
-                ->where('yet_to_mob_with.0.id', $nonParticipant->id)
-                ->where('yet_to_mob_with.0.name', $nonParticipant->name)
-            );
-    }
-
-    public function testTheYetToMobWithListIsNotLimitedToTheCurrentWeek()
-    {
-        $this->setTestNowToASafeWednesday();
-
-        [$owner, $attendee] = User::factory()->vehiklMember()->count(2)
-            ->sequence(['name' => 'Owner'], ['name' => 'Attendee'])
-            ->create(['is_visible_in_statistics' => true]);
-
-        // Their only session together was well before the current week.
-        $this->makeGrowthSessionWithSingleAttendee($attendee, $owner, today()->subDays(30));
-
-        $this->actingAs($owner)
-            ->get(route('statistics.index'))
-            ->assertSuccessful()
-            ->assertInertia(fn (AssertableInertia $page) => $page->has('yet_to_mob_with', 0));
     }
 
     private function makeGrowthSessionOwnedBy(User $owner, CarbonInterface $date): void
