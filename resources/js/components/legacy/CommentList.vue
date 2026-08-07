@@ -68,6 +68,8 @@ function shortTimestamp(timeStamp: string): string {
                                 v-if="segment.type === 'image'"
                                 :src="segment.value"
                                 alt="Shared image"
+                                referrerpolicy="no-referrer"
+                                loading="lazy"
                                 class="my-1 block max-h-64 max-w-full rounded-md"
                             />
                             <template v-else>{{ segment.value }}</template>
