@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onClickOutside, useEventListener } from '@vueuse/core';
+import { useEventListener } from '@vueuse/core';
 import { ref, useId } from 'vue';
 
 defineProps<{ label: string }>();
@@ -8,7 +8,9 @@ const panelId = useId();
 const open = ref(false);
 const root = ref<HTMLElement | null>(null);
 
-onClickOutside(root, () => (open.value = false));
+useEventListener(window, 'pointerdown', (event: PointerEvent) => {
+    if (!root.value?.contains(event.target as Node)) open.value = false;
+});
 useEventListener(window, 'keydown', (event: KeyboardEvent) => {
     if (event.key === 'Escape') open.value = false;
 });

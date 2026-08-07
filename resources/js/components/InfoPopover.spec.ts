@@ -56,16 +56,23 @@ describe('InfoPopover', () => {
         expect(trigger.attributes('aria-controls')).toBe(wrapper.find('[data-testid="info-popover-panel"]').attributes('id'));
     });
 
-    it('gives each popover on a page its own id, so triggers do not point at one another’s panel', async () => {
-        const first = mountPopover();
-        const second = mountPopover();
-
-        await first.find('[data-testid="info-popover-trigger"]').trigger('click');
-        await second.find('[data-testid="info-popover-trigger"]').trigger('click');
-
-        expect(first.find('[data-testid="info-popover-panel"]').attributes('id')).not.toBe(
-            second.find('[data-testid="info-popover-panel"]').attributes('id'),
+    it('gives each popover on a page its own id, so triggers do not point at one another’s panel', () => {
+        const page = mount(
+            {
+                components: { InfoPopover },
+                template: `
+                    <div>
+                        <InfoPopover label="About Mob Squad">The five people you have mobbed with most.</InfoPopover>
+                        <InfoPopover label="About Top tags">The tags you have used most.</InfoPopover>
+                    </div>
+                `,
+            },
+            { attachTo: document.body },
         );
+
+        const [first, second] = page.findAll('[data-testid="info-popover-trigger"]');
+
+        expect(first.attributes('aria-controls')).not.toBe(second.attributes('aria-controls'));
     });
 
     it('dismisses on Escape, so the keyboard is never trapped by an aside', async () => {
