@@ -40,6 +40,35 @@ describe('GrowthSession', () => {
         expect(growthSession.googleCalendarDate).toEqual('20200101T200000Z/20200101T220000Z');
     });
 
+    describe('shareUrl', () => {
+        const originalUrl = window.location.href;
+
+        afterEach(() => {
+            window.history.replaceState({}, '', originalUrl);
+        });
+
+        it('points at the board week that holds the session, with its detail open', () => {
+            window.history.replaceState({}, '', '/board');
+
+            const url = new URL(new GrowthSession({ ...growthSessionJson, id: 42 }).shareUrl);
+
+            expect(url.origin).toEqual(window.location.origin);
+            expect(url.pathname).toEqual('/board');
+            expect(url.searchParams.get('date')).toEqual('2020-01-01');
+            expect(url.searchParams.get('session')).toEqual('42');
+        });
+
+        it('drops whatever else the current address bar is carrying', () => {
+            window.history.replaceState({}, '', '/board?date=2021-05-05&session=7&view=week');
+
+            const url = new URL(new GrowthSession({ ...growthSessionJson, id: 42 }).shareUrl);
+
+            expect(url.searchParams.get('date')).toEqual('2020-01-01');
+            expect(url.searchParams.get('session')).toEqual('42');
+            expect(url.searchParams.has('view')).toBe(false);
+        });
+    });
+
     describe('canJoin', () => {
         it('prevents joining when limit reached', () => {
             const growthSession: GrowthSession = new GrowthSession({ ...growthSessionJson, attendees: [], date: '2099-01-01', attendee_limit: 1 });

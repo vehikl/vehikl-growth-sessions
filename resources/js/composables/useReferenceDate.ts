@@ -21,11 +21,18 @@ export function useReferenceDate(win: ReferenceDateWindow = window) {
         referenceDate.value = urlSearchParams.has('date') ? DateTime.parseByDate(urlSearchParams.get('date')!) : DateTime.today();
     }
 
-    /** Move the reference date and record the move in the URL. */
-    function shiftBy(deltaDays: number): void {
+    /**
+     * Move the reference date and record the move in the URL. Pass `pushUrl: false` when the
+     * caller is changing other query parameters in the same gesture and wants to write them
+     * all in one history entry — otherwise the move costs the visitor two presses of Back.
+     */
+    function shiftBy(deltaDays: number, { pushUrl = true }: { pushUrl?: boolean } = {}): void {
         const next = DateTime.parseByDate(referenceDate.value.toDateString());
         next.addDays(deltaDays);
         referenceDate.value = next;
+
+        if (!pushUrl) return;
+
         const urlSearchParams = new URLSearchParams(win.location.search);
         urlSearchParams.set('date', referenceDate.value.toDateString());
         win.history.pushState({}, '', `?${urlSearchParams.toString()}`);

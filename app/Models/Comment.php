@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Observers\CommentObserver;
+use App\Support\CommentContentParser;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,7 +18,7 @@ class Comment extends Model
 
     protected $fillable = ['content'];
     protected $with = ['user'];
-    protected $appends = ['time_stamp'];
+    protected $appends = ['time_stamp', 'segments'];
 
     protected function casts(): array
     {
@@ -40,6 +41,13 @@ class Comment extends Model
     {
         return Attribute::make(
             get: fn() => $this->created_at->diffForHumans(),
+        );
+    }
+
+    protected function segments(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => CommentContentParser::parse($this->content, (bool) $this->user?->is_vehikl_member),
         );
     }
 }
