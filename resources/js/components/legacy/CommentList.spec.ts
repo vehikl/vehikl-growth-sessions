@@ -71,4 +71,18 @@ describe('CommentList', () => {
     it('renders comment content without an image URL as plain text', () => {
         expect(wrapper.find('p img').exists()).toBe(false);
     });
+
+    it('falls back to the raw URL when an embedded image fails to load', async () => {
+        const imageUrl = 'https://example.com/dead-link.gif';
+        const sessionWithImageComment = new GrowthSession({
+            ...growthSessionWithCommentsJson,
+            comments: [{ ...growthSessionWithCommentsJson.comments[0], content: imageUrl }],
+        });
+        wrapper = mount(CommentList, { propsData: { growthSession: sessionWithImageComment, user } });
+
+        await wrapper.find('p img').trigger('error');
+
+        expect(wrapper.find('p img').exists()).toBe(false);
+        expect(wrapper.find('p').text()).toBe(imageUrl);
+    });
 });

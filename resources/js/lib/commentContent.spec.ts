@@ -59,4 +59,19 @@ describe('parseCommentContent', () => {
         const url = 'https://example.com/funny.GIF';
         expect(parseCommentContent(url)).toEqual([{ type: 'image', value: url }]);
     });
+
+    it.each(['pdf', 'mp4', 'exe', 'svg'])('does not treat a .%s URL as an image', (extension) => {
+        const url = `https://example.com/file.${extension}`;
+        expect(parseCommentContent(url)).toEqual([{ type: 'text', value: url }]);
+    });
+
+    it('splits out an image URL wrapped in markdown-style parentheses', () => {
+        const result = parseCommentContent('link: (https://example.com/funny.gif) neat right?');
+
+        expect(result).toEqual([
+            { type: 'text', value: 'link: (' },
+            { type: 'image', value: 'https://example.com/funny.gif' },
+            { type: 'text', value: ') neat right?' },
+        ]);
+    });
 });
