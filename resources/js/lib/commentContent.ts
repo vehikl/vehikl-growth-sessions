@@ -10,10 +10,16 @@ const IMAGE_EXTENSION_PATTERN = /\.(gif|png|jpe?g|webp)(?:[?#]\S*)?$/i;
 /**
  * Splits comment text into text/image segments so image & GIF URLs can be rendered as `<img>`s.
  * Finding the urls is `linkify`'s job; all this adds is deciding which of them are images.
+ * `allowImages` gates this on the comment author's trust level: rendering a URL as an `<img>` makes
+ * every viewer's browser fetch it, which lets an untrusted poster use it as a tracking pixel.
  */
-export function parseCommentContent(content: string): CommentContentSegment[] {
+export function parseCommentContent(content: string, allowImages: boolean = true): CommentContentSegment[] {
     const segments: CommentContentSegment[] = [];
     let lastIndex = 0;
+
+    if (!allowImages) {
+        return [{ type: 'text', value: content }];
+    }
 
     for (const url of findUrls(content)) {
         if (!IMAGE_EXTENSION_PATTERN.test(url.value)) continue;
