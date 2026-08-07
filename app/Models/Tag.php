@@ -11,6 +11,8 @@ class Tag extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['name'];
+
     public function growthSessions(): BelongsToMany
     {
         return $this->belongsToMany(GrowthSession::class);
