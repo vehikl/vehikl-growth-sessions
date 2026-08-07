@@ -4,7 +4,7 @@ import PageContainer from '@/components/PageContainer.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor } from '@/lib/sessionDisplay';
-import { DateRange, formatGrowthTime } from '@/lib/statistics';
+import { DateRange, formatCount, formatGrowthTime } from '@/lib/statistics';
 import { IStatisticsDashboard, SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
@@ -62,7 +62,7 @@ function reloadMembers({ startDate, endDate }: DateRange): void {
 
         <section class="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Statistics summary">
             <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
-                <strong class="gs-accent-text font-display block text-4xl font-bold">{{ summary.lifetime_sessions_count }}</strong>
+                <strong class="gs-accent-text font-display block text-4xl font-bold">{{ formatCount(summary.lifetime_sessions_count) }}</strong>
                 <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Lifetime sessions</span>
             </article>
             <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
@@ -70,11 +70,13 @@ function reloadMembers({ startDate, endDate }: DateRange): void {
                 <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Time of growth</span>
             </article>
             <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
-                <strong class="font-display block text-4xl font-bold text-green-600">{{ summary.sessions_this_week_count }}</strong>
+                <strong class="font-display block text-4xl font-bold text-green-600">{{ formatCount(summary.sessions_this_week_count) }}</strong>
                 <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Sessions this week</span>
             </article>
             <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
-                <strong class="gs-text-strong font-display block text-4xl font-bold">{{ summary.weekly_unique_participants_count }}</strong>
+                <strong class="gs-text-strong font-display block text-4xl font-bold">{{
+                    formatCount(summary.weekly_unique_participants_count)
+                }}</strong>
                 <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Unique participants</span>
             </article>
         </section>

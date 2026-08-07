@@ -115,6 +115,15 @@ export function allTimeRange(firstSessionDate: string): DateRange {
 }
 
 /**
+ * A tally with its thousands separated — 11229 reads "11,229". The summary tiles run to five
+ * figures once enough history piles up, and an unbroken run of digits is hard to size up at a
+ * glance.
+ */
+export function formatCount(value: number): string {
+    return value.toLocaleString();
+}
+
+/**
  * A span of minutes as hours and minutes — 11610 reads "193h 30m". A whole number of hours
  * drops the minutes rather than trailing a pointless "0m".
  */
@@ -122,7 +131,7 @@ export function formatGrowthTime(minutes: number): string {
     const hours = Math.floor(minutes / 60);
     const leftover = minutes % 60;
 
-    return leftover === 0 ? `${hours.toLocaleString()}h` : `${hours.toLocaleString()}h ${leftover}m`;
+    return leftover === 0 ? `${formatCount(hours)}h` : `${formatCount(hours)}h ${leftover}m`;
 }
 
 /**

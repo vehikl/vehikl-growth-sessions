@@ -4,6 +4,7 @@ import {
     decodeSettings,
     encodeSettings,
     filterMembers,
+    formatCount,
     formatGrowthTime,
     formatRangeLabel,
     paginate,
@@ -150,6 +151,18 @@ describe('date range presets', () => {
 
     test('all time runs from the first ever session to today', () => {
         expect(allTimeRange('2020-05-21')).toEqual({ startDate: '2020-05-21', endDate: '2026-08-06' });
+    });
+});
+
+describe('formatCount', () => {
+    test('separates the thousands', () => {
+        expect(formatCount(11229)).toBe('11,229');
+        expect(formatCount(1_234_567)).toBe('1,234,567');
+    });
+
+    test('leaves a small count alone', () => {
+        expect(formatCount(0)).toBe('0');
+        expect(formatCount(999)).toBe('999');
     });
 });
 

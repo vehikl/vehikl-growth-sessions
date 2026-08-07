@@ -147,6 +147,12 @@ describe('Statistics dashboard', () => {
         expect(wrapper.text()).toContain('Client Work');
     });
 
+    test('separates the thousands in the lifetime session count', () => {
+        const wrapper = mountStatistics({ summary: { ...dashboard.summary, lifetime_sessions_count: 11229 } });
+
+        expect(wrapper.text()).toContain('11,229');
+    });
+
     test('renders top hosts in the order given by the server', () => {
         const wrapper = mountStatistics();
 
