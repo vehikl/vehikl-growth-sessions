@@ -274,18 +274,18 @@ describe('Everyone’s numbers table', () => {
         expect(memberNames(wrapper)).toEqual(['Grace Hopper', 'Ada Lovelace', 'Alan Turing']);
     });
 
-    test('pages the table at twenty-five rows', async () => {
-        const many = Array.from({ length: 30 }, (_, index) => member({ user_id: index + 1, name: `Member ${String(index + 1).padStart(2, '0')}` }));
+    test('pages the table at fifteen rows', async () => {
+        const many = Array.from({ length: 20 }, (_, index) => member({ user_id: index + 1, name: `Member ${String(index + 1).padStart(2, '0')}` }));
         const wrapper = mountStatistics({ members: many });
 
-        expect(wrapper.findAll('tbody tr')).toHaveLength(25);
-        expect(wrapper.text()).toContain('Showing 1–25 of 30');
+        expect(wrapper.findAll('tbody tr')).toHaveLength(15);
+        expect(wrapper.text()).toContain('Showing 1–15 of 20');
         expect(buttonLabelled(wrapper, 'Previous').attributes('disabled')).toBeDefined();
 
         await buttonLabelled(wrapper, 'Next').trigger('click');
 
         expect(wrapper.findAll('tbody tr')).toHaveLength(5);
-        expect(wrapper.text()).toContain('Showing 26–30 of 30');
+        expect(wrapper.text()).toContain('Showing 16–20 of 20');
         expect(buttonLabelled(wrapper, 'Next').attributes('disabled')).toBeDefined();
     });
 });
@@ -576,11 +576,13 @@ describe('Choosing a date range', () => {
     test('keeps the picker shut until the range button is pressed', async () => {
         const wrapper = mountStatistics({ start_date: '2026-07-16' });
 
-        expect(wrapper.get('#date-range-picker').isVisible()).toBe(false);
+        // `toBeVisible` reads the inline `display: none` that v-show sets, rather than
+        // isVisible(), which does not detect v-show styling under happy-dom.
+        expect(wrapper.get('#date-range-picker')).not.toBeVisible();
 
         await buttonLabelled(wrapper, 'Jul 16 – Aug 6').trigger('click');
 
-        expect(wrapper.get('#date-range-picker').isVisible()).toBe(true);
+        expect(wrapper.get('#date-range-picker')).toBeVisible();
     });
 
     test('names the chosen range on the button that opens the picker', () => {
