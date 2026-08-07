@@ -19,9 +19,14 @@ const OPAQUE_PROTOCOLS = ['mailto:', 'tel:'];
 const TRAILING_PUNCTUATION = /[.,!?;:'")\]}]+$/;
 
 /**
- * Locates every linkable url in free text. This is the single url grammar in the app —
- * anything that needs to find urls in user-authored text goes through here rather than
- * growing a second, subtly different one.
+ * Locates every linkable url in free text. This is the general-purpose url grammar for the app —
+ * anything that needs to find urls in arbitrary text (session topics, locations, comments) goes
+ * through here rather than growing a second, subtly different one.
+ *
+ * The one exception is app/Support/CommentContentParser.php, which detects image urls in comments
+ * server-side because that decision is a trust boundary, not just rendering. Its punctuation-trimming
+ * rules have already diverged from this file's in places - see tests/fixtures/UrlTrailingPunctuation.json,
+ * exercised by both suites, for the known cases.
  */
 export function findUrls(text: string): FoundUrl[] {
     const found: FoundUrl[] = [];
