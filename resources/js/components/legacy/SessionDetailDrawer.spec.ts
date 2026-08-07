@@ -122,6 +122,40 @@ describe('SessionDetailDrawer', () => {
         expect(wrapper.emitted('refresh')).toBeTruthy();
     });
 
+    describe('sharing', () => {
+        afterEach(() => {
+            Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+        });
+
+        it('copies a link to this session and confirms the copy', async () => {
+            const writeText = vi.fn().mockResolvedValue(undefined);
+            Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+            const session = makeSession();
+            const wrapper = mountDrawer(session, vehiklUser);
+
+            await wrapper.find('.share-button').trigger('click');
+            await flushPromises();
+
+            expect(writeText).toHaveBeenCalledWith(session.shareUrl);
+            expect(wrapper.get('[role="status"]').text()).toContain('Link copied');
+        });
+
+        it('offers sharing to a visitor who cannot act on the session', () => {
+            expect(mountDrawer(makeSession()).find('.share-button').exists()).toBe(true);
+        });
+
+        it('says so when the link could not be copied', async () => {
+            Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+            Object.defineProperty(document, 'execCommand', { value: vi.fn().mockReturnValue(false), configurable: true });
+            const wrapper = mountDrawer(makeSession(), vehiklUser);
+
+            await wrapper.find('.share-button').trigger('click');
+            await flushPromises();
+
+            expect(wrapper.get('[role="status"]').text()).toContain('Could not copy');
+        });
+    });
+
     it('emits edit-requested and delete-requested for the owner', async () => {
         const session = makeSession();
         const wrapper = mountDrawer(session, owner);

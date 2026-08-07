@@ -139,7 +139,9 @@ function isFull(session: GrowthSession): boolean {
                                 />
                                 <template v-else>{{ getInitials(session.owner.name) }}</template>
                             </span>
-                            <div class="min-w-0">
+                            <!-- flex-1 so this column is as wide as the card allows; without it the column
+                                 shrinks to its content and percentage widths below resolve against that. -->
+                            <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-2">
                                     <span class="gs-text-strong text-base font-semibold">{{ session.title }}</span>
                                     <span

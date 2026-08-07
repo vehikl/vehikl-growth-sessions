@@ -4,9 +4,10 @@ import CommentList from '@/components/legacy/CommentList.vue';
 import LinkifiedText from '@/components/legacy/LinkifiedText.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import { useInitials } from '@/composables/useInitials';
+import { copyToClipboard } from '@/lib/clipboard';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
-import { ChevronRight } from 'lucide-vue-next';
+import { ChevronRight, Share2 } from 'lucide-vue-next';
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 
 interface IProps {
@@ -57,6 +58,7 @@ onMounted(() => {
 });
 onUnmounted(() => {
     document.removeEventListener('keydown', onKeydown);
+    clearTimeout(shareResultTimer);
     previouslyFocused?.focus();
 });
 
@@ -79,6 +81,17 @@ async function watch() {
 async function leave() {
     await props.growthSession.leave();
     emit('refresh');
+}
+
+const shareResult = ref<'copied' | 'failed' | null>(null);
+let shareResultTimer: ReturnType<typeof setTimeout>;
+
+/** The confirmation clears itself so a drawer left open does not keep claiming a stale copy. */
+async function share() {
+    shareResult.value = (await copyToClipboard(props.growthSession.shareUrl)) ? 'copied' : 'failed';
+
+    clearTimeout(shareResultTimer);
+    shareResultTimer = setTimeout(() => (shareResult.value = null), 5000);
 }
 </script>
 
@@ -184,6 +197,20 @@ async function leave() {
                 >
                     Delete
                 </button>
+                <button
+                    type="button"
+                    class="share-button gs-btn-secondary flex cursor-pointer items-center justify-center gap-2 rounded-md py-3 text-sm font-semibold"
+                    @click="share"
+                >
+                    <Share2 :size="16" aria-hidden="true" />
+                    Share
+                </button>
+                <span v-if="shareResult === 'copied'" role="status" class="text-center text-sm font-semibold text-green-600">
+                    Link copied to clipboard
+                </span>
+                <span v-else-if="shareResult === 'failed'" role="status" class="gs-text-body text-center text-sm">
+                    Could not copy the link — <span class="gs-accent-text font-medium break-all select-all">{{ growthSession.shareUrl }}</span>
+                </span>
             </div>
 
             <div class="gs-border flex flex-col gap-3.5 border-t pt-4">

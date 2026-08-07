@@ -90,6 +90,20 @@ export class GrowthSession implements IGrowthSession {
         return url.toString();
     }
 
+    /**
+     * A link anyone can follow to this session: the board, on the week the session lives in,
+     * with its detail drawer already open. Built from the current page rather than a hardcoded
+     * path so it keeps working wherever the board is mounted, and deliberately carries no other
+     * query parameters — the recipient should not inherit the sharer's filters or view.
+     */
+    get shareUrl(): string {
+        const url = new URL(window.location.pathname, window.location.origin);
+        url.searchParams.set('date', this.date);
+        url.searchParams.set('session', String(this.id));
+
+        return url.toString();
+    }
+
     canWatch(user?: IUser | null): boolean {
         if (!user) {
             return false;

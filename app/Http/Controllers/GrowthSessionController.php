@@ -19,24 +19,23 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
 
 class GrowthSessionController extends Controller
 {
     public function show(Request $request, GrowthSession $growthSession)
     {
-        // if the user is not allowed to view the growth session then return 404
-        $growthSession->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']);
-        abort_unless((new GrowthSessionPolicy())->view(request()->user(), $growthSession), Response::HTTP_NOT_FOUND);
-        if ($request->expectsJson()) {
-            return response()->json(new GrowthSessionResource($growthSession));
+        abort_unless((new GrowthSessionPolicy())->view($request->user(), $growthSession), Response::HTTP_NOT_FOUND);
+
+        if (! $request->expectsJson()) {
+            return redirect()->route('home', [
+                'date' => $growthSession->date->toDateString(),
+                'session' => $growthSession->id,
+            ]);
         }
 
-        return Inertia::render('GrowthSessionView', [
-            'growthSessionJson' => new GrowthSessionResource($growthSession),
-            'userJson' => auth()->user(),
-            'discordGuildId' => config('services.discord.guild_id')
-        ]);
+        $growthSession->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']);
+
+        return response()->json(new GrowthSessionResource($growthSession));
     }
 
     public function week(Request $request)
