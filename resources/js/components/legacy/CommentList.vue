@@ -17,7 +17,10 @@ const brokenImageUrls = ref(new Set<string>());
 const allowsNewCommentSubmission = computed<boolean>(() => !!props.user && !!newComment.value);
 const commentFormPlaceholder = computed<string>(() => (props.user ? 'Leave a comment...' : 'You must be logged in to comment...'));
 const commentSegmentsById = computed(
-    () => new Map(props.growthSession.comments.map((comment) => [comment.id, parseCommentContent(comment.content, comment.user.is_vehikl_member)])),
+    () =>
+        new Map(
+            props.growthSession.comments.map((comment) => [comment.id, parseCommentContent(comment.content, comment.user.is_vehikl_member === true)]),
+        ),
 );
 
 async function createNewComment() {
