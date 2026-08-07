@@ -16,6 +16,9 @@ const newComment = ref('');
 const brokenImageUrls = ref(new Set<string>());
 const allowsNewCommentSubmission = computed<boolean>(() => !!props.user && !!newComment.value);
 const commentFormPlaceholder = computed<string>(() => (props.user ? 'Leave a comment...' : 'You must be logged in to comment...'));
+const commentSegmentsById = computed(
+    () => new Map(props.growthSession.comments.map((comment) => [comment.id, parseCommentContent(comment.content)])),
+);
 
 async function createNewComment() {
     await props.growthSession.postComment(newComment.value);
@@ -64,7 +67,7 @@ function shortTimestamp(timeStamp: string): string {
                         </button>
                     </div>
                     <p class="gs-text-body mt-1 text-sm leading-relaxed break-words whitespace-pre-wrap">
-                        <template v-for="(segment, index) in parseCommentContent(comment.content)" :key="index">
+                        <template v-for="(segment, index) in commentSegmentsById.get(comment.id) ?? []" :key="index">
                             <img
                                 v-if="segment.type === 'image' && !brokenImageUrls.has(segment.value)"
                                 :src="segment.value"

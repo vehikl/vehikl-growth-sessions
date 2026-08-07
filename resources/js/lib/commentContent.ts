@@ -3,7 +3,7 @@ export interface CommentContentSegment {
     value: string;
 }
 
-const URL_PATTERN = /https?:\/\/\S+/g;
+const URL_PATTERN = /https?:\/\/\S+/gi;
 const IMAGE_EXTENSION_PATTERN = /\.(gif|png|jpe?g|webp)(?:[?#]\S*)?$/i;
 const TRAILING_PUNCTUATION_PATTERN = /[.,!?;:)\]]+$/;
 

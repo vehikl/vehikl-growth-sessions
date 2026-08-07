@@ -60,6 +60,11 @@ describe('parseCommentContent', () => {
         expect(parseCommentContent(url)).toEqual([{ type: 'image', value: url }]);
     });
 
+    it('is case-insensitive on the URL scheme', () => {
+        const result = parseCommentContent('Https://example.com/funny.gif');
+        expect(result).toEqual([{ type: 'image', value: 'Https://example.com/funny.gif' }]);
+    });
+
     it.each(['pdf', 'mp4', 'exe', 'svg'])('does not treat a .%s URL as an image', (extension) => {
         const url = `https://example.com/file.${extension}`;
         expect(parseCommentContent(url)).toEqual([{ type: 'text', value: url }]);
