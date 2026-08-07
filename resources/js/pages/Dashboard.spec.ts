@@ -174,11 +174,11 @@ describe('Dashboard', () => {
         expect(rows[1].text()).toContain('Finished');
     });
 
-    test('renders the title as an anchor pointing at that session', () => {
-        const link = mountDashboard().findAll('ul li')[0].find('a');
+    test('renders the title as plain text, not as a link', () => {
+        const row = mountDashboard().findAll('ul li')[0];
 
-        expect(link.text()).toBe('Vue Testing Deep Dive');
-        expect(link.attributes('href')).toBe('/growth_sessions/7');
+        expect(row.text()).toContain('Vue Testing Deep Dive');
+        expect(row.find('a').exists()).toBe(false);
     });
 
     test('shows an explanation pointing at the Board when nothing has been hosted', () => {
