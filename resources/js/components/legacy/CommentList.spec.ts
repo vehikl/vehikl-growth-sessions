@@ -72,6 +72,24 @@ describe('CommentList', () => {
         expect(wrapper.find('p img').exists()).toBe(false);
     });
 
+    it('renders an image URL as plain text when the comment author is not a Vehikalien', () => {
+        const imageUrl = 'https://example.com/funny.gif';
+        const sessionWithImageComment = new GrowthSession({
+            ...growthSessionWithCommentsJson,
+            comments: [
+                {
+                    ...growthSessionWithCommentsJson.comments[0],
+                    content: `look at this ${imageUrl}`,
+                    user: { ...growthSessionWithCommentsJson.comments[0].user, is_vehikl_member: false },
+                },
+            ],
+        });
+        wrapper = mount(CommentList, { propsData: { growthSession: sessionWithImageComment, user } });
+
+        expect(wrapper.find('p img').exists()).toBe(false);
+        expect(wrapper.find('p').text()).toContain(imageUrl);
+    });
+
     it('falls back to the raw URL when an embedded image fails to load', async () => {
         const imageUrl = 'https://example.com/dead-link.gif';
         const sessionWithImageComment = new GrowthSession({

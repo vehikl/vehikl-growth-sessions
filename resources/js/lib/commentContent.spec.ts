@@ -89,4 +89,9 @@ describe('parseCommentContent', () => {
             { type: 'text', value: ') neat right?' },
         ]);
     });
+
+    it('keeps an image URL as plain text when images are not allowed', () => {
+        const content = 'look at this https://example.com/funny.gif so good';
+        expect(parseCommentContent(content, false)).toEqual([{ type: 'text', value: content }]);
+    });
 });
