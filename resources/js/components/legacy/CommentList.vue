@@ -2,6 +2,7 @@
 import { GrowthSession } from '@/classes/GrowthSession';
 import { User } from '@/classes/User';
 import VAvatar from '@/components/legacy/VAvatar.vue';
+import { parseCommentContent } from '@/lib/commentContent';
 import { IComment, IUser } from '@/types';
 import { computed, ref } from 'vue';
 
@@ -61,7 +62,17 @@ function shortTimestamp(timeStamp: string): string {
                             <i class="fa fa-minus-circle" aria-hidden="true"></i>
                         </button>
                     </div>
-                    <p class="gs-text-body mt-1 text-sm leading-relaxed break-words whitespace-pre-wrap">{{ comment.content }}</p>
+                    <p class="gs-text-body mt-1 text-sm leading-relaxed break-words whitespace-pre-wrap">
+                        <template v-for="(segment, index) in parseCommentContent(comment.content)" :key="index">
+                            <img
+                                v-if="segment.type === 'image'"
+                                :src="segment.value"
+                                alt="Shared image"
+                                class="my-1 block max-h-64 max-w-full rounded-md"
+                            />
+                            <template v-else>{{ segment.value }}</template>
+                        </template>
+                    </p>
                 </div>
             </li>
         </ul>
