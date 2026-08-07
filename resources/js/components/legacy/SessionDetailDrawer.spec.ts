@@ -91,10 +91,7 @@ describe('SessionDetailDrawer', () => {
 
     it('emits close from the close button, the overlay and the Escape key', async () => {
         const closeButton = mountDrawer(makeSession(), vehiklUser);
-        await closeButton
-            .findAll('button')
-            .find((b) => b.text().includes('CLOSE'))!
-            .trigger('click');
+        await closeButton.find('button[aria-label="Close"]').trigger('click');
         expect(closeButton.emitted('close')).toBeTruthy();
 
         const overlay = mountDrawer(makeSession(), vehiklUser);

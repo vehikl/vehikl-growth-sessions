@@ -7,7 +7,7 @@ import { useInitials } from '@/composables/useInitials';
 import { copyToClipboard } from '@/lib/clipboard';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
-import { ChevronRight, Share2 } from 'lucide-vue-next';
+import { ChevronRight, Forward, X } from 'lucide-vue-next';
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 
 interface IProps {
@@ -128,19 +128,30 @@ async function share() {
                 <button
                     type="button"
                     class="gs-text-muted transition-smooth hover:text-gs-accent cursor-pointer text-xs font-semibold tracking-[0.04em]"
+                    aria-label="Close"
                     @click="emit('close')"
                 >
-                    CLOSE ✕
+                    <X :size="16" aria-hidden="true" />
                 </button>
             </div>
 
             <h2 id="drawer-title" class="gs-text-strong font-display mb-2.5 text-2xl leading-tight font-bold">{{ growthSession.title }}</h2>
 
-            <div class="mb-3 flex items-center gap-2.5">
-                <span class="gs-text-sub text-xs font-semibold">{{ growthSession.startTime }}–{{ growthSession.endTime }}</span>
-                <span class="flex items-center gap-1.5 text-xs font-bold tracking-[0.05em]" :style="{ color: meta.color }">
-                    <span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: meta.color }"></span>{{ meta.label }}
-                </span>
+            <div class="mb-3 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="gs-text-sub text-xs font-semibold">{{ growthSession.startTime }}–{{ growthSession.endTime }}</span>
+                    <span class="flex items-center gap-1.5 text-xs font-bold tracking-[0.05em]" :style="{ color: meta.color }">
+                        <span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: meta.color }"></span>{{ meta.label }}
+                    </span>
+                </div>
+                <button
+                    type="button"
+                    class="share-button gs-btn-secondary flex flex-none cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold"
+                    @click="share"
+                >
+                    <Forward :size="16" aria-hidden="true" />
+                    Share
+                </button>
             </div>
 
             <div v-if="growthSession.tags.length" class="mb-4 flex flex-wrap gap-1.5">
@@ -196,14 +207,6 @@ async function share() {
                     @click="emit('delete-requested', growthSession)"
                 >
                     Delete
-                </button>
-                <button
-                    type="button"
-                    class="share-button gs-btn-secondary flex cursor-pointer items-center justify-center gap-2 rounded-md py-3 text-sm font-semibold"
-                    @click="share"
-                >
-                    <Share2 :size="16" aria-hidden="true" />
-                    Share
                 </button>
                 <span v-if="shareResult === 'copied'" role="status" class="text-center text-sm font-semibold text-green-600">
                     Link copied to clipboard
