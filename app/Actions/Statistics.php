@@ -10,12 +10,19 @@ use Illuminate\Support\Facades\Cache;
 
 class Statistics
 {
-    public function getFormattedStatisticsFor(string $startDate, string $endDate): Collection
+    /**
+     * Ranges already built during this request. The statistics page asks for the same range
+     * from more than one prop, and even a cache hit costs a full deserialisation of the matrix.
+     *
+     * @var array<string, Collection>
+     */
+    private array $resolved = [];
+
+    public function getFormattedStatisticsFor(string $startDate, string $endDate, ?int $cacheSeconds = null): Collection
     {
-        return Cache::remember(
+        return $this->resolved["{$startDate}-{$endDate}"] ??= Cache::remember(
             "statistics-{$startDate}-{$endDate}",
-            config('statistics.cache_duration_in_seconds'
-            ),
+            $cacheSeconds ?? config('statistics.cache_duration_in_seconds'),
             function () use ($startDate, $endDate) {
                 $exceptionUserIds = implode(',', config('statistics.loosen_participation_rules.user_ids', []));
                 $loosenParticipationRules = config('statistics.loosen_participation_rules.user_ids')

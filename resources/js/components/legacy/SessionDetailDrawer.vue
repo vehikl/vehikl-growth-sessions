@@ -3,9 +3,9 @@ import { GrowthSession } from '@/classes/GrowthSession';
 import CommentList from '@/components/legacy/CommentList.vue';
 import LinkifiedText from '@/components/legacy/LinkifiedText.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
-import { useInitials } from '@/composables/useInitials';
-import { copyToClipboard } from '@/lib/clipboard';
-import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
+import UserAvatar from '@/components/UserAvatar.vue';
+import { useCopyStatus } from '@/composables/useCopyStatus';
+import { capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
 import { ChevronRight, Forward, X } from 'lucide-vue-next';
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
@@ -21,6 +21,24 @@ const emit = defineEmits(['close', 'edit-requested', 'delete-requested', 'refres
 const panel = ref<HTMLElement | null>(null);
 let previouslyFocused: HTMLElement | null = null;
 
+/**
+ * The caller keeps us mounted for the leave transition, so unmount is too late to stop
+ * trapping focus: a `Tab` straight after `Escape` would be pulled back into the panel that
+ * is already sliding away. Every exit goes through `close()`, which stands the trap down first.
+ */
+const isActive = ref(true);
+
+function close(): void {
+    isActive.value = false;
+    emit('close');
+}
+
+/** Edit and delete close the drawer on the caller's side, so they stand the trap down too. */
+function request(event: 'edit-requested' | 'delete-requested'): void {
+    isActive.value = false;
+    emit(event, props.growthSession);
+}
+
 function focusableElements(): HTMLElement[] {
     if (!panel.value) return [];
     return Array.from(
@@ -29,8 +47,10 @@ function focusableElements(): HTMLElement[] {
 }
 
 function onKeydown(event: KeyboardEvent) {
+    if (!isActive.value) return;
+
     if (event.key === 'Escape') {
-        emit('close');
+        close();
         return;
     }
 
@@ -58,11 +78,8 @@ onMounted(() => {
 });
 onUnmounted(() => {
     document.removeEventListener('keydown', onKeydown);
-    clearTimeout(shareResultTimer);
     previouslyFocused?.focus();
 });
-
-const { getInitials } = useInitials();
 
 const status = computed(() => sessionStatus(props.growthSession));
 const meta = computed(() => statusMeta(status.value));
@@ -83,26 +100,15 @@ async function leave() {
     emit('refresh');
 }
 
-const shareResult = ref<'copied' | 'failed' | null>(null);
-let shareResultTimer: ReturnType<typeof setTimeout>;
+const { status: shareResult, copy } = useCopyStatus();
 
-/** The confirmation clears itself so a drawer left open does not keep claiming a stale copy. */
 async function share() {
-    shareResult.value = (await copyToClipboard(props.growthSession.shareUrl)) ? 'copied' : 'failed';
-
-    clearTimeout(shareResultTimer);
-    shareResultTimer = setTimeout(() => (shareResult.value = null), 5000);
+    await copy(props.growthSession.shareUrl);
 }
 </script>
 
 <template>
-    <div
-        class="gs-overlay-bg fixed inset-0 z-30 flex justify-end"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="drawer-title"
-        @click="emit('close')"
-    >
+    <div class="gs-overlay-bg fixed inset-0 z-30 flex justify-end" role="dialog" aria-modal="true" aria-labelledby="drawer-title" @click="close">
         <div
             ref="panel"
             tabindex="-1"
@@ -111,25 +117,14 @@ async function share() {
         >
             <div class="mb-3 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <span
-                        class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                        :style="{ backgroundColor: avatarColor(growthSession.owner.name) }"
-                    >
-                        <img
-                            v-if="growthSession.owner.avatar"
-                            :src="growthSession.owner.avatar"
-                            :alt="growthSession.owner.name"
-                            class="h-full w-full object-cover"
-                        />
-                        <template v-else>{{ getInitials(growthSession.owner.name) }}</template>
-                    </span>
+                    <UserAvatar :name="growthSession.owner.name" :avatar="growthSession.owner.avatar" />
                     <span class="gs-text-sub text-sm font-semibold tracking-[0.03em]">{{ growthSession.owner.name }}</span>
                 </div>
                 <button
                     type="button"
                     class="gs-text-muted transition-smooth hover:text-gs-accent cursor-pointer text-xs font-semibold tracking-[0.04em]"
                     aria-label="Close"
-                    @click="emit('close')"
+                    @click="close"
                 >
                     <X :size="16" aria-hidden="true" />
                 </button>
@@ -196,7 +191,7 @@ async function share() {
                     v-if="growthSession.canEditOrDelete(user)"
                     type="button"
                     class="update-button gs-btn-primary cursor-pointer rounded-md py-3 text-sm font-semibold"
-                    @click="emit('edit-requested', growthSession)"
+                    @click="request('edit-requested')"
                 >
                     Edit
                 </button>
@@ -204,7 +199,7 @@ async function share() {
                     v-if="growthSession.canEditOrDelete(user)"
                     type="button"
                     class="delete-button transition-smooth cursor-pointer rounded-md border border-red-500 py-3 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
-                    @click="emit('delete-requested', growthSession)"
+                    @click="request('delete-requested')"
                 >
                     Delete
                 </button>
@@ -239,13 +234,7 @@ async function share() {
                                 rel="noopener noreferrer"
                                 class="group focus-visible:ring-gs-accent flex items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-black/5 focus-visible:ring-2 focus-visible:outline-none dark:hover:bg-white/8"
                             >
-                                <span
-                                    class="flex h-8 w-8 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                                    :style="{ backgroundColor: avatarColor(attendee.name) }"
-                                >
-                                    <img v-if="attendee.avatar" :src="attendee.avatar" :alt="attendee.name" class="h-full w-full object-cover" />
-                                    <template v-else>{{ getInitials(attendee.name) }}</template>
-                                </span>
+                                <UserAvatar :name="attendee.name" :avatar="attendee.avatar" />
                                 <span
                                     class="gs-text-strong group-hover:text-gs-accent min-w-0 flex-1 text-sm font-semibold tracking-[0.02em] transition-colors"
                                     >{{ attendee.name }}</span
@@ -264,13 +253,7 @@ async function share() {
                     <div class="gs-text-muted mb-2.5 text-xs font-bold tracking-[0.06em]">WATCHERS ({{ growthSession.watchers.length }})</div>
                     <ul class="flex flex-col gap-2.5">
                         <li v-for="w in growthSession.watchers" :key="w.id" class="flex items-center gap-2.5">
-                            <span
-                                class="flex h-8 w-8 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                                :style="{ backgroundColor: avatarColor(w.name) }"
-                            >
-                                <img v-if="w.avatar" :src="w.avatar" :alt="w.name" class="h-full w-full object-cover" />
-                                <template v-else>{{ getInitials(w.name) }}</template>
-                            </span>
+                            <UserAvatar :name="w.name" :avatar="w.avatar" />
                             <span class="gs-text-strong text-sm font-semibold tracking-[0.02em] uppercase">{{ w.name }}</span>
                         </li>
                     </ul>

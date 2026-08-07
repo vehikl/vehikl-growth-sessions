@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { DateTime } from '@/classes/DateTime';
-import { useInitials } from '@/composables/useInitials';
-import { copyToClipboard } from '@/lib/clipboard';
-import { avatarColor } from '@/lib/sessionDisplay';
+import UserAvatar from '@/components/UserAvatar.vue';
+import { useCopyStatus } from '@/composables/useCopyStatus';
 import {
     allTimeRange,
     DateRange,
@@ -35,8 +34,6 @@ interface IProps {
 
 const props = defineProps<IProps>();
 const emit = defineEmits<{ (event: 'rangeChange', range: DateRange): void }>();
-
-const { getInitials } = useInitials();
 
 const PER_PAGE = 15;
 const SUGGESTION_LIMIT = 8;
@@ -109,8 +106,7 @@ const sort = reactive<{ field: SortableField; direction: SortDirection }>({ fiel
 const range = reactive<DateRange>({ startDate: props.startDate, endDate: props.endDate });
 const page = ref(1);
 const openMember = ref<IUserStatistics | null>(null);
-const shareResult = ref<'copied' | 'failed' | null>(null);
-let shareResultTimer: ReturnType<typeof setTimeout>;
+const { status: shareResult, copy } = useCopyStatus();
 
 function closeOnEscape(event: KeyboardEvent): void {
     if (event.key !== 'Escape') {
@@ -145,7 +141,6 @@ onMounted(() => {
 onUnmounted(() => {
     document.removeEventListener('keydown', closeOnEscape);
     document.removeEventListener('mousedown', closeOnOutsidePress);
-    clearTimeout(shareResultTimer);
 });
 
 const matchingMembers = computed(() =>
@@ -257,20 +252,6 @@ function moveHighlight(step: number): void {
     }
 }
 
-/**
- * An avatar URL that no longer resolves would otherwise leave an empty coloured disc, so a
- * failed load drops that member back to their initials for the rest of the visit.
- */
-const brokenAvatars = ref(new Set<number>());
-
-function avatarFor(member: IUserStatistics): string | null {
-    return member.avatar && !brokenAvatars.value.has(member.user_id) ? member.avatar : null;
-}
-
-function markAvatarBroken(userId: number): void {
-    brokenAvatars.value = new Set(brokenAvatars.value).add(userId);
-}
-
 function removeNameFromList(name: string): void {
     filter.list = filter.list.filter((listedName) => listedName !== name);
 }
@@ -302,10 +283,7 @@ async function copyShareableUrl(): Promise<void> {
     const shareableUrl = url.toString();
     window.history.replaceState(window.history.state, '', shareableUrl);
 
-    shareResult.value = (await copyToClipboard(shareableUrl)) ? 'copied' : 'failed';
-
-    clearTimeout(shareResultTimer);
-    shareResultTimer = setTimeout(() => (shareResult.value = null), 5000);
+    await copy(shareableUrl);
 }
 </script>
 
@@ -363,20 +341,7 @@ async function copyShareableUrl(): Promise<void> {
                                 @mousemove="highlighted = index"
                                 @click="chooseMember(candidate.name)"
                             >
-                                <span
-                                    :style="{ backgroundColor: avatarColor(candidate.name) }"
-                                    class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                                    aria-hidden="true"
-                                >
-                                    <img
-                                        v-if="avatarFor(candidate)"
-                                        :src="avatarFor(candidate)!"
-                                        alt=""
-                                        class="h-full w-full object-cover"
-                                        @error="markAvatarBroken(candidate.user_id)"
-                                    />
-                                    <template v-else>{{ getInitials(candidate.name) }}</template>
-                                </span>
+                                <UserAvatar :name="candidate.name" :avatar="candidate.avatar" size="h-9 w-9" aria-hidden="true" />
                                 <span data-testid="suggestion-name" class="truncate">{{ candidate.name }}</span>
                             </button>
                         </li>
@@ -539,20 +504,7 @@ async function copyShareableUrl(): Promise<void> {
                     <tr v-for="member in rows" :key="member.user_id" class="gs-border border-b last:border-0">
                         <td class="py-3 pr-4">
                             <span class="flex items-center gap-3">
-                                <span
-                                    :style="{ backgroundColor: avatarColor(member.name) }"
-                                    class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                                    aria-hidden="true"
-                                >
-                                    <img
-                                        v-if="avatarFor(member)"
-                                        :src="avatarFor(member)!"
-                                        alt=""
-                                        class="h-full w-full object-cover"
-                                        @error="markAvatarBroken(member.user_id)"
-                                    />
-                                    <template v-else>{{ getInitials(member.name) }}</template>
-                                </span>
+                                <UserAvatar :name="member.name" :avatar="member.avatar" size="h-9 w-9" aria-hidden="true" />
                                 <span data-testid="member-name" class="gs-text-strong font-semibold whitespace-nowrap">{{ member.name }}</span>
                             </span>
                         </td>

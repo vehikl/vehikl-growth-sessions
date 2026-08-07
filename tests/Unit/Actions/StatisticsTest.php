@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\UserType;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class StatisticsTest extends TestCase
@@ -192,6 +193,36 @@ class StatisticsTest extends TestCase
             'sessions_attended_count' => 1,
             'sessions_watched_count' => 0,
         ], $this->countsFor($statistics, $attendee));
+    }
+
+    public function testItBuildsEachRangeOnlyOncePerInstance()
+    {
+        $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $statistics = app(Statistics::class);
+        $startDate = today()->subDays(7)->toDateString();
+        $endDate = today()->toDateString();
+
+        $first = $statistics->getFormattedStatisticsFor($startDate, $endDate);
+
+        // The statistics page asks for the same range from more than one prop; even a cache
+        // hit costs a full deserialisation of the matrix, so the second ask must not reach it.
+        Cache::shouldReceive('remember')->never();
+
+        $this->assertSame($first, $statistics->getFormattedStatisticsFor($startDate, $endDate));
+    }
+
+    public function testItStillBuildsARangeItHasNotSeenBefore()
+    {
+        $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $statistics = app(Statistics::class);
+        $endDate = today()->toDateString();
+
+        $lastWeek = $statistics->getFormattedStatisticsFor(today()->subDays(7)->toDateString(), $endDate);
+        $yesterday = $statistics->getFormattedStatisticsFor(today()->subDay()->toDateString(), $endDate);
+
+        $this->assertNotSame($lastWeek, $yesterday);
     }
 
     private function statisticsForLastWeek(): Collection

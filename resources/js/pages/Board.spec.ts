@@ -669,6 +669,24 @@ describe('Board', () => {
             expect(new URLSearchParams(window.location.search).has('session')).toBe(false);
         });
 
+        // Closing the drawer and moving the week are one gesture, so undoing it is one press of
+        // Back. Two pushes here would leave the visitor pressing Back twice to get the week they left.
+        it('spends a single history entry on closing the drawer and moving the week', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+            const pushState = vi.spyOn(window.history, 'pushState');
+
+            await wrapper.find('.load-next-week').trigger('click');
+            await flushPromises();
+
+            expect(pushState).toHaveBeenCalledTimes(1);
+
+            const pushedUrl = new URLSearchParams(pushState.mock.calls[0][2] as string);
+            expect(pushedUrl.has('session')).toBe(false);
+            expect(pushedUrl.get('date')).not.toBe(todayDate);
+
+            pushState.mockRestore();
+        });
+
         it('drops the session when the signed-in user changes', async () => {
             wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
 

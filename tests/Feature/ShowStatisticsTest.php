@@ -290,6 +290,36 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
+    public function test_a_date_that_is_not_a_real_calendar_day_falls_back_to_the_default_range()
+    {
+        [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        // `strtotime` would normalise this to March 1st and quietly use a range nobody asked for.
+        $this->actingAs($owner)
+            ->get(route('statistics.index', ['start_date' => '2020-02-30']))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('start_date', today()->subDays(7)->toDateString())
+                ->where('end_date', today()->toDateString())
+            );
+    }
+
+    public function test_a_range_outside_the_projects_history_is_clamped_to_it()
+    {
+        [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index', [
+                'start_date' => '1999-01-01',
+                'end_date' => today()->addYears(5)->toDateString(),
+            ]))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('start_date', today()->subDays(7)->toDateString())
+                ->where('end_date', today()->toDateString())
+            );
+    }
+
     public function test_members_omit_the_unused_half_of_the_mobbed_with_matrix()
     {
         [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();

@@ -1,4 +1,4 @@
-import { toTextSegments } from './linkify';
+import { findUrls, toTextSegments } from './linkify';
 
 describe('toTextSegments', () => {
     it('returns nothing for an empty string', () => {
@@ -17,6 +17,8 @@ describe('toTextSegments', () => {
         ${'https://zoom.us/j/123123145'}
         ${'https://www.oldstyle.com'}
         ${'mailto:someone@vehikl.com'}
+        ${'tel:+15195551234'}
+        ${'tel:519-555-1234'}
     `('turns $url into a link segment', ({ url }) => {
         expect(toTextSegments(`Join at ${url} please`)).toEqual([
             { type: 'text', value: 'Join at ' },
@@ -60,5 +62,23 @@ describe('toTextSegments', () => {
 
     it('does not link a bare domain without a scheme', () => {
         expect(toTextSegments('see vehikl.com')).toEqual([{ type: 'text', value: 'see vehikl.com' }]);
+    });
+
+    it('does not link a scheme with nothing after it', () => {
+        expect(toTextSegments('reach us at tel: or mailto: whichever')).toEqual([{ type: 'text', value: 'reach us at tel: or mailto: whichever' }]);
+    });
+});
+
+describe('findUrls', () => {
+    it('reports where each url starts so callers can slice the original text', () => {
+        expect(findUrls('go to https://vehikl.com now')).toEqual([{ value: 'https://vehikl.com', start: 6 }]);
+    });
+
+    it('skips the punctuation a url is wrapped in', () => {
+        expect(findUrls('(https://vehikl.com)')).toEqual([{ value: 'https://vehikl.com', start: 1 }]);
+    });
+
+    it('finds nothing in text without urls', () => {
+        expect(findUrls('nothing to see here')).toEqual([]);
     });
 });

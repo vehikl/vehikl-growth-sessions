@@ -104,6 +104,47 @@ describe('SessionDetailDrawer', () => {
         expect(escape.emitted('close')).toBeTruthy();
     });
 
+    /**
+     * The caller keeps the drawer mounted for its leave transition, so unmount is too late to
+     * stop trapping focus — the keyboard has to stop reaching it the moment it starts closing.
+     */
+    describe('once it has started closing', () => {
+        it('ignores a second Escape', async () => {
+            const wrapper = mountDrawer(makeSession(), vehiklUser);
+
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.emitted('close')).toHaveLength(1);
+        });
+
+        it('lets Tab through rather than pulling focus back into the panel', async () => {
+            const wrapper = mountDrawer(makeSession(), vehiklUser);
+            const lastFocusable = wrapper.findAll('button').at(-1)!.element as HTMLElement;
+
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+            await wrapper.vm.$nextTick();
+            lastFocusable.focus();
+
+            const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true });
+            document.dispatchEvent(tab);
+
+            expect(tab.defaultPrevented).toBe(false);
+        });
+
+        it('ignores Escape after the edit button has handed off to the form', async () => {
+            const wrapper = mountDrawer(makeSession(), owner);
+
+            await wrapper.find('.update-button').trigger('click');
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.emitted('edit-requested')).toHaveLength(1);
+            expect(wrapper.emitted('close')).toBeFalsy();
+        });
+    });
+
     it('joins the session and asks for a refresh when the join button is clicked', async () => {
         const session = makeSession();
         const joinSpy = vi.spyOn(session, 'join').mockResolvedValue(undefined);

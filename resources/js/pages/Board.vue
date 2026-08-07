@@ -49,13 +49,23 @@ function syncViewFromUrl() {
     view.value = isDesktop.value && requestedView === 'week' ? 'week' : 'day';
 }
 
+/**
+ * The single place the board writes to the address bar. Everything one gesture changes goes
+ * through one call, so it also costs the visitor exactly one press of Back to undo.
+ */
+function pushUrl(mutate: (params: URLSearchParams) => void): void {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    mutate(urlSearchParams);
+
+    const query = urlSearchParams.toString();
+    window.history.pushState({}, '', query ? `?${query}` : window.location.pathname);
+}
+
 function selectView(selectedView: 'week' | 'day') {
     if (!canSwitchView.value) return;
 
     view.value = selectedView;
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    urlSearchParams.set('view', selectedView);
-    window.history.pushState({}, '', `?${urlSearchParams.toString()}`);
+    pushUrl((params) => params.set('view', selectedView));
 }
 
 // Keep the active view within what the current screen size allows.
@@ -78,19 +88,19 @@ const selectedSession = ref<GrowthSession | null>(null);
 function selectSession(growthSession: GrowthSession | null) {
     selectedSession.value = growthSession;
 
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    const sessionInUrl = urlSearchParams.get('session');
+    const sessionInUrl = new URLSearchParams(window.location.search).get('session');
     const sessionWanted = growthSession ? String(growthSession.id) : null;
     if (sessionInUrl === sessionWanted) return;
 
-    if (sessionWanted) {
-        urlSearchParams.set('session', sessionWanted);
-    } else {
-        urlSearchParams.delete('session');
-    }
+    pushUrl((params) => applySessionTo(params, sessionWanted));
+}
 
-    const query = urlSearchParams.toString();
-    window.history.pushState({}, '', query ? `?${query}` : window.location.pathname);
+function applySessionTo(params: URLSearchParams, sessionWanted: string | null): void {
+    if (sessionWanted) {
+        params.set('session', sessionWanted);
+    } else {
+        params.delete('session');
+    }
 }
 
 /** Adopt the session in the current URL, if it is one this visitor can see in the loaded week. */
@@ -304,9 +314,16 @@ function onGrowthSessionCopyRequested(growthSession: GrowthSession) {
 
 async function changeReferenceDate(deltaDays: number) {
     // The open session belongs to the week being left behind; keeping it in the URL would
-    // hand out a link that opens no drawer.
-    selectSession(null);
-    shiftBy(deltaDays);
+    // hand out a link that opens no drawer. Closing it and moving the week are one gesture,
+    // so they share a single history entry rather than costing two presses of Back.
+    selectedSession.value = null;
+    shiftBy(deltaDays, { pushUrl: false });
+
+    pushUrl((params) => {
+        applySessionTo(params, null);
+        params.set('date', referenceDate.value.toDateString());
+    });
+
     await getAllGrowthSessionsOfTheWeek();
 }
 

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Statistics;
+use App\Http\Requests\ShowStatisticsRequest;
 use App\Models\GrowthSession;
 use App\Models\Tag;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,16 +17,29 @@ class ShowStatisticsController extends Controller
 {
     private const TOP_HOSTS_LIMIT = 5;
 
+    /**
+     * How long a range nobody warms is worth keeping. `statistics:recalculate` warms only the
+     * default range twice daily; every other range a visitor asks for would otherwise hold a
+     * full copy of the matrix for three days.
+     */
+    private const CUSTOM_RANGE_CACHE_SECONDS = 300;
+
+    private ?string $firstSessionDate = null;
+
     public function __construct(private readonly Statistics $statistics) {}
 
-    public function __invoke(Request $request): Response
+    public function __invoke(ShowStatisticsRequest $request): Response
     {
         $weekStart = today()->startOfWeek()->toDateString();
         $weekEnd = today()->endOfWeek()->toDateString();
 
         $firstSessionDate = $this->firstSessionDate();
-        $startDate = $this->dateOr($request->input('start_date'), $firstSessionDate);
-        $endDate = $this->dateOr($request->input('end_date'), today()->toDateString());
+        $lastPossibleDate = today()->toDateString();
+
+        // Clamped to the window the project actually covers, so a link carrying wild dates
+        // collapses onto a range that is already cached rather than minting its own entry.
+        $startDate = $this->clamp($request->startDate($firstSessionDate), $firstSessionDate, $lastPossibleDate);
+        $endDate = $this->clamp($request->endDate($lastPossibleDate), $firstSessionDate, $lastPossibleDate);
 
         return Inertia::render('Statistics', [
             'summary' => fn () => $this->summary($weekStart, $weekEnd),
@@ -39,15 +53,9 @@ class ShowStatisticsController extends Controller
         ]);
     }
 
-    /**
-     * Falls back rather than rejecting, so a mangled link still lands the member on a
-     * usable page. It also keeps junk out of the cache key the range is composed into.
-     */
-    private function dateOr(mixed $value, string $fallback): string
+    private function clamp(string $date, string $earliest, string $latest): string
     {
-        return is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) && strtotime($value) !== false
-            ? $value
-            : $fallback;
+        return min(max($date, $earliest), $latest);
     }
 
     private function summary(string $weekStart, string $weekEnd): array
@@ -129,11 +137,26 @@ class ShowStatisticsController extends Controller
      */
     private function members(string $startDate, string $endDate): array
     {
-        return $this->statistics
-            ->getFormattedStatisticsFor($startDate, $endDate)
+        return $this->statisticsFor($startDate, $endDate)
             ->map(fn (array $member) => Arr::except($member, ['has_mobbed_with']))
             ->values()
             ->all();
+    }
+
+    /**
+     * The one door onto the statistics matrix. `members` and `yetToMobWith` resolve to the same
+     * range whenever no custom one was asked for, and the action memoises per range, so the
+     * matrix is built once per request rather than once per prop.
+     */
+    private function statisticsFor(string $startDate, string $endDate): Collection
+    {
+        $isWarmedRange = $startDate === $this->firstSessionDate() && $endDate === today()->toDateString();
+
+        return $this->statistics->getFormattedStatisticsFor(
+            $startDate,
+            $endDate,
+            $isWarmedRange ? null : self::CUSTOM_RANGE_CACHE_SECONDS,
+        );
     }
 
     /**
@@ -144,8 +167,7 @@ class ShowStatisticsController extends Controller
      */
     private function yetToMobWith(User $user, string $firstSessionDate): array
     {
-        $statistics = $this->statistics
-            ->getFormattedStatisticsFor($firstSessionDate, today()->toDateString());
+        $statistics = $this->statisticsFor($firstSessionDate, today()->toDateString());
 
         return collect($statistics->firstWhere('user_id', $user->id)['has_not_mobbed_with'] ?? [])
             ->values()
@@ -154,7 +176,7 @@ class ShowStatisticsController extends Controller
 
     private function firstSessionDate(): string
     {
-        return GrowthSession::query()->orderBy('date')->first()?->date?->toDateString()
+        return $this->firstSessionDate ??= GrowthSession::query()->orderBy('date')->first()?->date?->toDateString()
             ?? today()->toDateString();
     }
 }
