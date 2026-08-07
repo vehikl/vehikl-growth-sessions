@@ -127,7 +127,7 @@ class GrowthSessionsShowTest extends TestCase
         $this->actingAs($user)
             ->getJson(route('growth_sessions.show', $growthSession))
             ->assertSuccessful()
-            ->assertSee($growthSession->title);
+            ->assertJsonPath('title', $growthSession->title);
     }
 
     public function testAMemberFollowingALinkToAPrivateGrowthSessionIsSentToTheBoard()
@@ -170,11 +170,9 @@ class GrowthSessionsShowTest extends TestCase
         $guestMember = $growthSession->$guestRelationship()->first();
 
         $this->actingAs($nonVehiklMember)->getJson(route('growth_sessions.show', $growthSession))
-            ->assertSee('Guest')
-            ->assertSee('images\\/guest-avatar.webp')
-            ->assertDontSee($guestMember->name)
-            ->assertDontSee($growthSession->avatar)
-            ->assertDontSee($guestMember->github_nickname);
+            ->assertJsonPath("$guestRelationship.0.name", 'Guest')
+            ->assertJsonPath("$guestRelationship.0.avatar", asset('images/guest-avatar.webp'))
+            ->assertJsonPath("$guestRelationship.0.github_nickname", '');
     }
 
     #[DataProvider('providesGrowthSessionGuests')]
@@ -189,11 +187,9 @@ class GrowthSessionsShowTest extends TestCase
         $guestMember = $growthSession->$guestRelationship()->first();
 
         $this->actingAs($vehiklMember)->getJson(route('growth_sessions.show', $growthSession))
-            ->assertSee($guestMember->name)
-            ->assertSee($growthSession->avatar)
-            ->assertSee($guestMember->github_nickname)
-            ->assertDontSee('images\\/guest-avatar.webp')
-            ->assertDontSee('Guest');
+            ->assertJsonPath("$guestRelationship.0.name", $guestMember->name)
+            ->assertJsonPath("$guestRelationship.0.avatar", $guestMember->avatar)
+            ->assertJsonPath("$guestRelationship.0.github_nickname", $guestMember->github_nickname);
     }
 
     #[DataProvider('providesGrowthSessionGuests')]
@@ -206,11 +202,9 @@ class GrowthSessionsShowTest extends TestCase
         $guestMember = $growthSession->$guestRelationship()->first();
 
         $this->actingAs($guestMember)->getJson(route('growth_sessions.show', $growthSession))
-            ->assertSee($guestMember->name)
-            ->assertSee($growthSession->avatar)
-            ->assertSee($guestMember->github_nickname)
-            ->assertDontSee('images\\/guest-avatar.webp')
-            ->assertDontSee('Guest');
+            ->assertJsonPath("$guestRelationship.0.name", $guestMember->name)
+            ->assertJsonPath("$guestRelationship.0.avatar", $guestMember->avatar)
+            ->assertJsonPath("$guestRelationship.0.github_nickname", $guestMember->github_nickname);
     }
 
     #[DataProvider('providesGrowthSessionGuests')]
@@ -226,14 +220,19 @@ class GrowthSessionsShowTest extends TestCase
         $anotherGuest = $growthSession->fresh()->$guestRelationship->last();
 
         $this->actingAs($guest)->getJson(route('growth_sessions.show', $growthSession))
-            ->assertSee('Guest')
-            ->assertSee('images\\/guest-avatar.webp')
-            ->assertDontSee($anotherGuest->name)
-            ->assertDontSee($anotherGuest->avatar)
-            ->assertDontSee($anotherGuest->github_nickname)
-            ->assertSee($guest->name)
-            ->assertSee($guest->avatar)
-            ->assertSee($guest->github_nickname);
+            ->assertJsonFragment([
+                'name' => 'Guest',
+                'avatar' => asset('images/guest-avatar.webp'),
+                'github_nickname' => '',
+            ])
+            ->assertJsonMissing(['name' => $anotherGuest->name])
+            ->assertJsonMissing(['avatar' => $anotherGuest->avatar])
+            ->assertJsonMissing(['github_nickname' => $anotherGuest->github_nickname])
+            ->assertJsonFragment([
+                'name' => $guest->name,
+                'avatar' => $guest->avatar,
+                'github_nickname' => $guest->github_nickname,
+            ]);
     }
 
     public function testItProvidesTheListOfAttendeesAndWatchers()
