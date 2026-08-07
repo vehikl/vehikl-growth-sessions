@@ -10,5 +10,6 @@ export interface IStoreGrowthSessionRequest {
     anydesk_id?: number | null;
     is_public?: boolean;
     allow_watchers?: boolean;
+    has_invite_link?: boolean;
     tags?: number[];
 }

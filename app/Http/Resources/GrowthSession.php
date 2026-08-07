@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\InviteLink;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 
@@ -13,8 +14,7 @@ class GrowthSession extends JsonResource
 
         $user = $request->user();
 
-        $isParticipatingInGrowthSession = $user &&
-            ($this->resource->hasAttendee($user) || $this->resource->hasWatcher($user));
+        $isParticipatingInGrowthSession = $user && $this->resource->hasParticipant($user);
 
         $isOwner = $user && $user->is($this->resource->owner);
 
@@ -26,6 +26,12 @@ class GrowthSession extends JsonResource
             $attributes['attendee_limit'] = null;
         }
 
+        $inviteLink = InviteLink::for($this->resource);
+
+        // Whether the growth session is unlisted, not the token that unlocks it: the board needs to tell an
+        // invite-only session apart from a private one to keep showing it to an invited guest.
+        $attributes['is_unlisted'] = $inviteLink->exists();
+
         $attributes['attendees'] = $attributes['attendees'] ?? [];
         $isPersonNotAVehiklMember = auth()->guest() || !auth()->user()->is_vehikl_member;
 
@@ -36,6 +42,10 @@ class GrowthSession extends JsonResource
         if ($isPersonNotAVehiklMember && !$isOwner) {
             $attributes = $this->hideGuestInformationFromPayload('attendees', $attributes, $user);
             $attributes = $this->hideGuestInformationFromPayload('watchers', $attributes, $user);
+        }
+
+        if ($inviteLink->isVisibleTo($user)) {
+            $attributes['share_url'] = $inviteLink->url();
         }
 
         return $attributes;

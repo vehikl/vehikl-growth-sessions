@@ -4,6 +4,8 @@ namespace App\Policies;
 
 use App\Models\GrowthSession;
 use App\Models\User;
+use App\Support\InviteLink;
+use Illuminate\Auth\Access\Response;
 
 class GrowthSessionPolicy
 {
@@ -21,7 +23,11 @@ class GrowthSessionPolicy
     {
         return $growthSession->is_public
             || optional($user)->is_vehikl_member
-            || ($user && $user->is($growthSession->owner));
+            || ($user && $user->is($growthSession->owner))
+            // Taking part is a deliberate act by an authenticated identity, so it grants visibility on its own — it
+            // does not depend on still holding the invite token or on the browser session that unlocked it.
+            || ($user && $growthSession->hasParticipant($user))
+            || InviteLink::for($growthSession)->hasBeenUnlocked();
     }
 
     public function create(User $user): bool
@@ -54,24 +60,28 @@ class GrowthSessionPolicy
         return $user->is($growthSession->owner) && $this->isInTheFuture($growthSession);
     }
 
-    public function join(User $user, GrowthSession $growthSession): bool
+    public function join(User $user, GrowthSession $growthSession): bool|Response
     {
-        return !$growthSession->hasAttendee($user)
-            && !$growthSession->hasWatcher($user)
+        // Someone who cannot see the growth session must not learn that it exists by trying to join it: the join
+        // response hands back its contents, and attendance would then grant them lasting visibility.
+        if (! $this->view($user, $growthSession)) {
+            return Response::denyAsNotFound();
+        }
+
+        return !$growthSession->hasParticipant($user)
             && $this->isInTheFuture($growthSession);
     }
 
     public function watch(User $user, GrowthSession $growthSession): bool
     {
         return $growthSession->allow_watchers
-            && !$growthSession->hasWatcher($user)
-            && !$growthSession->hasAttendee($user)
+            && !$growthSession->hasParticipant($user)
             && $this->isInTheFuture($growthSession);
     }
 
 
     public function leave(User $user, GrowthSession $growthSession): bool
     {
-        return ($growthSession->hasWatcher($user) || $growthSession->hasAttendee($user)) && $this->isInTheFuture($growthSession);
+        return $growthSession->hasParticipant($user) && $this->isInTheFuture($growthSession);
     }
 }

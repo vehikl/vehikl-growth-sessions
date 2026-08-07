@@ -9,7 +9,7 @@ import SessionDetailDrawer from '@/components/legacy/SessionDetailDrawer.vue';
 import VisibilityRadioFieldset from '@/components/legacy/VisibilityRadioFieldset.vue';
 import VModal from '@/components/legacy/VModal.vue';
 import WeekView from '@/components/legacy/WeekView.vue';
-import { useReferenceDate } from '@/composables/useReferenceDate';
+import { useBoardUrlState, type BoardView } from '@/composables/useBoardUrlState';
 import { filterSessions, type SessionFilterCriteria, type VisibilityFilter } from '@/lib/sessionFilters';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
@@ -25,7 +25,7 @@ interface IGrowthSessionCardDragChange {
 }
 
 const props = defineProps<{ user?: IUser }>();
-const { referenceDate, syncFromUrl, shiftBy } = useReferenceDate();
+const { referenceDate, requestedView, sessionId, syncFromUrl, shiftDateBy, setView, setSessionId, watchUrl } = useBoardUrlState();
 const growthSessions = ref<WeekGrowthSessions>(WeekGrowthSessions.empty());
 const newGrowthSessionDate = ref('');
 const growthSessionToUpdate = ref<GrowthSession | null>(null);
@@ -42,34 +42,51 @@ const searchShortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad
 const isDesktop = useMediaQuery('(min-width: 768px)');
 // On small screens there is nothing to switch to — the board is day-only.
 const canSwitchView = computed(() => isDesktop.value);
-const view = ref<'week' | 'day'>('day');
+const view = ref<BoardView>('day');
 
-function syncViewFromUrl() {
-    const requestedView = new URLSearchParams(window.location.search).get('view');
-    view.value = isDesktop.value && requestedView === 'week' ? 'week' : 'day';
-}
-
-function selectView(selectedView: 'week' | 'day') {
-    if (!canSwitchView.value) return;
-
-    view.value = selectedView;
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    urlSearchParams.set('view', selectedView);
-    window.history.pushState({}, '', `?${urlSearchParams.toString()}`);
-}
-
-// Keep the active view within what the current screen size allows.
+// The url's request wins whenever the url changes — on load, and on a history navigation...
 watch(
-    isDesktop,
-    (desktop) => {
-        if (!desktop) {
-            view.value = 'day';
-        }
+    requestedView,
+    (requested) => {
+        view.value = isDesktop.value && requested === 'week' ? 'week' : 'day';
     },
     { immediate: true },
 );
 
+// ...but a screen too narrow for the week view demotes it, and it stays demoted: widening again
+// must not yank the visitor back to a view they didn't re-ask for.
+watch(isDesktop, (desktop) => {
+    if (!desktop) view.value = 'day';
+});
+
+function selectView(selectedView: BoardView) {
+    if (!canSwitchView.value) return;
+
+    // Set the view outright rather than leaning on the watch above, which would not fire when the
+    // url already asks for this view — the case after a demotion the url never heard about.
+    view.value = selectedView;
+    setView(selectedView);
+}
+
 const selectedSession = ref<GrowthSession | null>(null);
+
+/** Open or close the detail drawer, recording which session is open in the URL. */
+function selectSession(growthSession: GrowthSession | null) {
+    selectedSession.value = growthSession;
+    setSessionId(growthSession?.id ?? null);
+}
+
+/** Adopt the session the URL names, if it is one this visitor can see in the loaded week. */
+function adoptSessionFromUrl() {
+    selectedSession.value = sessionId.value
+        ? (growthSessions.value.allGrowthSessions.find((session) => session.id === sessionId.value) ?? null)
+        : null;
+
+    if (!selectedSession.value) return;
+
+    const dayOfSession = growthSessions.value.weekDates.findIndex((date) => date.toDateString() === selectedSession.value!.date);
+    if (dayOfSession >= 0) dayIndex.value = dayOfSession;
+}
 
 watch(
     () => props.user?.id,
@@ -78,7 +95,7 @@ watch(
 
         if (props.user) return;
 
-        refreshGrowthSessionsOfTheWeek();
+        loadWeekFromUrl();
     },
 );
 
@@ -149,12 +166,18 @@ watchDebounced(
     { debounce: 300 },
 );
 
+// Registered before the first await, so unmounting mid-load still tears the listener down.
+const stopWatchingUrl = watchUrl(loadWeekFromUrl);
+
 onBeforeMount(async () => {
     await getAllTags();
-    await refreshGrowthSessionsOfTheWeek();
-    const todayIdx = growthSessions.value.weekDates.findIndex((d) => d.isToday());
-    dayIndex.value = todayIdx >= 0 ? todayIdx : 0;
-    window.onpopstate = refreshGrowthSessionsOfTheWeek;
+    syncFromUrl();
+    await loadWeekFromUrl();
+    // A deep-linked session has already chosen the day it lives on; otherwise start on today.
+    if (!selectedSession.value) {
+        const todayIdx = growthSessions.value.weekDates.findIndex((d) => d.isToday());
+        dayIndex.value = todayIdx >= 0 ? todayIdx : 0;
+    }
 });
 
 onMounted(() => {
@@ -164,7 +187,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-    window.onpopstate = null;
+    stopWatchingUrl();
     window.removeEventListener('gs:create-session', handleHeaderCreate);
     window.removeEventListener('gs:focus-search', handleSearchFocus);
     window.removeEventListener('keydown', handleViewShortcut);
@@ -202,10 +225,10 @@ function handleViewShortcut(event: KeyboardEvent) {
     if (key === 'w') selectView('week');
 }
 
-async function refreshGrowthSessionsOfTheWeek() {
-    syncFromUrl();
-    syncViewFromUrl();
+/** Fetch the week the URL asks for, then re-open whichever session it names. Ordering matters: the drawer can only adopt a session the week has loaded. */
+async function loadWeekFromUrl() {
     await getAllGrowthSessionsOfTheWeek();
+    adoptSessionFromUrl();
 }
 
 async function onDragEnd(location: any) {
@@ -247,21 +270,21 @@ function onCreateNewGrowthSessionClicked(startDate: DateTime) {
 }
 
 function onGrowthSessionEditRequested(growthSession: GrowthSession) {
-    selectedSession.value = null;
+    selectSession(null);
     growthSessionToUpdate.value = growthSession;
     newGrowthSessionDate.value = '';
     formModalState.value = 'open';
 }
 
 function onGrowthSessionCopyRequested(growthSession: GrowthSession) {
-    selectedSession.value = null;
+    selectSession(null);
     growthSessionToUpdate.value = new GrowthSession({ ...growthSession, id: 0 });
     newGrowthSessionDate.value = '';
     formModalState.value = 'open';
 }
 
 async function changeReferenceDate(deltaDays: number) {
-    shiftBy(deltaDays);
+    shiftDateBy(deltaDays);
     await getAllGrowthSessionsOfTheWeek();
 }
 
@@ -273,15 +296,11 @@ function onTagClick(id: number) {
     }
 }
 
-function openDetail(growthSession: GrowthSession) {
-    selectedSession.value = growthSession;
-}
-
 async function onDrawerRefresh() {
     const id = selectedSession.value?.id;
     await getAllGrowthSessionsOfTheWeek();
     if (id) {
-        selectedSession.value = growthSessions.value.allGrowthSessions.find((s) => s.id === id) ?? null;
+        selectSession(growthSessions.value.allGrowthSessions.find((s) => s.id === id) ?? null);
     }
 }
 
@@ -310,7 +329,7 @@ async function onGrowthSessionDeleteRequested(session: GrowthSession) {
             console.error('Failed to delete growth session:', error);
         }
     } finally {
-        selectedSession.value = null;
+        selectSession(null);
         await getAllGrowthSessionsOfTheWeek();
     }
 }
@@ -450,7 +469,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             @create="onCreateNewGrowthSessionClicked"
             @edit-requested="onGrowthSessionEditRequested"
             @copy-requested="onGrowthSessionCopyRequested"
-            @open-detail="openDetail"
+            @open-detail="selectSession"
             @refresh="getAllGrowthSessionsOfTheWeek"
             @drag-change="onChange"
             @drag-end="onDragEnd"
@@ -466,7 +485,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             :full-session-ids="fullSessionIds"
             :user="user"
             @select-day="dayIndex = $event"
-            @open-detail="openDetail"
+            @open-detail="selectSession"
             @join="onDaySessionJoin"
             @watch="onDaySessionWatch"
             @leave="onDaySessionLeave"
@@ -501,7 +520,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             v-if="selectedSession"
             :growth-session="selectedSession"
             :user="user"
-            @close="selectedSession = null"
+            @close="selectSession(null)"
             @edit-requested="onGrowthSessionEditRequested"
             @delete-requested="onGrowthSessionDeleteRequested"
             @refresh="onDrawerRefresh"

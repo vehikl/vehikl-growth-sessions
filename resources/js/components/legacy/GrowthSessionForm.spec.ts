@@ -370,6 +370,78 @@ describe('GrowthSessionForm', () => {
             expect(wrapper.find('dialog').exists()).toBe(false);
             expect(GrowthSessionApi.store).toHaveBeenCalled();
         });
+
+        it('offers the invite link toggle, off by default, with no link to show yet', () => {
+            expect(wrapper.find<HTMLInputElement>('#has-invite-link').element.checked).toBe(false);
+            expect(wrapper.text()).toContain('Shareable invite link');
+            expect(wrapper.find('.share-url').exists()).toBe(false);
+        });
+
+        it('requests an invite link when the toggle is on', async () => {
+            await wrapper.find('#title').setValue('Test Title');
+            await wrapper.find('#topic').setValue('Test Topic');
+            await wrapper.find('#location').setValue('Test Location');
+            await wrapper.find('#has-invite-link').setValue(true);
+
+            await wrapper.find('button[type=submit]').trigger('click');
+            await flushPromises();
+
+            expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining({ has_invite_link: true }));
+        });
+
+        it('does not show a confirmation modal when the invite link toggle is on', async () => {
+            await wrapper.find('#title').setValue('Test Title');
+            await wrapper.find('#topic').setValue('Test Topic');
+            await wrapper.find('#location').setValue('Test Location');
+            await wrapper.find('#has-invite-link').setValue(true);
+
+            await wrapper.find('button[type=submit]').trigger('click');
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.find('dialog').exists()).toBe(false);
+            expect(GrowthSessionApi.store).toHaveBeenCalled();
+        });
+
+        it('disables the invite link toggle while public is on, and explains why', async () => {
+            expect(wrapper.find<HTMLInputElement>('#has-invite-link').element.disabled).toBe(false);
+
+            await wrapper.find('#is-public').setValue(true);
+
+            expect(wrapper.find<HTMLInputElement>('#has-invite-link').element.disabled).toBe(true);
+            expect(wrapper.text()).toContain('Public growth sessions are already visible to everyone');
+        });
+
+        it('shows the invite link toggle off when the session is made public', async () => {
+            await wrapper.find('#has-invite-link').setValue(true);
+            await wrapper.find('#is-public').setValue(true);
+
+            expect(wrapper.find<HTMLInputElement>('#has-invite-link').element.checked).toBe(false);
+        });
+
+        // The server's InviteLink module decides what a public session's link does; the form only reports what the
+        // owner asked for, so that turning Public back off restores their choice without a second trip.
+        it('sends the session as public and leaves the link decision to the server', async () => {
+            await wrapper.find('#has-invite-link').setValue(true);
+            await wrapper.find('#is-public').setValue(true);
+
+            await wrapper.find('#title').setValue('Test Title');
+            await wrapper.find('#topic').setValue('Test Topic');
+            await wrapper.find('#location').setValue('Test Location');
+            await wrapper.find('button[type=submit]').trigger('click');
+            await wrapper.vm.$nextTick();
+            await wrapper.find('.confirm-button').trigger('click');
+            await flushPromises();
+
+            expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining({ is_public: true }));
+        });
+
+        it('brings the invite link back when public is turned off again', async () => {
+            await wrapper.find('#has-invite-link').setValue(true);
+            await wrapper.find('#is-public').setValue(true);
+            await wrapper.find('#is-public').setValue(false);
+
+            expect(wrapper.find<HTMLInputElement>('#has-invite-link').element.checked).toBe(true);
+        });
     });
 
     describe('used for editing', () => {
@@ -420,6 +492,48 @@ describe('GrowthSessionForm', () => {
 
             expect(wrapper.find('dialog').exists()).toBe(false);
             expect(GrowthSessionApi.update).toHaveBeenCalled();
+        });
+
+        it('shows the invite link toggle on when a link is currently live', () => {
+            wrapper = mount(GrowthSessionForm, {
+                propsData: {
+                    owner: user,
+                    startDate,
+                    growthSession: { ...growthSessionWithCommentsJson, is_public: false, share_url: 'https://growth.test/invitations/abc123' },
+                },
+            });
+
+            expect(wrapper.find<HTMLInputElement>('#has-invite-link').element.checked).toBe(true);
+        });
+
+        it('shows the invite link toggle off when no link is live', () => {
+            wrapper = mount(GrowthSessionForm, {
+                propsData: {
+                    owner: user,
+                    startDate,
+                    growthSession: { ...growthSessionWithCommentsJson, is_public: false, share_url: undefined },
+                },
+            });
+
+            expect(wrapper.find<HTMLInputElement>('#has-invite-link').element.checked).toBe(false);
+        });
+
+        it('hands the server a public session so it can revoke the invite link', async () => {
+            wrapper = mount(GrowthSessionForm, {
+                propsData: {
+                    owner: user,
+                    startDate,
+                    growthSession: { ...growthSessionWithCommentsJson, is_public: false, share_url: 'https://growth.test/invitations/abc123' },
+                },
+            });
+
+            await wrapper.find('#is-public').setValue(true);
+            await wrapper.find('button[type=submit]').trigger('click');
+            await wrapper.vm.$nextTick();
+            await wrapper.find('.confirm-button').trigger('click');
+            await flushPromises();
+
+            expect(GrowthSessionApi.update).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ is_public: true }));
         });
     });
 });

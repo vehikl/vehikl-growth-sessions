@@ -5,4 +5,5 @@ export interface IUpdateGrowthSessionRequest {
     end_time?: string;
     date?: string;
     attendee_limit?: number | null;
+    has_invite_link?: boolean;
 }

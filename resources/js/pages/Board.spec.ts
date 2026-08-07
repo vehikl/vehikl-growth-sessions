@@ -6,6 +6,7 @@ import { Nothingator } from '@/classes/Nothingator';
 import { WeekGrowthSessions } from '@/classes/WeekGrowthSessions';
 import DayView from '@/components/legacy/DayView.vue';
 import GrowthSessionCard from '@/components/legacy/GrowthSessionCard.vue';
+import SessionDetailDrawer from '@/components/legacy/SessionDetailDrawer.vue';
 import WeekView from '@/components/legacy/WeekView.vue';
 import Board from '@/pages/Board.vue';
 import { AnydesksApi } from '@/services/AnydesksApi';
@@ -42,6 +43,9 @@ const metadataForGrowthSessionsFixture = {
 };
 
 const todayDate: string = metadataForGrowthSessionsFixture.today.date;
+
+// Ziggy has no route table in unit tests; the login link's contents are covered in loginUrl.spec.ts.
+vi.mock('@/lib/loginUrl', () => ({ loginUrl: () => '/login-from-here' }));
 
 vi.mock('@laravel/echo-vue', () => ({
     default: vi.fn(),
@@ -207,6 +211,59 @@ describe('Board', () => {
         expect(isViewShown(DayView)).toBe(false);
     });
 
+    // A viewport that can change mid-test: `useMediaQuery` subscribes to the query's `change`
+    // event, so the returned function flips `matches` and replays it to those subscribers.
+    function stubResizableViewport(isDesktop: boolean): (desktop: boolean) => void {
+        const listeners: Array<(event: { matches: boolean }) => void> = [];
+        const state = { matches: isDesktop };
+
+        Object.defineProperty(window, 'matchMedia', {
+            writable: true,
+            configurable: true,
+            value: (query: string) => ({
+                get matches() {
+                    return state.matches;
+                },
+                media: query,
+                onchange: null,
+                addEventListener: (_type: string, listener: (event: { matches: boolean }) => void) => listeners.push(listener),
+                removeEventListener: vi.fn(),
+                addListener: (listener: (event: { matches: boolean }) => void) => listeners.push(listener),
+                removeListener: vi.fn(),
+                dispatchEvent: vi.fn(),
+            }),
+        });
+
+        return (desktop: boolean) => {
+            state.matches = desktop;
+            listeners.forEach((listener) => listener({ matches: desktop }));
+        };
+    }
+
+    // Deliberate: a screen too narrow for the week view demotes the board to day, and it stays
+    // demoted. Widening again must not yank the visitor back to a view they didn't re-ask for.
+    it('keeps the day view after a small screen has demoted it, even once the screen widens', async () => {
+        const resizeTo = stubResizableViewport(false);
+        window.history.replaceState({}, '', '?view=week');
+        wrapper.unmount();
+        wrapper = mount(Board, { propsData: { user: authVehiklUser } });
+        await flushPromises();
+
+        expect(isViewShown(DayView)).toBe(true);
+
+        resizeTo(true);
+        await flushPromises();
+
+        expect(isViewShown(DayView)).toBe(true);
+        expect(isViewShown(WeekView)).toBe(false);
+
+        // ...but asking for the week view again now works, because the screen can show it.
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }));
+        await wrapper.vm.$nextTick();
+
+        expect(isViewShown(WeekView)).toBe(true);
+    });
+
     it('shows only the day view on small screens and disables week switching', async () => {
         stubViewport(false); // emulate a mobile-sized viewport
         window.history.replaceState({}, '', '?view=week');
@@ -366,15 +423,15 @@ describe('Board', () => {
             expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalledWith(metadataForGrowthSessionsFixture.today.date);
         });
 
-        // Reading the date out of the url, writing it back on navigation, and shifting from
-        // the url's date rather than today are covered directly in
-        // composables/useReferenceDate.spec.ts, which passes a fake window instead of
+        // Reading each board parameter out of the url, writing it back on navigation, and
+        // shifting from the url's date rather than today are covered directly in
+        // composables/useBoardUrlState.spec.ts, which passes a fake window instead of
         // fighting happy-dom. These replace three tests that sat skipped here.
         it('re-fetches the week when the user navigates back through history', async () => {
             (GrowthSessionApi.getAllGrowthSessionsOfTheWeek as ReturnType<typeof vi.fn>).mockClear();
             window.history.replaceState({}, '', '?view=week');
 
-            window.onpopstate!({} as PopStateEvent);
+            window.dispatchEvent(new PopStateEvent('popstate'));
             await flushPromises();
 
             expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalled();
@@ -609,6 +666,61 @@ describe('Board', () => {
             await flushPromises();
 
             expect(showsPrivate()).toBe(false);
+        });
+    });
+
+    describe('deep-linked session detail', () => {
+        // The invite link lands here: the board stays on screen and the session's drawer opens over it.
+        const sessionOnAnotherDay = growthSessionsThisWeek.allGrowthSessions.find((gs) => gs.date === '2020-01-13')!;
+
+        async function boardAt(search: string): Promise<VueWrapper> {
+            window.history.replaceState({}, '', search);
+            const board = mount(Board);
+            await flushPromises();
+            return board;
+        }
+
+        function drawer(): VueWrapper {
+            return wrapper.findComponent(SessionDetailDrawer);
+        }
+
+        it('opens the drawer of the session named in the query string', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+
+            expect(drawer().exists()).toBe(true);
+            expect((drawer().props() as { growthSession: GrowthSession }).growthSession.id).toBe(sessionOnAnotherDay.id);
+        });
+
+        it('moves the day view to the day the deep-linked session is on', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+
+            expect(wrapper.findComponent(DayView).props('selectedIndex')).toBe(
+                growthSessionsThisWeek.weekDates.findIndex((day) => day.toDateString() === sessionOnAnotherDay.date),
+            );
+        });
+
+        it('leaves the drawer closed when the query string names a session that is not visible', async () => {
+            wrapper = await boardAt('?session=99999');
+
+            expect(drawer().exists()).toBe(false);
+        });
+
+        it('records the open session in the url so the drawer can be shared and restored', async () => {
+            wrapper.findComponent(DayView).vm.$emit('open-detail', sessionOnAnotherDay);
+            await flushPromises();
+
+            expect(new URLSearchParams(window.location.search).get('session')).toBe(String(sessionOnAnotherDay.id));
+        });
+
+        it('drops the session from the url when the drawer is closed', async () => {
+            wrapper = await boardAt(`?date=${todayDate}&session=${sessionOnAnotherDay.id}`);
+
+            drawer().vm.$emit('close');
+            await flushPromises();
+
+            expect(drawer().exists()).toBe(false);
+            expect(new URLSearchParams(window.location.search).has('session')).toBe(false);
+            expect(new URLSearchParams(window.location.search).get('date')).toBe(todayDate);
         });
     });
 });

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { loginUrl } from '@/lib/loginUrl';
 import Board from '@/pages/Board.vue';
 import type { IUser } from '@/types';
 import { Head, usePage } from '@inertiajs/vue3';
@@ -9,10 +10,6 @@ const page = usePage<{
         user: IUser | null;
     };
 }>();
-
-function getLoginUrl(driver = 'github'): string {
-    return route('oauth.login.redirect', { driver });
-}
 
 const user = computed(() => page.props.auth.user ?? null);
 
@@ -48,7 +45,7 @@ const guestPerks = [
                     </ul>
 
                     <a
-                        :href="getLoginUrl('github')"
+                        :href="loginUrl()"
                         class="gs-btn-primary group shadow-vehikl-orange/30 inline-flex flex-none items-center justify-center gap-3 self-start rounded-xl px-7 py-4 text-base font-semibold shadow-lg lg:self-auto"
                     >
                         <i class="fa fa-github text-lg" aria-hidden="true"></i>

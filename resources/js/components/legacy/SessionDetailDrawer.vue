@@ -2,7 +2,9 @@
 import { GrowthSession } from '@/classes/GrowthSession';
 import CommentList from '@/components/legacy/CommentList.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
+import ShareInviteLink from '@/components/legacy/ShareInviteLink.vue';
 import { useInitials } from '@/composables/useInitials';
+import { loginUrl } from '@/lib/loginUrl';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
 import { ChevronRight } from 'lucide-vue-next';
@@ -89,7 +91,12 @@ async function leave() {
         aria-labelledby="drawer-title"
         @click="emit('close')"
     >
-        <div ref="panel" tabindex="-1" class="gs-card gs-drawer-panel h-full w-full max-w-2xl overflow-y-auto p-7 shadow-2xl outline-none" @click.stop>
+        <div
+            ref="panel"
+            tabindex="-1"
+            class="gs-card gs-drawer-panel h-full w-full max-w-2xl overflow-y-auto p-7 shadow-2xl outline-none"
+            @click.stop
+        >
             <div class="mb-3 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
                     <span
@@ -136,6 +143,9 @@ async function leave() {
             <p class="gs-text-body mb-5 text-sm leading-[1.6] whitespace-pre-wrap">{{ growthSession.topic }}</p>
 
             <div class="mb-6 flex flex-col gap-2.5">
+                <a v-if="!user" :href="loginUrl()" class="login-to-join-link gs-btn-primary rounded-md py-3 text-center text-sm font-semibold">
+                    Log in to join
+                </a>
                 <button
                     v-show="growthSession.canJoin(user)"
                     type="button"
@@ -190,6 +200,10 @@ async function leave() {
                 <div>
                     <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">MOBTIME</div>
                     <a :href="mobtimeUrl" target="_blank" class="gs-accent-text text-sm font-medium break-all">{{ mobtimeUrl }}</a>
+                </div>
+                <div v-if="growthSession.share_url">
+                    <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">INVITE LINK</div>
+                    <share-invite-link :share-url="growthSession.share_url" />
                 </div>
                 <div>
                     <div class="gs-text-muted mb-2.5 text-xs font-bold tracking-[0.06em]">ATTENDEES ({{ capacityLabel(growthSession) }})</div>

@@ -19,6 +19,7 @@ class GrowthSession extends Model
     const NO_LIMIT = PHP_INT_MAX;
 
     protected $appends = ['owner'];
+    protected $hidden = ['share_token'];
 
     protected function casts(): array
     {
@@ -154,6 +155,11 @@ class GrowthSession extends Model
     public function hasWatcher(User $watcher): bool
     {
         return ! ! $this->watchers->find($watcher);
+    }
+
+    public function hasParticipant(User $user): bool
+    {
+        return $this->hasAttendee($user) || $this->hasWatcher($user);
     }
 
     public function hasUnlimitedSlots(): bool
