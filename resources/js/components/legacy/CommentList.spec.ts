@@ -56,11 +56,19 @@ describe('CommentList', () => {
         });
     });
 
-    it('renders an image URL in a comment as an embedded image', () => {
+    it('renders an image segment as an embedded image', () => {
         const imageUrl = 'https://example.com/funny.gif';
         const sessionWithImageComment = new GrowthSession({
             ...growthSessionWithCommentsJson,
-            comments: [{ ...growthSessionWithCommentsJson.comments[0], content: `look at this ${imageUrl}` }],
+            comments: [
+                {
+                    ...growthSessionWithCommentsJson.comments[0],
+                    segments: [
+                        { type: 'text', value: 'look at this ' },
+                        { type: 'image', value: imageUrl },
+                    ],
+                },
+            ],
         });
         wrapper = mount(CommentList, { propsData: { growthSession: sessionWithImageComment, user } });
 
@@ -68,19 +76,18 @@ describe('CommentList', () => {
         expect(wrapper.find('p').text()).toContain('look at this');
     });
 
-    it('renders comment content without an image URL as plain text', () => {
+    it('renders comment content without an image segment as plain text', () => {
         expect(wrapper.find('p img').exists()).toBe(false);
     });
 
-    it('renders an image URL as plain text when the comment author is not a Vehikalien', () => {
+    it('renders a text segment as plain text, e.g. when the comment author is not a Vehikalien', () => {
         const imageUrl = 'https://example.com/funny.gif';
         const sessionWithImageComment = new GrowthSession({
             ...growthSessionWithCommentsJson,
             comments: [
                 {
                     ...growthSessionWithCommentsJson.comments[0],
-                    content: `look at this ${imageUrl}`,
-                    user: { ...growthSessionWithCommentsJson.comments[0].user, is_vehikl_member: false },
+                    segments: [{ type: 'text', value: `look at this ${imageUrl}` }],
                 },
             ],
         });
@@ -90,7 +97,7 @@ describe('CommentList', () => {
         expect(wrapper.find('p').text()).toContain(imageUrl);
     });
 
-    it('gates image rendering per comment author, independent of the viewing user', () => {
+    it('renders each comment from its own segments, independent of other comments', () => {
         const memberImageUrl = 'https://example.com/member.gif';
         const guestImageUrl = 'https://example.com/guest.gif';
         const sessionWithMixedComments = new GrowthSession({
@@ -99,14 +106,12 @@ describe('CommentList', () => {
                 {
                     ...growthSessionWithCommentsJson.comments[0],
                     id: 101,
-                    content: memberImageUrl,
-                    user: { ...growthSessionWithCommentsJson.comments[0].user, is_vehikl_member: true },
+                    segments: [{ type: 'image', value: memberImageUrl }],
                 },
                 {
                     ...growthSessionWithCommentsJson.comments[0],
                     id: 102,
-                    content: guestImageUrl,
-                    user: { ...growthSessionWithCommentsJson.comments[0].user, is_vehikl_member: false },
+                    segments: [{ type: 'text', value: guestImageUrl }],
                 },
             ],
         });
@@ -118,29 +123,16 @@ describe('CommentList', () => {
         expect(commentParagraphs[1].text()).toBe(guestImageUrl);
     });
 
-    it('fails closed to plain text when the comment author is missing an is_vehikl_member flag', () => {
-        const imageUrl = 'https://example.com/funny.gif';
-        const sessionWithMalformedAuthor = new GrowthSession({
-            ...growthSessionWithCommentsJson,
-            comments: [
-                {
-                    ...growthSessionWithCommentsJson.comments[0],
-                    content: imageUrl,
-                    user: { ...growthSessionWithCommentsJson.comments[0].user, is_vehikl_member: undefined as unknown as boolean },
-                },
-            ],
-        });
-        wrapper = mount(CommentList, { propsData: { growthSession: sessionWithMalformedAuthor, user } });
-
-        expect(wrapper.find('p img').exists()).toBe(false);
-        expect(wrapper.find('p').text()).toBe(imageUrl);
-    });
-
     it('falls back to the raw URL when an embedded image fails to load', async () => {
         const imageUrl = 'https://example.com/dead-link.gif';
         const sessionWithImageComment = new GrowthSession({
             ...growthSessionWithCommentsJson,
-            comments: [{ ...growthSessionWithCommentsJson.comments[0], content: imageUrl }],
+            comments: [
+                {
+                    ...growthSessionWithCommentsJson.comments[0],
+                    segments: [{ type: 'image', value: imageUrl }],
+                },
+            ],
         });
         wrapper = mount(CommentList, { propsData: { growthSession: sessionWithImageComment, user } });
 
