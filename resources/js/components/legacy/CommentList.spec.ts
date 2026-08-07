@@ -90,6 +90,52 @@ describe('CommentList', () => {
         expect(wrapper.find('p').text()).toContain(imageUrl);
     });
 
+    it('gates image rendering per comment author, independent of the viewing user', () => {
+        const memberImageUrl = 'https://example.com/member.gif';
+        const guestImageUrl = 'https://example.com/guest.gif';
+        const sessionWithMixedComments = new GrowthSession({
+            ...growthSessionWithCommentsJson,
+            comments: [
+                {
+                    ...growthSessionWithCommentsJson.comments[0],
+                    id: 101,
+                    content: memberImageUrl,
+                    user: { ...growthSessionWithCommentsJson.comments[0].user, is_vehikl_member: true },
+                },
+                {
+                    ...growthSessionWithCommentsJson.comments[0],
+                    id: 102,
+                    content: guestImageUrl,
+                    user: { ...growthSessionWithCommentsJson.comments[0].user, is_vehikl_member: false },
+                },
+            ],
+        });
+        wrapper = mount(CommentList, { propsData: { growthSession: sessionWithMixedComments, user } });
+
+        const commentParagraphs = wrapper.findAll('p');
+        expect(commentParagraphs[0].find('img').attributes('src')).toBe(memberImageUrl);
+        expect(commentParagraphs[1].find('img').exists()).toBe(false);
+        expect(commentParagraphs[1].text()).toBe(guestImageUrl);
+    });
+
+    it('fails closed to plain text when the comment author is missing an is_vehikl_member flag', () => {
+        const imageUrl = 'https://example.com/funny.gif';
+        const sessionWithMalformedAuthor = new GrowthSession({
+            ...growthSessionWithCommentsJson,
+            comments: [
+                {
+                    ...growthSessionWithCommentsJson.comments[0],
+                    content: imageUrl,
+                    user: { ...growthSessionWithCommentsJson.comments[0].user, is_vehikl_member: undefined as unknown as boolean },
+                },
+            ],
+        });
+        wrapper = mount(CommentList, { propsData: { growthSession: sessionWithMalformedAuthor, user } });
+
+        expect(wrapper.find('p img').exists()).toBe(false);
+        expect(wrapper.find('p').text()).toBe(imageUrl);
+    });
+
     it('falls back to the raw URL when an embedded image fails to load', async () => {
         const imageUrl = 'https://example.com/dead-link.gif';
         const sessionWithImageComment = new GrowthSession({
