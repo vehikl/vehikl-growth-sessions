@@ -143,4 +143,116 @@ class CommentContentParserTest extends TestCase
             CommentContentParser::parse($content, false)
         );
     }
+
+    public function testItDoesNotMergeCommaJoinedAdjacentImageUrls()
+    {
+        $result = CommentContentParser::parse('https://example.com/one.gif,https://example.com/two.png', true);
+
+        $this->assertEquals([
+            ['type' => 'image', 'value' => 'https://example.com/one.gif'],
+            ['type' => 'text', 'value' => ','],
+            ['type' => 'image', 'value' => 'https://example.com/two.png'],
+        ], $result);
+    }
+
+    public function testItDoesNotMergeQuotedAdjacentImageUrls()
+    {
+        $result = CommentContentParser::parse('"https://example.com/one.gif","https://example.com/two.png"', true);
+
+        $this->assertEquals([
+            ['type' => 'text', 'value' => '"'],
+            ['type' => 'image', 'value' => 'https://example.com/one.gif'],
+            ['type' => 'text', 'value' => '","'],
+            ['type' => 'image', 'value' => 'https://example.com/two.png'],
+            ['type' => 'text', 'value' => '"'],
+        ], $result);
+    }
+
+    /** @dataProvider separatorProvider */
+    public function testItDoesNotMergeAdjacentImageUrlsJoinedByOtherSeparators(string $separator)
+    {
+        $result = CommentContentParser::parse("https://example.com/one.gif{$separator}https://example.com/two.png", true);
+
+        $this->assertEquals([
+            ['type' => 'image', 'value' => 'https://example.com/one.gif'],
+            ['type' => 'text', 'value' => $separator],
+            ['type' => 'image', 'value' => 'https://example.com/two.png'],
+        ], $result);
+    }
+
+    public static function separatorProvider(): array
+    {
+        return [[';'], ['|']];
+    }
+
+    public function testItDoesNotTreatAnImageExtensionInsideAQueryValueAsAnImageUrl()
+    {
+        $url = 'https://example.com/download?file=report.png';
+
+        $this->assertEquals(
+            [['type' => 'text', 'value' => $url]],
+            CommentContentParser::parse($url, true)
+        );
+    }
+
+    public function testItKeepsACommaThatIsPartOfTheImageUrlPath()
+    {
+        $url = 'https://res.cloudinary.com/demo/image/upload/c_scale,w_500/sample.jpg';
+
+        $this->assertEquals(
+            [['type' => 'image', 'value' => $url]],
+            CommentContentParser::parse($url, true)
+        );
+    }
+
+    public function testItKeepsCommasInsideAQueryStringValue()
+    {
+        $url = 'https://cdn.example.com/img.png?ids=1,2,3';
+
+        $this->assertEquals(
+            [['type' => 'image', 'value' => $url]],
+            CommentContentParser::parse($url, true)
+        );
+    }
+
+    public function testItKeepsATrailingExclamationMarkOnASignedCdnUrl()
+    {
+        $url = 'https://cdn.example.com/img.png?Signature=abc%3D&Expires=1!';
+
+        $this->assertEquals(
+            [['type' => 'image', 'value' => $url]],
+            CommentContentParser::parse($url, true)
+        );
+    }
+
+    public function testItKeepsAQueryStringEndingInAColon()
+    {
+        $url = 'https://cdn.example.com/img.png?token=abc:';
+
+        $this->assertEquals(
+            [['type' => 'image', 'value' => $url]],
+            CommentContentParser::parse($url, true)
+        );
+    }
+
+    public function testItStripsAnUnbalancedTrailingParenthesisEvenWithAQueryString()
+    {
+        $result = CommentContentParser::parse('(https://cdn.example.com/img.png?token=abc).', true);
+
+        $this->assertEquals([
+            ['type' => 'text', 'value' => '('],
+            ['type' => 'image', 'value' => 'https://cdn.example.com/img.png?token=abc'],
+            ['type' => 'text', 'value' => ').'],
+        ], $result);
+    }
+
+    public function testItKeepsATrailingClosingParenthesisBalancedByAnEarlierOne()
+    {
+        $url = 'https://example.com/img.png?callback=foo(bar)';
+
+        $this->assertEquals(
+            [['type' => 'image', 'value' => $url]],
+            CommentContentParser::parse($url, true)
+        );
+    }
 }
