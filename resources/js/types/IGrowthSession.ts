@@ -1,11 +1,13 @@
-import { IComment, ITag, IUser } from '.';
+import { IComment, ITag, ITextSegment, IUser } from '.';
 import { IAnyDesk } from './IAnyDesk';
 
 export interface IGrowthSession {
     id: number;
     title: string;
     topic: string;
+    topic_segments: ITextSegment[];
     location: string;
+    location_segments: ITextSegment[];
     date: string;
     start_time: string;
     end_time: string;

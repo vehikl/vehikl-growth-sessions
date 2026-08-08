@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTextSegments;
 use App\Observers\GrowthSessionObserver;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -15,10 +16,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class GrowthSession extends Model
 {
     use HasFactory;
+    use HasTextSegments;
 
     const NO_LIMIT = PHP_INT_MAX;
 
-    protected $appends = ['owner'];
+    protected $appends = ['owner', 'topic_segments', 'location_segments'];
 
     protected function casts(): array
     {
@@ -58,6 +60,16 @@ class GrowthSession extends Model
         return Attribute::make(
             get: fn () => $this->owners()->first(),
         );
+    }
+
+    protected function topicSegments(): Attribute
+    {
+        return $this->textSegmentsAttribute($this->topic);
+    }
+
+    protected function locationSegments(): Attribute
+    {
+        return $this->textSegmentsAttribute($this->location);
     }
 
     public function members(): BelongsToMany

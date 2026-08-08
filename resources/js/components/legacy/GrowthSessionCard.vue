@@ -104,7 +104,7 @@ async function onDeleteClicked() {
         </div>
 
         <div class="gs-text-muted mb-3 truncate text-sm">
-            <location-renderer v-if="canSeeLocation" :locationString="growthSession.location" />
+            <location-renderer v-if="canSeeLocation" :segments="growthSession.location_segments" />
             <template v-else>&lt; Join to see location &gt;</template>
         </div>
 

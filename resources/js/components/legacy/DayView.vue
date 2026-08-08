@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
-import LinkifiedText from '@/components/legacy/LinkifiedText.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
+import TextSegments from '@/components/legacy/TextSegments.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
@@ -158,11 +158,11 @@ function isFull(session: GrowthSession): boolean {
                                 <div
                                     class="gs-text-body pointer-events-none relative z-20 mt-2 max-w-full text-sm leading-normal whitespace-pre-wrap xl:max-w-1/2"
                                 >
-                                    <LinkifiedText :text="session.topic" />
+                                    <text-segments :segments="session.topic_segments" />
                                 </div>
                                 <div class="gs-text-muted pointer-events-none relative z-20 mt-2 flex items-center gap-1.5 text-sm font-medium">
                                     <i class="fa fa-compass flex-none" aria-hidden="true"></i>
-                                    <location-renderer :locationString="session.location" />
+                                    <location-renderer :segments="session.location_segments" />
                                 </div>
                             </div>
                         </div>

@@ -272,6 +272,48 @@ class GrowthSessionsShowTest extends TestCase
             ->assertJsonCount($numberOfTags, 'tags');
     }
 
+    public function testItProvidesTopicAndLocationSegmentsInThePayload()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory()->vehiklMember(true), [], 'attendees')
+            ->create([
+                'topic' => 'check out https://example.com',
+                'location' => 'join at https://example.com/room',
+            ]);
+
+        /** @var User $user */
+        $user = $growthSession->attendees()->first();
+
+        $this->actingAs($user)
+            ->getJson(route('growth_sessions.show', $growthSession))
+            ->assertJsonPath('topic_segments', [
+                ['type' => 'text', 'value' => 'check out '],
+                ['type' => 'link', 'value' => 'https://example.com'],
+            ])
+            ->assertJsonPath('location_segments', [
+                ['type' => 'text', 'value' => 'join at '],
+                ['type' => 'link', 'value' => 'https://example.com/room'],
+            ]);
+    }
+
+    public function testLocationSegmentsAreRedactedForNonParticipantsInsteadOfLeakingTheRealLocation()
+    {
+        $growthSession = GrowthSession::factory()->create([
+            'is_public' => true,
+            'location' => 'join at https://example.com/secret-room',
+        ]);
+
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->getJson(route('growth_sessions.show', $growthSession))
+            ->assertJsonPath('location_segments', [
+                ['type' => 'text', 'value' => '< Join to see location >'],
+            ])
+            ->assertDontSee('secret-room');
+    }
+
     public static function providesGrowthSessionGuests(): array
     {
         return [

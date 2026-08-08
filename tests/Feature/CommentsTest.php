@@ -125,6 +125,28 @@ class CommentsTest extends TestCase
         );
     }
 
+    public function testCommentSegmentsAllowLinksForNonMembersButStillWithholdImages()
+    {
+        $nonMember = User::factory()->create(['is_vehikl_member' => false]);
+        $growthSession = GrowthSession::factory()->create();
+        $imageUrl = 'https://example.com/funny.gif';
+        $linkUrl = 'https://example.com/info';
+        $comment = Comment::factory()->create([
+            'growth_session_id' => $growthSession->id,
+            'user_id' => $nonMember->id,
+            'content' => "photo {$imageUrl} and info {$linkUrl}",
+        ]);
+
+        $comments = collect(
+            $this->getJson(route('growth_sessions.comments.index', $growthSession))->json()
+        );
+
+        $this->assertEquals([
+            ['type' => 'text', 'value' => "photo {$imageUrl} and info "],
+            ['type' => 'link', 'value' => $linkUrl],
+        ], $comments->firstWhere('id', $comment->id)['segments']);
+    }
+
     public function testAUserCanDeleteTheirComment()
     {
         $comment = Comment::factory()->create();

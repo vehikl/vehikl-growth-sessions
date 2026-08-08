@@ -161,7 +161,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                 <div class="mb-4 text-left break-all text-gray-600">
                     <h3 class="text-lg font-semibold tracking-widest text-slate-600 uppercase">Location</h3>
                     <i class="fa fa-compass mr-2 text-xl" aria-hidden="true"></i>
-                    <location-renderer :locationString="growthSession.location" />
+                    <location-renderer :segments="growthSession.location_segments" />
                 </div>
 
                 <div class="mb-4">

@@ -1,13 +1,15 @@
 import { DateTime } from '@/classes/DateTime';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
-import { IAnyDesk, IComment, IGrowthSession, ITag, IUser } from '@/types';
+import { IAnyDesk, IComment, IGrowthSession, ITag, ITextSegment, IUser } from '@/types';
 import { User } from './User';
 
 export class GrowthSession implements IGrowthSession {
     id!: number;
     title!: string;
     topic!: string;
+    topic_segments!: ITextSegment[];
     location!: string;
+    location_segments!: ITextSegment[];
     date!: string;
     is_public!: boolean;
     start_time!: string;
@@ -51,7 +53,9 @@ export class GrowthSession implements IGrowthSession {
         this.id = growthSession.id;
         this.title = growthSession.title;
         this.topic = growthSession.topic;
+        this.topic_segments = growthSession.topic_segments;
         this.location = growthSession.location;
+        this.location_segments = growthSession.location_segments;
         this.date = growthSession.date;
         this.is_public = growthSession.is_public;
         this.allow_watchers = growthSession.allow_watchers;

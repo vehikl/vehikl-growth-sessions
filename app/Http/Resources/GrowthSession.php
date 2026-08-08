@@ -20,6 +20,7 @@ class GrowthSession extends JsonResource
 
         if (!$isParticipatingInGrowthSession && !$isOwner) {
             $attributes['location'] = '< Join to see location >';
+            $attributes['location_segments'] = [['type' => 'text', 'value' => $attributes['location']]];
         }
 
         if ($attributes['attendee_limit'] === \App\Models\GrowthSession::NO_LIMIT) {

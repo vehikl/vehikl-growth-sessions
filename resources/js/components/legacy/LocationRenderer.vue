@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import LinkifiedText from '@/components/legacy/LinkifiedText.vue';
+import TextSegments from '@/components/legacy/TextSegments.vue';
+import type { ITextSegment } from '@/types';
 
 defineProps<{
-    locationString: string;
+    segments: ITextSegment[];
 }>();
 </script>
 
 <template>
-    <LinkifiedText :text="locationString" />
+    <TextSegments :segments="segments" />
 </template>

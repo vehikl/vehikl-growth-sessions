@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { GrowthSession } from '@/classes/GrowthSession';
 import CommentList from '@/components/legacy/CommentList.vue';
-import LinkifiedText from '@/components/legacy/LinkifiedText.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
+import TextSegments from '@/components/legacy/TextSegments.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 import { useCopyStatus } from '@/composables/useCopyStatus';
 import { capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
@@ -159,7 +159,7 @@ async function share() {
             </div>
 
             <p class="gs-text-body mb-5 text-sm leading-[1.6] whitespace-pre-wrap">
-                <LinkifiedText :text="growthSession.topic" />
+                <text-segments :segments="growthSession.topic_segments" />
             </p>
 
             <div class="mb-6 flex flex-col gap-2.5">
@@ -214,7 +214,7 @@ async function share() {
             <div class="gs-border flex flex-col gap-3.5 border-t pt-4">
                 <div>
                     <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">LOCATION</div>
-                    <div class="gs-text-strong text-sm font-medium"><location-renderer :locationString="growthSession.location" /></div>
+                    <div class="gs-text-strong text-sm font-medium"><location-renderer :segments="growthSession.location_segments" /></div>
                 </div>
                 <div v-if="growthSession.anydesk">
                     <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">ANYDESK</div>

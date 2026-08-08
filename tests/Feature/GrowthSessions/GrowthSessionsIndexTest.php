@@ -37,15 +37,15 @@ class GrowthSessionsIndexTest extends TestCase
             ]); // GrowthSessions on another week
 
         $expectedResponse = [
-            $monday->toDateString() => [Arr::except($mondayGrowthSession, 'location')],
+            $monday->toDateString() => [Arr::except($mondayGrowthSession, ['location', 'location_segments'])],
             $monday->addDays(1)->toDateString() => [],
             $monday->addDays(2)->toDateString() => [
-                Arr::except($earlyWednesdayGrowthSession, 'location'),
-                Arr::except($lateWednesdayGrowthSession, 'location')
+                Arr::except($earlyWednesdayGrowthSession, ['location', 'location_segments']),
+                Arr::except($lateWednesdayGrowthSession, ['location', 'location_segments'])
             ],
             $monday->addDays(3)->toDateString() => [],
             $monday->addDays(4)->toDateString() => [
-                Arr::except($fridayGrowthSession, 'location')
+                Arr::except($fridayGrowthSession, ['location', 'location_segments'])
             ],
         ];
 
@@ -68,11 +68,11 @@ class GrowthSessionsIndexTest extends TestCase
             ->toArray();
 
         $expectedResponse = [
-            Carbon::parse('Last Monday')->toDateString() => [Arr::except($mondayGrowthSession, 'location')],
+            Carbon::parse('Last Monday')->toDateString() => [Arr::except($mondayGrowthSession, ['location', 'location_segments'])],
             Carbon::parse('Last Tuesday')->toDateString() => [],
             Carbon::parse('Last Wednesday')->toDateString() => [],
             Carbon::parse('Last Thursday')->toDateString() => [],
-            today()->toDateString() => [Arr::except($fridayGrowthSession, 'location')],
+            today()->toDateString() => [Arr::except($fridayGrowthSession, ['location', 'location_segments'])],
         ];
 
         /** @var User $user */
@@ -116,15 +116,15 @@ class GrowthSessionsIndexTest extends TestCase
             ->toArray();
 
         $expectedResponse = [
-            $mondayOfWeekWithGrowthSessions->toDateString() => [Arr::except($mondayGrowthSession, 'location')],
+            $mondayOfWeekWithGrowthSessions->toDateString() => [Arr::except($mondayGrowthSession, ['location', 'location_segments'])],
             $mondayOfWeekWithGrowthSessions->addDays(1)->toDateString() => [],
             $mondayOfWeekWithGrowthSessions->addDays(2)->toDateString() => [
-                Arr::except($earlyWednesdayGrowthSession, 'location'),
-                Arr::except($lateWednesdayGrowthSession, 'location')
+                Arr::except($earlyWednesdayGrowthSession, ['location', 'location_segments']),
+                Arr::except($lateWednesdayGrowthSession, ['location', 'location_segments'])
             ],
             $mondayOfWeekWithGrowthSessions->addDays(3)->toDateString() => [],
             $mondayOfWeekWithGrowthSessions->addDays(4)->toDateString() => [
-                Arr::except($fridayGrowthSession, 'location')
+                Arr::except($fridayGrowthSession, ['location', 'location_segments'])
             ],
         ];
 
@@ -239,7 +239,7 @@ class GrowthSessionsIndexTest extends TestCase
         GrowthSession::factory()->times(2)->create(['date' => $tomorrow, 'attendee_limit' => 4]);
 
         $this->actingAs($user)->getJson(route('growth_sessions.day'))
-            ->assertJson($todayGrowthSessions->makeHidden('location')->toArray());
+            ->assertJson($todayGrowthSessions->makeHidden(['location', 'location_segments'])->toArray());
     }
 
     public function testVehiklUsersCanViewPrivateGrowthSessions()

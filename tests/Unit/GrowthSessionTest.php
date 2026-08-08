@@ -84,6 +84,33 @@ class GrowthSessionTest extends TestCase
         $this->assertInstanceOf(Anydesk::class, $growthSession->anydesk);
     }
 
+    public function testItParsesTheTopicIntoSegments()
+    {
+        $growthSession = GrowthSession::factory()->create(['topic' => 'check out https://example.com']);
 
+        $this->assertEquals([
+            ['type' => 'text', 'value' => 'check out '],
+            ['type' => 'link', 'value' => 'https://example.com'],
+        ], $growthSession->topic_segments);
+    }
+
+    public function testItParsesTheLocationIntoSegments()
+    {
+        $growthSession = GrowthSession::factory()->create(['location' => 'join at https://example.com/room']);
+
+        $this->assertEquals([
+            ['type' => 'text', 'value' => 'join at '],
+            ['type' => 'link', 'value' => 'https://example.com/room'],
+        ], $growthSession->location_segments);
+    }
+
+    public function testTopicAndLocationSegmentsNeverRenderImagesEvenWithAnImageExtensionUrl()
+    {
+        $imageUrl = 'https://example.com/funny.gif';
+        $growthSession = GrowthSession::factory()->create(['topic' => $imageUrl, 'location' => $imageUrl]);
+
+        $this->assertEquals([['type' => 'text', 'value' => $imageUrl]], $growthSession->topic_segments);
+        $this->assertEquals([['type' => 'text', 'value' => $imageUrl]], $growthSession->location_segments);
+    }
 }
 
