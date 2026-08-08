@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { GrowthSession } from '@/classes/GrowthSession';
 import CommentList from '@/components/legacy/CommentList.vue';
-import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import TextSegments from '@/components/legacy/TextSegments.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 import { useCopyStatus } from '@/composables/useCopyStatus';
@@ -214,7 +213,7 @@ async function share() {
             <div class="gs-border flex flex-col gap-3.5 border-t pt-4">
                 <div>
                     <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">LOCATION</div>
-                    <div class="gs-text-strong text-sm font-medium"><location-renderer :segments="growthSession.location_segments" /></div>
+                    <div class="gs-text-strong text-sm font-medium"><text-segments :segments="growthSession.location_segments" /></div>
                 </div>
                 <div v-if="growthSession.anydesk">
                     <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">ANYDESK</div>

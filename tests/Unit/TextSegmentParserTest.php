@@ -399,6 +399,28 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
+    public function testImageExtensionDetectionIsScopedToHttpSchemesOnly()
+    {
+        // hasImageExtension() only checks the string's *path*, so a mailto:/tel: candidate whose
+        // local part happens to end in an image extension must not be misclassified as an image -
+        // image rendering is an http(s)-only concept, and mailto:/tel: values are never fetched as
+        // <img src>. Regression test for a bug where tel:funny.gif rendered as `type: image`.
+        $telResult = TextSegmentParser::parse('call tel:funny.gif now', true);
+        $mailtoResult = TextSegmentParser::parse('email mailto:funny.gif now', true);
+
+        $this->assertEquals([
+            ['type' => 'text', 'value' => 'call '],
+            ['type' => 'link', 'value' => 'tel:funny.gif'],
+            ['type' => 'text', 'value' => ' now'],
+        ], $telResult);
+
+        $this->assertEquals([
+            ['type' => 'text', 'value' => 'email '],
+            ['type' => 'link', 'value' => 'mailto:funny.gif'],
+            ['type' => 'text', 'value' => ' now'],
+        ], $mailtoResult);
+    }
+
     public function testItRendersAMixOfAnImageAndALinkInTheSameContent()
     {
         $result = TextSegmentParser::parse(

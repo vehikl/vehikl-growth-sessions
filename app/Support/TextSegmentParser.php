@@ -58,9 +58,12 @@ class TextSegmentParser
         preg_match_all(self::URL_PATTERN, $content, $matches, PREG_OFFSET_CAPTURE);
 
         foreach ($matches[0] as [$rawUrl, $matchStart]) {
+            $schemeLiteral = self::matchedSchemeLiteral($rawUrl);
+            $isHttpScheme = $schemeLiteral === 'http://' || $schemeLiteral === 'https://';
+
             $lenientUrl = self::stripTrailingPunctuation($rawUrl, self::LENIENT_TRAILING_PUNCTUATION_CHARS);
 
-            if (self::hasImageExtension($lenientUrl)) {
+            if ($isHttpScheme && self::hasImageExtension($lenientUrl)) {
                 if (! $allowImages) {
                     continue;
                 }
@@ -70,7 +73,7 @@ class TextSegmentParser
             } else {
                 $strictUrl = self::stripTrailingPunctuation($rawUrl, self::STRICT_TRAILING_PUNCTUATION_CHARS);
 
-                if (strlen($strictUrl) <= strlen(self::matchedSchemeLiteral($rawUrl))) {
+                if (strlen($strictUrl) <= strlen($schemeLiteral)) {
                     continue;
                 }
 

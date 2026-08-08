@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
-import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import TextSegments from '@/components/legacy/TextSegments.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
@@ -162,7 +161,7 @@ function isFull(session: GrowthSession): boolean {
                                 </div>
                                 <div class="gs-text-muted pointer-events-none relative z-20 mt-2 flex items-center gap-1.5 text-sm font-medium">
                                     <i class="fa fa-compass flex-none" aria-hidden="true"></i>
-                                    <location-renderer :segments="session.location_segments" />
+                                    <text-segments :segments="session.location_segments" />
                                 </div>
                             </div>
                         </div>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { GrowthSession } from '@/classes/GrowthSession';
-import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
+import TextSegments from '@/components/legacy/TextSegments.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import IconDraggable from '@/svgs/IconDraggable.vue';
@@ -104,7 +104,7 @@ async function onDeleteClicked() {
         </div>
 
         <div class="gs-text-muted mb-3 truncate text-sm">
-            <location-renderer v-if="canSeeLocation" :segments="growthSession.location_segments" />
+            <text-segments v-if="canSeeLocation" :segments="growthSession.location_segments" />
             <template v-else>&lt; Join to see location &gt;</template>
         </div>
 
