@@ -12,27 +12,27 @@ use Tests\TestCase;
 
 class ShowStatisticsTest extends TestCase
 {
-    public function testItIsAccessibleByVehikaliens()
+    public function test_it_is_accessible_by_vehikaliens()
     {
         $this->actingAs(User::factory()->vehiklMember()->create())
             ->get(route('statistics.index'))
             ->assertSuccessful();
     }
 
-    public function testGuestsCannotAccessStatistics()
+    public function test_guests_cannot_access_statistics()
     {
         $this->get(route('statistics.index'))
             ->assertRedirect('/');
     }
 
-    public function testNonVehikaliensCannotAccessStatistics()
+    public function test_non_vehikaliens_cannot_access_statistics()
     {
         $this->actingAs(User::factory()->vehiklMember(false)->create())
             ->get(route('statistics.index'))
             ->assertForbidden();
     }
 
-    public function testItReturnsAWeeklySummary()
+    public function test_it_returns_a_weekly_summary()
     {
         [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -44,11 +44,25 @@ class ShowStatisticsTest extends TestCase
                 ->where('summary.lifetime_sessions_count', 5)
                 ->where('summary.sessions_this_week_count', 2)
                 ->where('summary.weekly_unique_participants_count', 2)
-                ->has('summary.average_attendance_count')
+                ->has('summary.lifetime_minutes_count')
             );
     }
 
-    public function testItRanksThisWeeksTopHosts()
+    public function test_it_sums_every_minute_ever_spent_in_a_growth_session()
+    {
+        $user = User::factory()->vehiklMember()->create();
+
+        // Two hours, then three and a half: 330 minutes all told.
+        GrowthSession::factory()->create(['start_time' => '15:00', 'end_time' => '17:00']);
+        GrowthSession::factory()->create(['start_time' => '09:00', 'end_time' => '12:30']);
+
+        $this->actingAs($user)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.lifetime_minutes_count', 330));
+    }
+
+    public function test_it_ranks_this_weeks_top_hosts()
     {
         $this->setTestNowToASafeWednesday();
 
@@ -73,7 +87,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testItReturnsTagUsageCountsForTheCurrentWeek()
+    public function test_it_returns_tag_usage_counts_for_the_current_week()
     {
         $this->setTestNowToASafeWednesday();
         $user = User::factory()->vehiklMember()->create();
@@ -99,7 +113,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testItReturnsTheCurrentUsersYetToMobWithListForAllTime()
+    public function test_it_returns_the_current_users_yet_to_mob_with_list_for_all_time()
     {
         [$owner, , $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
 
@@ -113,7 +127,7 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
-    public function testTheYetToMobWithListIsNotLimitedToTheCurrentWeek()
+    public function test_the_yet_to_mob_with_list_is_not_limited_to_the_current_week()
     {
         $this->setTestNowToASafeWednesday();
 
@@ -130,6 +144,195 @@ class ShowStatisticsTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page->has('yet_to_mob_with', 0));
     }
 
+    public function test_it_returns_a_row_for_every_statistics_visible_member()
+    {
+        [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('members', 3)
+                ->where('members', fn ($members) => collect($members)->pluck('name')->sort()->values()->all()
+                    === ['Attendee', 'Non-Participant', 'Owner'])
+                ->where('members', fn ($members) => collect($members)
+                    ->firstWhere('user_id', $nonParticipant->id)['total_sessions_count'] === 0)
+                ->where('members', fn ($members) => collect($members)
+                    ->firstWhere('user_id', $attendee->id)['sessions_attended_count'] === 5)
+            );
+    }
+
+    public function test_members_carry_the_participation_counts_and_yet_to_mob_with_names()
+    {
+        [$owner, $attendee, $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('members', function ($members) use ($owner, $nonParticipant) {
+                    $row = collect($members)->firstWhere('user_id', $owner->id);
+
+                    return $row['sessions_hosted_count'] === 5
+                        && $row['sessions_attended_count'] === 0
+                        && $row['sessions_watched_count'] === 0
+                        && $row['total_sessions_count'] === 5
+                        && $row['has_not_mobbed_with_count'] === 1
+                        && collect($row['has_not_mobbed_with'])->pluck('name')->all() === [$nonParticipant->name];
+                })
+            );
+    }
+
+    public function test_members_carry_their_avatar_so_the_table_can_show_it()
+    {
+        [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('members', fn ($members) => collect($members)
+                    ->firstWhere('user_id', $owner->id)['avatar'] === $owner->avatar)
+            );
+    }
+
+    public function test_members_omits_users_who_are_invisible_in_statistics()
+    {
+        [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('members', fn ($members) => ! collect($members)->pluck('name')->contains('Opt-out of stats'))
+            );
+    }
+
+    public function test_the_member_date_range_defaults_to_the_first_ever_session_through_today()
+    {
+        [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('start_date', today()->subDays(7)->toDateString())
+                ->where('end_date', today()->toDateString())
+                ->where('first_session_date', today()->subDays(7)->toDateString())
+            );
+    }
+
+    public function test_the_member_date_range_falls_back_to_today_when_there_are_no_sessions()
+    {
+        $this->setTestNowToASafeWednesday();
+
+        $this->actingAs(User::factory()->vehiklMember()->create())
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('start_date', today()->toDateString())
+                ->where('end_date', today()->toDateString())
+                ->where('first_session_date', today()->toDateString())
+            );
+    }
+
+    public function test_member_counts_are_narrowed_by_the_requested_date_range()
+    {
+        [$owner, $attendee] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index', [
+                'start_date' => today()->subDays(2)->toDateString(),
+                'end_date' => today()->toDateString(),
+            ]))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('start_date', today()->subDays(2)->toDateString())
+                ->where('end_date', today()->toDateString())
+                ->where('members', fn ($members) => collect($members)
+                    ->firstWhere('user_id', $attendee->id)['sessions_attended_count'] === 2)
+            );
+    }
+
+    public function test_mobbed_with_pairings_are_limited_to_the_requested_date_range()
+    {
+        $this->setTestNowToASafeWednesday();
+
+        [$owner, $attendee] = User::factory()->vehiklMember()->count(2)
+            ->sequence(['name' => 'Owner'], ['name' => 'Attendee'])
+            ->create(['is_visible_in_statistics' => true]);
+
+        $this->makeGrowthSessionWithSingleAttendee($attendee, $owner, today()->subDays(30));
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index', [
+                'start_date' => today()->subDays(7)->toDateString(),
+                'end_date' => today()->toDateString(),
+            ]))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('members', fn ($members) => collect(collect($members)
+                    ->firstWhere('user_id', $owner->id)['has_not_mobbed_with'])
+                    ->pluck('name')->all() === ['Attendee'])
+            );
+    }
+
+    public function test_a_malformed_date_falls_back_to_the_default_range_rather_than_failing()
+    {
+        [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index', ['start_date' => 'the-day-before-yesterday']))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('start_date', today()->subDays(7)->toDateString())
+                ->where('end_date', today()->toDateString())
+            );
+    }
+
+    public function test_a_date_that_is_not_a_real_calendar_day_falls_back_to_the_default_range()
+    {
+        [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        // `strtotime` would normalise this to March 1st and quietly use a range nobody asked for.
+        $this->actingAs($owner)
+            ->get(route('statistics.index', ['start_date' => '2020-02-30']))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('start_date', today()->subDays(7)->toDateString())
+                ->where('end_date', today()->toDateString())
+            );
+    }
+
+    public function test_a_range_outside_the_projects_history_is_clamped_to_it()
+    {
+        [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index', [
+                'start_date' => '1999-01-01',
+                'end_date' => today()->addYears(5)->toDateString(),
+            ]))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('start_date', today()->subDays(7)->toDateString())
+                ->where('end_date', today()->toDateString())
+            );
+    }
+
+    public function test_members_omit_the_unused_half_of_the_mobbed_with_matrix()
+    {
+        [$owner] = $this->setupFiveDaysWorthOfGrowthSessions();
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('members', fn ($members) => collect($members)
+                    ->every(fn ($member) => ! array_key_exists('has_mobbed_with', $member)))
+            );
+    }
+
     private function makeGrowthSessionOwnedBy(User $owner, CarbonInterface $date): void
     {
         GrowthSession::factory()
@@ -141,8 +344,7 @@ class ShowStatisticsTest extends TestCase
         User $attendee,
         User $owner,
         CarbonInterface $date
-    ): void
-    {
+    ): void {
         GrowthSession::factory()
             ->hasAttached($attendee, ['user_type_id' => UserType::ATTENDEE_ID], 'attendees')
             ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')

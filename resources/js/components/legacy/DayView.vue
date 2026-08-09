@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
+import LinkifiedText from '@/components/legacy/LinkifiedText.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
@@ -51,14 +52,15 @@ function isFull(session: GrowthSession): boolean {
 </script>
 
 <template>
-    <div class="flex min-h-[24rem] flex-1">
-        <!-- Day rail -->
-        <div class="gs-col gs-border flex w-[clamp(80px,16vw,120px)] flex-none flex-col items-center gap-1.5 border-r py-4">
+    <div class="flex min-h-96 flex-1 flex-col md:flex-row">
+        <div
+            class="gs-col gs-border flex w-full flex-none items-center justify-center gap-1.5 border-b px-3 py-2 md:w-[clamp(80px,16vw,120px)] md:flex-col md:justify-start md:border-r md:border-b-0 md:px-0 md:py-4"
+        >
             <button
                 v-for="(day, i) in days"
                 :key="day.toDateString()"
                 type="button"
-                class="transition-smooth flex w-[86%] cursor-pointer flex-col items-center gap-0.5 rounded-[10px] py-2.5"
+                class="transition-smooth flex flex-1 cursor-pointer flex-col items-center gap-0.5 rounded-[10px] py-2.5 md:w-[86%] md:flex-none"
                 :class="i === selectedIndex ? 'gs-accent-bg text-white' : 'hover:bg-black/5 dark:hover:bg-white/5'"
                 @click="emit('select-day', i)"
             >
@@ -70,7 +72,7 @@ function isFull(session: GrowthSession): boolean {
         </div>
 
         <!-- Session timeline -->
-        <div class="min-w-0 flex-1 px-[clamp(12px,4vw,28px)] py-5">
+        <div class="mt-2 min-w-0 flex-1 px-[clamp(12px,4vw,28px)] py-5 md:mt-0">
             <div class="mb-4 flex items-center gap-2.5">
                 <span class="gs-text-strong font-display text-base font-bold tracking-[0.03em] uppercase">{{ currentLabel }}</span>
                 <button
@@ -109,7 +111,9 @@ function isFull(session: GrowthSession): boolean {
             </p>
 
             <div v-for="session in sessions" :key="session.id" class="gs-divider-color flex flex-wrap gap-x-3.5 gap-y-1.5 border-b py-3">
-                <div class="gs-text-sub w-32 flex-none pt-3.5 text-sm font-semibold uppercase">{{ session.startTime }} – {{ session.endTime }}</div>
+                <div class="gs-text-sub w-full flex-none text-sm font-semibold uppercase md:w-32 md:pt-3.5">
+                    {{ session.startTime }} – {{ session.endTime }}
+                </div>
 
                 <div
                     class="gs-card gs-border transition-smooth relative flex min-w-55 flex-1 flex-col gap-2.5 rounded-lg border p-3 px-4 hover:shadow-md"
@@ -122,7 +126,7 @@ function isFull(session: GrowthSession): boolean {
                         @click="emit('open-detail', session)"
                     ></button>
                     <div class="flex flex-wrap items-start justify-between gap-2">
-                        <div class="flex min-w-0 items-start gap-3">
+                        <div class="flex min-w-0 flex-1 items-start gap-3">
                             <span
                                 class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
                                 :style="{ backgroundColor: avatarColor(session.owner.name) }"
@@ -135,7 +139,9 @@ function isFull(session: GrowthSession): boolean {
                                 />
                                 <template v-else>{{ getInitials(session.owner.name) }}</template>
                             </span>
-                            <div class="min-w-0">
+                            <!-- flex-1 so this column is as wide as the card allows; without it the column
+                                 shrinks to its content and percentage widths below resolve against that. -->
+                            <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-2">
                                     <span class="gs-text-strong text-base font-semibold">{{ session.title }}</span>
                                     <span
@@ -149,8 +155,12 @@ function isFull(session: GrowthSession): boolean {
                                 </div>
                                 <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">{{ session.owner.name }}</div>
                                 <div v-if="tagline(session)" class="gs-text-sub mt-1 text-sm">{{ tagline(session) }}</div>
-                                <div class="gs-text-body mt-2 max-w-140 text-sm leading-normal">{{ session.topic }}</div>
-                                <div class="gs-text-muted mt-2 flex items-center gap-1.5 text-sm font-medium break-all">
+                                <div
+                                    class="gs-text-body pointer-events-none relative z-20 mt-2 max-w-full text-sm leading-normal whitespace-pre-wrap xl:max-w-1/2"
+                                >
+                                    <LinkifiedText :text="session.topic" />
+                                </div>
+                                <div class="gs-text-muted pointer-events-none relative z-20 mt-2 flex items-center gap-1.5 text-sm font-medium">
                                     <i class="fa fa-compass flex-none" aria-hidden="true"></i>
                                     <location-renderer :locationString="session.location" />
                                 </div>

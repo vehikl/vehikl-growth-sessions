@@ -50,6 +50,16 @@ describe('parseCommentContent', () => {
         ]);
     });
 
+    it('strips a trailing apostrophe, which the shared url grammar counts as punctuation', () => {
+        const result = parseCommentContent("here's mine: https://example.com/funny.gif'");
+
+        expect(result).toEqual([
+            { type: 'text', value: "here's mine: " },
+            { type: 'image', value: 'https://example.com/funny.gif' },
+            { type: 'text', value: "'" },
+        ]);
+    });
+
     it('keeps a query string that is part of the image URL', () => {
         const url = 'https://example.com/funny.gif?cid=123';
         expect(parseCommentContent(url)).toEqual([{ type: 'image', value: url }]);

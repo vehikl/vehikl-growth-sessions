@@ -230,27 +230,3 @@ body {
         transform: scale(1.02);
     }
 }
-
-/* Drawer + modal animations */
-@keyframes gs-slide-in-right {
-    from {
-        transform: translateX(100%);
-    }
-    to {
-        transform: translateX(0);
-    }
-}
-@keyframes gs-fade-in {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-.gs-drawer-panel {
-    animation: gs-slide-in-right 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.gs-fade-in {
-    animation: gs-fade-in 0.2s ease-out;
-}

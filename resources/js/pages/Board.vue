@@ -49,13 +49,23 @@ function syncViewFromUrl() {
     view.value = isDesktop.value && requestedView === 'week' ? 'week' : 'day';
 }
 
+/**
+ * The single place the board writes to the address bar. Everything one gesture changes goes
+ * through one call, so it also costs the visitor exactly one press of Back to undo.
+ */
+function pushUrl(mutate: (params: URLSearchParams) => void): void {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    mutate(urlSearchParams);
+
+    const query = urlSearchParams.toString();
+    window.history.pushState({}, '', query ? `?${query}` : window.location.pathname);
+}
+
 function selectView(selectedView: 'week' | 'day') {
     if (!canSwitchView.value) return;
 
     view.value = selectedView;
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    urlSearchParams.set('view', selectedView);
-    window.history.pushState({}, '', `?${urlSearchParams.toString()}`);
+    pushUrl((params) => params.set('view', selectedView));
 }
 
 // Keep the active view within what the current screen size allows.
@@ -71,10 +81,48 @@ watch(
 
 const selectedSession = ref<GrowthSession | null>(null);
 
+/**
+ * The open drawer lives in the `?session=` query parameter, so a link to a growth session (or any copied URL)
+ * lands on the board with that session's detail already open, and the back button closes it again.
+ */
+function selectSession(growthSession: GrowthSession | null) {
+    selectedSession.value = growthSession;
+
+    const sessionInUrl = new URLSearchParams(window.location.search).get('session');
+    const sessionWanted = growthSession ? String(growthSession.id) : null;
+    if (sessionInUrl === sessionWanted) return;
+
+    pushUrl((params) => applySessionTo(params, sessionWanted));
+}
+
+function applySessionTo(params: URLSearchParams, sessionWanted: string | null): void {
+    if (sessionWanted) {
+        params.set('session', sessionWanted);
+    } else {
+        params.delete('session');
+    }
+}
+
+/** Adopt the session in the current URL, if it is one this visitor can see in the loaded week. */
+function syncSelectedSessionFromUrl() {
+    const requestedId = Number(new URLSearchParams(window.location.search).get('session'));
+    if (!requestedId) {
+        selectedSession.value = null;
+        return;
+    }
+
+    selectedSession.value = growthSessions.value.allGrowthSessions.find((session) => session.id === requestedId) ?? null;
+
+    if (selectedSession.value) {
+        const dayOfSession = growthSessions.value.weekDates.findIndex((date) => date.toDateString() === selectedSession.value!.date);
+        if (dayOfSession >= 0) dayIndex.value = dayOfSession;
+    }
+}
+
 watch(
     () => props.user?.id,
     () => {
-        selectedSession.value = null;
+        selectSession(null);
 
         if (props.user) return;
 
@@ -152,8 +200,11 @@ watchDebounced(
 onBeforeMount(async () => {
     await getAllTags();
     await refreshGrowthSessionsOfTheWeek();
-    const todayIdx = growthSessions.value.weekDates.findIndex((d) => d.isToday());
-    dayIndex.value = todayIdx >= 0 ? todayIdx : 0;
+    // A deep-linked session has already chosen the day it lives on; otherwise start on today.
+    if (!selectedSession.value) {
+        const todayIdx = growthSessions.value.weekDates.findIndex((d) => d.isToday());
+        dayIndex.value = todayIdx >= 0 ? todayIdx : 0;
+    }
     window.onpopstate = refreshGrowthSessionsOfTheWeek;
 });
 
@@ -206,6 +257,7 @@ async function refreshGrowthSessionsOfTheWeek() {
     syncFromUrl();
     syncViewFromUrl();
     await getAllGrowthSessionsOfTheWeek();
+    syncSelectedSessionFromUrl();
 }
 
 async function onDragEnd(location: any) {
@@ -247,21 +299,31 @@ function onCreateNewGrowthSessionClicked(startDate: DateTime) {
 }
 
 function onGrowthSessionEditRequested(growthSession: GrowthSession) {
-    selectedSession.value = null;
+    selectSession(null);
     growthSessionToUpdate.value = growthSession;
     newGrowthSessionDate.value = '';
     formModalState.value = 'open';
 }
 
 function onGrowthSessionCopyRequested(growthSession: GrowthSession) {
-    selectedSession.value = null;
+    selectSession(null);
     growthSessionToUpdate.value = new GrowthSession({ ...growthSession, id: 0 });
     newGrowthSessionDate.value = '';
     formModalState.value = 'open';
 }
 
 async function changeReferenceDate(deltaDays: number) {
-    shiftBy(deltaDays);
+    // The open session belongs to the week being left behind; keeping it in the URL would
+    // hand out a link that opens no drawer. Closing it and moving the week are one gesture,
+    // so they share a single history entry rather than costing two presses of Back.
+    selectedSession.value = null;
+    shiftBy(deltaDays, { pushUrl: false });
+
+    pushUrl((params) => {
+        applySessionTo(params, null);
+        params.set('date', referenceDate.value.toDateString());
+    });
+
     await getAllGrowthSessionsOfTheWeek();
 }
 
@@ -273,15 +335,11 @@ function onTagClick(id: number) {
     }
 }
 
-function openDetail(growthSession: GrowthSession) {
-    selectedSession.value = growthSession;
-}
-
 async function onDrawerRefresh() {
     const id = selectedSession.value?.id;
     await getAllGrowthSessionsOfTheWeek();
     if (id) {
-        selectedSession.value = growthSessions.value.allGrowthSessions.find((s) => s.id === id) ?? null;
+        selectSession(growthSessions.value.allGrowthSessions.find((s) => s.id === id) ?? null);
     }
 }
 
@@ -310,7 +368,7 @@ async function onGrowthSessionDeleteRequested(session: GrowthSession) {
             console.error('Failed to delete growth session:', error);
         }
     } finally {
-        selectedSession.value = null;
+        selectSession(null);
         await getAllGrowthSessionsOfTheWeek();
     }
 }
@@ -450,7 +508,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             @create="onCreateNewGrowthSessionClicked"
             @edit-requested="onGrowthSessionEditRequested"
             @copy-requested="onGrowthSessionCopyRequested"
-            @open-detail="openDetail"
+            @open-detail="selectSession"
             @refresh="getAllGrowthSessionsOfTheWeek"
             @drag-change="onChange"
             @drag-end="onDragEnd"
@@ -466,7 +524,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             :full-session-ids="fullSessionIds"
             :user="user"
             @select-day="dayIndex = $event"
-            @open-detail="openDetail"
+            @open-detail="selectSession"
             @join="onDaySessionJoin"
             @watch="onDaySessionWatch"
             @leave="onDaySessionLeave"
@@ -496,15 +554,17 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             </div>
         </v-modal>
 
-        <!-- Detail drawer -->
-        <SessionDetailDrawer
-            v-if="selectedSession"
-            :growth-session="selectedSession"
-            :user="user"
-            @close="selectedSession = null"
-            @edit-requested="onGrowthSessionEditRequested"
-            @delete-requested="onGrowthSessionDeleteRequested"
-            @refresh="onDrawerRefresh"
-        />
+        <!-- The transition keeps the drawer mounted while it slides back out; it styles its own gs-drawer-* classes. -->
+        <Transition name="gs-drawer">
+            <SessionDetailDrawer
+                v-if="selectedSession"
+                :growth-session="selectedSession"
+                :user="user"
+                @close="selectSession(null)"
+                @edit-requested="onGrowthSessionEditRequested"
+                @delete-requested="onGrowthSessionDeleteRequested"
+                @refresh="onDrawerRefresh"
+            />
+        </Transition>
     </div>
 </template>
