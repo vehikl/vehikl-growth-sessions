@@ -5,10 +5,13 @@ use App\Http\Controllers\AnyDesksController;
 use App\Http\Controllers\Api\DiscordChannelsController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\GrowthSessionController;
+use App\Http\Controllers\GrowthSessionInvitationController;
 use App\Http\Controllers\ShowStatisticsController;
 use App\Http\Controllers\TagsController;
 
 Route::inertia('about', 'AboutPage')->name('about');
+
+Route::get('invitations/{token}', GrowthSessionInvitationController::class)->name('growth_sessions.invitation');
 
 Route::prefix('growth_sessions')->name('growth_sessions.')->group(function() {
     Route::get('week', [GrowthSessionController::class, 'week'])->name('week');

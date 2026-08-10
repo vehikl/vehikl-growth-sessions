@@ -3,8 +3,10 @@ import { GrowthSession } from '@/classes/GrowthSession';
 import CommentList from '@/components/legacy/CommentList.vue';
 import LinkifiedText from '@/components/legacy/LinkifiedText.vue';
 import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
+import ShareInviteLink from '@/components/legacy/ShareInviteLink.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 import { useCopyStatus } from '@/composables/useCopyStatus';
+import { loginUrl } from '@/lib/loginUrl';
 import { capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
 import { ChevronRight, Forward, X } from 'lucide-vue-next';
@@ -163,6 +165,9 @@ async function share() {
             </p>
 
             <div class="mb-6 flex flex-col gap-2.5">
+                <a v-if="!user" :href="loginUrl()" class="login-to-join-link gs-btn-primary rounded-md py-3 text-center text-sm font-semibold">
+                    Log in to join
+                </a>
                 <button
                     v-show="growthSession.canJoin(user)"
                     type="button"
@@ -223,6 +228,10 @@ async function share() {
                 <div>
                     <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">MOBTIME</div>
                     <a :href="mobtimeUrl" target="_blank" class="gs-accent-text text-sm font-medium break-all">{{ mobtimeUrl }}</a>
+                </div>
+                <div v-if="growthSession.share_url">
+                    <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">INVITE LINK</div>
+                    <share-invite-link :share-url="growthSession.share_url" />
                 </div>
                 <div>
                     <div class="gs-text-muted mb-2.5 text-xs font-bold tracking-[0.06em]">ATTENDEES ({{ capacityLabel(growthSession) }})</div>

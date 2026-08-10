@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import VAvatar from '@/components/legacy/VAvatar.vue';
 import { useTheme } from '@/composables/useTheme';
+import { loginUrl } from '@/lib/loginUrl';
 import VehiklLogo from '@/svgs/VehiklLogo.vue';
 import type { BreadcrumbItemType } from '@/types';
 import { Link } from '@inertiajs/vue3';
@@ -289,7 +290,7 @@ onBeforeUnmount(() => {
 
                     <div v-else class="space-y-1">
                         <a
-                            :href="route('oauth.login.redirect', { driver: 'github' })"
+                            :href="loginUrl()"
                             class="gs-text-body flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
                         >
                             <i class="fa fa-github" aria-hidden="true"></i>

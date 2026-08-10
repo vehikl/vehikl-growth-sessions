@@ -38,6 +38,7 @@ class UpdateGrowthSessionRequest extends FormRequest
             'attendee_limit' => 'sometimes|integer|min:' . max($minimumAttendees, $currentAttendees),
             'is_public' => 'sometimes|boolean',
             'allow_watchers' => 'sometimes|boolean',
+            'has_invite_link' => 'sometimes|boolean',
             'anydesk_id' => 'sometimes|integer|exists:' . AnyDesk::class . ',id',
             'tags' => 'nullable|array|exists:' . Tag::class . ',id',
         ];
