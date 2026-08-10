@@ -15,7 +15,7 @@ export interface IGrowthSession {
     allow_watchers: boolean;
     attendee_limit: number | null;
     discord_channel_id: string | null;
-    owner: IUser;
+    owner: IUser | null;
     attendees: IUser[];
     watchers: IUser[];
     comments: IComment[];

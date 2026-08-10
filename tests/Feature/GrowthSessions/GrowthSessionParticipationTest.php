@@ -66,6 +66,21 @@ class GrowthSessionParticipationTest extends TestCase
         $this->assertEmpty($existingGrowthSession->attendees);
     }
 
+    public function testAnOwnerCannotLeaveTheirOwnGrowthSession(): void
+    {
+        $existingGrowthSession = GrowthSession::factory()->create();
+
+        /** @var User $owner */
+        $owner = User::factory()->create();
+        $existingGrowthSession->owners()->attach($owner, ['user_type_id' => UserType::OWNER_ID]);
+
+        $this->actingAs($owner)
+            ->postJson(route('growth_sessions.leave', ['growth_session' => $existingGrowthSession->id]))
+            ->assertForbidden();
+
+        $this->assertTrue($existingGrowthSession->fresh()->owner->is($owner));
+    }
+
     public function testAGrowthSessionCannotBeJoinedIfTheAttendeeLimitIsMet()
     {
         /** @var User $user */

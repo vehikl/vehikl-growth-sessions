@@ -93,7 +93,7 @@ describe('GrowthSessionCard', () => {
     });
 
     it('displays the owner name', () => {
-        expect(wrapper.text()).toContain(growthSessionData.owner.name);
+        expect(wrapper.text()).toContain(ownerOfTheGrowthSession.name);
     });
 
     it('displays the growth session location to attendees', () => {

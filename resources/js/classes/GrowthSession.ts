@@ -14,7 +14,7 @@ export class GrowthSession implements IGrowthSession {
     is_public!: boolean;
     start_time!: string;
     end_time!: string;
-    owner!: User;
+    owner!: User | null;
     attendees!: User[];
     watchers!: User[];
     comments!: IComment[];
@@ -61,7 +61,7 @@ export class GrowthSession implements IGrowthSession {
         this.allow_watchers = growthSession.allow_watchers;
         this.start_time = growthSession.start_time;
         this.end_time = growthSession.end_time;
-        this.owner = new User(growthSession.owner);
+        this.owner = growthSession.owner ? new User(growthSession.owner) : null;
         this.attendees = growthSession.attendees?.map((attendee) => new User(attendee)) ?? [];
         this.watchers = growthSession.watchers?.map((attendee) => new User(attendee)) ?? [];
         this.comments = growthSession.comments;
@@ -80,7 +80,7 @@ export class GrowthSession implements IGrowthSession {
             return this.title;
         }
 
-        return `${this.owner.name}'s ${DateTime.parseByDate(this.date).weekDayString()} Growth Session`;
+        return `${this.owner?.name ?? 'Unknown'}'s ${DateTime.parseByDate(this.date).weekDayString()} Growth Session`;
     }
 
     get calendarUrl(): string {
@@ -195,6 +195,6 @@ export class GrowthSession implements IGrowthSession {
         if (!user) {
             return false;
         }
-        return this.owner.id === user.id;
+        return this.owner?.id === user.id;
     }
 }

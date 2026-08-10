@@ -128,15 +128,15 @@ function isFull(session: GrowthSession): boolean {
                         <div class="flex min-w-0 flex-1 items-start gap-3">
                             <span
                                 class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                                :style="{ backgroundColor: avatarColor(session.owner.name) }"
+                                :style="{ backgroundColor: avatarColor(session.owner?.name ?? 'Unknown') }"
                             >
                                 <img
-                                    v-if="session.owner.avatar"
+                                    v-if="session.owner?.avatar"
                                     :src="session.owner.avatar"
                                     :alt="session.owner.name"
                                     class="h-full w-full object-cover"
                                 />
-                                <template v-else>{{ getInitials(session.owner.name) }}</template>
+                                <template v-else>{{ getInitials(session.owner?.name ?? 'Unknown') }}</template>
                             </span>
                             <!-- flex-1 so this column is as wide as the card allows; without it the column
                                  shrinks to its content and percentage widths below resolve against that. -->
@@ -152,7 +152,7 @@ function isFull(session: GrowthSession): boolean {
                                         >LIVE</span
                                     >
                                 </div>
-                                <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">{{ session.owner.name }}</div>
+                                <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">{{ session.owner?.name ?? 'Unknown' }}</div>
                                 <div v-if="tagline(session)" class="gs-text-sub mt-1 text-sm">{{ tagline(session) }}</div>
                                 <div
                                     class="gs-text-body pointer-events-none relative z-20 mt-2 max-w-full text-sm leading-normal whitespace-pre-wrap xl:max-w-1/2"

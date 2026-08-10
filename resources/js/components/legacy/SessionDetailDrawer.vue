@@ -116,8 +116,8 @@ async function share() {
         >
             <div class="mb-3 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <UserAvatar :name="growthSession.owner.name" :avatar="growthSession.owner.avatar" />
-                    <span class="gs-text-sub text-sm font-semibold tracking-[0.03em]">{{ growthSession.owner.name }}</span>
+                    <UserAvatar :name="growthSession.owner?.name ?? 'Unknown'" :avatar="growthSession.owner?.avatar" />
+                    <span class="gs-text-sub text-sm font-semibold tracking-[0.03em]">{{ growthSession.owner?.name ?? 'Unknown' }}</span>
                 </div>
                 <button
                     type="button"

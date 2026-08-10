@@ -54,7 +54,7 @@ function getError(field: string): string {
     <div class="max-w-5xl text-gray-600">
         <div class="mb-8 flex flex-col items-center lg:flex-row lg:justify-between">
             <h2 class="flex flex-1 items-center pr-6 font-sans text-2xl font-light text-gray-700 lg:text-3xl">
-                <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :src="growthSession.owner.avatar" class="mr-4" />
+                <v-avatar :alt="`${growthSession.owner?.name}'s Avatar`" :src="growthSession.owner?.avatar ?? ''" class="mr-4" />
                 <input
                     class="w-full flex-1 appearance-none rounded border px-3 shadow"
                     placeholder="Please enter a growth session title"

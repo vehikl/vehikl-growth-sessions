@@ -76,7 +76,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
 
         <div class="grid grid-cols-1 gap-12 md:grid-cols-2">
             <div>
-                <a id="owner-avatar-link" :href="growthSession.owner.githubURL">
+                <a v-if="growthSession.owner" id="owner-avatar-link" :href="growthSession.owner.githubURL">
                     <div class="mb-2 flex flex-1 items-center justify-start text-gray-700">
                         <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar" />
                         <p class="ml-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name" />

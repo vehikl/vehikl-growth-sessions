@@ -72,6 +72,8 @@ class GrowthSessionPolicy
 
     public function leave(User $user, GrowthSession $growthSession): bool
     {
-        return ($growthSession->hasWatcher($user) || $growthSession->hasAttendee($user)) && $this->isInTheFuture($growthSession);
+        return !$user->is($growthSession->owner)
+            && ($growthSession->hasWatcher($user) || $growthSession->hasAttendee($user))
+            && $this->isInTheFuture($growthSession);
     }
 }
