@@ -65,12 +65,30 @@ class ShowDashboardController extends Controller
             'sessions_hosted_count' => $user->sessionsHosted()->count(),
             'sessions_attended_count' => $user->sessionsAttended()->count(),
             'upcoming_count' => $user->sessionsHosted()->whereDate('growth_sessions.date', '>=', today())->count(),
-            // The same count the rows report, summed over the whole history rather than a page.
-            'total_attendees_count' => (int) $user->sessionsHosted()
-                ->withCount($this->attendeesExcludingHost($user))
-                ->get()
-                ->sum('attendee_count'),
+            'growth_minutes_count' => $this->growthMinutes($user),
         ];
+    }
+
+    /**
+     * Every minute this user has spent in the room, hosting or attending alike, summed from the
+     * scheduled windows and left in minutes so the page can render the leftover half hour rather
+     * than rounding it away — the same shape the statistics page's lifetime total takes.
+     *
+     * Only sessions that have already come around count: an hour booked for next week has grown
+     * nobody yet. Watching is not mobbing, so it does not count either, which is the line
+     * `mob_squad` and `yet_to_mob_with` draw too. Sessions missing either end of their window
+     * contribute nothing.
+     */
+    private function growthMinutes(User $user): int
+    {
+        $seconds = (int) $user->allSessions()
+            ->wherePivotIn('user_type_id', self::MOBBING_ROLES)
+            ->whereDate('growth_sessions.date', '<=', today())
+            ->whereNotNull('start_time')
+            ->whereNotNull('end_time')
+            ->sum(DB::raw('TIME_TO_SEC(TIMEDIFF(end_time, start_time))'));
+
+        return (int) round($seconds / 60);
     }
 
     /**

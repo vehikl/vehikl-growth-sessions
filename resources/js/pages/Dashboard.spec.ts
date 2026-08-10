@@ -39,7 +39,7 @@ const summary: ISessionSummary = {
     sessions_hosted_count: 2,
     sessions_attended_count: 5,
     upcoming_count: 1,
-    total_attendees_count: 4,
+    growth_minutes_count: 90,
 };
 
 function paginator(overrides: Partial<IPaginated<IHostedSession>> = {}): IPaginated<IHostedSession> {
@@ -86,7 +86,7 @@ describe('Dashboard', () => {
     test('renders the session summary', () => {
         const wrapper = mountDashboard(
             {},
-            { summary: { sessions_hosted_count: 3, sessions_attended_count: 7, upcoming_count: 1, total_attendees_count: 10 } },
+            { summary: { sessions_hosted_count: 3, sessions_attended_count: 7, upcoming_count: 1, growth_minutes_count: 11610 } },
         );
 
         const tiles = wrapper.findAll('section[aria-label="Session summary"] article');
@@ -96,7 +96,15 @@ describe('Dashboard', () => {
         expect(readTile(tiles[0])).toBe('3 Sessions hosted');
         expect(readTile(tiles[1])).toBe('7 Sessions attended');
         expect(readTile(tiles[2])).toBe('1 Upcoming');
-        expect(readTile(tiles[3])).toBe('10 Total attendees');
+        expect(readTile(tiles[3])).toBe('193h 30m Time of growth');
+    });
+
+    test('reads the growth time as whole hours when nothing is left over', () => {
+        const wrapper = mountDashboard({}, { summary: { ...summary, growth_minutes_count: 120 } });
+
+        const tiles = wrapper.findAll('section[aria-label="Session summary"] article');
+
+        expect(tiles[3].get('strong').text()).toBe('2h');
     });
 
     test('offers a sort control per orderable field', () => {

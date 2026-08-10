@@ -7,6 +7,7 @@ import MobSquadLeaderboard from '@/components/MobSquadLeaderboard.vue';
 import PageContainer from '@/components/PageContainer.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import TagUsageBars from '@/components/TagUsageBars.vue';
+import { formatGrowthTime } from '@/lib/statistics';
 import { IDashboard } from '@/types';
 import { Head } from '@inertiajs/vue3';
 
@@ -38,9 +39,9 @@ defineProps<IDashboard>();
                     </article>
                     <article class="gs-card gs-border rounded-xl border p-6 shadow-sm">
                         <strong class="font-display block text-4xl font-bold text-blue-600 dark:text-blue-400">
-                            {{ summary.total_attendees_count }}
+                            {{ formatGrowthTime(summary.growth_minutes_count) }}
                         </strong>
-                        <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Total attendees</span>
+                        <span class="gs-text-sub mt-2 block text-xs font-bold tracking-[0.06em] uppercase">Time of growth</span>
                     </article>
                 </section>
 

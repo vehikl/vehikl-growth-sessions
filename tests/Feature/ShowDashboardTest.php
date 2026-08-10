@@ -207,8 +207,41 @@ class ShowDashboardTest extends TestCase
                 ->where('summary.sessions_hosted_count', 3)
                 ->where('summary.sessions_attended_count', 1)
                 ->where('summary.upcoming_count', 1)
-                ->where('summary.total_attendees_count', 5)
             );
+    }
+
+    public function testTheGrowthTimeSumsTheSessionsTheUserWasInTheRoomFor()
+    {
+        $this->setTestNowToASafeWednesday();
+        $user = User::factory()->vehiklMember()->create();
+
+        $this->hostedBy($user, today()->subWeek(), 'Ran this one', $this->window('10:00:00', '11:30:00'));
+        $this->attendedBy($user, today()->subDay(), 'Joined this one', $this->window('13:00:00', '14:15:00'));
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.growth_minutes_count', 165));
+    }
+
+    /**
+     * Time already spent, which is the whole claim the tile makes: a session on the calendar for
+     * next week has not grown anybody yet, and watching from the sidelines is not the same as
+     * being in the mob — the line `mob_squad` and `yet_to_mob_with` already draw.
+     */
+    public function testTheGrowthTimeCountsNeitherUpcomingNorWatchedSessions()
+    {
+        $this->setTestNowToASafeWednesday();
+        $user = User::factory()->vehiklMember()->create();
+
+        $this->hostedBy($user, today()->addWeek(), 'Still to come', $this->window('10:00:00', '12:00:00'));
+        $this->watchedBy($user, today()->subDay(), 'Only watched', $this->window('10:00:00', '12:00:00'));
+        $this->hostedBy($user, today(), 'Today counts', $this->window('09:00:00', '09:30:00'));
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.growth_minutes_count', 30));
     }
 
     /**
@@ -240,7 +273,7 @@ class ShowDashboardTest extends TestCase
                 ->where('summary.sessions_hosted_count', 0)
                 ->where('summary.sessions_attended_count', 0)
                 ->where('summary.upcoming_count', 0)
-                ->where('summary.total_attendees_count', 0)
+                ->where('summary.growth_minutes_count', 0)
             );
     }
 
@@ -842,19 +875,25 @@ class ShowDashboardTest extends TestCase
         return $session;
     }
 
-    private function attendedBy(User $attendee, CarbonInterface $date, string $title): GrowthSession
+    private function attendedBy(User $attendee, CarbonInterface $date, string $title, array $attributes = []): GrowthSession
     {
         return GrowthSession::factory()
             ->hasAttached(User::factory()->vehiklMember()->create(), ['user_type_id' => UserType::OWNER_ID], 'owners')
             ->hasAttached($attendee, ['user_type_id' => UserType::ATTENDEE_ID], 'attendees')
-            ->create(['date' => $date, 'title' => $title]);
+            ->create([...$attributes, 'date' => $date, 'title' => $title]);
     }
 
-    private function watchedBy(User $watcher, CarbonInterface $date, string $title): GrowthSession
+    private function watchedBy(User $watcher, CarbonInterface $date, string $title, array $attributes = []): GrowthSession
     {
         return GrowthSession::factory()
             ->hasAttached(User::factory()->vehiklMember()->create(), ['user_type_id' => UserType::OWNER_ID], 'owners')
             ->hasAttached($watcher, ['user_type_id' => UserType::WATCHER_ID], 'watchers')
-            ->create(['date' => $date, 'title' => $title]);
+            ->create([...$attributes, 'date' => $date, 'title' => $title]);
+    }
+
+    /** The scheduled window of a session, as the factory takes it. */
+    private function window(string $startTime, string $endTime): array
+    {
+        return ['start_time' => $startTime, 'end_time' => $endTime];
     }
 }

@@ -21,7 +21,11 @@ export interface ISessionSummary {
     /** Sessions somebody else ran that this user joined. */
     sessions_attended_count: number;
     upcoming_count: number;
-    total_attendees_count: number;
+    /**
+     * Minutes spent in sessions this user hosted or attended, already-happened ones only.
+     * Left in minutes so the tile can render the leftover half hour.
+     */
+    growth_minutes_count: number;
 }
 
 /** The orders the hosted sessions list offers. The server owns the direction of each. */
