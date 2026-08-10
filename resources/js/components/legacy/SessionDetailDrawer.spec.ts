@@ -231,11 +231,11 @@ describe('SessionDetailDrawer', () => {
             expect(wrapper.text()).toContain('Anyone with this link can view this growth session and join after logging in');
         });
 
-        it('shows the share url to a Vehikl member who is not the owner', () => {
-            const wrapper = mountDrawer(makeSession({ share_url: shareUrl }), vehiklUser);
+        it('hides the share url from a Vehikl member who is not the owner, whose payload carries none', () => {
+            const wrapper = mountDrawer(makeSession({ share_url: undefined }), vehiklUser);
 
-            expect(wrapper.find('.share-url').text()).toContain(shareUrl);
-            expect(wrapper.find('.copy-share-url-button').exists()).toBe(true);
+            expect(wrapper.find('.share-url').exists()).toBe(false);
+            expect(wrapper.find('.copy-share-url-button').exists()).toBe(false);
         });
 
         it('copies the share url to the clipboard', async () => {

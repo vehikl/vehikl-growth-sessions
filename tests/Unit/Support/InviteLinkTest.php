@@ -87,13 +87,18 @@ class InviteLinkTest extends TestCase
         $this->assertNull(InviteLink::for($this->privateGrowthSession())->url());
     }
 
-    public function testTheUrlIsVisibleToTheOwnerAndToAnyVehiklMember()
+    public function testTheUrlIsVisibleToTheOwner()
     {
         $growthSession = $this->unlistedGrowthSession();
-        $inviteLink = InviteLink::for($growthSession);
 
-        $this->assertTrue($inviteLink->isVisibleTo($growthSession->owner));
-        $this->assertTrue($inviteLink->isVisibleTo(User::factory()->vehiklMember()->create()));
+        $this->assertTrue(InviteLink::for($growthSession)->isVisibleTo($growthSession->owner));
+    }
+
+    public function testTheUrlIsHiddenFromAVehiklMemberWhoDoesNotOwnTheGrowthSession()
+    {
+        $growthSession = $this->unlistedGrowthSession();
+
+        $this->assertFalse(InviteLink::for($growthSession)->isVisibleTo(User::factory()->vehiklMember()->create()));
     }
 
     public function testTheUrlIsHiddenFromGuestsAndFromVisitorsWhoAreNotSignedIn()

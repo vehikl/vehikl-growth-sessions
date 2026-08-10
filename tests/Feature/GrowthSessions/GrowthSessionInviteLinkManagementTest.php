@@ -193,7 +193,7 @@ class GrowthSessionInviteLinkManagementTest extends TestCase
             ->assertJsonPath('share_url', route('growth_sessions.invitation', ['token' => $growthSession->share_token]));
     }
 
-    public function testTheShareUrlIsVisibleToAnyVehiklMember()
+    public function testTheShareUrlIsAbsentForAVehiklMemberWhoIsNotTheOwner()
     {
         $growthSession = $this->ownedGrowthSession(unlisted: true);
 
@@ -201,7 +201,20 @@ class GrowthSessionInviteLinkManagementTest extends TestCase
 
         $this->showGrowthSession($growthSession)
             ->assertSuccessful()
-            ->assertJsonPath('share_url', route('growth_sessions.invitation', ['token' => $growthSession->share_token]));
+            ->assertJsonMissingPath('share_url');
+    }
+
+    public function testTheShareUrlIsAbsentForAVehiklAttendeeWhoIsNotTheOwner()
+    {
+        $growthSession = $this->ownedGrowthSession(unlisted: true);
+        $colleague = User::factory()->vehiklMember()->create();
+        $growthSession->attendees()->attach($colleague, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->actingAs($colleague);
+
+        $this->showGrowthSession($growthSession)
+            ->assertSuccessful()
+            ->assertJsonMissingPath('share_url');
     }
 
     public function testTheShareUrlIsAbsentForAnUnlockedGuest()

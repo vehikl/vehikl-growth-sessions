@@ -53,8 +53,8 @@ class InviteLink
     }
 
     /**
-     * The URL goes to whoever can hand the invitation out — the owner, and any Vehikl member so that a colleague can
-     * forward it while the owner is away. Everyone else, invited guests included, never sees it.
+     * The URL goes to the owner alone. Handing out an unlisted growth session is theirs to control, so attending it —
+     * or merely being a colleague — grants no sight of the link, and nobody can widen the audience on their behalf.
      */
     public function isVisibleTo(?User $user): bool
     {
@@ -62,7 +62,7 @@ class InviteLink
             return false;
         }
 
-        return $user->is_vehikl_member || $user->is($this->growthSession->owner);
+        return $user->is($this->growthSession->owner);
     }
 
     public function hasBeenUnlocked(): bool
