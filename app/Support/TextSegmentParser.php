@@ -20,8 +20,9 @@ class TextSegmentParser
     // joined by any character (or none) don't merge into one broken match. `"'<>|` and backtick are
     // excluded outright since they're never valid unencoded in a url and commonly wrap or separate a
     // pasted link (quotes, markdown, code spans) - unlike e.g. a comma, which is legal inside a url's
-    // own path or query.
-    private const URL_PATTERN = '/'.self::SCHEMES.'(?:(?!'.self::SCHEMES.')[^\s"\'<>`|])+/i';
+    // own path or query. The leading scheme is captured so the matched literal doesn't need to be
+    // re-derived afterward.
+    private const URL_PATTERN = '/('.self::SCHEMES.')(?:(?!'.self::SCHEMES.')[^\s"\'<>`|])+/i';
 
     private const IMAGE_EXTENSION_PATTERN = '/\.(gif|png|jpe?g|webp)$/i';
 
@@ -34,8 +35,6 @@ class TextSegmentParser
     // Used for links. Links aren't rendered as <img> tags, so there's no signed-CDN-query-string
     // concern justifying an exception for `!`/`:` - both are stripped here, along with `}`.
     private const STRICT_TRAILING_PUNCTUATION_CHARS = [...self::LENIENT_TRAILING_PUNCTUATION_CHARS, '!', ':', '}'];
-
-    private const SCHEME_LITERALS = ['https://', 'http://', 'mailto:', 'tel:'];
 
     /**
      * Splits text into text/link/image segments. $allowImages gates image-url rendering on the
@@ -58,11 +57,13 @@ class TextSegmentParser
 
         preg_match_all(self::URL_PATTERN, $content, $matches, PREG_OFFSET_CAPTURE);
 
-        foreach ($matches[0] as [$rawUrl, $matchStart]) {
-            $schemeLiteral = self::matchedSchemeLiteral($rawUrl);
+        foreach ($matches[0] as $index => [$rawUrl, $matchStart]) {
+            $schemeLiteral = strtolower($matches[1][$index][0]);
             $isHttpScheme = $schemeLiteral === 'http://' || $schemeLiteral === 'https://';
 
-            $lenientUrl = self::stripTrailingPunctuation($rawUrl, self::LENIENT_TRAILING_PUNCTUATION_CHARS);
+            if ($isHttpScheme) {
+                $lenientUrl = self::stripTrailingPunctuation($rawUrl, self::LENIENT_TRAILING_PUNCTUATION_CHARS);
+            }
 
             if ($isHttpScheme && self::hasImageExtension($lenientUrl)) {
                 if (! $allowImages) {
@@ -106,21 +107,6 @@ class TextSegmentParser
         }
 
         return (bool) preg_match(self::IMAGE_EXTENSION_PATTERN, $path);
-    }
-
-    /**
-     * Which of SCHEME_LITERALS the match actually starts with. A purely structural fact - which
-     * regex alternative matched - independent of what trimming does to the string afterward.
-     */
-    private static function matchedSchemeLiteral(string $url): string
-    {
-        foreach (self::SCHEME_LITERALS as $scheme) {
-            if (stripos($url, $scheme) === 0) {
-                return $scheme;
-            }
-        }
-
-        return '';
     }
 
     /**
