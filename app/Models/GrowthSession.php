@@ -6,10 +6,12 @@ use App\Observers\GrowthSessionObserver;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 
 #[ObservedBy(GrowthSessionObserver::class)]
 class GrowthSession extends Model
@@ -145,6 +147,26 @@ class GrowthSession extends Model
     public function scopeToday($query)
     {
         return $query->whereDate('date', today()->toDateString());
+    }
+
+    /**
+     * The scheduled minutes across whatever set of Growth Sessions is handed in — every summary
+     * that reports time spent goes through here, so the statistics page and the dashboard cannot
+     * come to measure an hour differently.
+     *
+     * Left in minutes rather than hours so the caller can render the leftover half hour instead
+     * of rounding it away. Sessions missing either end of their window contribute nothing.
+     *
+     * @param  Builder|BelongsToMany $sessions
+     */
+    public static function scheduledMinutes($sessions): int
+    {
+        $seconds = (int) $sessions
+            ->whereNotNull('growth_sessions.start_time')
+            ->whereNotNull('growth_sessions.end_time')
+            ->sum(DB::raw('TIME_TO_SEC(TIMEDIFF(growth_sessions.end_time, growth_sessions.start_time))'));
+
+        return (int) round($seconds / 60);
     }
 
     public function hasAttendee(User $attendee): bool

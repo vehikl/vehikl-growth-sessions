@@ -9,7 +9,6 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -69,23 +68,9 @@ class ShowStatisticsController extends Controller
             'lifetime_sessions_count' => GrowthSession::query()->count(),
             'sessions_this_week_count' => $weeklySessions->count(),
             'weekly_unique_participants_count' => $weeklySessions->flatMap->attendees->pluck('id')->unique()->count(),
-            'lifetime_minutes_count' => $this->lifetimeMinutes(),
+            // Every minute ever spent in a Growth Session, by anybody.
+            'lifetime_minutes_count' => GrowthSession::scheduledMinutes(GrowthSession::query()),
         ];
-    }
-
-    /**
-     * Every minute ever spent in a Growth Session, summed from the scheduled windows and
-     * left in minutes so the page can render the leftover half hour rather than rounding it
-     * away. Sessions missing either end of their window contribute nothing.
-     */
-    private function lifetimeMinutes(): int
-    {
-        $seconds = (int) GrowthSession::query()
-            ->whereNotNull('start_time')
-            ->whereNotNull('end_time')
-            ->sum(DB::raw('TIME_TO_SEC(TIMEDIFF(end_time, start_time))'));
-
-        return (int) round($seconds / 60);
     }
 
     private function topHosts(string $weekStart, string $weekEnd): array

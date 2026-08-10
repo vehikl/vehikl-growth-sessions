@@ -207,6 +207,9 @@ class ShowDashboardTest extends TestCase
                 ->where('summary.sessions_hosted_count', 3)
                 ->where('summary.sessions_attended_count', 1)
                 ->where('summary.upcoming_count', 1)
+                // The two hosted sessions already past, plus the one they attended, at the
+                // ninety minute window the factory schedules. Next week's has not happened yet.
+                ->where('summary.growth_minutes_count', 270)
             );
     }
 
@@ -228,8 +231,10 @@ class ShowDashboardTest extends TestCase
      * Time already spent, which is the whole claim the tile makes: a session on the calendar for
      * next week has not grown anybody yet, and watching from the sidelines is not the same as
      * being in the mob — the line `mob_squad` and `yet_to_mob_with` already draw.
+     *
+     * Today's session counts whatever the hour, which is how `upcoming_count` reads "today" too.
      */
-    public function testTheGrowthTimeCountsNeitherUpcomingNorWatchedSessions()
+    public function testTheGrowthTimeCountsNeitherFutureNorWatchedSessions()
     {
         $this->setTestNowToASafeWednesday();
         $user = User::factory()->vehiklMember()->create();

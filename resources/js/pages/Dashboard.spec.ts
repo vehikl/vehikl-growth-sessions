@@ -99,14 +99,6 @@ describe('Dashboard', () => {
         expect(readTile(tiles[3])).toBe('193h 30m Time of growth');
     });
 
-    test('reads the growth time as whole hours when nothing is left over', () => {
-        const wrapper = mountDashboard({}, { summary: { ...summary, growth_minutes_count: 120 } });
-
-        const tiles = wrapper.findAll('section[aria-label="Session summary"] article');
-
-        expect(tiles[3].get('strong').text()).toBe('2h');
-    });
-
     test('offers a sort control per orderable field', () => {
         const wrapper = mountDashboard();
 

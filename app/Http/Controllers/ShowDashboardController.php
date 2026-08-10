@@ -70,25 +70,20 @@ class ShowDashboardController extends Controller
     }
 
     /**
-     * Every minute this user has spent in the room, hosting or attending alike, summed from the
-     * scheduled windows and left in minutes so the page can render the leftover half hour rather
-     * than rounding it away — the same shape the statistics page's lifetime total takes.
+     * Every minute this user has spent in the room, hosting or attending alike.
      *
-     * Only sessions that have already come around count: an hour booked for next week has grown
-     * nobody yet. Watching is not mobbing, so it does not count either, which is the line
-     * `mob_squad` and `yet_to_mob_with` draw too. Sessions missing either end of their window
-     * contribute nothing.
+     * Sessions dated today or earlier only: an hour booked for next week has grown nobody yet.
+     * The line is drawn on the date rather than the clock, so a session later today already
+     * counts — the same day-level reading `upcoming_count` takes of "today". Watching is not
+     * mobbing and does not count, which is the line `mob_squad` and `yet_to_mob_with` draw too.
      */
     private function growthMinutes(User $user): int
     {
-        $seconds = (int) $user->allSessions()
-            ->wherePivotIn('user_type_id', self::MOBBING_ROLES)
-            ->whereDate('growth_sessions.date', '<=', today())
-            ->whereNotNull('start_time')
-            ->whereNotNull('end_time')
-            ->sum(DB::raw('TIME_TO_SEC(TIMEDIFF(end_time, start_time))'));
-
-        return (int) round($seconds / 60);
+        return GrowthSession::scheduledMinutes(
+            $user->allSessions()
+                ->wherePivotIn('user_type_id', self::MOBBING_ROLES)
+                ->whereDate('growth_sessions.date', '<=', today())
+        );
     }
 
     /**
