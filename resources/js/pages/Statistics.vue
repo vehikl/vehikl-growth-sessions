@@ -110,16 +110,16 @@ function reloadMembers({ startDate, endDate }: DateRange): void {
                     </template>
                 </TagUsageBars>
             </section>
-        </div>
 
-        <MemberStatistics
-            :members="members"
-            :current-user-id="currentUserId"
-            :start-date="start_date"
-            :end-date="end_date"
-            :first-session-date="first_session_date"
-            :is-loading="isReloadingMembers"
-            @range-change="reloadMembers"
-        />
+            <MemberStatistics
+                :members="members"
+                :current-user-id="currentUserId"
+                :start-date="start_date"
+                :end-date="end_date"
+                :first-session-date="first_session_date"
+                :is-loading="isReloadingMembers"
+                @range-change="reloadMembers"
+            />
+        </div>
     </PageContainer>
 </template>
