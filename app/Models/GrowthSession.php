@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\HasTextSegments;
 use App\Observers\GrowthSessionObserver;
+use App\Support\TextSegmentParser;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class GrowthSession extends Model
 {
     use HasFactory;
-    use HasTextSegments;
 
     const NO_LIMIT = PHP_INT_MAX;
 
@@ -62,12 +61,12 @@ class GrowthSession extends Model
 
     protected function topicSegments(): Attribute
     {
-        return $this->textSegmentsAttribute($this->topic);
+        return Attribute::make(get: fn () => TextSegmentParser::parse($this->topic, allowImages: false));
     }
 
     protected function locationSegments(): Attribute
     {
-        return $this->textSegmentsAttribute($this->location);
+        return Attribute::make(get: fn () => TextSegmentParser::parse($this->location, allowImages: false));
     }
 
     public function members(): BelongsToMany

@@ -67,7 +67,7 @@ class GrowthSessionController extends Controller
             $newGrowthSession->tags()->sync($request->input('tags'));
         });
 
-        $newGrowthSession->fresh();
+        $newGrowthSession->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']);
 
         broadcast(new GrowthSessionModified($newGrowthSession->id, GrowthSessionModified::ACTION_CREATED));
         event(new GrowthSessionCreated($newGrowthSession));

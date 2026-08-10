@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\HasTextSegments;
 use App\Observers\CommentObserver;
+use App\Support\TextSegmentParser;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +15,6 @@ class Comment extends Model
     protected $table = 'comments';
 
     use HasFactory;
-    use HasTextSegments;
 
     protected $fillable = ['content'];
     protected $with = ['user'];
@@ -46,6 +45,8 @@ class Comment extends Model
 
     protected function segments(): Attribute
     {
-        return $this->textSegmentsAttribute($this->content, (bool) $this->user?->is_vehikl_member);
+        return Attribute::make(
+            get: fn () => TextSegmentParser::parse($this->content, allowImages: (bool) $this->user?->is_vehikl_member),
+        );
     }
 }

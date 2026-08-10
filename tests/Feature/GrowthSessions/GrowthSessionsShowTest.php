@@ -314,6 +314,46 @@ class GrowthSessionsShowTest extends TestCase
             ->assertDontSee('secret-room');
     }
 
+    /**
+     * Pins the exact top-level field set of the growth session API contract. This is a regression
+     * test for the field set becoming implicitly defined by Eloquent serialization again - it must
+     * fail the moment a field is added or removed from GrowthSessionResource without this test being
+     * updated deliberately.
+     */
+    public function testTheGrowthSessionPayloadContainsExactlyTheExpectedTopLevelFields()
+    {
+        $this->setTestNow('2020-01-15');
+
+        /** @var User $owner */
+        $owner = User::factory()->vehiklMember()->create();
+        $growthSession = GrowthSession::factory()->create([
+            'date' => '2020-01-20',
+            'start_time' => '03:30 pm',
+            'end_time' => '05:00 pm',
+            'attendee_limit' => 4,
+        ]);
+        $growthSession->owners()->attach($owner, ['user_type_id' => UserType::OWNER_ID]);
+
+        $response = $this->actingAs($owner)
+            ->getJson(route('growth_sessions.show', $growthSession))
+            ->assertSuccessful();
+
+        $this->assertEqualsCanonicalizing([
+            'id', 'title', 'topic', 'topic_segments', 'location', 'location_segments', 'date',
+            'start_time', 'end_time', 'is_public', 'allow_watchers', 'attendee_limit',
+            'discord_channel_id', 'slack_thread_ts', 'owner', 'attendees', 'watchers', 'comments',
+            'anydesk', 'tags',
+        ], array_keys($response->json()));
+
+        $response->assertJsonPath('date', '2020-01-20');
+        $response->assertJsonPath('start_time', '03:30 pm');
+        $response->assertJsonPath('end_time', '05:00 pm');
+
+        $this->assertEqualsCanonicalizing([
+            'id', 'github_nickname', 'name', 'avatar', 'is_vehikl_member',
+        ], array_keys($response->json('owner')));
+    }
+
     public static function providesGrowthSessionGuests(): array
     {
         return [

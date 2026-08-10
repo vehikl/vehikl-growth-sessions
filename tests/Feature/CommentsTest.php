@@ -150,6 +150,30 @@ class CommentsTest extends TestCase
         ], $comments->firstWhere('id', $comment->id)['segments']);
     }
 
+    /**
+     * Pins the exact field set of the comment API contract, including the nested user. This is a
+     * regression test for the field set becoming implicitly defined by Eloquent serialization again -
+     * it must fail the moment a field (e.g. `user_id`, `created_at`) is added or removed from
+     * CommentResource/User resource without this test being updated deliberately.
+     */
+    public function testTheCommentPayloadContainsExactlyTheExpectedFields()
+    {
+        $growthSession = GrowthSession::factory()->create();
+        Comment::factory()->create(['growth_session_id' => $growthSession->id]);
+
+        $response = $this->getJson(route('growth_sessions.comments.index', $growthSession))
+            ->assertSuccessful();
+
+        $this->assertEqualsCanonicalizing(
+            ['id', 'growth_session_id', 'content', 'segments', 'time_stamp', 'user'],
+            array_keys($response->json('0'))
+        );
+        $this->assertEqualsCanonicalizing(
+            ['id', 'github_nickname', 'name', 'avatar', 'is_vehikl_member'],
+            array_keys($response->json('0.user'))
+        );
+    }
+
     public function testAUserCanDeleteTheirComment()
     {
         $comment = Comment::factory()->create();
