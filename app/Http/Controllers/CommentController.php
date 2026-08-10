@@ -6,6 +6,7 @@ use App\Events\GrowthSessionModified;
 use App\Models\Comment;
 use App\Http\Requests\DeleteCommentRequest;
 use App\Models\GrowthSession;
+use App\Http\Resources\Comment as CommentResource;
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,7 @@ class CommentController extends Controller
 {
     public function index(Request $request, GrowthSession $growthSession)
     {
-        return $growthSession->comments()->orderByDesc('created_at')->get();
+        return CommentResource::collection($growthSession->comments()->orderByDesc('created_at')->get());
     }
 
     public function store(Request $request, GrowthSession $growthSession)

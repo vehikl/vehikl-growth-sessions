@@ -183,11 +183,12 @@ class GrowthSessionsStoreTest extends TestCase
         $vehiklMember = User::factory()->vehiklMember()->create();
         $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
 
+        // The owner counts as an attendee for capacity purposes (see GrowthSession::attendees()), so
+        // they're expected here too - matching what a subsequent GET of the same session would show.
         $this->actingAs($vehiklMember)
             ->post(route('growth_sessions.store'), $growthSessionsAttributes)
-            ->assertJsonFragment([
-                'attendees' => []
-            ]);
+            ->assertJsonCount(1, 'attendees')
+            ->assertJsonPath('attendees.0.id', $vehiklMember->id);
     }
 
     public function testAUserCannotCreateTwoGrowthSessionsInTheSameTimeSlot()

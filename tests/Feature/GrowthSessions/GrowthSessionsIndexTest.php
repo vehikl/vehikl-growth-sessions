@@ -3,32 +3,45 @@
 namespace Tests\Feature\GrowthSessions;
 
 
+use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Models\GrowthSession;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Arr;
 use Tests\TestCase;
 
 class GrowthSessionsIndexTest extends TestCase
 {
+    /**
+     * Builds the exact payload the API would produce for $growthSession as seen by the currently
+     * `actingAs` user (or a guest, if none) - call this after `actingAs` so redaction rules
+     * (e.g. hidden location) match what the real endpoint will return.
+     */
+    private function resourceArray(GrowthSession $growthSession): array
+    {
+        $resource = new GrowthSessionResource(
+            $growthSession->fresh(['attendees', 'watchers', 'comments', 'anydesk', 'tags'])
+        );
+
+        // toArray() embeds nested resources/collections (comments, tags) as objects rather than plain
+        // arrays - a round trip through json_encode/decode resolves them the same way the real HTTP
+        // response would, so this matches what assertJson() actually compares against.
+        return json_decode(json_encode($resource->toArray(request())), true);
+    }
+
     public function testItCanProvideAllGrowthSessionsOfTheCurrentWeekForAuthenticatedUser()
     {
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
 
         $mondayGrowthSession = GrowthSession::factory()
-            ->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4])
-            ->toArray();
+            ->create(['date' => $monday, 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
         $lateWednesdayGrowthSession = GrowthSession::factory()
-            ->create(['date' => $monday->addDays(2), 'start_time' => '04:30 pm', 'attendee_limit' => 4])
-            ->toArray();
+            ->create(['date' => $monday->addDays(2), 'start_time' => '04:30 pm', 'attendee_limit' => 4]);
         $earlyWednesdayGrowthSession = GrowthSession::factory()
-            ->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
-            ->toArray();
+            ->create(['date' => $monday->addDays(2), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
         $fridayGrowthSession = GrowthSession::factory()
-            ->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4])
-            ->toArray();
+            ->create(['date' => $monday->addDays(4), 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
         GrowthSession::factory()
             ->create([
                 'date' => $monday->addDays(8),
@@ -36,24 +49,26 @@ class GrowthSessionsIndexTest extends TestCase
                 'attendee_limit' => 4
             ]); // GrowthSessions on another week
 
+        /** @var User $user */
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
         $expectedResponse = [
-            $monday->toDateString() => [Arr::except($mondayGrowthSession, ['location', 'location_segments'])],
+            $monday->toDateString() => [$this->resourceArray($mondayGrowthSession)],
             $monday->addDays(1)->toDateString() => [],
             $monday->addDays(2)->toDateString() => [
-                Arr::except($earlyWednesdayGrowthSession, ['location', 'location_segments']),
-                Arr::except($lateWednesdayGrowthSession, ['location', 'location_segments'])
+                $this->resourceArray($earlyWednesdayGrowthSession),
+                $this->resourceArray($lateWednesdayGrowthSession)
             ],
             $monday->addDays(3)->toDateString() => [],
             $monday->addDays(4)->toDateString() => [
-                Arr::except($fridayGrowthSession, ['location', 'location_segments'])
+                $this->resourceArray($fridayGrowthSession)
             ],
         ];
 
-        /** @var User $user */
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->getJson(route('growth_sessions.week'))
-            ->assertSuccessful();
+        $this->getJson(route('growth_sessions.week'))
+            ->assertSuccessful()
+            ->assertJson($expectedResponse);
     }
 
     public function testItCanProvideAllGrowthSessionsOfTheCurrentWeekForAuthenticatedUserEvenOnFridays()
@@ -61,24 +76,23 @@ class GrowthSessionsIndexTest extends TestCase
         $this->setTestNow('Next Friday');
 
         $mondayGrowthSession = GrowthSession::factory()
-            ->create(['date' => Carbon::parse('Last Monday'), 'attendee_limit' => 4])
-            ->toArray();
+            ->create(['date' => Carbon::parse('Last Monday'), 'attendee_limit' => 4]);
         $fridayGrowthSession = GrowthSession::factory()
-            ->create(['date' => today(), 'attendee_limit' => 4])
-            ->toArray();
-
-        $expectedResponse = [
-            Carbon::parse('Last Monday')->toDateString() => [Arr::except($mondayGrowthSession, ['location', 'location_segments'])],
-            Carbon::parse('Last Tuesday')->toDateString() => [],
-            Carbon::parse('Last Wednesday')->toDateString() => [],
-            Carbon::parse('Last Thursday')->toDateString() => [],
-            today()->toDateString() => [Arr::except($fridayGrowthSession, ['location', 'location_segments'])],
-        ];
+            ->create(['date' => today(), 'attendee_limit' => 4]);
 
         /** @var User $user */
         $user = User::factory()->create();
+        $this->actingAs($user);
 
-        $response = $this->actingAs($user)->getJson(route('growth_sessions.week'));
+        $expectedResponse = [
+            Carbon::parse('Last Monday')->toDateString() => [$this->resourceArray($mondayGrowthSession)],
+            Carbon::parse('Last Tuesday')->toDateString() => [],
+            Carbon::parse('Last Wednesday')->toDateString() => [],
+            Carbon::parse('Last Thursday')->toDateString() => [],
+            today()->toDateString() => [$this->resourceArray($fridayGrowthSession)],
+        ];
+
+        $response = $this->getJson(route('growth_sessions.week'));
         $response->assertSuccessful();
         $response->assertJson($expectedResponse);
     }
@@ -91,47 +105,44 @@ class GrowthSessionsIndexTest extends TestCase
         $mondayOfWeekWithGrowthSessions = CarbonImmutable::parse($weekThatHasTheGrowthSessions);
 
         $mondayGrowthSession = GrowthSession::factory()
-            ->create(['date' => $mondayOfWeekWithGrowthSessions, 'start_time' => '03:30 pm', 'attendee_limit' => 4])
-            ->toArray();
+            ->create(['date' => $mondayOfWeekWithGrowthSessions, 'start_time' => '03:30 pm', 'attendee_limit' => 4]);
         $lateWednesdayGrowthSession = GrowthSession::factory()
             ->create([
                 'date' => $mondayOfWeekWithGrowthSessions->addDays(2),
                 'start_time' => '04:30 pm',
                 'attendee_limit' => 4
-            ])
-            ->toArray();
+            ]);
         $earlyWednesdayGrowthSession = GrowthSession::factory()
             ->create([
                 'date' => $mondayOfWeekWithGrowthSessions->addDays(2),
                 'start_time' => '03:30 pm',
                 'attendee_limit' => 4
-            ])
-            ->toArray();
+            ]);
         $fridayGrowthSession = GrowthSession::factory()
             ->create([
                 'date' => $mondayOfWeekWithGrowthSessions->addDays(4),
                 'start_time' => '03:30 pm',
                 'attendee_limit' => 4
-            ])
-            ->toArray();
-
-        $expectedResponse = [
-            $mondayOfWeekWithGrowthSessions->toDateString() => [Arr::except($mondayGrowthSession, ['location', 'location_segments'])],
-            $mondayOfWeekWithGrowthSessions->addDays(1)->toDateString() => [],
-            $mondayOfWeekWithGrowthSessions->addDays(2)->toDateString() => [
-                Arr::except($earlyWednesdayGrowthSession, ['location', 'location_segments']),
-                Arr::except($lateWednesdayGrowthSession, ['location', 'location_segments'])
-            ],
-            $mondayOfWeekWithGrowthSessions->addDays(3)->toDateString() => [],
-            $mondayOfWeekWithGrowthSessions->addDays(4)->toDateString() => [
-                Arr::except($fridayGrowthSession, ['location', 'location_segments'])
-            ],
-        ];
+            ]);
 
         /** @var User $user */
         $user = User::factory()->create();
+        $this->actingAs($user);
 
-        $response = $this->actingAs($user)->getJson(route(
+        $expectedResponse = [
+            $mondayOfWeekWithGrowthSessions->toDateString() => [$this->resourceArray($mondayGrowthSession)],
+            $mondayOfWeekWithGrowthSessions->addDays(1)->toDateString() => [],
+            $mondayOfWeekWithGrowthSessions->addDays(2)->toDateString() => [
+                $this->resourceArray($earlyWednesdayGrowthSession),
+                $this->resourceArray($lateWednesdayGrowthSession)
+            ],
+            $mondayOfWeekWithGrowthSessions->addDays(3)->toDateString() => [],
+            $mondayOfWeekWithGrowthSessions->addDays(4)->toDateString() => [
+                $this->resourceArray($fridayGrowthSession)
+            ],
+        ];
+
+        $response = $this->getJson(route(
             'growth_sessions.week',
             ['date' => $weekThatHasTheGrowthSessions]
         ));
@@ -238,8 +249,11 @@ class GrowthSessionsIndexTest extends TestCase
         $todayGrowthSessions = GrowthSession::factory()->times(2)->create(['date' => $today, 'attendee_limit' => 4]);
         GrowthSession::factory()->times(2)->create(['date' => $tomorrow, 'attendee_limit' => 4]);
 
-        $this->actingAs($user)->getJson(route('growth_sessions.day'))
-            ->assertJson($todayGrowthSessions->makeHidden(['location', 'location_segments'])->toArray());
+        $this->actingAs($user);
+        $expectedResponse = $todayGrowthSessions->map(fn (GrowthSession $growthSession) => $this->resourceArray($growthSession))->all();
+
+        $this->getJson(route('growth_sessions.day'))
+            ->assertJson($expectedResponse);
     }
 
     public function testVehiklUsersCanViewPrivateGrowthSessions()

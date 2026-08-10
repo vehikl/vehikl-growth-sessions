@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Resources\Comment as CommentResource;
 use App\Models\Comment;
 use App\Models\GrowthSession;
 use App\Models\User;
@@ -75,7 +76,9 @@ class CommentsTest extends TestCase
         $growthSession = GrowthSession::factory()->create();
         $comments = Comment::factory()->times(4)->create(['growth_session_id' => $growthSession->id]);
 
-        $this->getJson(route('growth_sessions.comments.index', $growthSession))->assertJson($comments->toArray());
+        $expectedResponse = json_decode(json_encode(CommentResource::collection($comments)->toArray(request())), true);
+
+        $this->getJson(route('growth_sessions.comments.index', $growthSession))->assertJson($expectedResponse);
     }
 
     public function testCommentAuthorIncludesIsVehiklMemberFlag()

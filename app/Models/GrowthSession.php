@@ -20,8 +20,6 @@ class GrowthSession extends Model
 
     const NO_LIMIT = PHP_INT_MAX;
 
-    protected $appends = ['owner', 'topic_segments', 'location_segments'];
-
     protected function casts(): array
     {
         return [

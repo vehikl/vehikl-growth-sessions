@@ -46,9 +46,10 @@ class TextSegmentParser
      * General link detection (non-image urls, mailto:, tel:) is not a trust boundary and applies
      * regardless of $allowImages.
      *
-     * This is the single source of truth for that decision - clients render whatever segments they're
-     * given and never see the raw url for a disallowed image, whether they go through this app's own
-     * frontend or hit the API directly.
+     * This is the single source of truth for that decision - a disallowed image's url still reaches
+     * clients as part of the surrounding text (it's not redacted; the raw content is visible elsewhere
+     * in the payload regardless), but no client is ever told to render it as an <img>, whether they go
+     * through this app's own frontend or hit the API directly.
      */
     public static function parse(string $content, bool $allowImages): array
     {

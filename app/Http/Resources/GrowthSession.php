@@ -2,64 +2,80 @@
 
 namespace App\Http\Resources;
 
+use App\Models\GrowthSession as GrowthSessionModel;
+use App\Models\User as UserModel;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Arr;
 
 class GrowthSession extends JsonResource
 {
+    private const HIDDEN_LOCATION = '< Join to see location >';
+
     public function toArray($request): array
     {
-        $attributes = parent::toArray($request);
+        /** @var GrowthSessionModel $growthSession */
+        $growthSession = $this->resource;
+        $viewer = $request->user();
 
-        $user = $request->user();
+        $isParticipating = $viewer && ($growthSession->hasAttendee($viewer) || $growthSession->hasWatcher($viewer));
+        $isOwner = $viewer && $viewer->is($growthSession->owner);
+        $canSeeSensitiveInfo = $isOwner || ($viewer && $viewer->is_vehikl_member);
+        $canSeeLocation = $isOwner || $isParticipating;
 
-        $isParticipatingInGrowthSession = $user &&
-            ($this->resource->hasAttendee($user) || $this->resource->hasWatcher($user));
-
-        $isOwner = $user && $user->is($this->resource->owner);
-
-        if (!$isParticipatingInGrowthSession && !$isOwner) {
-            $attributes['location'] = '< Join to see location >';
-            $attributes['location_segments'] = [['type' => 'text', 'value' => $attributes['location']]];
-        }
-
-        if ($attributes['attendee_limit'] === \App\Models\GrowthSession::NO_LIMIT) {
-            $attributes['attendee_limit'] = null;
-        }
-
-        $attributes['attendees'] = $attributes['attendees'] ?? [];
-        $isPersonNotAVehiklMember = auth()->guest() || !auth()->user()->is_vehikl_member;
-
-        if ($isPersonNotAVehiklMember && !$isOwner) {
-            $attributes['anydesk'] = null;
-        }
-
-        if ($isPersonNotAVehiklMember && !$isOwner) {
-            $attributes = $this->hideGuestInformationFromPayload('attendees', $attributes, $user);
-            $attributes = $this->hideGuestInformationFromPayload('watchers', $attributes, $user);
-        }
-
-        return $attributes;
+        return [
+            'id' => $growthSession->id,
+            'title' => $growthSession->title,
+            'topic' => $growthSession->topic,
+            'topic_segments' => $growthSession->topic_segments,
+            'location' => $canSeeLocation ? $growthSession->location : self::HIDDEN_LOCATION,
+            'location_segments' => $canSeeLocation
+                ? $growthSession->location_segments
+                : [['type' => 'text', 'value' => self::HIDDEN_LOCATION]],
+            // ->date/->start_time/->end_time are Carbon instances (the model's `datetime:FORMAT` casts only
+            // apply their format string during Eloquent's own toArray()/toJson(), not on direct property
+            // access), so they're formatted explicitly here to match those casts.
+            'date' => $growthSession->date->format('Y-m-d'),
+            'start_time' => $growthSession->start_time->format('h:i a'),
+            'end_time' => $growthSession->end_time->format('h:i a'),
+            'is_public' => $growthSession->is_public,
+            'allow_watchers' => $growthSession->allow_watchers,
+            'attendee_limit' => $growthSession->attendee_limit === GrowthSessionModel::NO_LIMIT
+                ? null
+                : $growthSession->attendee_limit,
+            'discord_channel_id' => $growthSession->discord_channel_id,
+            'slack_thread_ts' => $growthSession->slack_thread_ts,
+            'owner' => $growthSession->owner ? new User($growthSession->owner) : null,
+            'attendees' => $this->usersArray($growthSession->attendees, $viewer, $canSeeSensitiveInfo, $request),
+            'watchers' => $this->usersArray($growthSession->watchers, $viewer, $canSeeSensitiveInfo, $request),
+            'comments' => Comment::collection($growthSession->comments),
+            'anydesk' => $canSeeSensitiveInfo ? $growthSession->anydesk : null,
+            'tags' => Tag::collection($growthSession->tags),
+        ];
     }
 
-    protected function hideGuestInformationFromPayload($key, $payload, $user): array
+    /**
+     * Redacts a guest's identity from every viewer except the guest themselves - unlike location/anydesk,
+     * this is a per-user decision (a viewer can always see their own info) rather than an all-or-nothing gate.
+     */
+    private function usersArray($users, ?UserModel $viewer, bool $canSeeSensitiveInfo, $request): array
     {
-        if (!Arr::has($payload, $key)) {
-            return $payload;
-        }
+        return $users
+            ->map(function (UserModel $user) use ($viewer, $canSeeSensitiveInfo, $request) {
+                $userArray = (new User($user))->toArray($request);
 
-        for ($i = 0; $i < count($payload[$key]); $i++) {
-            $currentAttendee = $payload[$key][$i];
-            $isThisAttendeeAGuest = !$currentAttendee['is_vehikl_member'];
-            $isThisAttendeeTheRequesterThemselves = (optional($user)->id === $currentAttendee['id']);
+                $isGuest = ! $user->is_vehikl_member;
+                $isViewingSelf = $viewer && $viewer->is($user);
 
-            if ($isThisAttendeeAGuest && !$isThisAttendeeTheRequesterThemselves) {
-                $payload[$key][$i]['name'] = 'Guest';
-                $payload[$key][$i]['avatar'] = asset('images/guest-avatar.webp');
-                $payload[$key][$i]['github_nickname'] = '';
-            }
-        }
-        return $payload;
+                if ($canSeeSensitiveInfo || ! $isGuest || $isViewingSelf) {
+                    return $userArray;
+                }
+
+                return [
+                    ...$userArray,
+                    'name' => 'Guest',
+                    'avatar' => asset('images/guest-avatar.webp'),
+                    'github_nickname' => '',
+                ];
+            })
+            ->all();
     }
-
 }

@@ -19,7 +19,6 @@ class Comment extends Model
 
     protected $fillable = ['content'];
     protected $with = ['user'];
-    protected $appends = ['time_stamp', 'segments'];
 
     protected function casts(): array
     {
