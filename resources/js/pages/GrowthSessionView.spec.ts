@@ -44,6 +44,17 @@ describe('GrowthSessionView', () => {
         expect(wrapper.text()).toContain(growthSessionJson.owner.name);
     });
 
+    it('falls back to Unknown instead of hiding the owner section when the session has no owner', () => {
+        AnydesksApi.getAllAnyDesks = vi.fn().mockResolvedValue([]);
+        TagsApi.index = vi.fn().mockResolvedValue([]);
+        const ownerlessWrapper = mountWithInertia(GrowthSessionView, {
+            propsData: { userJson, growthSessionJson: { ...growthSessionJson, owner: null } },
+        });
+
+        expect(ownerlessWrapper.find('#owner-avatar-link').exists()).toBe(false);
+        expect(ownerlessWrapper.text()).toContain('Unknown');
+    });
+
     it('displays the mobtime link', () => {
         const mobTimeUrl = 'https://mobtime.vehikl.com/vgs-' + growthSessionJson.id;
         expect(wrapper.html()).toContain(mobTimeUrl);

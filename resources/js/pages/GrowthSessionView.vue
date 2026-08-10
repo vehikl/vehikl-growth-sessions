@@ -83,6 +83,9 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                         <p class="ml-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name" />
                     </div>
                 </a>
+                <div v-else class="mb-2 flex flex-1 items-center justify-start text-gray-700">
+                    <p class="text-sm font-bold tracking-wider uppercase">Unknown</p>
+                </div>
 
                 <h1 class="mb-3 text-left text-4xl font-semibold break-words text-gray-700">
                     {{ growthSession.title }}

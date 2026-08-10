@@ -26,7 +26,7 @@ class CommentController extends Controller
         $comment->user()->associate($request->user());
         $comment->growthSession()->associate($growthSession);
         $comment->save();
-        $growthSession = $growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']);
+        $growthSession = $growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS);
 
         return new GrowthSessionResource($growthSession);
     }
@@ -35,6 +35,6 @@ class CommentController extends Controller
     {
         $comment->delete();
 
-        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
+        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
     }
 }

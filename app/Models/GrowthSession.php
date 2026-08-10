@@ -21,6 +21,9 @@ class GrowthSession extends Model
 
     const NO_LIMIT = PHP_INT_MAX;
 
+    /** The relations GrowthSessionResource reads - eager-load these before building one to avoid lazy loading. */
+    const RESOURCE_RELATIONS = ['attendees', 'watchers', 'comments', 'anydesk', 'tags'];
+
     protected $hidden = ['share_token'];
 
     protected function casts(): array
@@ -144,7 +147,7 @@ class GrowthSession extends Model
         $endPoint = $startPoint->addDays(4);
 
         $allWeekGrowthSessions = GrowthSession::query()
-            ->with(['attendees', 'watchers', 'comments', 'anydesk', 'tags'])
+            ->with(self::RESOURCE_RELATIONS)
             ->whereDate('date', '>=', $startPoint)
             ->whereDate('date', '<=', $endPoint)
             ->orderBy('date')

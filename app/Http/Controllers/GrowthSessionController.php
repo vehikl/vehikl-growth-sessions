@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\DB;
 
 class GrowthSessionController extends Controller
 {
-    private const RELATIONS = ['attendees', 'watchers', 'comments', 'anydesk', 'tags'];
+    private const RELATIONS = GrowthSession::RESOURCE_RELATIONS;
 
     public function show(Request $request, GrowthSession $growthSession)
     {

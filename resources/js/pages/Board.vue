@@ -523,7 +523,7 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
         </v-modal>
 
         <!-- The transition keeps the drawer mounted while it slides back out; it styles its own gs-drawer-* classes. -->
-        <!-- :key forces a remount on session switch, resetting CommentList's local broken-image tracking -->
+        <!-- :key forces a remount on session switch, resetting the drawer's local state (draft comment, copy status, focus trap) -->
         <Transition name="gs-drawer">
             <SessionDetailDrawer
                 v-if="selectedSession"
