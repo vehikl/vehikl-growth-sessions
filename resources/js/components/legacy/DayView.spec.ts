@@ -136,6 +136,46 @@ describe('DayView', () => {
         expect(wrapper.find('.session-time').text()).toBe('11:00 – 01:00 pm');
     });
 
+    it('gives sessions sharing a window a single time label', () => {
+        const wrapper = mount(DayView, {
+            props: {
+                days,
+                selectedIndex: 1,
+                sessions: [
+                    makeSession({ id: 1, title: 'First' }),
+                    makeSession({ id: 2, title: 'Second' }),
+                    makeSession({ id: 3, title: 'Third', start_time: '03:45 pm', end_time: '05:00 pm' }),
+                ],
+                currentLabel: 'THU',
+                user: vehiklUser,
+            },
+        });
+
+        const labels = wrapper.findAll('.session-time');
+        expect(labels).toHaveLength(2);
+        expect(labels[0].text()).toBe('02:00 – 04:00 pm');
+        expect(labels[1].text()).toBe('03:45 – 05:00 pm');
+        expect(wrapper.findAll('.gs-card')).toHaveLength(3);
+    });
+
+    it('keeps a later session with a repeated window under its own label so the running order holds', () => {
+        const wrapper = mount(DayView, {
+            props: {
+                days,
+                selectedIndex: 1,
+                sessions: [
+                    makeSession({ id: 1, title: 'First' }),
+                    makeSession({ id: 2, title: 'Second', start_time: '03:45 pm', end_time: '05:00 pm' }),
+                    makeSession({ id: 3, title: 'Third' }),
+                ],
+                currentLabel: 'THU',
+                user: vehiklUser,
+            },
+        });
+
+        expect(wrapper.findAll('.session-time').map((label) => label.text())).toEqual(['02:00 – 04:00 pm', '03:45 – 05:00 pm', '02:00 – 04:00 pm']);
+    });
+
     it('tells a viewer whose day the session falls on which day to turn to', () => {
         vi.spyOn(moment.tz, 'guess').mockReturnValue('Asia/Tokyo');
 
