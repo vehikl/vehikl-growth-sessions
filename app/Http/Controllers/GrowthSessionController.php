@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\DB;
 
 class GrowthSessionController extends Controller
 {
+    private const RELATIONS = ['attendees', 'watchers', 'comments', 'anydesk', 'tags'];
+
     public function show(Request $request, GrowthSession $growthSession)
     {
         abort_unless((new GrowthSessionPolicy())->view($request->user(), $growthSession), Response::HTTP_NOT_FOUND);
@@ -33,7 +35,7 @@ class GrowthSessionController extends Controller
             ]);
         }
 
-        $growthSession->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']);
+        $growthSession->load(self::RELATIONS);
 
         return response()->json(new GrowthSessionResource($growthSession));
     }
@@ -53,7 +55,7 @@ class GrowthSessionController extends Controller
     {
         return GrowthSessionResource::collection(
             GrowthSession::today()
-                ->with(['attendees', 'watchers', 'comments', 'anydesk', 'tags'])
+                ->with(self::RELATIONS)
                 ->get()
         );
     }
@@ -67,7 +69,7 @@ class GrowthSessionController extends Controller
             $newGrowthSession->tags()->sync($request->input('tags'));
         });
 
-        $newGrowthSession->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']);
+        $newGrowthSession->load(self::RELATIONS);
 
         broadcast(new GrowthSessionModified($newGrowthSession->id, GrowthSessionModified::ACTION_CREATED));
         event(new GrowthSessionCreated($newGrowthSession));
@@ -89,7 +91,7 @@ class GrowthSessionController extends Controller
             'user_type_id' => UserType::ATTENDEE_ID
         ]);
 
-        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
+        return new GrowthSessionResource($growthSession->fresh()->load(self::RELATIONS));
     }
 
     public function watch(GrowthSession $growthSession, Request $request)
@@ -102,7 +104,7 @@ class GrowthSessionController extends Controller
             'user_type_id' => UserType::WATCHER_ID
         ]);
 
-        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
+        return new GrowthSessionResource($growthSession->fresh()->load(self::RELATIONS));
     }
 
     public function leave(GrowthSession $growthSession, Request $request)
@@ -112,7 +114,7 @@ class GrowthSessionController extends Controller
             ->where('user_id', $request->user()->id)
             ->delete();
 
-        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
+        return new GrowthSessionResource($growthSession->fresh()->load(self::RELATIONS));
     }
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
@@ -130,7 +132,7 @@ class GrowthSessionController extends Controller
 
         $growthSession->save();
 
-        return new GrowthSessionResource($growthSession->refresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
+        return new GrowthSessionResource($growthSession->refresh()->load(self::RELATIONS));
     }
 
     public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $growthSession)

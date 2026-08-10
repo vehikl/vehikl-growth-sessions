@@ -47,6 +47,6 @@ class Comment extends Model
     {
         return Attribute::make(
             get: fn () => TextSegmentParser::parse($this->content, allowImages: (bool) $this->user?->is_vehikl_member),
-        );
+        )->shouldCache();
     }
 }

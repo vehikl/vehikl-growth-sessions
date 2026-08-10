@@ -133,19 +133,24 @@ class TextSegmentParser
     private static function stripTrailingPunctuation(string $url, array $punctuationChars): string
     {
         $end = strlen($url);
+        $openParens = substr_count($url, '(');
+        $closeParens = substr_count($url, ')');
 
         while ($end > 0) {
             $char = $url[$end - 1];
 
             if ($char === ')') {
-                $upToHere = substr($url, 0, $end);
-                $openParens = substr_count($upToHere, '(');
-                $closeParens = substr_count($upToHere, ')');
                 if ($closeParens <= $openParens) {
                     break;
                 }
             } elseif (! in_array($char, $punctuationChars, true)) {
                 break;
+            }
+
+            if ($char === '(') {
+                $openParens--;
+            } elseif ($char === ')') {
+                $closeParens--;
             }
 
             $end--;

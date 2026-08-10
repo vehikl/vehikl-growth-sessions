@@ -61,12 +61,12 @@ class GrowthSession extends Model
 
     protected function topicSegments(): Attribute
     {
-        return Attribute::make(get: fn () => TextSegmentParser::parse($this->topic, allowImages: false));
+        return Attribute::make(get: fn () => TextSegmentParser::parse($this->topic, allowImages: false))->shouldCache();
     }
 
     protected function locationSegments(): Attribute
     {
-        return Attribute::make(get: fn () => TextSegmentParser::parse($this->location, allowImages: false));
+        return Attribute::make(get: fn () => TextSegmentParser::parse($this->location, allowImages: false))->shouldCache();
     }
 
     public function members(): BelongsToMany
