@@ -90,7 +90,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                 <div class="mb-2 flex justify-between text-slate-500">
                     <div class="flex flex-col font-bold">
                         <p>{{ growthSession.date }}</p>
-                        <p>{{ growthSession.startTime }} to {{ growthSession.endTime }}</p>
+                        <time :datetime="growthSession.startsAtIso" class="block">{{ growthSession.timeRange }}</time>
                     </div>
                     <div class="attendees-count flex items-center">
                         <i class="fa fa-user-circle mr-2 text-lg" aria-hidden="true"></i>

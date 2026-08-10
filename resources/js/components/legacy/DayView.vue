@@ -111,9 +111,12 @@ function isFull(session: GrowthSession): boolean {
             </p>
 
             <div v-for="session in sessions" :key="session.id" class="gs-divider-color flex flex-wrap gap-x-3.5 gap-y-1.5 border-b py-3">
-                <div class="gs-text-sub w-full flex-none text-sm font-semibold uppercase md:w-32 md:pt-3.5">
-                    {{ session.startTime }} – {{ session.endTime }}
-                </div>
+                <time
+                    :datetime="session.startsAtIso"
+                    class="session-time gs-text-sub block w-full flex-none text-sm font-semibold uppercase md:w-32 md:pt-3.5"
+                >
+                    {{ session.timeRange }}
+                </time>
 
                 <div
                     class="gs-card gs-border transition-smooth relative flex min-w-55 flex-1 flex-col gap-2.5 rounded-lg border p-3 px-4 hover:shadow-md"

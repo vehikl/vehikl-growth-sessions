@@ -1,4 +1,5 @@
 import { GrowthSession } from '@/classes/GrowthSession';
+import { sessionMoment } from '@/lib/timezone';
 import moment from 'moment-timezone';
 
 export type SessionStatus = 'live' | 'upcoming' | 'finished';
@@ -17,8 +18,8 @@ export function avatarColor(name: string): string {
 /** Derive a live/upcoming/finished status from a session's date and time window. */
 export function sessionStatus(session: GrowthSession): SessionStatus {
     const now = moment();
-    const start = moment(`${session.date} ${session.start_time}`, ['YYYY-MM-DD hh:mm a', 'YYYY-MM-DD HH:mm']);
-    const end = moment(`${session.date} ${session.end_time}`, ['YYYY-MM-DD hh:mm a', 'YYYY-MM-DD HH:mm']);
+    const start = sessionMoment(session.date, session.start_time);
+    const end = sessionMoment(session.date, session.end_time);
 
     // A session is finished once its end time has passed — including earlier today, not just past days.
     if (end.isValid()) {

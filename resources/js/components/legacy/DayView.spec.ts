@@ -3,6 +3,7 @@ import { GrowthSession } from '@/classes/GrowthSession';
 import DayView from '@/components/legacy/DayView.vue';
 import { IUser } from '@/types';
 import { DOMWrapper, mount } from '@vue/test-utils';
+import moment from 'moment-timezone';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const today = '2099-06-15';
@@ -47,6 +48,7 @@ describe('DayView', () => {
 
     afterEach(() => {
         vi.useRealTimers();
+        vi.restoreAllMocks();
         DateTime.setTestNow(new Date().toISOString());
     });
 
@@ -122,6 +124,36 @@ describe('DayView', () => {
         });
 
         expect(wrapper.find('.live-session-label').exists()).toBe(false);
+    });
+
+    it('shows a session window on the clock of whoever is looking at it', () => {
+        vi.spyOn(moment.tz, 'guess').mockReturnValue('America/Vancouver');
+
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        expect(wrapper.find('.session-time').text()).toBe('11:00 – 01:00 pm');
+    });
+
+    it('tells a viewer whose day the session falls on which day to turn to', () => {
+        vi.spyOn(moment.tz, 'guess').mockReturnValue('Asia/Tokyo');
+
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        expect(wrapper.find('.session-time').text()).toBe('03:00 – 05:00 am (next day)');
+    });
+
+    it('carries the absolute instant on the time element regardless of who is looking', () => {
+        vi.spyOn(moment.tz, 'guess').mockReturnValue('Asia/Tokyo');
+
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        expect(wrapper.find('.session-time').attributes('datetime')).toBe('2099-06-16T18:00:00.000Z');
     });
 
     it('renders the full indicator only when the session id is in fullSessionIds', () => {

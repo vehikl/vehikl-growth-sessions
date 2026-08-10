@@ -91,7 +91,7 @@ async function onDeleteClicked() {
         <h3 class="gs-text-strong mb-3 text-lg leading-snug font-semibold wrap-break-word" v-text="growthSession.title" />
 
         <div class="gs-text-sub mb-2 flex items-center justify-between text-sm font-medium">
-            <span>{{ growthSession.startTime }} – {{ growthSession.endTime }}</span>
+            <time class="session-time" :datetime="growthSession.startsAtIso">{{ growthSession.timeRange }}</time>
             <span
                 class="attendees-count inline-flex items-center gap-1"
                 :class="{ 'gs-at-capacity': atCapacity }"
