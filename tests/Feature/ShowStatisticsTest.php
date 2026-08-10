@@ -87,6 +87,27 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
+    public function test_each_top_host_carries_the_avatar_the_list_renders()
+    {
+        $this->setTestNowToASafeWednesday();
+
+        $host = User::factory()->vehiklMember()->create([
+            'name' => 'Prolific',
+            'avatar' => 'https://example.test/prolific.png',
+            'is_visible_in_statistics' => true,
+        ]);
+
+        $this->makeGrowthSessionOwnedBy($host, today());
+
+        $this->actingAs($host)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('top_hosts.0.name', 'Prolific')
+                ->where('top_hosts.0.avatar', 'https://example.test/prolific.png')
+            );
+    }
+
     public function test_it_returns_tag_usage_counts_for_the_current_week()
     {
         $this->setTestNowToASafeWednesday();
@@ -111,37 +132,6 @@ class ShowStatisticsTest extends TestCase
                 ->where('tags.1.name', 'Vue')
                 ->where('tags.1.sessions_count', 1)
             );
-    }
-
-    public function test_it_returns_the_current_users_yet_to_mob_with_list_for_all_time()
-    {
-        [$owner, , $nonParticipant] = $this->setupFiveDaysWorthOfGrowthSessions();
-
-        $this->actingAs($owner)
-            ->get(route('statistics.index'))
-            ->assertSuccessful()
-            ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('yet_to_mob_with', 1)
-                ->where('yet_to_mob_with.0.id', $nonParticipant->id)
-                ->where('yet_to_mob_with.0.name', $nonParticipant->name)
-            );
-    }
-
-    public function test_the_yet_to_mob_with_list_is_not_limited_to_the_current_week()
-    {
-        $this->setTestNowToASafeWednesday();
-
-        [$owner, $attendee] = User::factory()->vehiklMember()->count(2)
-            ->sequence(['name' => 'Owner'], ['name' => 'Attendee'])
-            ->create(['is_visible_in_statistics' => true]);
-
-        // Their only session together was well before the current week.
-        $this->makeGrowthSessionWithSingleAttendee($attendee, $owner, today()->subDays(30));
-
-        $this->actingAs($owner)
-            ->get(route('statistics.index'))
-            ->assertSuccessful()
-            ->assertInertia(fn (AssertableInertia $page) => $page->has('yet_to_mob_with', 0));
     }
 
     public function test_it_returns_a_row_for_every_statistics_visible_member()
