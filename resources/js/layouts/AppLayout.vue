@@ -110,11 +110,11 @@ onBeforeUnmount(() => {
             <Link :href="route('home')" class="transition-smooth flex items-center hover:opacity-80">
                 <VehiklLogo />
             </Link>
-            <span class="hidden h-6 w-px bg-white/15 md:block"></span>
-            <span class="hidden text-xs leading-none font-medium tracking-[0.28em] text-white/50 uppercase md:block"> Growth Sessions </span>
+            <span class="h-6 w-px bg-white/15 md:block"></span>
+            <span class="text-xs leading-none font-medium tracking-[0.28em] text-white/50 uppercase md:block"> Growth Sessions </span>
         </div>
 
-        <div class="hidden items-center justify-end gap-x-3 md:flex lg:gap-x-4">
+        <div class="hidden items-center justify-end gap-x-3 lg:flex lg:gap-x-4">
             <template v-if="$page.props.auth.user">
                 <!-- Dashboard leads: it is the only "you" surface, and the rest are "everyone" surfaces. -->
                 <Link :href="route('dashboard')" :class="navigationClass('dashboard')">Dashboard</Link>
@@ -223,7 +223,7 @@ onBeforeUnmount(() => {
             </button>
         </div>
 
-        <div ref="mobileMenu" class="relative flex items-center gap-3 md:hidden">
+        <div ref="mobileMenu" class="relative flex items-center gap-3 lg:hidden">
             <v-avatar v-if="$page.props.auth.user" class="mr-0" :src="$page.props.auth.user.avatar" :alt="$page.props.auth.user.name" :size="7" />
             <button
                 type="button"
