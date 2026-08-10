@@ -83,6 +83,7 @@ class ShowDashboardController extends Controller
             $user->allSessions()
                 ->wherePivotIn('user_type_id', self::MOBBING_ROLES)
                 ->whereDate('growth_sessions.date', '<=', today())
+                ->excludingPurelySocial()
         );
     }
 

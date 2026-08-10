@@ -249,6 +249,52 @@ class ShowDashboardTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.growth_minutes_count', 30));
     }
 
+    public function testTheGrowthTimeCountsNoPurelySocialSessions()
+    {
+        $this->setTestNowToASafeWednesday();
+        $user = User::factory()->vehiklMember()->create();
+
+        $this->hostedBy($user, today()->subWeek(), 'Ran this one', $this->window('10:00:00', '11:30:00'));
+
+        $hostedSocial = $this->hostedBy($user, today()->subDays(2), 'Board games', $this->window('12:00:00', '13:00:00'));
+        $hostedSocial->tags()->attach($this->tag(GrowthSession::SOCIAL_TAG));
+
+        $attendedSocial = $this->attendedBy($user, today()->subDay(), 'Somebody else ran the games', $this->window('12:00:00', '14:00:00'));
+        $attendedSocial->tags()->attach($this->tag(GrowthSession::SOCIAL_TAG));
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.growth_minutes_count', 90));
+    }
+
+    public function testASocialSessionThatAlsoCarriesASubjectTagStillCounts()
+    {
+        $this->setTestNowToASafeWednesday();
+        $user = User::factory()->vehiklMember()->create();
+
+        $mixed = $this->hostedBy($user, today()->subDay(), 'Vue, over drinks', $this->window('16:00:00', '18:00:00'));
+        $mixed->tags()->attach([$this->tag('Vue')->id, $this->tag(GrowthSession::SOCIAL_TAG)->id]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.growth_minutes_count', 120));
+    }
+
+    public function testAnUntaggedSessionCounts()
+    {
+        $this->setTestNowToASafeWednesday();
+        $user = User::factory()->vehiklMember()->create();
+
+        $this->hostedBy($user, today()->subDay(), 'No tags at all', $this->window('09:00:00', '10:00:00'));
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.growth_minutes_count', 60));
+    }
+
     /**
      * All three roles share one pivot table, so the attended total has to be the attendee role
      * alone: counting the relationship unconstrained would fold in every session they ran or watched.
