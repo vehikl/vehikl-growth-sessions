@@ -9,7 +9,7 @@ import SessionDetailDrawer from '@/components/legacy/SessionDetailDrawer.vue';
 import VisibilityRadioFieldset from '@/components/legacy/VisibilityRadioFieldset.vue';
 import VModal from '@/components/legacy/VModal.vue';
 import WeekView from '@/components/legacy/WeekView.vue';
-import { useReferenceDate } from '@/composables/useReferenceDate';
+import { useBoardUrlState, type BoardView } from '@/composables/useBoardUrlState';
 import { filterSessions, type SessionFilterCriteria, type VisibilityFilter } from '@/lib/sessionFilters';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
@@ -25,7 +25,7 @@ interface IGrowthSessionCardDragChange {
 }
 
 const props = defineProps<{ user?: IUser }>();
-const { referenceDate, syncFromUrl, shiftBy } = useReferenceDate();
+const { referenceDate, requestedView, sessionId, syncFromUrl, shiftDateBy, setView, setSessionId, watchUrl } = useBoardUrlState();
 const growthSessions = ref<WeekGrowthSessions>(WeekGrowthSessions.empty());
 const newGrowthSessionDate = ref('');
 const growthSessionToUpdate = ref<GrowthSession | null>(null);
@@ -42,81 +42,54 @@ const searchShortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad
 const isDesktop = useMediaQuery('(min-width: 768px)');
 // On small screens there is nothing to switch to — the board is day-only.
 const canSwitchView = computed(() => isDesktop.value);
-const view = ref<'week' | 'day'>('day');
+const view = ref<BoardView>('day');
 
-function syncViewFromUrl() {
-    const requestedView = new URLSearchParams(window.location.search).get('view');
-    view.value = isDesktop.value && requestedView === 'week' ? 'week' : 'day';
-}
-
-/**
- * The single place the board writes to the address bar. Everything one gesture changes goes
- * through one call, so it also costs the visitor exactly one press of Back to undo.
- */
-function pushUrl(mutate: (params: URLSearchParams) => void): void {
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    mutate(urlSearchParams);
-
-    const query = urlSearchParams.toString();
-    window.history.pushState({}, '', query ? `?${query}` : window.location.pathname);
-}
-
-function selectView(selectedView: 'week' | 'day') {
-    if (!canSwitchView.value) return;
-
-    view.value = selectedView;
-    pushUrl((params) => params.set('view', selectedView));
-}
-
-// Keep the active view within what the current screen size allows.
+// The url's request wins whenever the url changes — on load, and on a history navigation...
 watch(
-    isDesktop,
-    (desktop) => {
-        if (!desktop) {
-            view.value = 'day';
-        }
+    requestedView,
+    (requested) => {
+        view.value = isDesktop.value && requested === 'week' ? 'week' : 'day';
     },
     { immediate: true },
 );
 
+// ...but a screen too narrow for the week view demotes it, and it stays demoted: widening again
+// must not yank the visitor back to a view they didn't re-ask for.
+watch(isDesktop, (desktop) => {
+    if (!desktop) view.value = 'day';
+});
+
+function selectView(selectedView: BoardView) {
+    if (!canSwitchView.value) return;
+
+    // Set the view outright rather than leaning on the watch above, which would not fire when the
+    // url already asks for this view — the case after a demotion the url never heard about.
+    view.value = selectedView;
+    setView(selectedView);
+}
+
 const selectedSession = ref<GrowthSession | null>(null);
 
 /**
- * The open drawer lives in the `?session=` query parameter, so a link to a growth session (or any copied URL)
- * lands on the board with that session's detail already open, and the back button closes it again.
+ * Open or close the detail drawer, recording which session is open in the `?session=` query
+ * parameter — so a link to a growth session (or any copied URL) lands on the board with that
+ * session's detail already open, and the back button closes it again.
  */
 function selectSession(growthSession: GrowthSession | null) {
     selectedSession.value = growthSession;
-
-    const sessionInUrl = new URLSearchParams(window.location.search).get('session');
-    const sessionWanted = growthSession ? String(growthSession.id) : null;
-    if (sessionInUrl === sessionWanted) return;
-
-    pushUrl((params) => applySessionTo(params, sessionWanted));
+    setSessionId(growthSession?.id ?? null);
 }
 
-function applySessionTo(params: URLSearchParams, sessionWanted: string | null): void {
-    if (sessionWanted) {
-        params.set('session', sessionWanted);
-    } else {
-        params.delete('session');
-    }
-}
+/** Adopt the session the URL names, if it is one this visitor can see in the loaded week. */
+function adoptSessionFromUrl() {
+    selectedSession.value = sessionId.value
+        ? (growthSessions.value.allGrowthSessions.find((session) => session.id === sessionId.value) ?? null)
+        : null;
 
-/** Adopt the session in the current URL, if it is one this visitor can see in the loaded week. */
-function syncSelectedSessionFromUrl() {
-    const requestedId = Number(new URLSearchParams(window.location.search).get('session'));
-    if (!requestedId) {
-        selectedSession.value = null;
-        return;
-    }
+    if (!selectedSession.value) return;
 
-    selectedSession.value = growthSessions.value.allGrowthSessions.find((session) => session.id === requestedId) ?? null;
-
-    if (selectedSession.value) {
-        const dayOfSession = growthSessions.value.weekDates.findIndex((date) => date.toDateString() === selectedSession.value!.date);
-        if (dayOfSession >= 0) dayIndex.value = dayOfSession;
-    }
+    const dayOfSession = growthSessions.value.weekDates.findIndex((date) => date.toDateString() === selectedSession.value!.date);
+    if (dayOfSession >= 0) dayIndex.value = dayOfSession;
 }
 
 watch(
@@ -126,7 +99,7 @@ watch(
 
         if (props.user) return;
 
-        refreshGrowthSessionsOfTheWeek();
+        loadWeekFromUrl();
     },
 );
 
@@ -197,15 +170,18 @@ watchDebounced(
     { debounce: 300 },
 );
 
+// Registered before the first await, so unmounting mid-load still tears the listener down.
+const stopWatchingUrl = watchUrl(loadWeekFromUrl);
+
 onBeforeMount(async () => {
     await getAllTags();
-    await refreshGrowthSessionsOfTheWeek();
+    syncFromUrl();
+    await loadWeekFromUrl();
     // A deep-linked session has already chosen the day it lives on; otherwise start on today.
     if (!selectedSession.value) {
         const todayIdx = growthSessions.value.weekDates.findIndex((d) => d.isToday());
         dayIndex.value = todayIdx >= 0 ? todayIdx : 0;
     }
-    window.onpopstate = refreshGrowthSessionsOfTheWeek;
 });
 
 onMounted(() => {
@@ -215,7 +191,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-    window.onpopstate = null;
+    stopWatchingUrl();
     window.removeEventListener('gs:create-session', handleHeaderCreate);
     window.removeEventListener('gs:focus-search', handleSearchFocus);
     window.removeEventListener('keydown', handleViewShortcut);
@@ -253,11 +229,10 @@ function handleViewShortcut(event: KeyboardEvent) {
     if (key === 'w') selectView('week');
 }
 
-async function refreshGrowthSessionsOfTheWeek() {
-    syncFromUrl();
-    syncViewFromUrl();
+/** Fetch the week the URL asks for, then re-open whichever session it names. Ordering matters: the drawer can only adopt a session the week has loaded. */
+async function loadWeekFromUrl() {
     await getAllGrowthSessionsOfTheWeek();
-    syncSelectedSessionFromUrl();
+    adoptSessionFromUrl();
 }
 
 async function onDragEnd(location: any) {
@@ -313,17 +288,10 @@ function onGrowthSessionCopyRequested(growthSession: GrowthSession) {
 }
 
 async function changeReferenceDate(deltaDays: number) {
-    // The open session belongs to the week being left behind; keeping it in the URL would
-    // hand out a link that opens no drawer. Closing it and moving the week are one gesture,
-    // so they share a single history entry rather than costing two presses of Back.
+    // The open session belongs to the week being left behind, so it closes with the move.
+    // `shiftDateBy` drops it from the URL in the same history entry.
     selectedSession.value = null;
-    shiftBy(deltaDays, { pushUrl: false });
-
-    pushUrl((params) => {
-        applySessionTo(params, null);
-        params.set('date', referenceDate.value.toDateString());
-    });
-
+    shiftDateBy(deltaDays);
     await getAllGrowthSessionsOfTheWeek();
 }
 

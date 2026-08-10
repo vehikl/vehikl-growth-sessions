@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\GrowthSession;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class GrowthSessionFactory extends Factory
 {
@@ -37,5 +38,16 @@ class GrowthSessionFactory extends Factory
             'attendee_limit' => GrowthSession::NO_LIMIT,
             'is_public' => TRUE
         ];
+    }
+
+    /**
+     * A growth session that stays out of every listing but is viewable by anyone holding its invite link.
+     */
+    public function unlisted(): static
+    {
+        return $this->state(fn() => [
+            'is_public' => false,
+            'share_token' => Str::random(40),
+        ]);
     }
 }

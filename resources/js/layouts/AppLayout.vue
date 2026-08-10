@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import VAvatar from '@/components/legacy/VAvatar.vue';
 import { useTheme } from '@/composables/useTheme';
+import { loginUrl } from '@/lib/loginUrl';
 import VehiklLogo from '@/svgs/VehiklLogo.vue';
 import type { BreadcrumbItemType } from '@/types';
 import { Link } from '@inertiajs/vue3';
@@ -109,22 +110,19 @@ onBeforeUnmount(() => {
             <Link :href="route('home')" class="transition-smooth flex items-center hover:opacity-80">
                 <VehiklLogo />
             </Link>
-            <span class="hidden h-6 w-px bg-white/15 md:block"></span>
-            <span class="hidden text-xs leading-none font-medium tracking-[0.28em] text-white/50 uppercase md:block"> Growth Sessions </span>
+            <span class="h-6 w-px bg-white/15 md:block"></span>
+            <span class="text-xs leading-none font-medium tracking-[0.28em] text-white/50 uppercase md:block"> Growth Sessions </span>
         </div>
 
-        <div class="hidden items-center justify-end gap-x-3 md:flex lg:gap-x-4">
+        <div class="hidden items-center justify-end gap-x-3 lg:flex lg:gap-x-4">
             <template v-if="$page.props.auth.user">
-                <template v-if="$page.props.auth.user.is_vehikl_member">
-                    <Link :href="route('home')" :class="navigationClass('home')">Board</Link>
-                    <Link :href="route('statistics.index')" :class="navigationClass('statistics.index')">Statistics</Link>
-                    <Link :href="route('about')" :class="navigationClass('about')">About</Link>
-                </template>
-
-                <template v-else>
-                    <Link :href="route('home')" :class="navigationClass('home')">Board</Link>
-                    <Link :href="route('about')" :class="navigationClass('about')">About</Link>
-                </template>
+                <!-- Dashboard leads: it is the only "you" surface, and the rest are "everyone" surfaces. -->
+                <Link :href="route('dashboard')" :class="navigationClass('dashboard')">Dashboard</Link>
+                <Link :href="route('home')" :class="navigationClass('home')">Board</Link>
+                <Link v-if="$page.props.auth.user.is_vehikl_member" :href="route('statistics.index')" :class="navigationClass('statistics.index')">
+                    Statistics
+                </Link>
+                <Link :href="route('about')" :class="navigationClass('about')">About</Link>
 
                 <span class="mx-1 h-6 w-px bg-white/15 sm:mx-2"></span>
 
@@ -225,7 +223,7 @@ onBeforeUnmount(() => {
             </button>
         </div>
 
-        <div ref="mobileMenu" class="relative flex items-center gap-3 md:hidden">
+        <div ref="mobileMenu" class="relative flex items-center gap-3 lg:hidden">
             <v-avatar v-if="$page.props.auth.user" class="mr-0" :src="$page.props.auth.user.avatar" :alt="$page.props.auth.user.name" :size="7" />
             <button
                 type="button"
@@ -264,6 +262,13 @@ onBeforeUnmount(() => {
                 >
                     <nav v-if="$page.props.auth.user" class="space-y-1" aria-label="Mobile navigation">
                         <Link
+                            :href="route('dashboard')"
+                            class="gs-text-body block rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
+                            @click="mobileMenuOpen = false"
+                        >
+                            Dashboard
+                        </Link>
+                        <Link
                             :href="route('home')"
                             class="gs-text-body block rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
                             @click="mobileMenuOpen = false"
@@ -289,7 +294,7 @@ onBeforeUnmount(() => {
 
                     <div v-else class="space-y-1">
                         <a
-                            :href="route('oauth.login.redirect', { driver: 'github' })"
+                            :href="loginUrl()"
                             class="gs-text-body flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5"
                         >
                             <i class="fa fa-github" aria-hidden="true"></i>
@@ -319,9 +324,8 @@ onBeforeUnmount(() => {
                             <kbd class="gs-text-muted text-xs">T</kbd>
                         </button>
                     </div>
-                    <div class="gs-border mt-2 space-y-1 border-t pt-2">
+                    <div v-if="$page.props.auth.user" class="gs-border mt-2 space-y-1 border-t pt-2">
                         <Link
-                            v-if="$page.props.auth.user"
                             :href="route('logout')"
                             method="post"
                             as="button"

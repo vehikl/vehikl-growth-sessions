@@ -12,6 +12,7 @@ export class GrowthSession implements IGrowthSession {
     location_segments!: ITextSegment[];
     date!: string;
     is_public!: boolean;
+    is_unlisted!: boolean;
     start_time!: string;
     end_time!: string;
     owner!: User | null;
@@ -23,6 +24,7 @@ export class GrowthSession implements IGrowthSession {
     discord_channel_id!: string | null;
     anydesk!: IAnyDesk | null;
     tags!: ITag[];
+    share_url?: string;
 
     constructor(growthSession: IGrowthSession) {
         this.refresh(growthSession);
@@ -58,6 +60,7 @@ export class GrowthSession implements IGrowthSession {
         this.location_segments = growthSession.location_segments;
         this.date = growthSession.date;
         this.is_public = growthSession.is_public;
+        this.is_unlisted = growthSession.is_unlisted ?? false;
         this.allow_watchers = growthSession.allow_watchers;
         this.start_time = growthSession.start_time;
         this.end_time = growthSession.end_time;
@@ -69,6 +72,7 @@ export class GrowthSession implements IGrowthSession {
         this.discord_channel_id = growthSession.discord_channel_id;
         this.anydesk = growthSession.anydesk;
         this.tags = growthSession.tags;
+        this.share_url = growthSession.share_url;
     }
 
     get hasAlreadyHappened(): boolean {

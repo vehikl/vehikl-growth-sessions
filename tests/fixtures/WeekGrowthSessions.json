@@ -3,6 +3,7 @@
         {
             "id": 1,
             "is_public": true,
+            "is_unlisted": false,
             "allow_watchers": true,
             "topic": "Ex eius sint dicta vel.",
             "topic_segments": [{ "type": "text", "value": "Ex eius sint dicta vel." }],
@@ -43,6 +44,7 @@
         {
             "id": 3,
             "is_public": true,
+            "is_unlisted": false,
             "allow_watchers": true,
             "topic": "Consequatur deserunt maiores consectetur quia et ab sit.",
             "topic_segments": [{ "type": "text", "value": "Consequatur deserunt maiores consectetur quia et ab sit." }],
@@ -80,6 +82,7 @@
         {
             "id": 2,
             "is_public": true,
+            "is_unlisted": false,
             "allow_watchers": true,
             "topic": "Et ut laborum dolore ut et earum rem animi.",
             "topic_segments": [{ "type": "text", "value": "Et ut laborum dolore ut et earum rem animi." }],
@@ -119,6 +122,7 @@
         {
             "id": 4,
             "is_public": true,
+            "is_unlisted": false,
             "allow_watchers": true,
             "topic": "Voluptatum fugit et illo.",
             "topic_segments": [{ "type": "text", "value": "Voluptatum fugit et illo." }],
@@ -147,6 +151,7 @@
         {
             "id": 5,
             "is_public": false,
+            "is_unlisted": false,
             "allow_watchers": true,
             "topic": "Tanto faz",
             "topic_segments": [{ "type": "text", "value": "Tanto faz" }],

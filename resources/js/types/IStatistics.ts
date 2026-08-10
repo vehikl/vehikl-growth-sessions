@@ -1,3 +1,6 @@
+import type { ITagUsage } from './ITag';
+import type { IMemberSummary } from './IUser';
+
 export interface IStatisticsSummary {
     lifetime_sessions_count: number;
     sessions_this_week_count: number;
@@ -5,16 +8,8 @@ export interface IStatisticsSummary {
     lifetime_minutes_count: number;
 }
 
-export interface ITopHost {
-    id: number;
-    name: string;
+export interface ITopHost extends IMemberSummary {
     sessions_hosted_count: number;
-}
-
-export interface ITagUsage {
-    id: number;
-    name: string;
-    sessions_count: number;
 }
 
 export interface IStatisticsMember {
@@ -46,7 +41,6 @@ export interface IStatisticsDashboard {
     summary: IStatisticsSummary;
     top_hosts: ITopHost[];
     tags: ITagUsage[];
-    yet_to_mob_with: IStatisticsMember[];
     members: IUserStatistics[];
     start_date: string;
     end_date: string;

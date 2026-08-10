@@ -342,7 +342,7 @@ class GrowthSessionsShowTest extends TestCase
             'id', 'title', 'topic', 'topic_segments', 'location', 'location_segments', 'date',
             'start_time', 'end_time', 'is_public', 'allow_watchers', 'attendee_limit',
             'discord_channel_id', 'slack_thread_ts', 'owner', 'attendees', 'watchers', 'comments',
-            'anydesk', 'tags',
+            'anydesk', 'tags', 'is_unlisted',
         ], array_keys($response->json()));
 
         $response->assertJsonPath('date', '2020-01-20');

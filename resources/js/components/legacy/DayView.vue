@@ -124,54 +124,51 @@ function isFull(session: GrowthSession): boolean {
                         :aria-label="`View details for ${session.title}`"
                         @click="emit('open-detail', session)"
                     ></button>
-                    <div class="flex flex-wrap items-start justify-between gap-2">
-                        <div class="flex min-w-0 flex-1 items-start gap-3">
-                            <span
-                                class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                                :style="{ backgroundColor: avatarColor(session.owner?.name ?? 'Unknown') }"
+                    <span
+                        class="capacity-readout gs-secondary-bg absolute top-3 right-4 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
+                        :class="session.hasReachedAttendeeLimit() ? 'gs-at-capacity' : 'gs-text-muted'"
+                        :title="session.hasReachedAttendeeLimit() ? 'This session is full' : undefined"
+                    >
+                        <i class="fa fa-user" aria-hidden="true"></i>{{ capacityLabel(session) }}
+                    </span>
+
+                    <div class="flex items-start gap-3">
+                        <span
+                            class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
+                            :style="{ backgroundColor: avatarColor(session.owner?.name ?? 'Unknown') }"
+                        >
+                            <img
+                                v-if="session.owner?.avatar"
+                                :src="session.owner.avatar"
+                                :alt="session.owner.name"
+                                class="h-full w-full object-cover"
+                            />
+                            <template v-else>{{ getInitials(session.owner?.name ?? 'Unknown') }}</template>
+                        </span>
+                        <!-- flex-1 so this column is as wide as the card allows; without it the column
+                             shrinks to its content and percentage widths below resolve against that. -->
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2 pr-20">
+                                <span class="gs-text-strong text-base font-semibold">{{ session.title }}</span>
+                                <span
+                                    class="h-2 w-2 flex-none rounded-full"
+                                    :style="{ backgroundColor: statusMeta(currentStatus(session)).color }"
+                                    :title="statusMeta(currentStatus(session)).label"
+                                ></span>
+                                <span v-if="currentStatus(session) === 'live'" class="live-session-label gs-accent-text text-xs font-bold">LIVE</span>
+                            </div>
+                            <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">{{ session.owner?.name ?? 'Unknown' }}</div>
+                            <div v-if="tagline(session)" class="gs-text-sub mt-1 text-sm">{{ tagline(session) }}</div>
+                            <div
+                                class="gs-text-body pointer-events-none relative z-20 mt-2 max-w-full text-sm leading-normal whitespace-pre-wrap xl:max-w-1/2"
                             >
-                                <img
-                                    v-if="session.owner?.avatar"
-                                    :src="session.owner.avatar"
-                                    :alt="session.owner.name"
-                                    class="h-full w-full object-cover"
-                                />
-                                <template v-else>{{ getInitials(session.owner?.name ?? 'Unknown') }}</template>
-                            </span>
-                            <!-- flex-1 so this column is as wide as the card allows; without it the column
-                                 shrinks to its content and percentage widths below resolve against that. -->
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="gs-text-strong text-base font-semibold">{{ session.title }}</span>
-                                    <span
-                                        class="h-2 w-2 flex-none rounded-full"
-                                        :style="{ backgroundColor: statusMeta(currentStatus(session)).color }"
-                                        :title="statusMeta(currentStatus(session)).label"
-                                    ></span>
-                                    <span v-if="currentStatus(session) === 'live'" class="live-session-label gs-accent-text text-xs font-bold"
-                                        >LIVE</span
-                                    >
-                                </div>
-                                <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">{{ session.owner?.name ?? 'Unknown' }}</div>
-                                <div v-if="tagline(session)" class="gs-text-sub mt-1 text-sm">{{ tagline(session) }}</div>
-                                <div
-                                    class="gs-text-body pointer-events-none relative z-20 mt-2 max-w-full text-sm leading-normal whitespace-pre-wrap xl:max-w-1/2"
-                                >
-                                    <text-segments :segments="session.topic_segments" />
-                                </div>
-                                <div class="gs-text-muted pointer-events-none relative z-20 mt-2 flex items-center gap-1.5 text-sm font-medium">
-                                    <i class="fa fa-compass flex-none" aria-hidden="true"></i>
-                                    <text-segments :segments="session.location_segments" />
-                                </div>
+                                <text-segments :segments="session.topic_segments" />
+                            </div>
+                            <div class="gs-text-muted pointer-events-none relative z-20 mt-2 flex items-center gap-1.5 text-sm font-medium">
+                                <i class="fa fa-compass flex-none" aria-hidden="true"></i>
+                                <text-segments :segments="session.location_segments" />
                             </div>
                         </div>
-                        <span
-                            class="capacity-readout gs-secondary-bg ml-3.5 inline-flex flex-none items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
-                            :class="session.hasReachedAttendeeLimit() ? 'gs-at-capacity' : 'gs-text-muted'"
-                            :title="session.hasReachedAttendeeLimit() ? 'This session is full' : undefined"
-                        >
-                            <i class="fa fa-user" aria-hidden="true"></i>{{ capacityLabel(session) }}
-                        </span>
                     </div>
 
                     <div class="gs-divider-color relative z-20 flex flex-wrap items-center gap-2 border-t pt-2.5" @click.stop>

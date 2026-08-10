@@ -15,9 +15,9 @@ use App\Models\GrowthSession;
 use App\Models\GrowthSessionUser;
 use App\Models\UserType;
 use App\Policies\GrowthSessionPolicy;
+use App\Support\InviteLink;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class GrowthSessionController extends Controller
@@ -64,6 +64,8 @@ class GrowthSessionController extends Controller
     public function store(StoreGrowthSessionRequest $request)
     {
         $newGrowthSession = new GrowthSession($request->validated());
+        InviteLink::for($newGrowthSession)->set($request->boolean('has_invite_link'));
+
         DB::transaction(function () use ($newGrowthSession, $request) {
             $newGrowthSession->save();
             $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::OWNER_ID]);
@@ -120,7 +122,12 @@ class GrowthSessionController extends Controller
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
     {
-        $growthSession->fill(Arr::except($request->validated(), 'tags'));
+        $growthSession->fill($request->validated());
+
+        // An update that says nothing about the invite link asks for whatever the owner set previously — which the
+        // module still reconciles against the new visibility, so turning a growth session public revokes its link.
+        $inviteLink = InviteLink::for($growthSession);
+        $inviteLink->set($request->boolean('has_invite_link', $inviteLink->exists()));
 
         $growthSession->tags()->sync($request->input('tags'));
 

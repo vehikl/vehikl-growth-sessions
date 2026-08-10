@@ -9,6 +9,7 @@
     "slack_thread_ts": null,
     "date": "2030-06-11",
     "is_public": true,
+    "is_unlisted": false,
     "allow_watchers": true,
     "start_time": "03:00 pm",
     "end_time": "05:00 pm",

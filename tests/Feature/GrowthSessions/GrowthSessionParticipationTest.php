@@ -225,6 +225,46 @@ class GrowthSessionParticipationTest extends TestCase
         $this->assertEquals($user->id, $existingGrowthSession->fresh()->attendees->first()->id);
     }
 
+    public function test_a_user_who_cannot_see_a_growth_session_cannot_join_it_nor_receive_any_of_its_contents(): void
+    {
+        $unlistedGrowthSession = GrowthSession::factory()->unlisted()->create(['topic' => 'Pairing on their project']);
+        $outsider = User::factory()->vehiklMember(false)->create();
+
+        $response = $this->actingAs($outsider)
+            ->postJson(route('growth_sessions.join', ['growth_session' => $unlistedGrowthSession->id]))
+            ->assertNotFound();
+
+        $this->assertStringNotContainsString($unlistedGrowthSession->title, $response->getContent());
+        $this->assertStringNotContainsString($unlistedGrowthSession->topic, $response->getContent());
+        $this->assertStringNotContainsString($unlistedGrowthSession->location, $response->getContent());
+        $this->assertEmpty($unlistedGrowthSession->fresh()->attendees);
+    }
+
+    public function test_a_user_who_unlocked_the_invite_link_can_join_the_unlisted_growth_session(): void
+    {
+        $unlistedGrowthSession = GrowthSession::factory()->unlisted()->create();
+        $client = User::factory()->vehiklMember(false)->create();
+
+        $this->actingAs($client)
+            ->get(route('growth_sessions.invitation', ['token' => $unlistedGrowthSession->share_token]));
+
+        $this->actingAs($client)
+            ->postJson(route('growth_sessions.join', ['growth_session' => $unlistedGrowthSession->id]))
+            ->assertSuccessful();
+
+        $this->assertTrue($unlistedGrowthSession->fresh()->attendees->first()->is($client));
+    }
+
+    public function test_a_vehikl_member_can_join_an_unlisted_growth_session_without_the_invite_link(): void
+    {
+        $unlistedGrowthSession = GrowthSession::factory()->unlisted()->create();
+        $vehiklMember = User::factory()->vehiklMember()->create();
+
+        $this->actingAs($vehiklMember)
+            ->postJson(route('growth_sessions.join', ['growth_session' => $unlistedGrowthSession->id]))
+            ->assertSuccessful();
+    }
+
     public function test_watch_endpoint_is_idempotent_when_user_is_already_a_watcher(): void
     {
         $existingGrowthSession = GrowthSession::factory()->create(['allow_watchers' => true]);
