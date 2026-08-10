@@ -94,6 +94,16 @@ describe('DayView', () => {
         expect(wrapper.find('.capacity-readout').text()).toContain('1/4');
     });
 
+    it('pins the capacity readout to the card corner so the body can use the full width', () => {
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        const capacity = wrapper.find('.capacity-readout');
+        expect(capacity.classes()).toContain('absolute');
+        expect(capacity.element.parentElement?.classList.contains('gs-card')).toBe(true);
+    });
+
     it('labels a live session next to its title', () => {
         vi.useFakeTimers();
         vi.setSystemTime(new Date(2099, 5, 16, 15));
