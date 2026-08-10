@@ -29,7 +29,7 @@ onMounted(() => {
 onBeforeUnmount(() => clearInterval(statusClockInterval));
 
 function currentStatus(session: GrowthSession) {
-    statusClock.value;
+    void statusClock.value;
     return sessionStatus(session);
 }
 

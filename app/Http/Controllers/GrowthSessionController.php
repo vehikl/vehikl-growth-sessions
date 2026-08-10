@@ -26,7 +26,7 @@ class GrowthSessionController extends Controller
 
     public function show(Request $request, GrowthSession $growthSession)
     {
-        abort_unless((new GrowthSessionPolicy())->view($request->user(), $growthSession), Response::HTTP_NOT_FOUND);
+        abort_unless((new GrowthSessionPolicy)->view($request->user(), $growthSession), Response::HTTP_NOT_FOUND);
 
         if (! $request->expectsJson()) {
             return redirect()->route('home', [
@@ -46,8 +46,9 @@ class GrowthSessionController extends Controller
         $sessions = GrowthSession::allInTheWeekOf($request->input('date'))->filter(function (GrowthSession $session) use (
             $user
         ) {
-            return (new GrowthSessionPolicy())->view($user, $session);
+            return (new GrowthSessionPolicy)->view($user, $session);
         });
+
         return new GrowthSessionWeek($sessions);
     }
 
@@ -88,7 +89,7 @@ class GrowthSessionController extends Controller
             'growth_session_id' => $growthSession->id,
             'user_id' => $request->user()->id,
         ], [
-            'user_type_id' => UserType::ATTENDEE_ID
+            'user_type_id' => UserType::ATTENDEE_ID,
         ]);
 
         return new GrowthSessionResource($growthSession->fresh()->load(self::RELATIONS));
@@ -101,7 +102,7 @@ class GrowthSessionController extends Controller
             'growth_session_id' => $growthSession->id,
             'user_id' => $request->user()->id,
         ], [
-            'user_type_id' => UserType::WATCHER_ID
+            'user_type_id' => UserType::WATCHER_ID,
         ]);
 
         return new GrowthSessionResource($growthSession->fresh()->load(self::RELATIONS));

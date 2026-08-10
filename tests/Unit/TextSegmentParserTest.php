@@ -7,7 +7,7 @@ use Tests\TestCase;
 
 class TextSegmentParserTest extends TestCase
 {
-    public function testItReturnsASingleTextSegmentWhenThereIsNoUrl()
+    public function test_it_returns_a_single_text_segment_when_there_is_no_url()
     {
         $this->assertEquals(
             [['type' => 'text', 'value' => 'just some plain text']],
@@ -15,7 +15,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testItReturnsASingleEmptyTextSegmentForEmptyContent()
+    public function test_it_returns_a_single_empty_text_segment_for_empty_content()
     {
         $this->assertEquals(
             [['type' => 'text', 'value' => '']],
@@ -23,7 +23,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testItDoesNotTreatANonImageUrlAsAnImage()
+    public function test_it_does_not_treat_a_non_image_url_as_an_image()
     {
         $this->assertEquals([
             ['type' => 'text', 'value' => 'check this out '],
@@ -32,7 +32,7 @@ class TextSegmentParserTest extends TestCase
     }
 
     /** @dataProvider imageExtensionProvider */
-    public function testItRendersALoneUrlAsAnImageSegment(string $extension)
+    public function test_it_renders_a_lone_url_as_an_image_segment(string $extension)
     {
         $url = "https://example.com/image.{$extension}";
 
@@ -47,7 +47,7 @@ class TextSegmentParserTest extends TestCase
         return [['gif'], ['png'], ['jpg'], ['jpeg'], ['webp']];
     }
 
-    public function testItSplitsSurroundingTextFromAnEmbeddedImageUrl()
+    public function test_it_splits_surrounding_text_from_an_embedded_image_url()
     {
         $result = TextSegmentParser::parse('look at this https://example.com/funny.gif so good', true);
 
@@ -58,7 +58,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testItHandlesMultipleImageUrlsInTheSameComment()
+    public function test_it_handles_multiple_image_urls_in_the_same_comment()
     {
         $result = TextSegmentParser::parse('https://example.com/one.gif and https://example.com/two.png', true);
 
@@ -69,7 +69,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testItStripsTrailingSentencePunctuationFromTheUrl()
+    public function test_it_strips_trailing_sentence_punctuation_from_the_url()
     {
         $result = TextSegmentParser::parse('lol check this out https://example.com/funny.gif.', true);
 
@@ -80,7 +80,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testItKeepsAQueryStringThatIsPartOfTheImageUrl()
+    public function test_it_keeps_a_query_string_that_is_part_of_the_image_url()
     {
         $url = 'https://example.com/funny.gif?cid=123';
 
@@ -90,7 +90,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testItIsCaseInsensitiveOnTheExtension()
+    public function test_it_is_case_insensitive_on_the_extension()
     {
         $url = 'https://example.com/funny.GIF';
 
@@ -100,7 +100,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testItIsCaseInsensitiveOnTheUrlScheme()
+    public function test_it_is_case_insensitive_on_the_url_scheme()
     {
         $result = TextSegmentParser::parse('Https://example.com/funny.gif', true);
 
@@ -108,7 +108,7 @@ class TextSegmentParserTest extends TestCase
     }
 
     /** @dataProvider nonImageExtensionProvider */
-    public function testItDoesNotTreatANonImageExtensionUrlAsAnImage(string $extension)
+    public function test_it_does_not_treat_a_non_image_extension_url_as_an_image(string $extension)
     {
         $url = "https://example.com/file.{$extension}";
 
@@ -123,7 +123,7 @@ class TextSegmentParserTest extends TestCase
         return [['pdf'], ['mp4'], ['exe'], ['svg']];
     }
 
-    public function testItSplitsOutAnImageUrlWrappedInMarkdownStyleParentheses()
+    public function test_it_splits_out_an_image_url_wrapped_in_markdown_style_parentheses()
     {
         $result = TextSegmentParser::parse('link: (https://example.com/funny.gif) neat right?', true);
 
@@ -134,7 +134,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testItKeepsAnImageUrlAsPlainTextWhenImagesAreNotAllowed()
+    public function test_it_keeps_an_image_url_as_plain_text_when_images_are_not_allowed()
     {
         $content = 'look at this https://example.com/funny.gif so good';
 
@@ -144,7 +144,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testItDoesNotMergeCommaJoinedAdjacentImageUrls()
+    public function test_it_does_not_merge_comma_joined_adjacent_image_urls()
     {
         $result = TextSegmentParser::parse('https://example.com/one.gif,https://example.com/two.png', true);
 
@@ -155,7 +155,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testItDoesNotMergeQuotedAdjacentImageUrls()
+    public function test_it_does_not_merge_quoted_adjacent_image_urls()
     {
         $result = TextSegmentParser::parse('"https://example.com/one.gif","https://example.com/two.png"', true);
 
@@ -169,7 +169,7 @@ class TextSegmentParserTest extends TestCase
     }
 
     /** @dataProvider separatorProvider */
-    public function testItDoesNotMergeAdjacentImageUrlsJoinedByOtherSeparators(string $separator)
+    public function test_it_does_not_merge_adjacent_image_urls_joined_by_other_separators(string $separator)
     {
         $result = TextSegmentParser::parse("https://example.com/one.gif{$separator}https://example.com/two.png", true);
 
@@ -185,7 +185,7 @@ class TextSegmentParserTest extends TestCase
         return [[';'], ['|']];
     }
 
-    public function testItDoesNotTreatAnImageExtensionInsideAQueryValueAsAnImageUrl()
+    public function test_it_does_not_treat_an_image_extension_inside_a_query_value_as_an_image_url()
     {
         $url = 'https://example.com/download?file=report.png';
 
@@ -195,7 +195,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testItKeepsACommaThatIsPartOfTheImageUrlPath()
+    public function test_it_keeps_a_comma_that_is_part_of_the_image_url_path()
     {
         $url = 'https://res.cloudinary.com/demo/image/upload/c_scale,w_500/sample.jpg';
 
@@ -205,7 +205,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testItKeepsCommasInsideAQueryStringValue()
+    public function test_it_keeps_commas_inside_a_query_string_value()
     {
         $url = 'https://cdn.example.com/img.png?ids=1,2,3';
 
@@ -215,7 +215,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testItKeepsATrailingExclamationMarkOnASignedCdnUrl()
+    public function test_it_keeps_a_trailing_exclamation_mark_on_a_signed_cdn_url()
     {
         $url = 'https://cdn.example.com/img.png?Signature=abc%3D&Expires=1!';
 
@@ -225,7 +225,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testItKeepsAQueryStringEndingInAColon()
+    public function test_it_keeps_a_query_string_ending_in_a_colon()
     {
         $url = 'https://cdn.example.com/img.png?token=abc:';
 
@@ -235,7 +235,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testItStripsAnUnbalancedTrailingParenthesisEvenWithAQueryString()
+    public function test_it_strips_an_unbalanced_trailing_parenthesis_even_with_a_query_string()
     {
         $result = TextSegmentParser::parse('(https://cdn.example.com/img.png?token=abc).', true);
 
@@ -246,7 +246,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testItKeepsATrailingClosingParenthesisBalancedByAnEarlierOne()
+    public function test_it_keeps_a_trailing_closing_parenthesis_balanced_by_an_earlier_one()
     {
         $url = 'https://example.com/img.png?callback=foo(bar)';
 
@@ -256,7 +256,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testItStripsAnExtraUnbalancedTrailingParenthesisButKeepsTheInnerBalancedPair()
+    public function test_it_strips_an_extra_unbalanced_trailing_parenthesis_but_keeps_the_inner_balanced_pair()
     {
         $result = TextSegmentParser::parse('https://example.com/foo(bar))', true);
 
@@ -273,7 +273,7 @@ class TextSegmentParserTest extends TestCase
      *
      * @dataProvider lenientTrailingPunctuationProvider
      */
-    public function testLenientTrailingPunctuationTrimmingOnImages(string $description, string $input, string $expected)
+    public function test_lenient_trailing_punctuation_trimming_on_images(string $description, string $input, string $expected)
     {
         $imageSegment = collect(TextSegmentParser::parse($input, true))->firstWhere('type', 'image');
 
@@ -323,7 +323,7 @@ class TextSegmentParserTest extends TestCase
     }
 
     /** @dataProvider strictTrailingPunctuationProvider */
-    public function testStrictTrailingPunctuationTrimmingOnLinks(string $description, string $input, string $expected)
+    public function test_strict_trailing_punctuation_trimming_on_links(string $description, string $input, string $expected)
     {
         $linkSegment = collect(TextSegmentParser::parse($input, true))->firstWhere('type', 'link');
 
@@ -366,7 +366,7 @@ class TextSegmentParserTest extends TestCase
 
     // --- Link segments ---------------------------------------------------
 
-    public function testItRendersAPlainUrlAsALinkSegment()
+    public function test_it_renders_a_plain_url_as_a_link_segment()
     {
         $result = TextSegmentParser::parse('hello https://example.com world', true);
 
@@ -377,7 +377,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testItRendersAMailtoUrlAsALinkSegment()
+    public function test_it_renders_a_mailto_url_as_a_link_segment()
     {
         $result = TextSegmentParser::parse('email me at mailto:jane@example.com please', true);
 
@@ -388,7 +388,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testItRendersATelUrlAsALinkSegment()
+    public function test_it_renders_a_tel_url_as_a_link_segment()
     {
         $result = TextSegmentParser::parse('call tel:5551234 now', true);
 
@@ -399,7 +399,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testImageExtensionDetectionIsScopedToHttpSchemesOnly()
+    public function test_image_extension_detection_is_scoped_to_http_schemes_only()
     {
         // hasImageExtension() only checks the string's *path*, so a mailto:/tel: candidate whose
         // local part happens to end in an image extension must not be misclassified as an image -
@@ -421,7 +421,7 @@ class TextSegmentParserTest extends TestCase
         ], $mailtoResult);
     }
 
-    public function testItRendersAMixOfAnImageAndALinkInTheSameContent()
+    public function test_it_renders_a_mix_of_an_image_and_a_link_in_the_same_content()
     {
         $result = TextSegmentParser::parse(
             'photo https://example.com/funny.gif and info https://example.com/info',
@@ -436,7 +436,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testAnUntrustedAuthorsImageStaysTextWhileTheirPlainLinkStillBecomesALink()
+    public function test_an_untrusted_authors_image_stays_text_while_their_plain_link_still_becomes_a_link()
     {
         $result = TextSegmentParser::parse(
             'photo https://example.com/funny.gif and info https://example.com/info',
@@ -449,7 +449,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testABareHttpSubstringInsideAUrlsQueryOrPathDoesNotTruncateTheMatch()
+    public function test_a_bare_http_substring_inside_a_urls_query_or_path_does_not_truncate_the_match()
     {
         $queryResult = TextSegmentParser::parse('https://example.com/?q=http:test', true);
         $pathResult = TextSegmentParser::parse('https://example.com/wiki/HTTP:_header', true);
@@ -458,7 +458,7 @@ class TextSegmentParserTest extends TestCase
         $this->assertEquals([['type' => 'link', 'value' => 'https://example.com/wiki/HTTP:_header']], $pathResult);
     }
 
-    public function testItDoesNotRecognizeUnsupportedProtocols()
+    public function test_it_does_not_recognize_unsupported_protocols()
     {
         $cases = [
             'javascript:alert(1)',
@@ -475,7 +475,7 @@ class TextSegmentParserTest extends TestCase
         }
     }
 
-    public function testTrimmingThatEatsIntoTheSchemesOwnDelimiterSkipsTheCandidateEntirely()
+    public function test_trimming_that_eats_into_the_schemes_own_delimiter_skips_the_candidate_entirely()
     {
         $this->assertEquals(
             [['type' => 'text', 'value' => 'tel:.']],
@@ -488,7 +488,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testADisallowedImageProducesOneContinuousTextSegmentForTheWholeInput()
+    public function test_a_disallowed_image_produces_one_continuous_text_segment_for_the_whole_input()
     {
         $content = 'hello https://foo.com/image.png world';
 
@@ -498,7 +498,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testADisallowedImageFollowedByALinkStillExtractsTheLink()
+    public function test_a_disallowed_image_followed_by_a_link_still_extracts_the_link()
     {
         $content = 'hello https://foo.com/image.png world https://example.com';
 
@@ -508,7 +508,7 @@ class TextSegmentParserTest extends TestCase
         ], TextSegmentParser::parse($content, false));
     }
 
-    public function testLinksOnBothSidesOfADisallowedImageAreBothExtracted()
+    public function test_links_on_both_sides_of_a_disallowed_image_are_both_extracted()
     {
         $content = 'https://a.com https://image.com/a.png https://b.com';
 
@@ -520,7 +520,7 @@ class TextSegmentParserTest extends TestCase
     }
 
     /** @dataProvider adjacentSchemePairProvider */
-    public function testAdjacentUrlsOfDifferentSchemesWithNoSeparatorEachSplitIntoTheirOwnSegment(
+    public function test_adjacent_urls_of_different_schemes_with_no_separator_each_split_into_their_own_segment(
         string $input,
         array $expected
     ) {
@@ -554,7 +554,7 @@ class TextSegmentParserTest extends TestCase
         ];
     }
 
-    public function testASentenceContainingAllThreeSchemesSplitsEachIntoItsOwnSegment()
+    public function test_a_sentence_containing_all_three_schemes_splits_each_into_its_own_segment()
     {
         $result = TextSegmentParser::parse(
             'web https://example.com email mailto:jane@example.com phone tel:5551234 done',
@@ -572,7 +572,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testAMailtoQueryStringSurvives()
+    public function test_a_mailto_query_string_survives()
     {
         $url = 'mailto:a@b.com?subject=Hello';
 
@@ -582,7 +582,7 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
-    public function testTheStrictTrimPolicyStripsATrailingExclamationMarkFromAnyLinkSchemeIncludingMailto()
+    public function test_the_strict_trim_policy_strips_a_trailing_exclamation_mark_from_any_link_scheme_including_mailto()
     {
         $result = TextSegmentParser::parse('mailto:a@b.com?subject=Hello!', true);
 
@@ -592,7 +592,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function testItPinsTheAcceptedMidWordFalsePositiveTradeOff()
+    public function test_it_pins_the_accepted_mid_word_false_positive_trade_off()
     {
         $result = TextSegmentParser::parse('Hotel:5-star downtown', true);
 

@@ -52,7 +52,7 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'services' => [
-              'google_client_id' => config('services.google.client_id')
+                'google_client_id' => config('services.google.client_id'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

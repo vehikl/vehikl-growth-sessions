@@ -56,23 +56,22 @@ class GrowthSessionPolicy
 
     public function join(User $user, GrowthSession $growthSession): bool
     {
-        return !$growthSession->hasAttendee($user)
-            && !$growthSession->hasWatcher($user)
+        return ! $growthSession->hasAttendee($user)
+            && ! $growthSession->hasWatcher($user)
             && $this->isInTheFuture($growthSession);
     }
 
     public function watch(User $user, GrowthSession $growthSession): bool
     {
         return $growthSession->allow_watchers
-            && !$growthSession->hasWatcher($user)
-            && !$growthSession->hasAttendee($user)
+            && ! $growthSession->hasWatcher($user)
+            && ! $growthSession->hasAttendee($user)
             && $this->isInTheFuture($growthSession);
     }
 
-
     public function leave(User $user, GrowthSession $growthSession): bool
     {
-        return !$user->is($growthSession->owner)
+        return ! $user->is($growthSession->owner)
             && ($growthSession->hasWatcher($user) || $growthSession->hasAttendee($user))
             && $this->isInTheFuture($growthSession);
     }

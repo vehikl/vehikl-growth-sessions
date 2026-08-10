@@ -7,7 +7,7 @@ use Tests\TestCase;
 
 class CommentTest extends TestCase
 {
-    public function testSegmentsFailsClosedWhenTheCommentHasNoAssociatedUser()
+    public function test_segments_fails_closed_when_the_comment_has_no_associated_user()
     {
         $imageUrl = 'https://example.com/funny.gif';
         $comment = new Comment(['content' => $imageUrl]);

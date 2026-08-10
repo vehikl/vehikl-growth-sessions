@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 class CommentsTest extends TestCase
 {
-    public function testAUserCanPostCommentsOnAnExistingGrowthSession()
+    public function test_a_user_can_post_comments_on_an_existing_growth_session()
     {
         $user = User::factory()->create();
         $growthSession = GrowthSession::factory()->create();
@@ -22,13 +22,13 @@ class CommentsTest extends TestCase
         $this->assertNotEmpty($growthSession->fresh()->comments);
     }
 
-    public function testItReturnsGrowthSessionResourceOnCommentSubmission()
+    public function test_it_returns_growth_session_resource_on_comment_submission()
     {
         $user = User::factory()->create([
-            'is_vehikl_member' => true
+            'is_vehikl_member' => true,
         ]);
         $watcher = User::factory()->create([
-            'is_vehikl_member' => true
+            'is_vehikl_member' => true,
         ]);
 
         $limitlessSession = GrowthSession::factory()->create(['attendee_limit' => GrowthSession::NO_LIMIT]);
@@ -46,7 +46,7 @@ class CommentsTest extends TestCase
         $this->assertEquals($jsonDecoded['watchers'][0]['id'], $watcher->id);
     }
 
-    public function testItReturnsGrowthSessionResourceOnCommentDestroy()
+    public function test_it_returns_growth_session_resource_on_comment_destroy()
     {
         GrowthSession::factory()
             ->has(Comment::factory())
@@ -57,13 +57,13 @@ class CommentsTest extends TestCase
         $this->actingAs($targetComment->user)
             ->deleteJson(
                 route('growth_sessions.comments.destroy', [
-                        'growth_session' => $targetComment->growthSession,
-                        'comment' => $targetComment
-                    ]))
+                    'growth_session' => $targetComment->growthSession,
+                    'comment' => $targetComment,
+                ]))
             ->assertJsonMissing(['attendee_limit' => GrowthSession::NO_LIMIT]);
     }
 
-    public function testItDoesNotAllowGuestsToPostComments()
+    public function test_it_does_not_allow_guests_to_post_comments()
     {
         $growthSession = GrowthSession::factory()->create();
 
@@ -71,7 +71,7 @@ class CommentsTest extends TestCase
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testAGuestCanGetAllCommentsOfAGrowthSession()
+    public function test_a_guest_can_get_all_comments_of_a_growth_session()
     {
         $growthSession = GrowthSession::factory()->create();
         $comments = Comment::factory()->times(4)->create(['growth_session_id' => $growthSession->id]);
@@ -81,7 +81,7 @@ class CommentsTest extends TestCase
         $this->getJson(route('growth_sessions.comments.index', $growthSession))->assertJson($expectedResponse);
     }
 
-    public function testCommentAuthorIncludesIsVehiklMemberFlag()
+    public function test_comment_author_includes_is_vehikl_member_flag()
     {
         $vehiklMember = User::factory()->create(['is_vehikl_member' => true]);
         $nonMember = User::factory()->create(['is_vehikl_member' => false]);
@@ -97,7 +97,7 @@ class CommentsTest extends TestCase
         $this->assertFalse($comments->firstWhere('id', $guestComment->id)['user']['is_vehikl_member']);
     }
 
-    public function testCommentSegmentsRenderImagesOnlyForVehiklMemberAuthors()
+    public function test_comment_segments_render_images_only_for_vehikl_member_authors()
     {
         $vehiklMember = User::factory()->create(['is_vehikl_member' => true]);
         $nonMember = User::factory()->create(['is_vehikl_member' => false]);
@@ -128,7 +128,7 @@ class CommentsTest extends TestCase
         );
     }
 
-    public function testCommentSegmentsAllowLinksForNonMembersButStillWithholdImages()
+    public function test_comment_segments_allow_links_for_non_members_but_still_withhold_images()
     {
         $nonMember = User::factory()->create(['is_vehikl_member' => false]);
         $growthSession = GrowthSession::factory()->create();
@@ -156,7 +156,7 @@ class CommentsTest extends TestCase
      * it must fail the moment a field (e.g. `user_id`, `created_at`) is added or removed from
      * CommentResource/User resource without this test being updated deliberately.
      */
-    public function testTheCommentPayloadContainsExactlyTheExpectedFields()
+    public function test_the_comment_payload_contains_exactly_the_expected_fields()
     {
         $growthSession = GrowthSession::factory()->create();
         Comment::factory()->create(['growth_session_id' => $growthSession->id]);
@@ -174,7 +174,7 @@ class CommentsTest extends TestCase
         );
     }
 
-    public function testAUserCanDeleteTheirComment()
+    public function test_a_user_can_delete_their_comment()
     {
         $comment = Comment::factory()->create();
         $growthSession = $comment->growthSession;
@@ -187,7 +187,7 @@ class CommentsTest extends TestCase
         $this->assertEmpty($comment->fresh());
     }
 
-    public function testAUserCannotDeleteAnotherUsersComment()
+    public function test_a_user_cannot_delete_another_users_comment()
     {
         $comment = Comment::factory()->create();
         $growthSession = $comment->growthSession;

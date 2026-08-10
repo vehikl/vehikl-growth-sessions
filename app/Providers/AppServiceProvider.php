@@ -17,8 +17,8 @@ class AppServiceProvider extends ServiceProvider
     {
         app()->bind(DiscordService::class, function () {
             return config('app.env') != 'production' && config('services.discord.use_fake')
-                ? new DiscordServiceFake()
-                : new DiscordService();
+                ? new DiscordServiceFake
+                : new DiscordService;
         });
     }
 

@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\GrowthSessionModified;
-use App\Models\Comment;
 use App\Http\Requests\DeleteCommentRequest;
-use App\Models\GrowthSession;
 use App\Http\Resources\Comment as CommentResource;
 use App\Http\Resources\GrowthSession as GrowthSessionResource;
+use App\Models\Comment;
+use App\Models\GrowthSession;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -32,7 +31,7 @@ class CommentController extends Controller
         return new GrowthSessionResource($growthSession);
     }
 
-    public function destroy(DeleteCommentRequest $request, GrowthSession $growthSession,Comment $comment)
+    public function destroy(DeleteCommentRequest $request, GrowthSession $growthSession, Comment $comment)
     {
         $comment->delete();
 

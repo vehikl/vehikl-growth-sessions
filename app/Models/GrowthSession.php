@@ -157,12 +157,12 @@ class GrowthSession extends Model
 
     public function hasAttendee(User $attendee): bool
     {
-        return ! ! $this->attendees->find($attendee);
+        return (bool) $this->attendees->find($attendee);
     }
 
     public function hasWatcher(User $watcher): bool
     {
-        return ! ! $this->watchers->find($watcher);
+        return (bool) $this->watchers->find($watcher);
     }
 
     public function hasUnlimitedSlots(): bool

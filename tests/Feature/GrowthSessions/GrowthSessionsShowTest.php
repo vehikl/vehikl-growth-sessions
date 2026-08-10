@@ -12,7 +12,7 @@ use Tests\TestCase;
 
 class GrowthSessionsShowTest extends TestCase
 {
-    public function testABrowserVisitIsSentToTheBoardWithThatGrowthSessionsDrawerOpen()
+    public function test_a_browser_visit_is_sent_to_the_board_with_that_growth_sessions_drawer_open()
     {
         $this->setTestNow('2020-01-15');
         $growthSession = GrowthSession::factory()->create();
@@ -24,7 +24,7 @@ class GrowthSessionsShowTest extends TestCase
             ]));
     }
 
-    public function testTheRedirectCarriesTheWeekTheGrowthSessionIsIn()
+    public function test_the_redirect_carries_the_week_the_growth_session_is_in()
     {
         $this->setTestNow('2020-01-15');
         $growthSession = GrowthSession::factory()->create(['date' => '2019-11-06']);
@@ -33,14 +33,14 @@ class GrowthSessionsShowTest extends TestCase
             ->assertRedirect(route('home', ['date' => '2019-11-06', 'session' => $growthSession->id]));
     }
 
-    public function testTheGetGrowthSessionEndpointReturnsAJsonPayloadIfTheRequestIsExpectingJson()
+    public function test_the_get_growth_session_endpoint_returns_a_json_payload_if_the_request_is_expecting_json()
     {
         $growthSession = GrowthSession::factory()->create();
         $this->getJson(route('growth_sessions.show', $growthSession))
             ->assertJsonFragment(['id' => $growthSession->id]);
     }
 
-    public function testItDoesNotProvideLocationOfAGrowthSessionForAnonymousUser()
+    public function test_it_does_not_provide_location_of_a_growth_session_for_anonymous_user()
     {
         $this->setTestNow('2020-01-15');
         $monday = CarbonImmutable::parse('Last Monday');
@@ -52,7 +52,7 @@ class GrowthSessionsShowTest extends TestCase
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
     }
 
-    public function testItDoesNotProvideLocationOfAGrowthSessionToNonVehikaliensBeforeTheyJoinTheGrowthSession()
+    public function test_it_does_not_provide_location_of_a_growth_session_to_non_vehikaliens_before_they_join_the_growth_session()
     {
         $this->setTestNow('2020-01-15');
         $growthSession = GrowthSession::factory()->create(['is_public' => true]);
@@ -66,7 +66,7 @@ class GrowthSessionsShowTest extends TestCase
         $response->assertDontSee('At AnyDesk XYZ - abcdefg');
     }
 
-    public function testItProvidesLocationOfAGrowthSessionToNonVehikaliensAfterTheyJoinTheGrowthSession()
+    public function test_it_provides_location_of_a_growth_session_to_non_vehikaliens_after_they_join_the_growth_session()
     {
         $this->setTestNow('2020-01-15');
         $growthSession = GrowthSession::factory()
@@ -82,7 +82,7 @@ class GrowthSessionsShowTest extends TestCase
             ->assertSee('At AnyDesk XYZ - abcdefg');
     }
 
-    public function testItProvidesLocationOfAGrowthSessionToVehikaliensAfterTheyJoinTheGrowthSession()
+    public function test_it_provides_location_of_a_growth_session_to_vehikaliens_after_they_join_the_growth_session()
     {
         $this->setTestNow('2020-01-15');
         $growthSession = GrowthSession::factory()
@@ -98,7 +98,7 @@ class GrowthSessionsShowTest extends TestCase
             ->assertSee('At AnyDesk XYZ - abcdefg');
     }
 
-    public function testANonMemberUserCannotAccessAPrivateGrowthSession()
+    public function test_a_non_member_user_cannot_access_a_private_growth_session()
     {
         $growthSession = GrowthSession::factory()->create(['is_public' => false]);
 
@@ -110,7 +110,7 @@ class GrowthSessionsShowTest extends TestCase
             ->assertNotFound();
     }
 
-    public function testAGuestCannotAccessAPrivateGrowthSession()
+    public function test_a_guest_cannot_access_a_private_growth_session()
     {
         $growthSession = GrowthSession::factory()->create(['is_public' => false]);
 
@@ -118,7 +118,7 @@ class GrowthSessionsShowTest extends TestCase
             ->assertNotFound();
     }
 
-    public function testAMemberCanAccessAPrivateGrowthSession()
+    public function test_a_member_can_access_a_private_growth_session()
     {
         $growthSession = GrowthSession::factory()->create(['is_public' => false]);
         /** @var User $user */
@@ -130,7 +130,7 @@ class GrowthSessionsShowTest extends TestCase
             ->assertJsonPath('title', $growthSession->title);
     }
 
-    public function testAMemberFollowingALinkToAPrivateGrowthSessionIsSentToTheBoard()
+    public function test_a_member_following_a_link_to_a_private_growth_session_is_sent_to_the_board()
     {
         $growthSession = GrowthSession::factory()->create(['is_public' => false]);
         /** @var User $user */
@@ -144,21 +144,21 @@ class GrowthSessionsShowTest extends TestCase
             ]));
     }
 
-    public function testItProvidesTheGrowthSessionVisibilityInThePayload()
+    public function test_it_provides_the_growth_session_visibility_in_the_payload()
     {
         $this->setTestNow('2020-01-15');
-        $growthSession = GrowthSession::factory()->create(['is_public' => FALSE]);
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
         /** @var User $user */
         $user = User::factory()->create(['is_vehikl_member' => true]);
 
         $response = $this->actingAs($user)
             ->get(route('growth_sessions.week', $growthSession));
 
-        $this->assertArrayHasKey('is_public', $response->json(today()->format("Y-m-d"))[0]);
+        $this->assertArrayHasKey('is_public', $response->json(today()->format('Y-m-d'))[0]);
     }
 
     #[DataProvider('providesGrowthSessionGuests')]
-    public function testItDoesNotShowGuestDetailsToNonVehiklUsers($guestUserType, $guestRelationship)
+    public function test_it_does_not_show_guest_details_to_non_vehikl_users($guestUserType, $guestRelationship)
     {
         /** @var User $nonVehiklMember */
         $nonVehiklMember = User::factory()->create();
@@ -176,7 +176,7 @@ class GrowthSessionsShowTest extends TestCase
     }
 
     #[DataProvider('providesGrowthSessionGuests')]
-    public function testItCanShowGuestDetailsForVehiklUsers($guestUserType, $guestRelationship)
+    public function test_it_can_show_guest_details_for_vehikl_users($guestUserType, $guestRelationship)
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
 
@@ -193,10 +193,10 @@ class GrowthSessionsShowTest extends TestCase
     }
 
     #[DataProvider('providesGrowthSessionGuests')]
-    public function testItShowsAGuestTheirOwnDetails($guestUserType, $guestRelationship)
+    public function test_it_shows_a_guest_their_own_details($guestUserType, $guestRelationship)
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(FALSE), $guestUserType, $guestRelationship)
+            ->hasAttached(User::factory()->vehiklMember(false), $guestUserType, $guestRelationship)
             ->create();
 
         $guestMember = $growthSession->$guestRelationship()->first();
@@ -208,12 +208,12 @@ class GrowthSessionsShowTest extends TestCase
     }
 
     #[DataProvider('providesGrowthSessionGuests')]
-    public function testItCannotShowGuestDetailsForUnauthenicatedUsers($guestUserType, $guestRelationship)
+    public function test_it_cannot_show_guest_details_for_unauthenicated_users($guestUserType, $guestRelationship)
     {
         $this->markTestSkipped('Update this to work with Inertia. There are more tests like this one.');
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(FALSE), $guestUserType, $guestRelationship)
-            ->hasAttached(User::factory()->vehiklMember(FALSE), $guestUserType, $guestRelationship)
+            ->hasAttached(User::factory()->vehiklMember(false), $guestUserType, $guestRelationship)
+            ->hasAttached(User::factory()->vehiklMember(false), $guestUserType, $guestRelationship)
             ->create();
 
         $guest = $growthSession->fresh()->$guestRelationship->first();
@@ -235,7 +235,7 @@ class GrowthSessionsShowTest extends TestCase
             ]);
     }
 
-    public function testItProvidesTheListOfAttendeesAndWatchers()
+    public function test_it_provides_the_list_of_attendees_and_watchers()
     {
         $numberOfAttendees = 2;
         $numberOfWatchers = 5;
@@ -256,7 +256,7 @@ class GrowthSessionsShowTest extends TestCase
             ->assertJsonCount($numberOfWatchers, 'watchers');
     }
 
-    public function testItProvidesAListOfTags()
+    public function test_it_provides_a_list_of_tags()
     {
         $numberOfTags = 3;
 
@@ -272,7 +272,7 @@ class GrowthSessionsShowTest extends TestCase
             ->assertJsonCount($numberOfTags, 'tags');
     }
 
-    public function testItProvidesTopicAndLocationSegmentsInThePayload()
+    public function test_it_provides_topic_and_location_segments_in_the_payload()
     {
         $growthSession = GrowthSession::factory()
             ->hasAttached(User::factory()->vehiklMember(true), [], 'attendees')
@@ -296,7 +296,7 @@ class GrowthSessionsShowTest extends TestCase
             ]);
     }
 
-    public function testLocationSegmentsAreRedactedForNonParticipantsInsteadOfLeakingTheRealLocation()
+    public function test_location_segments_are_redacted_for_non_participants_instead_of_leaking_the_real_location()
     {
         $growthSession = GrowthSession::factory()->create([
             'is_public' => true,
@@ -320,7 +320,7 @@ class GrowthSessionsShowTest extends TestCase
      * fail the moment a field is added or removed from GrowthSessionResource without this test being
      * updated deliberately.
      */
-    public function testTheGrowthSessionPayloadContainsExactlyTheExpectedTopLevelFields()
+    public function test_the_growth_session_payload_contains_exactly_the_expected_top_level_fields()
     {
         $this->setTestNow('2020-01-15');
 

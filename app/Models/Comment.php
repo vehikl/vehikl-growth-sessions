@@ -17,6 +17,7 @@ class Comment extends Model
     use HasFactory;
 
     protected $fillable = ['content'];
+
     protected $with = ['user'];
 
     protected function casts(): array
@@ -39,7 +40,7 @@ class Comment extends Model
     protected function timeStamp(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->created_at->diffForHumans(),
+            get: fn () => $this->created_at->diffForHumans(),
         );
     }
 
