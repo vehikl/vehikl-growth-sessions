@@ -55,7 +55,7 @@ class GrowthSession extends JsonResource
             // Whether the growth session is unlisted, not the token that unlocks it: the board needs to tell an
             // invite-only session apart from a private one to keep showing it to an invited guest.
             'is_unlisted' => $inviteLink->exists(),
-            ...($inviteLink->isVisibleTo($viewer) ? ['share_url' => $inviteLink->url()] : []),
+            'share_url' => $this->when($inviteLink->isVisibleTo($viewer), fn () => $inviteLink->url()),
         ];
     }
 

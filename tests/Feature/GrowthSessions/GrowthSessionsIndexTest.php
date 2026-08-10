@@ -22,10 +22,11 @@ class GrowthSessionsIndexTest extends TestCase
             $growthSession->fresh(['attendees', 'watchers', 'comments', 'anydesk', 'tags'])
         );
 
-        // toArray() embeds nested resources/collections (comments, tags) as objects rather than plain
-        // arrays - a round trip through json_encode/decode resolves them the same way the real HTTP
-        // response would, so this matches what assertJson() actually compares against.
-        return json_decode(json_encode($resource->toArray(request())), true);
+        // resolve() (not toArray()) so conditional fields like share_url go through the same filtering
+        // a real response does. It also embeds nested resources/collections (comments, tags) as objects
+        // rather than plain arrays - a round trip through json_encode/decode resolves them the same way
+        // the real HTTP response would, so this matches what assertJson() actually compares against.
+        return json_decode(json_encode($resource->resolve(request())), true);
     }
 
     public function test_it_can_provide_all_growth_sessions_of_the_current_week_for_authenticated_user()
