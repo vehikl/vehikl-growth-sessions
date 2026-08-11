@@ -161,11 +161,6 @@ class GrowthSession extends Model
         );
     }
 
-    /**
-     * Lightning Talks are scheduled as Growth Sessions but are a talk rather than time spent
-     * growing together, so the totals that report growth time leave them out. Matched on the
-     * title because they carry no tag of their own and are named by hand each time.
-     */
     public function scopeExcludingLightningTalks(Builder $query): Builder
     {
         return $query->where('growth_sessions.title', 'not like', '%'.self::LIGHTNING_TALKS_TITLE.'%');
