@@ -1,7 +1,21 @@
 import { DateTime } from '@/classes/DateTime';
+import { inViewerTimeZone, sessionMoment, viewerDayOffset } from '@/lib/timezone';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { IAnyDesk, IComment, IGrowthSession, ITag, ITextSegment, IUser } from '@/types';
+import { Moment } from 'moment-timezone';
 import { User } from './User';
+
+/** A stored wall-clock time on the viewer's clock, falling back to the raw reading if it doesn't parse. */
+function onViewerClock(date: string, time: string, format: string): string {
+    const instant = inViewerTimeZone(date, time);
+
+    return instant.isValid() ? instant.format(format) : time;
+}
+
+/** The compact UTC stamp a Google Calendar template link expects, e.g. `20200101T200000Z`. */
+function toGoogleCalendarStamp(instant: Moment): string {
+    return instant.utc().format('YYYYMMDD[T]HHmmss[Z]');
+}
 
 export class GrowthSession implements IGrowthSession {
     id!: number;
@@ -37,18 +51,44 @@ export class GrowthSession implements IGrowthSession {
 
     get googleCalendarDate(): string {
         return (
-            DateTime.parseByDateTime(this.date, this.start_time).toGoogleCalendarStyle() +
-            '/' +
-            DateTime.parseByDateTime(this.date, this.end_time).toGoogleCalendarStyle()
+            toGoogleCalendarStamp(sessionMoment(this.date, this.start_time)) + '/' + toGoogleCalendarStamp(sessionMoment(this.date, this.end_time))
         );
     }
 
     get startTime(): string {
-        return DateTime.parseByTime(this.start_time).toTimeString12Hours(false);
+        return onViewerClock(this.date, this.start_time, 'hh:mm');
     }
 
     get endTime(): string {
-        return DateTime.parseByTime(this.end_time).toTimeString12Hours();
+        return onViewerClock(this.date, this.end_time, 'hh:mm a');
+    }
+
+    /**
+     * The board files a session under its Toronto date, so a viewer far enough east or west reads it
+     * as a different day than the column it sits in. This says which day they should actually turn to.
+     */
+    get viewerDayNote(): string {
+        const offset = viewerDayOffset(this.date, this.start_time);
+
+        if (offset === 0) {
+            return '';
+        }
+
+        return offset > 0 ? 'next day' : 'previous day';
+    }
+
+    /** The absolute instant the session starts, for the `datetime` attribute of a `<time>` element. */
+    get startsAtIso(): string {
+        const start = sessionMoment(this.date, this.start_time);
+
+        return start.isValid() ? start.toISOString() : '';
+    }
+
+    /** The session's window as the viewer's own clock reads it, e.g. `03:30 – 05:00 pm`. */
+    get timeRange(): string {
+        const range = `${this.startTime} – ${this.endTime}`;
+
+        return this.viewerDayNote ? `${range} (${this.viewerDayNote})` : range;
     }
 
     refresh(growthSession: IGrowthSession) {
@@ -76,7 +116,9 @@ export class GrowthSession implements IGrowthSession {
     }
 
     get hasAlreadyHappened(): boolean {
-        return DateTime.parseByDateTime(this.date, this.end_time).isInThePast();
+        const end = sessionMoment(this.date, this.end_time);
+
+        return end.isValid() && end.isBefore(DateTime.today().toISOString());
     }
 
     get renderedTitle(): string {

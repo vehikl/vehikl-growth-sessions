@@ -24,6 +24,10 @@ class GrowthSession extends Model
     /** The relations GrowthSessionResource reads - eager-load these before building one to avoid lazy loading. */
     const RESOURCE_RELATIONS = ['attendees', 'watchers', 'comments', 'anydesk', 'tags'];
 
+    const SOCIAL_TAG = 'Social';
+
+    protected $appends = ['owner'];
+
     protected $hidden = ['share_token'];
 
     protected function casts(): array
@@ -162,10 +166,20 @@ class GrowthSession extends Model
         return $query->whereDate('date', today()->toDateString());
     }
 
+    public function scopeExcludingPurelySocial(Builder $query): Builder
+    {
+        return $query->whereNot(fn (Builder $session) => $session
+            ->whereHas('tags', fn (Builder $tags) => $tags->where('tags.name', self::SOCIAL_TAG))
+            ->whereDoesntHave('tags', fn (Builder $tags) => $tags->where('tags.name', '!=', self::SOCIAL_TAG))
+        );
+    }
+
     /**
      * The scheduled minutes across whatever set of Growth Sessions is handed in — every summary
-     * that reports time spent goes through here, so the statistics page and the dashboard cannot
-     * come to measure an hour differently.
+     * that reports time spent measures an hour through here, so no two of them can come to read
+     * the clock differently. Which sessions belong in the total is still the caller's call: the
+     * Dashboard leaves the purely social ones out of a member's own growth time, where the
+     * statistics page counts every hour the company spent.
      *
      * Left in minutes rather than hours so the caller can render the leftover half hour instead
      * of rounding it away. Sessions missing either end of their window contribute nothing.

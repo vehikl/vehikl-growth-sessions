@@ -27,6 +27,7 @@ class TagSeeder extends Seeder
                 ['name' => 'Flask'],
                 ['name' => 'NestJS'],
                 ['name' => 'Express'],
+                ['name' => 'Social'],
             )
             ->create();
     }

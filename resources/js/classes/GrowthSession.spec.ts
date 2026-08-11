@@ -1,6 +1,11 @@
 import { IGrowthSession, IUser } from '@/types';
+import moment from 'moment-timezone';
 import { GrowthSession } from './GrowthSession';
 import { User } from './User';
+
+function viewingFrom(zone: string) {
+    vi.spyOn(moment.tz, 'guess').mockReturnValue(zone);
+}
 
 describe('GrowthSession', () => {
     let growthSession: GrowthSession;
@@ -39,8 +44,63 @@ describe('GrowthSession', () => {
         growthSession = new GrowthSession(growthSessionJson);
     });
 
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
     it('can return its dates in the proper google calendar style', () => {
         expect(growthSession.googleCalendarDate).toEqual('20200101T200000Z/20200101T220000Z');
+    });
+
+    it('keeps the google calendar link on the scheduled instant for a viewer in another zone', () => {
+        viewingFrom('Asia/Tokyo');
+
+        expect(new GrowthSession(growthSessionJson).googleCalendarDate).toEqual('20200101T200000Z/20200101T220000Z');
+    });
+
+    describe('the session window', () => {
+        it('is shown as-is to a viewer in the zone the session was scheduled in', () => {
+            viewingFrom('America/Toronto');
+
+            const session = new GrowthSession(growthSessionJson);
+
+            expect(session.startTime).toEqual('03:00');
+            expect(session.endTime).toEqual('05:00 pm');
+            expect(session.timeRange).toEqual('03:00 – 05:00 pm');
+        });
+
+        it('is moved onto the clock of a viewer elsewhere', () => {
+            viewingFrom('America/Vancouver');
+
+            const session = new GrowthSession(growthSessionJson);
+
+            expect(session.startTime).toEqual('12:00');
+            expect(session.endTime).toEqual('02:00 pm');
+            expect(session.timeRange).toEqual('12:00 – 02:00 pm');
+        });
+
+        it('warns a viewer far enough ahead that the session lands on their next day', () => {
+            viewingFrom('Asia/Tokyo');
+
+            const session = new GrowthSession(growthSessionJson);
+
+            expect(session.viewerDayNote).toEqual('next day');
+            expect(session.timeRange).toEqual('05:00 – 07:00 am (next day)');
+        });
+
+        it('says nothing about the day when the viewer reads it on the same date', () => {
+            viewingFrom('America/Vancouver');
+
+            expect(new GrowthSession(growthSessionJson).viewerDayNote).toEqual('');
+        });
+
+        it('falls back to the stored reading when a time cannot be parsed', () => {
+            const session = new GrowthSession({ ...growthSessionJson, start_time: 'whenever', end_time: '' });
+
+            expect(session.startTime).toEqual('whenever');
+            expect(session.endTime).toEqual('');
+            expect(session.hasAlreadyHappened).toBe(false);
+        });
     });
 
     describe('shareUrl', () => {
