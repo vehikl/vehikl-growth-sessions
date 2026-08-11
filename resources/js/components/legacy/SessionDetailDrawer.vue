@@ -136,7 +136,9 @@ async function share() {
 
             <div class="mb-3 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5">
-                    <span class="gs-text-sub text-xs font-semibold">{{ growthSession.startTime }}–{{ growthSession.endTime }}</span>
+                    <time class="session-time gs-text-sub text-xs font-semibold" :datetime="growthSession.startsAtIso">{{
+                        growthSession.timeRange
+                    }}</time>
                     <span class="flex items-center gap-1.5 text-xs font-bold tracking-[0.05em]" :style="{ color: meta.color }">
                         <span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: meta.color }"></span>{{ meta.label }}
                     </span>

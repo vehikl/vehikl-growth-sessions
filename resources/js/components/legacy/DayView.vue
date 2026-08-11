@@ -18,6 +18,14 @@ interface IProps {
     user?: IUser;
 }
 
+/** A run of sessions that share a start/end window, shown under a single time label. */
+interface ITimeSlot {
+    key: string;
+    timeRange: string;
+    startsAtIso: string;
+    sessions: GrowthSession[];
+}
+
 const props = defineProps<IProps>();
 const emit = defineEmits(['select-day', 'open-detail', 'join', 'watch', 'leave', 'edit-requested', 'delete-requested', 'copy-requested', 'create']);
 const statusClock = ref(Date.now());
@@ -49,6 +57,32 @@ function tagline(session: GrowthSession): string {
 function isFull(session: GrowthSession): boolean {
     return (props.fullSessionIds ?? []).includes(session.id);
 }
+
+/**
+ * Sessions arrive in start order, so neighbours sharing a window belong to the same slot.
+ * Only consecutive sessions are merged — a stray later session with the same window keeps
+ * its own label rather than being pulled out of the running order.
+ */
+const timeSlots = computed<ITimeSlot[]>(() =>
+    props.sessions.reduce<ITimeSlot[]>((slots, session) => {
+        const currentSlot = slots[slots.length - 1];
+
+        if (currentSlot?.timeRange === session.timeRange) {
+            currentSlot.sessions.push(session);
+
+            return slots;
+        }
+
+        slots.push({
+            key: `${session.id}-${session.timeRange}`,
+            timeRange: session.timeRange,
+            startsAtIso: session.startsAtIso,
+            sessions: [session],
+        });
+
+        return slots;
+    }, []),
+);
 </script>
 
 <template>
@@ -110,132 +144,141 @@ function isFull(session: GrowthSession): boolean {
                 No growth sessions scheduled for this day.
             </p>
 
-            <div v-for="session in sessions" :key="session.id" class="gs-divider-color flex flex-wrap gap-x-3.5 gap-y-1.5 border-b py-3">
-                <div class="gs-text-sub w-full flex-none text-sm font-semibold uppercase md:w-32 md:pt-3.5">
-                    {{ session.startTime }} – {{ session.endTime }}
-                </div>
-
-                <div
-                    class="gs-card gs-border transition-smooth relative flex min-w-55 flex-1 flex-col gap-2.5 rounded-lg border p-3 px-4 hover:shadow-md"
-                    :style="{ opacity: currentStatus(session) === 'finished' ? 0.55 : 1 }"
+            <div v-for="slot in timeSlots" :key="slot.key" class="gs-divider-color flex flex-wrap gap-x-3.5 gap-y-1.5 border-b py-3 last:border-b-0">
+                <time
+                    :datetime="slot.startsAtIso"
+                    class="session-time gs-text-sub block w-full flex-none text-sm font-semibold uppercase md:sticky md:top-4 md:w-32 md:self-start md:pt-3.5"
                 >
-                    <button
-                        type="button"
-                        class="absolute inset-0 z-10 h-full w-full cursor-pointer rounded-lg"
-                        :aria-label="`View details for ${session.title}`"
-                        @click="emit('open-detail', session)"
-                    ></button>
-                    <span
-                        class="capacity-readout gs-secondary-bg absolute top-3 right-4 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
-                        :class="session.hasReachedAttendeeLimit() ? 'gs-at-capacity' : 'gs-text-muted'"
-                        :title="session.hasReachedAttendeeLimit() ? 'This session is full' : undefined"
-                    >
-                        <i class="fa fa-user" aria-hidden="true"></i>{{ capacityLabel(session) }}
-                    </span>
+                    {{ slot.timeRange }}
+                </time>
 
-                    <div class="flex items-start gap-3">
+                <div class="flex min-w-55 flex-1 flex-col gap-2.5">
+                    <div
+                        v-for="session in slot.sessions"
+                        :key="session.id"
+                        class="gs-card gs-border transition-smooth relative flex flex-col gap-2.5 rounded-lg border p-3 px-4 hover:shadow-md"
+                        :style="{ opacity: currentStatus(session) === 'finished' ? 0.55 : 1 }"
+                    >
+                        <button
+                            type="button"
+                            class="absolute inset-0 z-10 h-full w-full cursor-pointer rounded-lg"
+                            :aria-label="`View details for ${session.title}`"
+                            @click="emit('open-detail', session)"
+                        ></button>
                         <span
-                            class="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                            :style="{ backgroundColor: avatarColor(session.owner.name) }"
+                            class="capacity-readout gs-secondary-bg absolute top-3 right-4 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
+                            :class="session.hasReachedAttendeeLimit() ? 'gs-at-capacity' : 'gs-text-muted'"
+                            :title="session.hasReachedAttendeeLimit() ? 'This session is full' : undefined"
                         >
-                            <img
-                                v-if="session.owner.avatar"
-                                :src="session.owner.avatar"
-                                :alt="session.owner.name"
-                                class="h-full w-full object-cover"
-                            />
-                            <template v-else>{{ getInitials(session.owner.name) }}</template>
+                            <i class="fa fa-user" aria-hidden="true"></i>{{ capacityLabel(session) }}
                         </span>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-2 pr-20">
-                                <span class="gs-text-strong text-base font-semibold">{{ session.title }}</span>
-                                <span
-                                    class="h-2 w-2 flex-none rounded-full"
-                                    :style="{ backgroundColor: statusMeta(currentStatus(session)).color }"
-                                    :title="statusMeta(currentStatus(session)).label"
-                                ></span>
-                                <span v-if="currentStatus(session) === 'live'" class="live-session-label gs-accent-text text-xs font-bold">LIVE</span>
-                            </div>
-                            <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">{{ session.owner.name }}</div>
-                            <div v-if="tagline(session)" class="gs-text-sub mt-1 text-sm">{{ tagline(session) }}</div>
-                            <div
-                                class="gs-text-body pointer-events-none relative z-20 mt-2 max-w-full text-sm leading-normal whitespace-pre-wrap xl:max-w-1/2"
+
+                        <div class="flex items-start gap-3">
+                            <span
+                                class="flex h-12 w-12 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
+                                :style="{ backgroundColor: avatarColor(session.owner.name) }"
                             >
-                                <LinkifiedText :text="session.topic" />
-                            </div>
-                            <div class="gs-text-muted pointer-events-none relative z-20 mt-2 flex items-center gap-1.5 text-sm font-medium">
-                                <i class="fa fa-compass flex-none" aria-hidden="true"></i>
-                                <location-renderer :locationString="session.location" />
+                                <img
+                                    v-if="session.owner.avatar"
+                                    :src="session.owner.avatar"
+                                    :alt="session.owner.name"
+                                    class="h-full w-full object-cover"
+                                />
+                                <template v-else>{{ getInitials(session.owner.name) }}</template>
+                            </span>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-2 pr-20">
+                                    <span class="gs-text-strong text-base font-semibold">{{ session.title }}</span>
+                                    <span
+                                        class="h-2 w-2 flex-none rounded-full"
+                                        :style="{ backgroundColor: statusMeta(currentStatus(session)).color }"
+                                        :title="statusMeta(currentStatus(session)).label"
+                                    ></span>
+                                    <span v-if="currentStatus(session) === 'live'" class="live-session-label gs-accent-text text-xs font-bold"
+                                        >LIVE</span
+                                    >
+                                </div>
+                                <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">{{ session.owner.name }}</div>
+                                <div v-if="tagline(session)" class="gs-text-sub mt-1 text-sm">{{ tagline(session) }}</div>
+                                <div
+                                    class="gs-text-body pointer-events-none relative z-20 mt-2 max-w-full text-sm leading-normal whitespace-pre-wrap xl:max-w-1/2"
+                                >
+                                    <LinkifiedText :text="session.topic" />
+                                </div>
+                                <div class="gs-text-muted pointer-events-none relative z-20 mt-2 flex items-center gap-1.5 text-sm font-medium">
+                                    <i class="fa fa-compass flex-none" aria-hidden="true"></i>
+                                    <location-renderer :locationString="session.location" />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="gs-divider-color relative z-20 flex flex-wrap items-center gap-2 border-t pt-2.5" @click.stop>
-                        <button
-                            v-show="session.canJoin(user)"
-                            type="button"
-                            class="join-button gs-btn-primary max-w-48 cursor-pointer rounded-md px-4 py-2 text-sm font-semibold md:px-20"
-                            @click.stop="emit('join', session)"
-                        >
-                            Join
-                        </button>
-                        <span
-                            v-if="isFull(session)"
-                            class="full-indicator gs-at-capacity max-w-48 rounded-md border border-current px-4 py-2 text-center text-sm font-semibold md:px-20"
-                            >Full</span
-                        >
-                        <button
-                            v-show="session.canWatch(user)"
-                            type="button"
-                            class="watch-button gs-btn-secondary cursor-pointer rounded-md px-5 py-2 text-sm font-semibold"
-                            @click.stop="emit('watch', session)"
-                        >
-                            Spectate
-                        </button>
-                        <button
-                            v-show="session.canLeave(user)"
-                            type="button"
-                            class="leave-button transition-smooth cursor-pointer rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
-                            @click.stop="emit('leave', session)"
-                        >
-                            Leave
-                        </button>
-                        <button
-                            v-show="session.canEditOrDelete(user)"
-                            type="button"
-                            class="update-button gs-btn-primary max-w-48 cursor-pointer rounded-md px-4 py-2 text-sm font-semibold md:px-20"
-                            @click.stop="emit('edit-requested', session)"
-                        >
-                            Edit
-                        </button>
-                        <button
-                            v-show="session.canEditOrDelete(user)"
-                            type="button"
-                            class="delete-button transition-smooth cursor-pointer rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
-                            @click.stop="emit('delete-requested', session)"
-                        >
-                            Delete
-                        </button>
+                        <div class="gs-divider-color relative z-20 flex flex-wrap items-center gap-2 border-t pt-2.5" @click.stop>
+                            <button
+                                v-show="session.canJoin(user)"
+                                type="button"
+                                class="join-button gs-btn-primary max-w-48 cursor-pointer rounded-md px-4 py-2 text-sm font-semibold md:px-20"
+                                @click.stop="emit('join', session)"
+                            >
+                                Join
+                            </button>
+                            <span
+                                v-if="isFull(session)"
+                                class="full-indicator gs-at-capacity max-w-48 rounded-md border border-current px-4 py-2 text-center text-sm font-semibold md:px-20"
+                                >Full</span
+                            >
+                            <button
+                                v-show="session.canWatch(user)"
+                                type="button"
+                                class="watch-button gs-btn-secondary cursor-pointer rounded-md px-5 py-2 text-sm font-semibold"
+                                @click.stop="emit('watch', session)"
+                            >
+                                Spectate
+                            </button>
+                            <button
+                                v-show="session.canLeave(user)"
+                                type="button"
+                                class="leave-button transition-smooth cursor-pointer rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
+                                @click.stop="emit('leave', session)"
+                            >
+                                Leave
+                            </button>
+                            <button
+                                v-show="session.canEditOrDelete(user)"
+                                type="button"
+                                class="update-button gs-btn-primary max-w-48 cursor-pointer rounded-md px-4 py-2 text-sm font-semibold md:px-20"
+                                @click.stop="emit('edit-requested', session)"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                v-show="session.canEditOrDelete(user)"
+                                type="button"
+                                class="delete-button transition-smooth cursor-pointer rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
+                                @click.stop="emit('delete-requested', session)"
+                            >
+                                Delete
+                            </button>
 
-                        <a
-                            aria-label="add-to-calendar"
-                            :href="session.calendarUrl"
-                            target="_blank"
-                            class="gs-text-muted gs-border transition-smooth hover:text-gs-accent ml-auto inline-flex h-9 w-9 items-center justify-center rounded-md border"
-                            title="Add to calendar"
-                            @click.stop
-                        >
-                            <i class="fa fa-calendar text-sm" aria-hidden="true"></i>
-                        </a>
-                        <button
-                            v-show="user && user.is_vehikl_member"
-                            type="button"
-                            class="copy-button gs-text-muted gs-border transition-smooth hover:text-gs-accent inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border"
-                            title="Duplicate to another day"
-                            @click.stop="emit('copy-requested', session)"
-                        >
-                            <i class="fa fa-copy text-sm" aria-hidden="true"></i>
-                        </button>
+                            <a
+                                aria-label="add-to-calendar"
+                                :href="session.calendarUrl"
+                                target="_blank"
+                                class="gs-text-muted gs-border transition-smooth hover:text-gs-accent ml-auto inline-flex h-9 w-9 items-center justify-center rounded-md border"
+                                title="Add to calendar"
+                                @click.stop
+                            >
+                                <i class="fa fa-calendar text-sm" aria-hidden="true"></i>
+                            </a>
+                            <button
+                                v-show="user && user.is_vehikl_member"
+                                type="button"
+                                class="copy-button gs-text-muted gs-border transition-smooth hover:text-gs-accent inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border"
+                                title="Duplicate to another day"
+                                @click.stop="emit('copy-requested', session)"
+                            >
+                                <i class="fa fa-copy text-sm" aria-hidden="true"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
