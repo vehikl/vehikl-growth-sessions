@@ -221,6 +221,91 @@ body {
     overflow-wrap: break-word;
 }
 
+/*
+ * Count-up numbers for the summary tiles.
+ *
+ * `--gs-num` is registered as an integer, which is the whole trick: the browser can only
+ * interpolate a custom property it knows the type of. `counter-reset` then turns each
+ * frame's value back into text through the counter on `::after`, so the animation is
+ * entirely CSS — no timer, no per-frame render.
+ *
+ * The number an assistive technology announces is the plain sr-only span AnimatedCounter
+ * puts beside this layer. Generated content is not reliably exposed, and a number that
+ * ticks while being read is no use to anyone.
+ */
+@property --gs-num {
+    syntax: '<integer>';
+    initial-value: 0;
+    inherits: false;
+}
+
+@keyframes gs-count-up {
+    from {
+        --gs-num: 0;
+    }
+    to {
+        --gs-num: var(--gs-num-to);
+    }
+}
+
+.gs-counter {
+    /* How long every summary tile takes to reach its number. The one knob worth turning. */
+    --gs-counter-duration: 2.5s;
+
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.gs-counter-digits {
+    counter-reset: gs-num var(--gs-num);
+    animation: gs-count-up var(--gs-counter-duration) cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+.gs-counter-digits::after {
+    content: counter(gs-num);
+}
+
+/* Whatever sits between the digits — the comma in 11,229, the "h " in 193h 30m. */
+.gs-counter-literal::after {
+    content: var(--gs-num-text, '');
+    white-space: pre;
+}
+
+/*
+ * The count reads as an ordinary number the whole way up — 99 then 100, never 099 — so the
+ * digits cannot hold their own width. A hidden copy of the finished value sits in the flow
+ * to reserve that width instead, and the climbing digits are laid over it: the tile is the
+ * size of its final number from the first frame, and nothing shifts as digits are gained.
+ */
+.gs-counter-layers {
+    position: relative;
+    display: inline-block;
+}
+
+.gs-counter-ghost {
+    visibility: hidden;
+}
+
+.gs-counter-ghost::after {
+    content: var(--gs-num-full, '');
+    white-space: pre;
+}
+
+.gs-counter-run {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Reset straight from the target instead of animating towards it: the registered property
+   starts at 0, so simply dropping the animation would leave every tile reading zero. */
+@media (prefers-reduced-motion: reduce) {
+    .gs-counter-digits {
+        counter-reset: gs-num var(--gs-num-to);
+        animation: none;
+    }
+}
+
 /* Modern Transitions */
 @layer utilities {
     .transition-smooth {
