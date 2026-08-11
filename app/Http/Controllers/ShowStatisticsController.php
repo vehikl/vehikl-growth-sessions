@@ -68,8 +68,12 @@ class ShowStatisticsController extends Controller
             'lifetime_sessions_count' => GrowthSession::query()->count(),
             'sessions_this_week_count' => $weeklySessions->count(),
             'weekly_unique_participants_count' => $weeklySessions->flatMap->attendees->pluck('id')->unique()->count(),
-            // Every minute ever spent in a Growth Session, by anybody.
-            'lifetime_minutes_count' => GrowthSession::scheduledMinutes(GrowthSession::query()),
+            // Every minute anybody has ever spent growing. Purely social sessions and Lightning
+            // Talks are booked as Growth Sessions but are not that time, so they are left out —
+            // the lifetime session count above still counts them.
+            'lifetime_minutes_count' => GrowthSession::scheduledMinutes(
+                GrowthSession::query()->excludingPurelySocial()->excludingLightningTalks()
+            ),
         ];
     }
 
