@@ -17,12 +17,15 @@ class TextSegmentParser
     private const SCHEMES = '(?:https?:\/\/|mailto:|tel:)';
 
     // `(?!SCHEMES)` stops a match right before a second recognized-scheme url starts, so two urls
-    // joined by any character (or none) don't merge into one broken match. `"'<>|` and backtick are
-    // excluded outright since they're never valid unencoded in a url and commonly wrap or separate a
-    // pasted link (quotes, markdown, code spans) - unlike e.g. a comma, which is legal inside a url's
-    // own path or query. The leading scheme is captured so the matched literal doesn't need to be
-    // re-derived afterward.
-    private const URL_PATTERN = '/('.self::SCHEMES.')(?:(?!'.self::SCHEMES.')[^\s"\'<>`|])+/i';
+    // joined by any character (or none) don't merge into one broken match. `(?<==)` overrides that
+    // stop when the second scheme immediately follows a `=` - a query parameter value (e.g.
+    // `?redirect=https://...`) rather than two urls butted together, so the outer url keeps
+    // consuming through it instead of being cut in half. `"'<>|` and backtick are excluded outright
+    // since they're never valid unencoded in a url and commonly wrap or separate a pasted link
+    // (quotes, markdown, code spans) - unlike e.g. a comma, which is legal inside a url's own path
+    // or query. The leading scheme is captured so the matched literal doesn't need to be re-derived
+    // afterward.
+    private const URL_PATTERN = '/('.self::SCHEMES.')(?:(?:(?<==)|(?!'.self::SCHEMES.'))[^\s"\'<>`|])+/i';
 
     private const IMAGE_EXTENSION_PATTERN = '/\.(gif|png|jpe?g|webp)$/i';
 

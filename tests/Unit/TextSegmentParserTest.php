@@ -458,6 +458,16 @@ class TextSegmentParserTest extends TestCase
         $this->assertEquals([['type' => 'link', 'value' => 'https://example.com/wiki/HTTP:_header']], $pathResult);
     }
 
+    public function test_a_nested_url_inside_a_query_parameter_value_does_not_split_the_outer_url()
+    {
+        $url = 'https://example.com/login?redirect=https://app.example.com/callback';
+
+        $this->assertEquals(
+            [['type' => 'link', 'value' => $url]],
+            TextSegmentParser::parse($url, true)
+        );
+    }
+
     public function test_it_does_not_recognize_unsupported_protocols()
     {
         $cases = [
