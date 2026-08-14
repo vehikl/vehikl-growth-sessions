@@ -12,27 +12,20 @@ use Tests\TestCase;
 
 class GrowthSessionsIndexTest extends TestCase
 {
-    /**
-     * Builds the exact payload the API would produce for $growthSession as seen by the currently
-     * `actingAs` user (or a guest, if none) - call this after `actingAs` so redaction rules
-     * (e.g. hidden location) match what the real endpoint will return.
-     */
+    /** Builds the exact payload the API would produce for $growthSession, as seen by the current `actingAs` user (or a guest, if none). */
     private function resourceArray(GrowthSession $growthSession): array
     {
         $resource = new GrowthSessionResource(
             $growthSession->fresh(GrowthSession::RESOURCE_RELATIONS)
         );
 
-        // request()->user() isn't wired up by actingAs() until an actual HTTP dispatch happens, so it
-        // would resolve to null here even with an authenticated actor - bind it to the Auth guard's
-        // user directly so the resource sees the same viewer the real endpoint will.
+        // actingAs() doesn't wire up request()->user() until an actual HTTP dispatch, so bind it to
+        // the Auth guard's user directly.
         $request = request();
         $request->setUserResolver(fn () => auth()->user());
 
-        // resolve() (not toArray()) so conditional fields like share_url go through the same filtering
-        // a real response does. It also embeds nested resources/collections (comments, tags) as objects
-        // rather than plain arrays - a round trip through json_encode/decode resolves them the same way
-        // the real HTTP response would, so this matches what assertJson() actually compares against.
+        // resolve() (not toArray()) so conditional fields like share_url are filtered the same way a
+        // real response is; the json_encode/decode round trip matches what assertJson() compares against.
         return json_decode(json_encode($resource->resolve($request)), true);
     }
 

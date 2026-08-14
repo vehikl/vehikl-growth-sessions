@@ -294,13 +294,7 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    /**
-     * These cases used to be shared with the frontend via tests/fixtures/UrlTrailingPunctuation.json
-     * and linkify.spec.ts. Now that this parser is the single implementation, they're folded directly
-     * into this suite instead - one provider per trim policy.
-     *
-     * @dataProvider lenientTrailingPunctuationProvider
-     */
+    /** @dataProvider lenientTrailingPunctuationProvider */
     public function test_lenient_trailing_punctuation_trimming_on_images(string $description, string $input, string $expected)
     {
         $imageSegment = collect(TextSegmentParser::parse($input, true))->firstWhere('type', 'image');
@@ -460,10 +454,8 @@ class TextSegmentParserTest extends TestCase
 
     public function test_image_extension_detection_is_scoped_to_http_schemes_only()
     {
-        // hasImageExtension() only checks the string's *path*, so a mailto:/tel: candidate whose
-        // local part happens to end in an image extension must not be misclassified as an image -
-        // image rendering is an http(s)-only concept, and mailto:/tel: values are never fetched as
-        // <img src>. Regression test for a bug where tel:funny.gif rendered as `type: image`.
+        // Image rendering is an http(s)-only concept - a mailto:/tel: candidate whose local part
+        // happens to end in an image extension must stay a link, not get misclassified as an image.
         $telResult = TextSegmentParser::parse('call tel:funny.gif now', true);
         $mailtoResult = TextSegmentParser::parse('email mailto:funny.gif now', true);
 

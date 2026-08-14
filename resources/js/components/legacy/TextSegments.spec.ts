@@ -60,9 +60,7 @@ describe('TextSegments', () => {
         expect(remainingImages[0].attributes('src')).toBe(imageUrl);
     });
 
-    // Whether a link opens in a new tab is decided entirely by the backend's `opens_in_new_tab` flag
-    // (TextSegmentParser owns the scheme allowlist) - the component just renders it, it doesn't
-    // re-derive anything from the url itself.
+    // The component just renders the backend's `opens_in_new_tab` flag; it never re-derives it.
     describe('opens_in_new_tab-driven anchors', () => {
         it('opens the link in a new tab with rel=noopener noreferrer when opens_in_new_tab is true', () => {
             const url = 'https://example.com';

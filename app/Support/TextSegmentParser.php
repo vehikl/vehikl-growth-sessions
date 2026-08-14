@@ -4,72 +4,44 @@ namespace App\Support;
 
 /**
  * Splits free-form text (comments, session topics, session locations) into text/link/image
- * segments. Recognizes http(s), mailto, and tel urls. Rendering anything as an interactive link or
- * image is a trust boundary gated on the author (see `parse()`) - an untrusted author's urls stay
- * inert plain text.
+ * segments. Recognizes http(s), mailto, and tel urls. Rendering as a link/image is gated on the
+ * author's trust (see parse()) - an untrusted author's urls stay inert plain text.
  */
 class TextSegmentParser
 {
-    // The opening alternation lists each recognized scheme literally so the lookahead below can
-    // reuse the exact same alternatives. `https?:\/\/` keeps the `://` requirement for http(s) so a
-    // bare `http:`/`https:` substring inside another url's own query or path (e.g. `?q=http:test`,
-    // `/wiki/HTTP:_header`) doesn't get mistaken for a second url starting mid-match.
+    // `https?:\/\/` requires `://` so a bare `http:`/`https:` substring in another url's own query
+    // or path (e.g. `?q=http:test`) isn't mistaken for a second url starting mid-match.
     private const SCHEMES = '(?:https?:\/\/|mailto:|tel:)';
 
-    // `(?!SCHEMES)` stops a match right before a second recognized-scheme url starts, so two urls
-    // joined by any character (or none) don't merge into one broken match. `(?<=[=\/])` overrides
-    // that stop when the second scheme immediately follows a `=` or `/` - a query parameter value
-    // (e.g. `?redirect=https://...`) or a path segment that merely looks like a scheme (e.g.
-    // `/contact/tel:5551234`) rather than two urls butted together, so the outer url keeps consuming
-    // through it instead of being cut in half. `"<>|` and backtick are excluded outright since
-    // they're never valid unencoded in a url and commonly wrap or separate a pasted link (quotes,
-    // markdown, code spans) - unlike e.g. a comma, which is legal inside a url's own path or query.
-    // An apostrophe is deliberately NOT excluded here: it's a valid RFC 3986 sub-delimiter and shows
-    // up in real urls (e.g. Wikipedia's `/wiki/Murphy's_Law`) - a wrapping or trailing apostrophe
-    // still gets trimmed by stripTrailingPunctuation()'s own punctuation sets below, so this only
-    // affects apostrophes that appear mid-url.
-    // The leading scheme is captured so the matched literal doesn't need to be re-derived afterward.
-    // `/u` puts matching in Unicode mode so `\s` also treats non-breaking spaces (and other Unicode
-    // whitespace) as url boundaries, matching the deleted JS parser's behavior.
+    // `(?!SCHEMES)` stops a match before a second recognized scheme starts, so two urls glued
+    // together don't merge into one broken match. `(?<=[=\/])` lets the outer url keep consuming
+    // through a lookalike right after `=`/`/` (e.g. `?redirect=https://...`, `/contact/tel:5551234`)
+    // instead of splitting on it. `"<>|` and backtick are excluded as never valid unencoded in a
+    // url. Apostrophe is allowed - it's a valid RFC 3986 char (e.g. `Murphy's_Law`) and a wrapping
+    // one still gets trimmed by stripTrailingPunctuation() below. `/u` treats non-breaking spaces as
+    // boundaries too, matching the old JS parser.
     private const URL_PATTERN = '/('.self::SCHEMES.')(?:(?:(?<=[=\/])|(?!'.self::SCHEMES.'))[^\s"<>`|])+/iu';
 
     private const IMAGE_EXTENSION_PATTERN = '/\.(gif|png|jpe?g|webp)$/i';
 
-    // Used to classify a lone image candidate. `!` and `:` are deliberately excluded: unlike the
-    // rest of this set they're plausible literal characters in a signed CDN url's query string, and
-    // there's no reliable way to tell that apart from sentence punctuation, so we err on the side of
-    // not corrupting the url. That exception only makes sense when the url actually has a query
-    // string to protect - see IMAGE_TRAILING_PUNCTUATION_CHARS_WITHOUT_QUERY_STRING below.
+    // `!`/`:` are excluded here since they're plausible chars in a signed CDN query string, with no
+    // reliable way to tell that apart from sentence punctuation.
     private const LENIENT_TRAILING_PUNCTUATION_CHARS = ['.', ',', ';', '?', ']', '"', "'"];
 
-    // Used instead of LENIENT_TRAILING_PUNCTUATION_CHARS to classify a lone image candidate that has
-    // no `?` in it at all. With no query string to protect, a trailing `!` or `:` directly after the
-    // extension (e.g. "check this gif!") can only be sentence punctuation, so it's safe to strip -
-    // otherwise `hasImageExtension()`'s path-suffix check never matches and the candidate is wrongly
-    // demoted to a plain link.
+    // Used when there's no query string to protect, so a trailing `!`/`:` can only be punctuation.
     private const IMAGE_TRAILING_PUNCTUATION_CHARS_WITHOUT_QUERY_STRING = [...self::LENIENT_TRAILING_PUNCTUATION_CHARS, '!', ':'];
 
-    // Used for links. Links aren't rendered as <img> tags, so there's no signed-CDN-query-string
-    // concern justifying an exception for `!`/`:` - both are stripped here, along with `}`.
+    // Links aren't rendered as <img>, so there's no query-string concern - `!`/`:`/`}` always strip.
     private const STRICT_TRAILING_PUNCTUATION_CHARS = [...self::LENIENT_TRAILING_PUNCTUATION_CHARS, '!', ':', '}'];
 
     /**
-     * Splits text into text/link/image segments. $isTrustedAuthor gates *all* interactive rendering
-     * (links and images alike) on the author's trust level: a clickable link can be used to phish an
-     * unsuspecting reader, and an <img> makes every viewer's browser auto-fetch it, which lets an
-     * untrusted poster use it as a tracking pixel. When $isTrustedAuthor is false, no url candidate
-     * becomes its own segment (link or image) - each is left untouched as part of its surrounding
-     * text segment, and never creates a text-segment boundary.
+     * $isTrustedAuthor gates all interactive rendering (link and image alike): a link can phish, and
+     * an <img> auto-fetches on every viewer's browser (tracking pixel). When false, url candidates
+     * stay part of the surrounding text - not redacted, the raw url is still in the payload, just
+     * never rendered as a clickable/fetchable element.
      *
-     * $allowImages is a second, independent gate scoped to images only, checked only once
-     * $isTrustedAuthor already allows interactive rendering at all - it exists so a trusted author's
-     * content can still have image rendering suppressed on its own (e.g. session topic/location,
-     * which are single-line fields with no room for an embedded image, but should still linkify).
-     *
-     * This is the single source of truth for both decisions - a disallowed candidate's url still
-     * reaches clients as part of the surrounding text (it's not redacted; the raw content is visible
-     * elsewhere in the payload regardless), but no client is ever told to render it as an <a>/<img>,
-     * whether they go through this app's own frontend or hit the API directly.
+     * $allowImages independently suppresses image rendering for a trusted author (e.g. session
+     * topic/location - single-line fields with no room for one, but urls should still linkify).
      */
     public static function parse(string $content, bool $isTrustedAuthor, bool $allowImages = true): array
     {
@@ -87,11 +59,8 @@ class TextSegmentParser
             $isHttpScheme = $schemeLiteral === 'http://' || $schemeLiteral === 'https://';
 
             if ($isHttpScheme) {
-                // A bare `str_contains($rawUrl, '?')` can't tell a real query string apart from a `?`
-                // that's itself trailing sentence punctuation (e.g. "check out img.png!?"), so trim any
-                // chars already known to be safe-to-strip trailing punctuation first, and only then
-                // check what's left for a genuine `?` - that's what decides whether a trailing `!`/`:`
-                // is signed-CDN query data worth protecting or just more punctuation to strip.
+                // A trailing `?` can itself be punctuation (e.g. "img.png!?"), so trim known-safe
+                // trailing punctuation first and only then check what's left for a genuine `?`.
                 $hasQueryString = str_contains(rtrim($rawUrl, implode('', self::LENIENT_TRAILING_PUNCTUATION_CHARS)), '?');
                 $imageTrailingPunctuationChars = $hasQueryString
                     ? self::LENIENT_TRAILING_PUNCTUATION_CHARS
@@ -121,10 +90,8 @@ class TextSegmentParser
                 $segments[] = ['type' => 'text', 'value' => substr($content, $lastIndex, $matchStart - $lastIndex)];
             }
 
-            // Only 'link' carries this: it's the frontend's sole consumer, deciding target=_blank on
-            // an <a>, which doesn't apply to the <img> an 'image' segment renders as. This is the
-            // single source of truth for that scheme allowlist - see SCHEMES above - so the frontend
-            // never re-derives it and can't drift from what's actually recognized here.
+            // 'link' only: the frontend's sole consumer, for deciding target=_blank on an <a> -
+            // doesn't apply to the <img> an 'image' segment renders as.
             $segments[] = $type === 'link'
                 ? ['type' => $type, 'value' => $url, 'opens_in_new_tab' => $isHttpScheme]
                 : ['type' => $type, 'value' => $url];
@@ -151,11 +118,8 @@ class TextSegmentParser
     }
 
     /**
-     * Trims sentence/wrapping punctuation a human likely typed after a pasted url. A trailing `)` is
-     * only trimmed when it's unbalanced (no matching `(` earlier in the url), matching how
-     * GitHub-flavored Markdown autolinks handle "(see http://example.com/x.png)". This check is
-     * shared by both punctuation policies - `$punctuationChars` only affects which non-`)` characters
-     * are treated as trailing punctuation.
+     * Trims trailing punctuation a human likely typed after a pasted url. A trailing `)` is only
+     * trimmed when unbalanced, matching GitHub-flavored Markdown autolink behavior.
      */
     private static function stripTrailingPunctuation(string $url, array $punctuationChars): string
     {

@@ -5,9 +5,7 @@ import { ref, watch } from 'vue';
 const props = defineProps<{ segments: ITextSegment[] }>();
 
 const brokenImageIndexes = ref(new Set<number>());
-// Segments are a fresh array every time the underlying topic/location/comment changes, so clearing
-// on reference change resets stale broken-image state without affecting a single unchanged render
-// (e.g. a repeated image url within the same segments array, which must fail independently by index).
+// Segments is a fresh array on every content change, so reset broken-image state along with it.
 watch(
     () => props.segments,
     () => brokenImageIndexes.value.clear(),

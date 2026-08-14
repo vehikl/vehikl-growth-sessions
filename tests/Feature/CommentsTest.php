@@ -172,12 +172,7 @@ class CommentsTest extends TestCase
         ], $comments->firstWhere('id', $comment->id)['segments']);
     }
 
-    /**
-     * Pins the exact field set of the comment API contract, including the nested user. This is a
-     * regression test for the field set becoming implicitly defined by Eloquent serialization again -
-     * it must fail the moment a field (e.g. `user_id`, `created_at`) is added or removed from
-     * CommentResource/User resource without this test being updated deliberately.
-     */
+    /** Pins the exact field set of the comment API contract, including the nested user. */
     public function test_the_comment_payload_contains_exactly_the_expected_fields()
     {
         $growthSession = GrowthSession::factory()->create();

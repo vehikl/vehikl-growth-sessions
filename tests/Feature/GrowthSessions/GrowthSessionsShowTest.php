@@ -314,12 +314,7 @@ class GrowthSessionsShowTest extends TestCase
             ->assertDontSee('secret-room');
     }
 
-    /**
-     * Pins the exact top-level field set of the growth session API contract. This is a regression
-     * test for the field set becoming implicitly defined by Eloquent serialization again - it must
-     * fail the moment a field is added or removed from GrowthSessionResource without this test being
-     * updated deliberately.
-     */
+    /** Pins the exact top-level field set of the growth session API contract. */
     public function test_the_growth_session_payload_contains_exactly_the_expected_top_level_fields()
     {
         $this->setTestNow('2020-01-15');
