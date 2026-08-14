@@ -47,7 +47,7 @@ class GrowthSessionController extends Controller
             $user
         ) {
             return (new GrowthSessionPolicy)->view($user, $session);
-        });
+        })->loadMissing(self::RELATIONS);
 
         return new GrowthSessionWeek($sessions);
     }
@@ -72,7 +72,10 @@ class GrowthSessionController extends Controller
             $newGrowthSession->tags()->sync($request->input('tags'));
         });
 
-        $newGrowthSession->load(self::RELATIONS);
+        // save() doesn't populate columns the request omitted (is_public, allow_watchers are
+        // 'sometimes' rules) with their DB defaults, so refresh from the row fresh() just inserted
+        // rather than merely loading relations onto the in-memory, still-attribute-incomplete model.
+        $newGrowthSession = $newGrowthSession->fresh(self::RELATIONS);
 
         broadcast(new GrowthSessionModified($newGrowthSession->id, GrowthSessionModified::ACTION_CREATED));
         event(new GrowthSessionCreated($newGrowthSession));

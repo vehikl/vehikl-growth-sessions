@@ -22,7 +22,10 @@ class GrowthSession extends Model
     const NO_LIMIT = PHP_INT_MAX;
 
     /** The relations GrowthSessionResource reads - eager-load these before building one to avoid lazy loading. */
-    const RESOURCE_RELATIONS = ['attendees', 'watchers', 'comments', 'anydesk', 'tags'];
+    const RESOURCE_RELATIONS = ['owners', 'attendees', 'watchers', 'comments', 'anydesk', 'tags'];
+
+    /** The subset of RESOURCE_RELATIONS the visibility policy reads via `owner`/`hasParticipant()`. */
+    const VISIBILITY_RELATIONS = ['owners', 'attendees', 'watchers'];
 
     const SOCIAL_TAG = 'Social';
 
@@ -66,7 +69,7 @@ class GrowthSession extends Model
     protected function owner(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->owners()->first(),
+            get: fn () => $this->owners->first(),
         );
     }
 
@@ -150,8 +153,11 @@ class GrowthSession extends Model
             : $referenceDate->modify('Last Monday');
         $endPoint = $startPoint->addDays(4);
 
+        // Only the relations the visibility policy reads are eager-loaded here - the caller filters
+        // out sessions the viewer can't see before the rest of RESOURCE_RELATIONS is needed, so
+        // hydrating them this early would just be discarded work for every filtered-out session.
         $allWeekGrowthSessions = GrowthSession::query()
-            ->with(self::RESOURCE_RELATIONS)
+            ->with(self::VISIBILITY_RELATIONS)
             ->whereDate('date', '>=', $startPoint)
             ->whereDate('date', '<=', $endPoint)
             ->orderBy('date')

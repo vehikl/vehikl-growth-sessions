@@ -102,8 +102,13 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.text()).toContain(growthSessionData.location);
     });
 
-    it('gates the location behind joining for users who have not joined', () => {
-        wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: outsider } });
+    it('renders whatever location_segments the backend sends, without re-deriving visibility itself', () => {
+        const redactedGrowthSession = new GrowthSession({
+            ...baseGrowthSessionDataAttributes,
+            location: '< Join to see location >',
+            location_segments: [{ type: 'text', value: '< Join to see location >' }],
+        });
+        wrapper = mount(GrowthSessionCard, { props: { growthSession: redactedGrowthSession, user: outsider } });
         expect(wrapper.text()).not.toContain(growthSessionData.location);
         expect(wrapper.text()).toContain('Join to see location');
     });

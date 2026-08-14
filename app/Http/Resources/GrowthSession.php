@@ -17,7 +17,7 @@ class GrowthSession extends JsonResource
         $growthSession = $this->resource;
         $viewer = $request->user();
 
-        $isParticipating = $viewer && ($growthSession->hasAttendee($viewer) || $growthSession->hasWatcher($viewer));
+        $isParticipating = $viewer && $growthSession->hasParticipant($viewer);
         $isOwner = $viewer && $viewer->is($growthSession->owner);
         $canSeeSensitiveInfo = $isOwner || ($viewer && $viewer->is_vehikl_member);
         $canSeeLocation = $isOwner || $isParticipating;

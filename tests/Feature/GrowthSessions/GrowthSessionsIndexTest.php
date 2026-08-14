@@ -7,6 +7,7 @@ use App\Models\GrowthSession;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class GrowthSessionsIndexTest extends TestCase
@@ -75,6 +76,38 @@ class GrowthSessionsIndexTest extends TestCase
         $this->getJson(route('growth_sessions.week'))
             ->assertSuccessful()
             ->assertJson($expectedResponse);
+    }
+
+    /**
+     * The `owner` accessor and the visibility filter both used to run their own query per session
+     * (an N+1 on owners, plus fully hydrating relations on sessions the viewer can't even see). This
+     * asserts the query count stays flat as the number of visible sessions grows, rather than
+     * asserting a specific number that would just be an arbitrary magic number to update later.
+     */
+    public function test_the_week_endpoint_query_count_does_not_grow_with_the_number_of_visible_sessions()
+    {
+        $this->setTestNow('2020-01-15');
+        $monday = CarbonImmutable::parse('Last Monday');
+        $user = User::factory()->create();
+
+        $queryCountFor = function (int $visibleSessionCount) use ($monday, $user) {
+            GrowthSession::factory()->count($visibleSessionCount)->create(['date' => $monday, 'is_public' => true]);
+            // Owned by someone else and not public, so the viewer's visibility filter drops these -
+            // present to prove their relations are never fully hydrated either.
+            GrowthSession::factory()->count($visibleSessionCount)->create(['date' => $monday, 'is_public' => false]);
+
+            $this->actingAs($user);
+
+            DB::enableQueryLog();
+            $this->getJson(route('growth_sessions.week'))->assertSuccessful();
+            $queryCount = count(DB::getQueryLog());
+            DB::flushQueryLog();
+            DB::disableQueryLog();
+
+            return $queryCount;
+        };
+
+        $this->assertSame($queryCountFor(2), $queryCountFor(6));
     }
 
     public function test_it_can_provide_all_growth_sessions_of_the_current_week_for_authenticated_user_even_on_fridays()

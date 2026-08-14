@@ -28,10 +28,6 @@ const ownerColor = computed(() => avatarColor(ownerName.value));
 const cardOpacity = computed(() => (status.value === 'finished' ? 0.55 : 1));
 const atCapacity = computed<boolean>(() => props.growthSession.hasReachedAttendeeLimit());
 
-const canSeeLocation = computed<boolean>(
-    () => !!props.user && (props.growthSession.isOwner(props.user) || props.growthSession.isAttendeeOrWatcher(props.user)),
-);
-
 async function joinGrowthSession() {
     await props.growthSession.join();
     emit('growth-session-updated');
@@ -105,8 +101,7 @@ async function onDeleteClicked() {
         </div>
 
         <div class="gs-text-muted mb-3 truncate text-sm">
-            <text-segments v-if="canSeeLocation" :segments="growthSession.location_segments" />
-            <template v-else>&lt; Join to see location &gt;</template>
+            <text-segments :segments="growthSession.location_segments" />
         </div>
 
         <div class="relative z-20 flex gap-1.5 empty:hidden" @click.stop>

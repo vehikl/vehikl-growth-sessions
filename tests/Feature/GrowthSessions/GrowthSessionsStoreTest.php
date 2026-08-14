@@ -177,6 +177,17 @@ class GrowthSessionsStoreTest extends TestCase
         ], $params);
     }
 
+    public function test_response_reflects_database_defaults_for_fields_omitted_from_the_request(): void
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+
+        $this->actingAs($vehiklMember)
+            ->postJson(route('growth_sessions.store'), $this->defaultParameters())
+            ->assertSuccessful()
+            ->assertJsonPath('is_public', false)
+            ->assertJsonPath('allow_watchers', true);
+    }
+
     public function test_includes_attendees_information_even_for_a_newly_created_growth_session(): void
     {
         $vehiklMember = User::factory()->vehiklMember()->create();

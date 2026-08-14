@@ -319,6 +319,16 @@ class TextSegmentParserTest extends TestCase
                 'https://example.com/img.png?callback=foo(bar)',
                 'https://example.com/img.png?callback=foo(bar)',
             ],
+            'a trailing exclamation mark is stripped when there is no query string to protect' => [
+                'a trailing exclamation mark is stripped when there is no query string to protect',
+                'https://example.com/img.png!',
+                'https://example.com/img.png',
+            ],
+            'a trailing colon is stripped when there is no query string to protect' => [
+                'a trailing colon is stripped when there is no query string to protect',
+                'https://example.com/img.png:',
+                'https://example.com/img.png',
+            ],
         ];
     }
 
@@ -466,6 +476,25 @@ class TextSegmentParserTest extends TestCase
             [['type' => 'link', 'value' => $url]],
             TextSegmentParser::parse($url, true)
         );
+    }
+
+    public function test_a_tel_or_mailto_looking_path_segment_inside_an_https_url_does_not_split_the_url()
+    {
+        $telUrl = 'https://example.com/contact/tel:5551234';
+        $mailtoUrl = 'https://example.com/contact/mailto:foo';
+
+        $this->assertEquals([['type' => 'link', 'value' => $telUrl]], TextSegmentParser::parse($telUrl, true));
+        $this->assertEquals([['type' => 'link', 'value' => $mailtoUrl]], TextSegmentParser::parse($mailtoUrl, true));
+    }
+
+    public function test_a_non_breaking_space_bounds_a_url_the_same_as_a_regular_space()
+    {
+        $result = TextSegmentParser::parse("https://example.com/foo\u{00A0}bar", true);
+
+        $this->assertEquals([
+            ['type' => 'link', 'value' => 'https://example.com/foo'],
+            ['type' => 'text', 'value' => "\u{00A0}bar"],
+        ], $result);
     }
 
     public function test_it_does_not_recognize_unsupported_protocols()

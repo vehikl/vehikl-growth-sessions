@@ -17,23 +17,33 @@ class TextSegmentParser
     private const SCHEMES = '(?:https?:\/\/|mailto:|tel:)';
 
     // `(?!SCHEMES)` stops a match right before a second recognized-scheme url starts, so two urls
-    // joined by any character (or none) don't merge into one broken match. `(?<==)` overrides that
-    // stop when the second scheme immediately follows a `=` - a query parameter value (e.g.
-    // `?redirect=https://...`) rather than two urls butted together, so the outer url keeps
-    // consuming through it instead of being cut in half. `"'<>|` and backtick are excluded outright
-    // since they're never valid unencoded in a url and commonly wrap or separate a pasted link
-    // (quotes, markdown, code spans) - unlike e.g. a comma, which is legal inside a url's own path
-    // or query. The leading scheme is captured so the matched literal doesn't need to be re-derived
-    // afterward.
-    private const URL_PATTERN = '/('.self::SCHEMES.')(?:(?:(?<==)|(?!'.self::SCHEMES.'))[^\s"\'<>`|])+/i';
+    // joined by any character (or none) don't merge into one broken match. `(?<=[=\/])` overrides
+    // that stop when the second scheme immediately follows a `=` or `/` - a query parameter value
+    // (e.g. `?redirect=https://...`) or a path segment that merely looks like a scheme (e.g.
+    // `/contact/tel:5551234`) rather than two urls butted together, so the outer url keeps consuming
+    // through it instead of being cut in half. `"'<>|` and backtick are excluded outright since
+    // they're never valid unencoded in a url and commonly wrap or separate a pasted link (quotes,
+    // markdown, code spans) - unlike e.g. a comma, which is legal inside a url's own path or query.
+    // The leading scheme is captured so the matched literal doesn't need to be re-derived afterward.
+    // `/u` puts matching in Unicode mode so `\s` also treats non-breaking spaces (and other Unicode
+    // whitespace) as url boundaries, matching the deleted JS parser's behavior.
+    private const URL_PATTERN = '/('.self::SCHEMES.')(?:(?:(?<=[=\/])|(?!'.self::SCHEMES.'))[^\s"\'<>`|])+/iu';
 
     private const IMAGE_EXTENSION_PATTERN = '/\.(gif|png|jpe?g|webp)$/i';
 
     // Used to classify a lone image candidate. `!` and `:` are deliberately excluded: unlike the
     // rest of this set they're plausible literal characters in a signed CDN url's query string, and
     // there's no reliable way to tell that apart from sentence punctuation, so we err on the side of
-    // not corrupting the url.
+    // not corrupting the url. That exception only makes sense when the url actually has a query
+    // string to protect - see IMAGE_TRAILING_PUNCTUATION_CHARS_WITHOUT_QUERY_STRING below.
     private const LENIENT_TRAILING_PUNCTUATION_CHARS = ['.', ',', ';', '?', ']', '"', "'"];
+
+    // Used instead of LENIENT_TRAILING_PUNCTUATION_CHARS to classify a lone image candidate that has
+    // no `?` in it at all. With no query string to protect, a trailing `!` or `:` directly after the
+    // extension (e.g. "check this gif!") can only be sentence punctuation, so it's safe to strip -
+    // otherwise `hasImageExtension()`'s path-suffix check never matches and the candidate is wrongly
+    // demoted to a plain link.
+    private const IMAGE_TRAILING_PUNCTUATION_CHARS_WITHOUT_QUERY_STRING = [...self::LENIENT_TRAILING_PUNCTUATION_CHARS, '!', ':'];
 
     // Used for links. Links aren't rendered as <img> tags, so there's no signed-CDN-query-string
     // concern justifying an exception for `!`/`:` - both are stripped here, along with `}`.
@@ -65,7 +75,10 @@ class TextSegmentParser
             $isHttpScheme = $schemeLiteral === 'http://' || $schemeLiteral === 'https://';
 
             if ($isHttpScheme) {
-                $lenientUrl = self::stripTrailingPunctuation($rawUrl, self::LENIENT_TRAILING_PUNCTUATION_CHARS);
+                $imageTrailingPunctuationChars = str_contains($rawUrl, '?')
+                    ? self::LENIENT_TRAILING_PUNCTUATION_CHARS
+                    : self::IMAGE_TRAILING_PUNCTUATION_CHARS_WITHOUT_QUERY_STRING;
+                $lenientUrl = self::stripTrailingPunctuation($rawUrl, $imageTrailingPunctuationChars);
             }
 
             if ($isHttpScheme && self::hasImageExtension($lenientUrl)) {
