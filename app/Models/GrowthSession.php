@@ -29,6 +29,8 @@ class GrowthSession extends Model
 
     const SOCIAL_TAG = 'Social';
 
+    const LIGHTNING_TALKS_TITLE = 'Lightning Talks';
+
     protected $appends = ['owner'];
 
     protected $hidden = ['share_token'];
@@ -183,12 +185,17 @@ class GrowthSession extends Model
         );
     }
 
+    public function scopeExcludingLightningTalks(Builder $query): Builder
+    {
+        return $query->where('growth_sessions.title', 'not like', '%'.self::LIGHTNING_TALKS_TITLE.'%');
+    }
+
     /**
      * The scheduled minutes across whatever set of Growth Sessions is handed in — every summary
      * that reports time spent measures an hour through here, so no two of them can come to read
      * the clock differently. Which sessions belong in the total is still the caller's call: the
-     * Dashboard leaves the purely social ones out of a member's own growth time, where the
-     * statistics page counts every hour the company spent.
+     * Dashboard leaves the purely social ones out of a member's own growth time, and the
+     * statistics page leaves out the purely social ones and the Lightning Talks alike.
      *
      * Left in minutes rather than hours so the caller can render the leftover half hour instead
      * of rounding it away. Sessions missing either end of their window contribute nothing.
