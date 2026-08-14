@@ -146,7 +146,7 @@ class CommentsTest extends TestCase
 
         $this->assertEquals([
             ['type' => 'text', 'value' => "photo {$imageUrl} and info "],
-            ['type' => 'link', 'value' => $linkUrl],
+            ['type' => 'link', 'value' => $linkUrl, 'opens_in_new_tab' => true],
         ], $comments->firstWhere('id', $comment->id)['segments']);
     }
 

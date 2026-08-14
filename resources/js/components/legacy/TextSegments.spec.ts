@@ -16,7 +16,7 @@ describe('TextSegments', () => {
 
     it('renders a link segment as an anchor', () => {
         const url = 'https://example.com';
-        const segments: ITextSegment[] = [{ type: 'link', value: url }];
+        const segments: ITextSegment[] = [{ type: 'link', value: url, opens_in_new_tab: true }];
         wrapper = mount(TextSegments, { propsData: { segments } });
 
         expect(wrapper.find('a').attributes('href')).toBe(url);
@@ -60,10 +60,13 @@ describe('TextSegments', () => {
         expect(remainingImages[0].attributes('src')).toBe(imageUrl);
     });
 
-    describe('protocol-aware anchors', () => {
-        it('opens http(s) links in a new tab with rel=noopener noreferrer', () => {
+    // Whether a link opens in a new tab is decided entirely by the backend's `opens_in_new_tab` flag
+    // (TextSegmentParser owns the scheme allowlist) - the component just renders it, it doesn't
+    // re-derive anything from the url itself.
+    describe('opens_in_new_tab-driven anchors', () => {
+        it('opens the link in a new tab with rel=noopener noreferrer when opens_in_new_tab is true', () => {
             const url = 'https://example.com';
-            const segments: ITextSegment[] = [{ type: 'link', value: url }];
+            const segments: ITextSegment[] = [{ type: 'link', value: url, opens_in_new_tab: true }];
             wrapper = mount(TextSegments, { propsData: { segments } });
 
             const anchor = wrapper.find('a');
@@ -72,9 +75,9 @@ describe('TextSegments', () => {
             expect(anchor.attributes('rel')).toBe('noopener noreferrer');
         });
 
-        it('does not add target/rel to a mailto link', () => {
+        it('does not add target/rel when opens_in_new_tab is false', () => {
             const url = 'mailto:jane@example.com';
-            const segments: ITextSegment[] = [{ type: 'link', value: url }];
+            const segments: ITextSegment[] = [{ type: 'link', value: url, opens_in_new_tab: false }];
             wrapper = mount(TextSegments, { propsData: { segments } });
 
             const anchor = wrapper.find('a');
@@ -83,7 +86,7 @@ describe('TextSegments', () => {
             expect(anchor.attributes('rel')).toBeUndefined();
         });
 
-        it('does not add target/rel to a tel link', () => {
+        it('does not add target/rel when opens_in_new_tab is absent', () => {
             const url = 'tel:5551234';
             const segments: ITextSegment[] = [{ type: 'link', value: url }];
             wrapper = mount(TextSegments, { propsData: { segments } });
@@ -92,17 +95,6 @@ describe('TextSegments', () => {
             expect(anchor.attributes('href')).toBe(url);
             expect(anchor.attributes('target')).toBeUndefined();
             expect(anchor.attributes('rel')).toBeUndefined();
-        });
-
-        it('still adds target/rel to an uppercase-scheme link', () => {
-            const url = 'HTTP://EXAMPLE.COM';
-            const segments: ITextSegment[] = [{ type: 'link', value: url }];
-            wrapper = mount(TextSegments, { propsData: { segments } });
-
-            const anchor = wrapper.find('a');
-            expect(anchor.attributes('href')).toBe(url);
-            expect(anchor.attributes('target')).toBe('_blank');
-            expect(anchor.attributes('rel')).toBe('noopener noreferrer');
         });
     });
 
@@ -120,7 +112,7 @@ describe('TextSegments', () => {
         const imageUrl = 'https://example.com/a.png';
         const segments: ITextSegment[] = [
             { type: 'text', value: 'hello ' },
-            { type: 'link', value: linkUrl },
+            { type: 'link', value: linkUrl, opens_in_new_tab: true },
             { type: 'text', value: ' and ' },
             { type: 'image', value: imageUrl },
             { type: 'text', value: ' world' },

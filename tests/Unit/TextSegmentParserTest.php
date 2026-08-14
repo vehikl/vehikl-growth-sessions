@@ -27,7 +27,7 @@ class TextSegmentParserTest extends TestCase
     {
         $this->assertEquals([
             ['type' => 'text', 'value' => 'check this out '],
-            ['type' => 'link', 'value' => 'https://example.com/page'],
+            ['type' => 'link', 'value' => 'https://example.com/page', 'opens_in_new_tab' => true],
         ], TextSegmentParser::parse('check this out https://example.com/page', true));
     }
 
@@ -113,7 +113,7 @@ class TextSegmentParserTest extends TestCase
         $url = "https://example.com/file.{$extension}";
 
         $this->assertEquals(
-            [['type' => 'link', 'value' => $url]],
+            [['type' => 'link', 'value' => $url, 'opens_in_new_tab' => true]],
             TextSegmentParser::parse($url, true)
         );
     }
@@ -190,7 +190,7 @@ class TextSegmentParserTest extends TestCase
         $url = 'https://example.com/download?file=report.png';
 
         $this->assertEquals(
-            [['type' => 'link', 'value' => $url]],
+            [['type' => 'link', 'value' => $url, 'opens_in_new_tab' => true]],
             TextSegmentParser::parse($url, true)
         );
     }
@@ -261,7 +261,7 @@ class TextSegmentParserTest extends TestCase
         $result = TextSegmentParser::parse('https://example.com/foo(bar))', true);
 
         $this->assertEquals([
-            ['type' => 'link', 'value' => 'https://example.com/foo(bar)'],
+            ['type' => 'link', 'value' => 'https://example.com/foo(bar)', 'opens_in_new_tab' => true],
             ['type' => 'text', 'value' => ')'],
         ], $result);
     }
@@ -382,7 +382,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'hello '],
-            ['type' => 'link', 'value' => 'https://example.com'],
+            ['type' => 'link', 'value' => 'https://example.com', 'opens_in_new_tab' => true],
             ['type' => 'text', 'value' => ' world'],
         ], $result);
     }
@@ -393,7 +393,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'email me at '],
-            ['type' => 'link', 'value' => 'mailto:jane@example.com'],
+            ['type' => 'link', 'value' => 'mailto:jane@example.com', 'opens_in_new_tab' => false],
             ['type' => 'text', 'value' => ' please'],
         ], $result);
     }
@@ -404,7 +404,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'call '],
-            ['type' => 'link', 'value' => 'tel:5551234'],
+            ['type' => 'link', 'value' => 'tel:5551234', 'opens_in_new_tab' => false],
             ['type' => 'text', 'value' => ' now'],
         ], $result);
     }
@@ -420,13 +420,13 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'call '],
-            ['type' => 'link', 'value' => 'tel:funny.gif'],
+            ['type' => 'link', 'value' => 'tel:funny.gif', 'opens_in_new_tab' => false],
             ['type' => 'text', 'value' => ' now'],
         ], $telResult);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'email '],
-            ['type' => 'link', 'value' => 'mailto:funny.gif'],
+            ['type' => 'link', 'value' => 'mailto:funny.gif', 'opens_in_new_tab' => false],
             ['type' => 'text', 'value' => ' now'],
         ], $mailtoResult);
     }
@@ -442,7 +442,7 @@ class TextSegmentParserTest extends TestCase
             ['type' => 'text', 'value' => 'photo '],
             ['type' => 'image', 'value' => 'https://example.com/funny.gif'],
             ['type' => 'text', 'value' => ' and info '],
-            ['type' => 'link', 'value' => 'https://example.com/info'],
+            ['type' => 'link', 'value' => 'https://example.com/info', 'opens_in_new_tab' => true],
         ], $result);
     }
 
@@ -455,7 +455,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'photo https://example.com/funny.gif and info '],
-            ['type' => 'link', 'value' => 'https://example.com/info'],
+            ['type' => 'link', 'value' => 'https://example.com/info', 'opens_in_new_tab' => true],
         ], $result);
     }
 
@@ -464,8 +464,8 @@ class TextSegmentParserTest extends TestCase
         $queryResult = TextSegmentParser::parse('https://example.com/?q=http:test', true);
         $pathResult = TextSegmentParser::parse('https://example.com/wiki/HTTP:_header', true);
 
-        $this->assertEquals([['type' => 'link', 'value' => 'https://example.com/?q=http:test']], $queryResult);
-        $this->assertEquals([['type' => 'link', 'value' => 'https://example.com/wiki/HTTP:_header']], $pathResult);
+        $this->assertEquals([['type' => 'link', 'value' => 'https://example.com/?q=http:test', 'opens_in_new_tab' => true]], $queryResult);
+        $this->assertEquals([['type' => 'link', 'value' => 'https://example.com/wiki/HTTP:_header', 'opens_in_new_tab' => true]], $pathResult);
     }
 
     public function test_a_nested_url_inside_a_query_parameter_value_does_not_split_the_outer_url()
@@ -473,7 +473,7 @@ class TextSegmentParserTest extends TestCase
         $url = 'https://example.com/login?redirect=https://app.example.com/callback';
 
         $this->assertEquals(
-            [['type' => 'link', 'value' => $url]],
+            [['type' => 'link', 'value' => $url, 'opens_in_new_tab' => true]],
             TextSegmentParser::parse($url, true)
         );
     }
@@ -483,8 +483,14 @@ class TextSegmentParserTest extends TestCase
         $telUrl = 'https://example.com/contact/tel:5551234';
         $mailtoUrl = 'https://example.com/contact/mailto:foo';
 
-        $this->assertEquals([['type' => 'link', 'value' => $telUrl]], TextSegmentParser::parse($telUrl, true));
-        $this->assertEquals([['type' => 'link', 'value' => $mailtoUrl]], TextSegmentParser::parse($mailtoUrl, true));
+        $this->assertEquals(
+            [['type' => 'link', 'value' => $telUrl, 'opens_in_new_tab' => true]],
+            TextSegmentParser::parse($telUrl, true)
+        );
+        $this->assertEquals(
+            [['type' => 'link', 'value' => $mailtoUrl, 'opens_in_new_tab' => true]],
+            TextSegmentParser::parse($mailtoUrl, true)
+        );
     }
 
     public function test_a_non_breaking_space_bounds_a_url_the_same_as_a_regular_space()
@@ -492,7 +498,7 @@ class TextSegmentParserTest extends TestCase
         $result = TextSegmentParser::parse("https://example.com/foo\u{00A0}bar", true);
 
         $this->assertEquals([
-            ['type' => 'link', 'value' => 'https://example.com/foo'],
+            ['type' => 'link', 'value' => 'https://example.com/foo', 'opens_in_new_tab' => true],
             ['type' => 'text', 'value' => "\u{00A0}bar"],
         ], $result);
     }
@@ -543,7 +549,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'hello https://foo.com/image.png world '],
-            ['type' => 'link', 'value' => 'https://example.com'],
+            ['type' => 'link', 'value' => 'https://example.com', 'opens_in_new_tab' => true],
         ], TextSegmentParser::parse($content, false));
     }
 
@@ -552,9 +558,9 @@ class TextSegmentParserTest extends TestCase
         $content = 'https://a.com https://image.com/a.png https://b.com';
 
         $this->assertEquals([
-            ['type' => 'link', 'value' => 'https://a.com'],
+            ['type' => 'link', 'value' => 'https://a.com', 'opens_in_new_tab' => true],
             ['type' => 'text', 'value' => ' https://image.com/a.png '],
-            ['type' => 'link', 'value' => 'https://b.com'],
+            ['type' => 'link', 'value' => 'https://b.com', 'opens_in_new_tab' => true],
         ], TextSegmentParser::parse($content, false));
     }
 
@@ -572,22 +578,22 @@ class TextSegmentParserTest extends TestCase
             'https then mailto' => [
                 'https://a.commailto:b@c.com',
                 [
-                    ['type' => 'link', 'value' => 'https://a.com'],
-                    ['type' => 'link', 'value' => 'mailto:b@c.com'],
+                    ['type' => 'link', 'value' => 'https://a.com', 'opens_in_new_tab' => true],
+                    ['type' => 'link', 'value' => 'mailto:b@c.com', 'opens_in_new_tab' => false],
                 ],
             ],
             'mailto then tel' => [
                 'mailto:a@b.comtel:123',
                 [
-                    ['type' => 'link', 'value' => 'mailto:a@b.com'],
-                    ['type' => 'link', 'value' => 'tel:123'],
+                    ['type' => 'link', 'value' => 'mailto:a@b.com', 'opens_in_new_tab' => false],
+                    ['type' => 'link', 'value' => 'tel:123', 'opens_in_new_tab' => false],
                 ],
             ],
             'tel then https' => [
                 'tel:123https://a.com',
                 [
-                    ['type' => 'link', 'value' => 'tel:123'],
-                    ['type' => 'link', 'value' => 'https://a.com'],
+                    ['type' => 'link', 'value' => 'tel:123', 'opens_in_new_tab' => false],
+                    ['type' => 'link', 'value' => 'https://a.com', 'opens_in_new_tab' => true],
                 ],
             ],
         ];
@@ -602,11 +608,11 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'web '],
-            ['type' => 'link', 'value' => 'https://example.com'],
+            ['type' => 'link', 'value' => 'https://example.com', 'opens_in_new_tab' => true],
             ['type' => 'text', 'value' => ' email '],
-            ['type' => 'link', 'value' => 'mailto:jane@example.com'],
+            ['type' => 'link', 'value' => 'mailto:jane@example.com', 'opens_in_new_tab' => false],
             ['type' => 'text', 'value' => ' phone '],
-            ['type' => 'link', 'value' => 'tel:5551234'],
+            ['type' => 'link', 'value' => 'tel:5551234', 'opens_in_new_tab' => false],
             ['type' => 'text', 'value' => ' done'],
         ], $result);
     }
@@ -616,7 +622,7 @@ class TextSegmentParserTest extends TestCase
         $url = 'mailto:a@b.com?subject=Hello';
 
         $this->assertEquals(
-            [['type' => 'link', 'value' => $url]],
+            [['type' => 'link', 'value' => $url, 'opens_in_new_tab' => false]],
             TextSegmentParser::parse($url, true)
         );
     }
@@ -626,7 +632,7 @@ class TextSegmentParserTest extends TestCase
         $result = TextSegmentParser::parse('mailto:a@b.com?subject=Hello!', true);
 
         $this->assertEquals([
-            ['type' => 'link', 'value' => 'mailto:a@b.com?subject=Hello'],
+            ['type' => 'link', 'value' => 'mailto:a@b.com?subject=Hello', 'opens_in_new_tab' => false],
             ['type' => 'text', 'value' => '!'],
         ], $result);
     }
@@ -637,7 +643,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'Ho'],
-            ['type' => 'link', 'value' => 'tel:5-star'],
+            ['type' => 'link', 'value' => 'tel:5-star', 'opens_in_new_tab' => false],
             ['type' => 'text', 'value' => ' downtown'],
         ], $result);
     }

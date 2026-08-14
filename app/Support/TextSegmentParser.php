@@ -102,7 +102,14 @@ class TextSegmentParser
             if ($matchStart > $lastIndex) {
                 $segments[] = ['type' => 'text', 'value' => substr($content, $lastIndex, $matchStart - $lastIndex)];
             }
-            $segments[] = ['type' => $type, 'value' => $url];
+
+            // Only 'link' carries this: it's the frontend's sole consumer, deciding target=_blank on
+            // an <a>, which doesn't apply to the <img> an 'image' segment renders as. This is the
+            // single source of truth for that scheme allowlist - see SCHEMES above - so the frontend
+            // never re-derives it and can't drift from what's actually recognized here.
+            $segments[] = $type === 'link'
+                ? ['type' => $type, 'value' => $url, 'opens_in_new_tab' => $isHttpScheme]
+                : ['type' => $type, 'value' => $url];
             $lastIndex = $matchStart + strlen($url);
         }
 

@@ -288,11 +288,11 @@ class GrowthSessionsShowTest extends TestCase
             ->getJson(route('growth_sessions.show', $growthSession))
             ->assertJsonPath('topic_segments', [
                 ['type' => 'text', 'value' => 'check out '],
-                ['type' => 'link', 'value' => 'https://example.com'],
+                ['type' => 'link', 'value' => 'https://example.com', 'opens_in_new_tab' => true],
             ])
             ->assertJsonPath('location_segments', [
                 ['type' => 'text', 'value' => 'join at '],
-                ['type' => 'link', 'value' => 'https://example.com/room'],
+                ['type' => 'link', 'value' => 'https://example.com/room', 'opens_in_new_tab' => true],
             ]);
     }
 

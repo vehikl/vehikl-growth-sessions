@@ -12,7 +12,6 @@ watch(
     () => props.segments,
     () => brokenImageIndexes.value.clear(),
 );
-const isBrowsableProtocol = (value: string) => /^https?:\/\//i.test(value);
 </script>
 
 <template>
@@ -31,7 +30,7 @@ const isBrowsableProtocol = (value: string) => /^https?:\/\//i.test(value);
                 v-else-if="segment.type === 'link'"
                 :href="segment.value"
                 class="gs-accent-text pointer-events-auto font-medium break-all"
-                v-bind="isBrowsableProtocol(segment.value) ? { target: '_blank', rel: 'noopener noreferrer' } : {}"
+                v-bind="segment.opens_in_new_tab ? { target: '_blank', rel: 'noopener noreferrer' } : {}"
                 @click.stop
                 >{{ segment.value }}</a
             >

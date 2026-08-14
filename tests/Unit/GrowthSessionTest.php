@@ -90,7 +90,7 @@ class GrowthSessionTest extends TestCase
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'check out '],
-            ['type' => 'link', 'value' => 'https://example.com'],
+            ['type' => 'link', 'value' => 'https://example.com', 'opens_in_new_tab' => true],
         ], $growthSession->topic_segments);
     }
 
@@ -100,7 +100,7 @@ class GrowthSessionTest extends TestCase
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'join at '],
-            ['type' => 'link', 'value' => 'https://example.com/room'],
+            ['type' => 'link', 'value' => 'https://example.com/room', 'opens_in_new_tab' => true],
         ], $growthSession->location_segments);
     }
 
