@@ -128,16 +128,38 @@ class CommentsTest extends TestCase
         );
     }
 
-    public function test_comment_segments_allow_links_for_non_members_but_still_withhold_images()
+    public function test_comment_segments_withhold_links_as_well_as_images_for_non_members()
     {
         $nonMember = User::factory()->create(['is_vehikl_member' => false]);
         $growthSession = GrowthSession::factory()->create();
         $imageUrl = 'https://example.com/funny.gif';
         $linkUrl = 'https://example.com/info';
+        $content = "photo {$imageUrl} and info {$linkUrl}";
         $comment = Comment::factory()->create([
             'growth_session_id' => $growthSession->id,
             'user_id' => $nonMember->id,
-            'content' => "photo {$imageUrl} and info {$linkUrl}",
+            'content' => $content,
+        ]);
+
+        $comments = collect(
+            $this->getJson(route('growth_sessions.comments.index', $growthSession))->json()
+        );
+
+        $this->assertEquals(
+            [['type' => 'text', 'value' => $content]],
+            $comments->firstWhere('id', $comment->id)['segments']
+        );
+    }
+
+    public function test_comment_segments_still_render_links_for_vehikl_member_authors()
+    {
+        $vehiklMember = User::factory()->create(['is_vehikl_member' => true]);
+        $growthSession = GrowthSession::factory()->create();
+        $linkUrl = 'https://example.com/info';
+        $comment = Comment::factory()->create([
+            'growth_session_id' => $growthSession->id,
+            'user_id' => $vehiklMember->id,
+            'content' => "info {$linkUrl}",
         ]);
 
         $comments = collect(
@@ -145,7 +167,7 @@ class CommentsTest extends TestCase
         );
 
         $this->assertEquals([
-            ['type' => 'text', 'value' => "photo {$imageUrl} and info "],
+            ['type' => 'text', 'value' => 'info '],
             ['type' => 'link', 'value' => $linkUrl, 'opens_in_new_tab' => true],
         ], $comments->firstWhere('id', $comment->id)['segments']);
     }

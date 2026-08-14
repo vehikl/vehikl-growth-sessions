@@ -4,9 +4,9 @@ namespace App\Support;
 
 /**
  * Splits free-form text (comments, session topics, session locations) into text/link/image
- * segments. Recognizes http(s), mailto, and tel urls. Image-url detection runs server-side because
- * it's a trust boundary (see `parse()`) - general link detection is not, and applies to every
- * author.
+ * segments. Recognizes http(s), mailto, and tel urls. Rendering anything as an interactive link or
+ * image is a trust boundary gated on the author (see `parse()`) - an untrusted author's urls stay
+ * inert plain text.
  */
 class TextSegmentParser
 {
@@ -50,20 +50,24 @@ class TextSegmentParser
     private const STRICT_TRAILING_PUNCTUATION_CHARS = [...self::LENIENT_TRAILING_PUNCTUATION_CHARS, '!', ':', '}'];
 
     /**
-     * Splits text into text/link/image segments. $allowImages gates image-url rendering on the
-     * author's trust level: rendering a url as an <img> makes every viewer's browser fetch it, which
-     * lets an untrusted poster use it as a tracking pixel. When a candidate has an image extension
-     * and $allowImages is false, it is left untouched as part of its surrounding text segment - it
-     * never becomes its own segment (image or otherwise) and never creates a text-segment boundary.
-     * General link detection (non-image urls, mailto:, tel:) is not a trust boundary and applies
-     * regardless of $allowImages.
+     * Splits text into text/link/image segments. $isTrustedAuthor gates *all* interactive rendering
+     * (links and images alike) on the author's trust level: a clickable link can be used to phish an
+     * unsuspecting reader, and an <img> makes every viewer's browser auto-fetch it, which lets an
+     * untrusted poster use it as a tracking pixel. When $isTrustedAuthor is false, no url candidate
+     * becomes its own segment (link or image) - each is left untouched as part of its surrounding
+     * text segment, and never creates a text-segment boundary.
      *
-     * This is the single source of truth for that decision - a disallowed image's url still reaches
-     * clients as part of the surrounding text (it's not redacted; the raw content is visible elsewhere
-     * in the payload regardless), but no client is ever told to render it as an <img>, whether they go
-     * through this app's own frontend or hit the API directly.
+     * $allowImages is a second, independent gate scoped to images only, checked only once
+     * $isTrustedAuthor already allows interactive rendering at all - it exists so a trusted author's
+     * content can still have image rendering suppressed on its own (e.g. session topic/location,
+     * which are single-line fields with no room for an embedded image, but should still linkify).
+     *
+     * This is the single source of truth for both decisions - a disallowed candidate's url still
+     * reaches clients as part of the surrounding text (it's not redacted; the raw content is visible
+     * elsewhere in the payload regardless), but no client is ever told to render it as an <a>/<img>,
+     * whether they go through this app's own frontend or hit the API directly.
      */
-    public static function parse(string $content, bool $allowImages): array
+    public static function parse(string $content, bool $isTrustedAuthor, bool $allowImages = true): array
     {
         $segments = [];
         $lastIndex = 0;
@@ -71,6 +75,10 @@ class TextSegmentParser
         preg_match_all(self::URL_PATTERN, $content, $matches, PREG_OFFSET_CAPTURE);
 
         foreach ($matches[0] as $index => [$rawUrl, $matchStart]) {
+            if (! $isTrustedAuthor) {
+                continue;
+            }
+
             $schemeLiteral = strtolower($matches[1][$index][0]);
             $isHttpScheme = $schemeLiteral === 'http://' || $schemeLiteral === 'https://';
 

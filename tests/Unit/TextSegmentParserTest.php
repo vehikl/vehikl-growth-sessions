@@ -141,13 +141,13 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function test_it_keeps_an_image_url_as_plain_text_when_images_are_not_allowed()
+    public function test_it_keeps_an_image_url_as_plain_text_when_images_are_not_allowed_even_for_a_trusted_author()
     {
         $content = 'look at this https://example.com/funny.gif so good';
 
         $this->assertEquals(
             [['type' => 'text', 'value' => $content]],
-            TextSegmentParser::parse($content, false)
+            TextSegmentParser::parse($content, isTrustedAuthor: true, allowImages: false)
         );
     }
 
@@ -453,17 +453,32 @@ class TextSegmentParserTest extends TestCase
         ], $result);
     }
 
-    public function test_an_untrusted_authors_image_stays_text_while_their_plain_link_still_becomes_a_link()
+    public function test_an_untrusted_authors_image_and_plain_link_both_stay_inert_text()
     {
-        $result = TextSegmentParser::parse(
-            'photo https://example.com/funny.gif and info https://example.com/info',
-            false
-        );
+        $content = 'photo https://example.com/funny.gif and info https://example.com/info';
 
-        $this->assertEquals([
-            ['type' => 'text', 'value' => 'photo https://example.com/funny.gif and info '],
-            ['type' => 'link', 'value' => 'https://example.com/info', 'opens_in_new_tab' => true],
-        ], $result);
+        $this->assertEquals(
+            [['type' => 'text', 'value' => $content]],
+            TextSegmentParser::parse($content, isTrustedAuthor: false)
+        );
+    }
+
+    /** @dataProvider untrustedAuthorSchemeProvider */
+    public function test_an_untrusted_authors_url_of_any_recognized_scheme_stays_inert_text(string $content)
+    {
+        $this->assertEquals(
+            [['type' => 'text', 'value' => $content]],
+            TextSegmentParser::parse($content, isTrustedAuthor: false)
+        );
+    }
+
+    public static function untrustedAuthorSchemeProvider(): array
+    {
+        return [
+            'https link' => ['check this out https://example.com/page'],
+            'mailto link' => ['email me at mailto:jane@example.com please'],
+            'tel link' => ['call tel:5551234 now'],
+        ];
     }
 
     public function test_a_bare_http_substring_inside_a_urls_query_or_path_does_not_truncate_the_match()
@@ -546,21 +561,21 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'text', 'value' => $content]],
-            TextSegmentParser::parse($content, false)
+            TextSegmentParser::parse($content, isTrustedAuthor: true, allowImages: false)
         );
     }
 
-    public function test_a_disallowed_image_followed_by_a_link_still_extracts_the_link()
+    public function test_a_disallowed_image_followed_by_a_link_still_extracts_the_link_for_a_trusted_author()
     {
         $content = 'hello https://foo.com/image.png world https://example.com';
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'hello https://foo.com/image.png world '],
             ['type' => 'link', 'value' => 'https://example.com', 'opens_in_new_tab' => true],
-        ], TextSegmentParser::parse($content, false));
+        ], TextSegmentParser::parse($content, isTrustedAuthor: true, allowImages: false));
     }
 
-    public function test_links_on_both_sides_of_a_disallowed_image_are_both_extracted()
+    public function test_links_on_both_sides_of_a_disallowed_image_are_both_extracted_for_a_trusted_author()
     {
         $content = 'https://a.com https://image.com/a.png https://b.com';
 
@@ -568,7 +583,7 @@ class TextSegmentParserTest extends TestCase
             ['type' => 'link', 'value' => 'https://a.com', 'opens_in_new_tab' => true],
             ['type' => 'text', 'value' => ' https://image.com/a.png '],
             ['type' => 'link', 'value' => 'https://b.com', 'opens_in_new_tab' => true],
-        ], TextSegmentParser::parse($content, false));
+        ], TextSegmentParser::parse($content, isTrustedAuthor: true, allowImages: false));
     }
 
     /** @dataProvider adjacentSchemePairProvider */

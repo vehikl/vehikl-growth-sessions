@@ -75,12 +75,15 @@ class GrowthSession extends Model
 
     protected function topicSegments(): Attribute
     {
-        return Attribute::make(get: fn () => TextSegmentParser::parse($this->topic, allowImages: false))->shouldCache();
+        // Only Vehikl members can own a session (see GrowthSessionPolicy::create()), so the topic's
+        // author is always trusted - images are still suppressed since this is a single-line field
+        // with no room for one.
+        return Attribute::make(get: fn () => TextSegmentParser::parse($this->topic, isTrustedAuthor: true, allowImages: false))->shouldCache();
     }
 
     protected function locationSegments(): Attribute
     {
-        return Attribute::make(get: fn () => TextSegmentParser::parse($this->location, allowImages: false))->shouldCache();
+        return Attribute::make(get: fn () => TextSegmentParser::parse($this->location, isTrustedAuthor: true, allowImages: false))->shouldCache();
     }
 
     public function members(): BelongsToMany

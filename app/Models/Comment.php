@@ -47,7 +47,7 @@ class Comment extends Model
     protected function segments(): Attribute
     {
         return Attribute::make(
-            get: fn () => TextSegmentParser::parse($this->content, allowImages: (bool) $this->user?->is_vehikl_member),
+            get: fn () => TextSegmentParser::parse($this->content, isTrustedAuthor: (bool) $this->user?->is_vehikl_member),
         )->shouldCache();
     }
 }
