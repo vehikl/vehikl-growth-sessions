@@ -107,6 +107,13 @@ class TextSegmentParserTest extends TestCase
         $this->assertEquals([['type' => 'image', 'value' => 'Https://example.com/funny.gif']], $result);
     }
 
+    public function test_opens_in_new_tab_is_case_insensitive_on_the_url_scheme()
+    {
+        $result = TextSegmentParser::parse('HTTP://EXAMPLE.COM', true);
+
+        $this->assertEquals([['type' => 'link', 'value' => 'HTTP://EXAMPLE.COM', 'opens_in_new_tab' => true]], $result);
+    }
+
     /** @dataProvider nonImageExtensionProvider */
     public function test_it_does_not_treat_a_non_image_extension_url_as_an_image(string $extension)
     {
