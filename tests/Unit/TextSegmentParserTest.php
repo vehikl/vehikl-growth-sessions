@@ -263,6 +263,27 @@ class TextSegmentParserTest extends TestCase
         );
     }
 
+    public function test_it_keeps_a_trailing_exclamation_mark_after_a_real_query_string_even_with_a_leading_question_mark_boundary()
+    {
+        $url = 'https://example.com/funny.gif?cid=3!';
+
+        $this->assertEquals(
+            [['type' => 'image', 'value' => $url]],
+            TextSegmentParser::parse($url, true)
+        );
+    }
+
+    public function test_a_trailing_exclamation_then_question_mark_is_treated_as_sentence_punctuation_not_a_query_string()
+    {
+        $result = TextSegmentParser::parse('nice https://example.com/img.png!?', true);
+
+        $this->assertEquals([
+            ['type' => 'text', 'value' => 'nice '],
+            ['type' => 'image', 'value' => 'https://example.com/img.png'],
+            ['type' => 'text', 'value' => '!?'],
+        ], $result);
+    }
+
     public function test_it_strips_an_extra_unbalanced_trailing_parenthesis_but_keeps_the_inner_balanced_pair()
     {
         $result = TextSegmentParser::parse('https://example.com/foo(bar))', true);
@@ -391,6 +412,27 @@ class TextSegmentParserTest extends TestCase
             ['type' => 'text', 'value' => 'hello '],
             ['type' => 'link', 'value' => 'https://example.com', 'opens_in_new_tab' => true],
             ['type' => 'text', 'value' => ' world'],
+        ], $result);
+    }
+
+    public function test_it_keeps_an_apostrophe_inside_a_url_path()
+    {
+        $url = "https://en.wikipedia.org/wiki/Murphy's_Law";
+
+        $this->assertEquals(
+            [['type' => 'link', 'value' => $url, 'opens_in_new_tab' => true]],
+            TextSegmentParser::parse($url, true)
+        );
+    }
+
+    public function test_it_still_strips_a_wrapping_apostrophe_around_a_url()
+    {
+        $result = TextSegmentParser::parse("check 'https://example.com/page' out", true);
+
+        $this->assertEquals([
+            ['type' => 'text', 'value' => "check '"],
+            ['type' => 'link', 'value' => 'https://example.com/page', 'opens_in_new_tab' => true],
+            ['type' => 'text', 'value' => "' out"],
         ], $result);
     }
 

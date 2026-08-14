@@ -20,7 +20,7 @@ class GrowthSessionsIndexTest extends TestCase
     private function resourceArray(GrowthSession $growthSession): array
     {
         $resource = new GrowthSessionResource(
-            $growthSession->fresh(['attendees', 'watchers', 'comments', 'anydesk', 'tags'])
+            $growthSession->fresh(GrowthSession::RESOURCE_RELATIONS)
         );
 
         // request()->user() isn't wired up by actingAs() until an actual HTTP dispatch happens, so it

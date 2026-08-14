@@ -197,7 +197,9 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                                         >LIVE</span
                                     >
                                 </div>
-                                <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">{{ session.owner?.name ?? 'Unknown' }}</div>
+                                <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">
+                                    {{ session.owner?.name ?? 'Unknown' }}
+                                </div>
                                 <div v-if="tagline(session)" class="gs-text-sub mt-1 text-sm">{{ tagline(session) }}</div>
                                 <div
                                     class="gs-text-body pointer-events-none relative z-20 mt-2 max-w-full text-sm leading-normal whitespace-pre-wrap xl:max-w-1/2"

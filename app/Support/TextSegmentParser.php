@@ -21,13 +21,17 @@ class TextSegmentParser
     // that stop when the second scheme immediately follows a `=` or `/` - a query parameter value
     // (e.g. `?redirect=https://...`) or a path segment that merely looks like a scheme (e.g.
     // `/contact/tel:5551234`) rather than two urls butted together, so the outer url keeps consuming
-    // through it instead of being cut in half. `"'<>|` and backtick are excluded outright since
+    // through it instead of being cut in half. `"<>|` and backtick are excluded outright since
     // they're never valid unencoded in a url and commonly wrap or separate a pasted link (quotes,
     // markdown, code spans) - unlike e.g. a comma, which is legal inside a url's own path or query.
+    // An apostrophe is deliberately NOT excluded here: it's a valid RFC 3986 sub-delimiter and shows
+    // up in real urls (e.g. Wikipedia's `/wiki/Murphy's_Law`) - a wrapping or trailing apostrophe
+    // still gets trimmed by stripTrailingPunctuation()'s own punctuation sets below, so this only
+    // affects apostrophes that appear mid-url.
     // The leading scheme is captured so the matched literal doesn't need to be re-derived afterward.
     // `/u` puts matching in Unicode mode so `\s` also treats non-breaking spaces (and other Unicode
     // whitespace) as url boundaries, matching the deleted JS parser's behavior.
-    private const URL_PATTERN = '/('.self::SCHEMES.')(?:(?:(?<=[=\/])|(?!'.self::SCHEMES.'))[^\s"\'<>`|])+/iu';
+    private const URL_PATTERN = '/('.self::SCHEMES.')(?:(?:(?<=[=\/])|(?!'.self::SCHEMES.'))[^\s"<>`|])+/iu';
 
     private const IMAGE_EXTENSION_PATTERN = '/\.(gif|png|jpe?g|webp)$/i';
 
@@ -83,7 +87,13 @@ class TextSegmentParser
             $isHttpScheme = $schemeLiteral === 'http://' || $schemeLiteral === 'https://';
 
             if ($isHttpScheme) {
-                $imageTrailingPunctuationChars = str_contains($rawUrl, '?')
+                // A bare `str_contains($rawUrl, '?')` can't tell a real query string apart from a `?`
+                // that's itself trailing sentence punctuation (e.g. "check out img.png!?"), so trim any
+                // chars already known to be safe-to-strip trailing punctuation first, and only then
+                // check what's left for a genuine `?` - that's what decides whether a trailing `!`/`:`
+                // is signed-CDN query data worth protecting or just more punctuation to strip.
+                $hasQueryString = str_contains(rtrim($rawUrl, implode('', self::LENIENT_TRAILING_PUNCTUATION_CHARS)), '?');
+                $imageTrailingPunctuationChars = $hasQueryString
                     ? self::LENIENT_TRAILING_PUNCTUATION_CHARS
                     : self::IMAGE_TRAILING_PUNCTUATION_CHARS_WITHOUT_QUERY_STRING;
                 $lenientUrl = self::stripTrailingPunctuation($rawUrl, $imageTrailingPunctuationChars);
