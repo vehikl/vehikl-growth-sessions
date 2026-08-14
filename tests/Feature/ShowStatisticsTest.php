@@ -62,6 +62,67 @@ class ShowStatisticsTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.lifetime_minutes_count', 330));
     }
 
+    public function test_the_growth_time_counts_no_purely_social_sessions()
+    {
+        $user = User::factory()->vehiklMember()->create();
+
+        GrowthSession::factory()->create(['start_time' => '15:00', 'end_time' => '17:00']);
+
+        $social = GrowthSession::factory()->create(['start_time' => '17:00', 'end_time' => '19:00']);
+        $social->tags()->attach(Tag::firstOrCreate(['name' => GrowthSession::SOCIAL_TAG]));
+
+        $this->actingAs($user)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.lifetime_minutes_count', 120));
+    }
+
+    public function test_a_social_session_that_also_carries_a_subject_tag_still_counts_towards_the_growth_time()
+    {
+        $user = User::factory()->vehiklMember()->create();
+
+        $socialAndTechnical = GrowthSession::factory()->create(['start_time' => '15:00', 'end_time' => '17:00']);
+        $socialAndTechnical->tags()->attach([
+            Tag::firstOrCreate(['name' => GrowthSession::SOCIAL_TAG])->id,
+            Tag::firstOrCreate(['name' => 'Laravel'])->id,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.lifetime_minutes_count', 120));
+    }
+
+    public function test_the_growth_time_counts_no_lightning_talks()
+    {
+        $user = User::factory()->vehiklMember()->create();
+
+        GrowthSession::factory()->create(['title' => 'Refactoring workshop', 'start_time' => '15:00', 'end_time' => '17:00']);
+        GrowthSession::factory()->create(['title' => 'Lightning Talks', 'start_time' => '12:00', 'end_time' => '13:00']);
+        GrowthSession::factory()->create(['title' => 'August Lightning Talks 2026', 'start_time' => '12:00', 'end_time' => '13:00']);
+
+        $this->actingAs($user)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.lifetime_minutes_count', 120));
+    }
+
+    public function test_the_lifetime_session_count_still_counts_social_sessions_and_lightning_talks()
+    {
+        $user = User::factory()->vehiklMember()->create();
+
+        GrowthSession::factory()->create(['title' => 'Refactoring workshop']);
+        GrowthSession::factory()->create(['title' => 'Lightning Talks']);
+
+        $social = GrowthSession::factory()->create();
+        $social->tags()->attach(Tag::firstOrCreate(['name' => GrowthSession::SOCIAL_TAG]));
+
+        $this->actingAs($user)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('summary.lifetime_sessions_count', 3));
+    }
+
     public function test_it_ranks_this_weeks_top_hosts()
     {
         $this->setTestNowToASafeWednesday();
