@@ -10,7 +10,6 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class NotificationCreated implements ShouldBroadcast
 {
@@ -42,7 +41,7 @@ class NotificationCreated implements ShouldBroadcast
         ))->resolve();
     }
 
-    public static function broadcastAs(): string
+    public function broadcastAs(): string
     {
         return 'notification.created';
     }

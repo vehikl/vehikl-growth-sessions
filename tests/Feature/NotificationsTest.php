@@ -294,6 +294,24 @@ class NotificationsTest extends TestCase
         $this->assertSame($growthSession->id, $broadcast['growth_session']['id']);
     }
 
+    /**
+     * The name and channel the client subscribes to and routes/channels.php authorises. Renaming
+     * either without the other leaves notifications broadcasting into a channel nobody hears.
+     */
+    public function testItBroadcastsToTheRecipientAloneUnderAStableName()
+    {
+        $recipient = User::factory()->create();
+        $notification = Notification::factory()->create(['user_id' => $recipient->id]);
+
+        $event = new NotificationCreated($notification);
+
+        $this->assertSame('notification.created', $event->broadcastAs());
+        $this->assertSame(
+            ['private-notifications.' . $recipient->id],
+            array_map(fn($channel) => (string) $channel, $event->broadcastOn()),
+        );
+    }
+
     public function testABroadcastDeletionCarriesItsSnapshot()
     {
         $user = User::factory()->create();
