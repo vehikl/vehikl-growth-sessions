@@ -14,6 +14,7 @@ import { DiscordChannelApi } from '@/services/DiscordChannelApi';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
 import { IUser } from '@/types';
+import { useEcho } from '@laravel/echo-vue';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import { vi } from 'vitest';
@@ -657,6 +658,70 @@ describe('Board', () => {
             await flushPromises();
 
             expect(wrapper.findComponent(SessionDetailDrawer).exists()).toBe(false);
+        });
+
+        // The board ignores comment broadcasts because they change nothing it renders. The open
+        // drawer renders the comment list in full, so it has to hear them anyway - otherwise
+        // comments only appear for whoever posted them, and everyone else sees a frozen thread.
+        describe('live updates', () => {
+            /** The handler the board handed to Echo, so a broadcast can be delivered directly. */
+            function broadcast(data: { type: string; growthSessionId: number }): Promise<void> {
+                const calls = vi.mocked(useEcho).mock.calls;
+                const handler = calls[calls.length - 1][2] as (payload: typeof data) => Promise<void>;
+                return handler(data);
+            }
+
+            function openSession(): GrowthSession {
+                return (wrapper.findComponent(SessionDetailDrawer).props() as { growthSession: GrowthSession }).growthSession;
+            }
+
+            /** The same week, but the given session has picked up a comment from somebody else. */
+            function weekWithACommentOn(sessionId: number, content: string): WeekGrowthSessions {
+                const week = new WeekGrowthSessions(JSON.parse(JSON.stringify(growthSessionsThisWeekJson)));
+                const session = week.allGrowthSessions.find((gs: GrowthSession) => gs.id === sessionId)!;
+                session.comments = [
+                    ...session.comments,
+                    { id: 9001, growth_session_id: sessionId, content, time_stamp: '1 second ago', user: authVehiklUser },
+                ];
+                return week;
+            }
+
+            it('shows a comment somebody else left on the session the drawer is showing', async () => {
+                await openFirstSessionDetail();
+                const { id } = openSession();
+                GrowthSessionApi.getAllGrowthSessionsOfTheWeek = vi.fn().mockResolvedValue(weekWithACommentOn(id, 'Someone else said this'));
+
+                await broadcast({ type: 'comment', growthSessionId: id });
+                await flushPromises();
+
+                expect(openSession().comments.map((comment) => comment.content)).toContain('Someone else said this');
+            });
+
+            it('leaves the week alone for a comment on a session whose drawer is not open', async () => {
+                await openFirstSessionDetail();
+                const { id } = openSession();
+                GrowthSessionApi.getAllGrowthSessionsOfTheWeek = vi.fn();
+
+                await broadcast({ type: 'comment', growthSessionId: id + 1000 });
+
+                expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).not.toHaveBeenCalled();
+            });
+
+            it('leaves the week alone for a comment while no drawer is open', async () => {
+                GrowthSessionApi.getAllGrowthSessionsOfTheWeek = vi.fn();
+
+                await broadcast({ type: 'comment', growthSessionId: 1 });
+
+                expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).not.toHaveBeenCalled();
+            });
+
+            it('still refetches the week for a change the cards do render', async () => {
+                GrowthSessionApi.getAllGrowthSessionsOfTheWeek = vi.fn().mockResolvedValue(growthSessionsThisWeek);
+
+                await broadcast({ type: 'session', growthSessionId: 1 });
+
+                expect(GrowthSessionApi.getAllGrowthSessionsOfTheWeek).toHaveBeenCalled();
+            });
         });
     });
 

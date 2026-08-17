@@ -341,12 +341,13 @@ async function onGrowthSessionDeleteRequested(session: GrowthSession) {
     }
 }
 
-async function refreshGrowthSessions(data: { type: string }) {
-    const ignoredEvents = ['comment', 'watchers'];
+async function refreshGrowthSessions(data: { type: string; growthSessionId: number }) {
+    const boardShowsThisChange = !['comment', 'watchers'].includes(data.type);
+    const openDrawerShowsThisChange = selectedSession.value?.id === data.growthSessionId;
 
-    if (!ignoredEvents.includes(data.type)) {
-        await getAllGrowthSessionsOfTheWeek();
-    }
+    if (!boardShowsThisChange && !openDrawerShowsThisChange) return;
+
+    await onDrawerRefresh();
 }
 
 useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
