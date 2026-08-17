@@ -226,6 +226,44 @@ class NotificationsTest extends TestCase
             ->assertJsonPath('0.growth_session', null);
     }
 
+    /**
+     * Guards the factory rather than the endpoint: a default row must always be able to describe
+     * its growth session, or every future test asserting on growth_session becomes a coin flip.
+     */
+    public function testADefaultFactoryNotificationAlwaysDescribesItsGrowthSession()
+    {
+        $user = User::factory()->create();
+        Notification::factory()->count(30)->create(['user_id' => $user->id]);
+
+        $payload = $this->actingAs($user)
+            ->getJson(route('notifications.index', ['limit' => 30]))
+            ->assertSuccessful()
+            ->json();
+
+        $this->assertCount(30, $payload);
+
+        foreach ($payload as $notification) {
+            $this->assertNotNull(
+                $notification['growth_session'],
+                "a default factory row rendered no growth session (type: {$notification['type']})",
+            );
+        }
+    }
+
+    public function testTheDeletedStateDescribesItselfWithoutALiveSession()
+    {
+        $user = User::factory()->create();
+        Notification::factory()->forDeletedGrowthSession()->create(['user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->getJson(route('notifications.index'))
+            ->assertSuccessful()
+            ->assertJsonPath('0.type', NotificationType::GS_DELETED->value)
+            ->assertJsonPath('0.growth_session.id', null)
+            ->assertJsonPath('0.growth_session.title', 'A cancelled session')
+            ->assertJsonPath('0.growth_session.location', 'At AnyDesk XYZ - abcdefg');
+    }
+
     #[DataProvider('editProvider')]
     public function testAnEditRaisesExactlyOneNotificationDescribingEverythingThatMoved(array $changes, NotificationType $expected)
     {

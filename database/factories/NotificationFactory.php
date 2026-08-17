@@ -19,8 +19,25 @@ class NotificationFactory extends Factory
             'user_id' => User::factory(),
             'growth_session_id' => GrowthSession::factory(),
             'read' => false,
-            'type' => $this->faker->randomElement(NotificationType::cases()),
+            'type' => $this->faker->randomElement(self::typesWithALiveGrowthSession()),
         ];
+    }
+
+    /**
+     * Every type but GS_DELETED.
+     *
+     * A deletion is the one shape whose growth session no longer exists, so it is served from
+     * the snapshot that forDeletedGrowthSession() sets. Leaving it in the default pool made a
+     * plain factory row render no growth session at all, at random, one time in five.
+     *
+     * @return list<NotificationType>
+     */
+    private static function typesWithALiveGrowthSession(): array
+    {
+        return array_values(array_filter(
+            NotificationType::cases(),
+            fn(NotificationType $type) => $type !== NotificationType::GS_DELETED,
+        ));
     }
 
     public function read(bool $read = true): static
@@ -33,6 +50,8 @@ class NotificationFactory extends Factory
     {
         return $this->state([
             'type' => NotificationType::GS_DELETED,
+            // The session is gone, so there is no row to point at - the snapshot is all that is left.
+            'growth_session_id' => null,
             'metadata' => $metadata + [
                 'title' => 'A cancelled session',
                 'location' => 'At AnyDesk XYZ - abcdefg',
