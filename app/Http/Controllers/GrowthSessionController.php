@@ -114,6 +114,8 @@ class GrowthSessionController extends Controller
         GrowthSessionUser::query()
             ->where('growth_session_id', $growthSession->id)
             ->where('user_id', $request->user()->id)
+            ->get()
+            ->each
             ->delete();
 
         return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));

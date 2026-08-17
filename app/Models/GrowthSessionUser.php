@@ -17,7 +17,16 @@ class GrowthSessionUser extends Model
     ];
     public $timestamps = false;
 
+    public $incrementing = false;
+
     protected $table = 'growth_session_user';
+
+    protected function setKeysForSaveQuery($query)
+    {
+        return $query
+            ->where('growth_session_id', $this->growth_session_id)
+            ->where('user_id', $this->user_id);
+    }
 
     public function user(): BelongsTo
     {
