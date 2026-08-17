@@ -264,6 +264,52 @@ class NotificationsTest extends TestCase
             ->assertJsonPath('0.growth_session.location', 'At AnyDesk XYZ - abcdefg');
     }
 
+    public function testCommentingNotifiesTheOtherParticipantsButNotTheCommenter()
+    {
+        $owner = User::factory()->create();
+        $attendee = User::factory()->create();
+        $watcher = User::factory()->create();
+        $growthSession = GrowthSession::factory()->create(['title' => 'Pairing on Vue']);
+        $growthSession->attendees()->attach($owner, ['user_type_id' => UserType::OWNER_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->watchers()->attach($watcher, ['user_type_id' => UserType::WATCHER_ID]);
+
+        $this->actingAs($attendee)
+            ->postJson(route('growth_sessions.comments.store', $growthSession), ['content' => 'Looking forward to this'])
+            ->assertSuccessful();
+
+        $notifications = Notification::query()->get();
+
+        $this->assertEqualsCanonicalizing(
+            [$owner->id, $watcher->id],
+            $notifications->pluck('user_id')->all(),
+            'everyone involved except the commenter should hear about it',
+        );
+        $this->assertSame([NotificationType::GS_COMMENT_ADDED], $notifications->pluck('type')->unique()->all());
+        $this->assertSame([$attendee->id], $notifications->pluck('initiator')->unique()->all());
+    }
+
+    public function testACommentNotificationCarriesTheGrowthSessionItWasLeftOn()
+    {
+        $owner = User::factory()->create();
+        $commenter = User::factory()->create();
+        $growthSession = GrowthSession::factory()->create(['title' => 'Pairing on Vue']);
+        $growthSession->attendees()->attach($owner, ['user_type_id' => UserType::OWNER_ID]);
+        $growthSession->attendees()->attach($commenter, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->actingAs($commenter)
+            ->postJson(route('growth_sessions.comments.store', $growthSession), ['content' => 'Looking forward to this'])
+            ->assertSuccessful();
+
+        $this->actingAs($owner)
+            ->getJson(route('notifications.index'))
+            ->assertSuccessful()
+            ->assertJsonPath('0.type', NotificationType::GS_COMMENT_ADDED->value)
+            ->assertJsonPath('0.growth_session.id', $growthSession->id)
+            ->assertJsonPath('0.growth_session.title', 'Pairing on Vue')
+            ->assertJsonPath('0.initiator.id', $commenter->id);
+    }
+
     #[DataProvider('editProvider')]
     public function testAnEditRaisesExactlyOneNotificationDescribingEverythingThatMoved(array $changes, NotificationType $expected)
     {
