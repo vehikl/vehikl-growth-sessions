@@ -2,11 +2,12 @@
 
 namespace App\Observers;
 
-use App\Events\GrowthSessionCreated;
+use App\Enums\NotificationType;
 use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionModified;
 use App\Events\GrowthSessionUpdated;
 use App\Models\GrowthSession;
+use App\Services\NotificationService;
 
 class GrowthSessionObserver
 {
@@ -19,6 +20,22 @@ class GrowthSessionObserver
     {
         broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
         event(new GrowthSessionUpdated($growthSession));
+
+        $timeChanged = $growthSession->wasChanged(['start_time', 'end_time']);
+        $locationChanged = $growthSession->wasChanged(['location']);
+
+        // One save is one notification, even when it moved both the clock and the room.
+        if ($timeChanged || $locationChanged) {
+            NotificationService::dispatchNotification(
+                $growthSession,
+                $growthSession->owner,
+                match (true) {
+                    $timeChanged && $locationChanged => NotificationType::GS_TIME_AND_LOCATION_CHANGED,
+                    $timeChanged => NotificationType::GS_TIME_CHANGED,
+                    default => NotificationType::GS_LOCATION_CHANGED,
+                }
+            );
+        }
     }
 
     /**

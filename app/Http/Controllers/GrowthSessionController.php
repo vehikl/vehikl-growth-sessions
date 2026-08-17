@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\NotificationType;
 use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionModified;
 use App\Exceptions\AttendeeLimitReached;
@@ -15,6 +16,7 @@ use App\Models\GrowthSession;
 use App\Models\GrowthSessionUser;
 use App\Models\UserType;
 use App\Policies\GrowthSessionPolicy;
+use App\Services\NotificationService;
 use App\Support\InviteLink;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -142,6 +144,12 @@ class GrowthSessionController extends Controller
 
     public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $growthSession)
     {
+        NotificationService::dispatchNotification(
+            $growthSession,
+            $growthSession->owner,
+            NotificationType::GS_DELETED
+        );
+
         $growthSession->delete();
     }
 }

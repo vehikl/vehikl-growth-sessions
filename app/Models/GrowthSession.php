@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 #[ObservedBy(GrowthSessionObserver::class)]
@@ -82,6 +83,30 @@ class GrowthSession extends Model
     public function watchers()
     {
         return $this->belongsToMany(User::class)->wherePivot('user_type_id', UserType::WATCHER_ID);
+    }
+
+    public function notifiableUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->wherePivotIn('user_type_id', [UserType::ATTENDEE_ID, UserType::OWNER_ID, UserType::WATCHER_ID]);
+    }
+
+    public function toNotificationMetadata(): array
+    {
+        return [
+            'title' => $this->title,
+            'location' => $this->location,
+            'date' => $this->date?->format('Y-m-d'),
+            'start_time' => $this->start_time?->format('h:i a'),
+            'end_time' => $this->end_time?->format('h:i a'),
+        ];
+    }
+
+    public function notifiableUserIdsExcludingInitiator(User $initiator): Collection
+    {
+        return $this->notifiableUsers->filter(function (User $user) use ($initiator) {
+            return $user->id !== $initiator->id;
+        })->pluck('id')->values();
     }
 
     public function comments()
