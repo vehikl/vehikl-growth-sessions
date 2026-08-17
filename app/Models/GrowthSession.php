@@ -91,7 +91,7 @@ class GrowthSession extends Model
         return $this->belongsToMany(User::class)
             ->wherePivotIn('user_type_id', [UserType::ATTENDEE_ID, UserType::OWNER_ID, UserType::WATCHER_ID]);
     }
-    
+
     public function toNotificationMetadata(): array
     {
         return [
@@ -105,9 +105,9 @@ class GrowthSession extends Model
 
     public function notifiableUserIdsExcludingInitiator(User $initiator): Collection
     {
-        return $this->notifiableUsers->filter(function (User $user) use ($initiator) {
-            return $user->id !== $initiator->id;
-        })->pluck('id')->values();
+        return $this->notifiableUsers()
+            ->whereKeyNot($initiator->getKey())
+            ->pluck('users.id');
     }
 
     public function comments()
