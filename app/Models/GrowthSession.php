@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -60,7 +61,7 @@ class GrowthSession extends Model
     protected function owner(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->owners()->first(),
+            get: fn() => $this->owners()->first(),
         );
     }
 
@@ -90,7 +91,7 @@ class GrowthSession extends Model
         return $this->belongsToMany(User::class)
             ->wherePivotIn('user_type_id', [UserType::ATTENDEE_ID, UserType::OWNER_ID, UserType::WATCHER_ID]);
     }
-
+    
     public function toNotificationMetadata(): array
     {
         return [
@@ -127,21 +128,21 @@ class GrowthSession extends Model
     protected function date(): Attribute
     {
         return Attribute::make(
-            set: fn ($value) => Carbon::parse($value)->format('Y-m-d'),
+            set: fn($value) => Carbon::parse($value)->format('Y-m-d'),
         );
     }
 
     protected function startTime(): Attribute
     {
         return Attribute::make(
-            set: fn ($value) => Carbon::parse($value)->format('H:i'),
+            set: fn($value) => Carbon::parse($value)->format('H:i'),
         );
     }
 
     protected function endTime(): Attribute
     {
         return Attribute::make(
-            set: fn ($value) => Carbon::parse($value)->format('H:i'),
+            set: fn($value) => Carbon::parse($value)->format('H:i'),
         );
     }
 
@@ -182,26 +183,26 @@ class GrowthSession extends Model
      * Left in minutes rather than hours so the caller can render the leftover half hour instead
      * of rounding it away. Sessions missing either end of their window contribute nothing.
      *
-     * @param  Builder|BelongsToMany $sessions
+     * @param Builder|BelongsToMany $sessions
      */
     public static function scheduledMinutes($sessions): int
     {
-        $seconds = (int) $sessions
+        $seconds = (int)$sessions
             ->whereNotNull('growth_sessions.start_time')
             ->whereNotNull('growth_sessions.end_time')
             ->sum(DB::raw('TIME_TO_SEC(TIMEDIFF(growth_sessions.end_time, growth_sessions.start_time))'));
 
-        return (int) round($seconds / 60);
+        return (int)round($seconds / 60);
     }
 
     public function hasAttendee(User $attendee): bool
     {
-        return ! ! $this->attendees->find($attendee);
+        return !!$this->attendees->find($attendee);
     }
 
     public function hasWatcher(User $watcher): bool
     {
-        return ! ! $this->watchers->find($watcher);
+        return !!$this->watchers->find($watcher);
     }
 
     public function hasParticipant(User $user): bool
