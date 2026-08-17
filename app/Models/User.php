@@ -44,6 +44,11 @@ class User extends Authenticatable
         return $this->hasMany(Email::class);
     }
 
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
+
     public function growthSessions()
     {
         // TODO: Replace implementation of this to be "all Growth sessions involving this user"
