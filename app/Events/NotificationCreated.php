@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Http\Resources\Notification as NotificationResource;
 use App\Models\Notification;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -32,6 +33,13 @@ class NotificationCreated implements ShouldBroadcast
         return [
             new PrivateChannel('notifications.' . $this->notification->user_id),
         ];
+    }
+
+    public function broadcastWith(): array
+    {
+        return (new NotificationResource(
+            $this->notification->loadMissing(['initiatedBy', 'growthSession'])
+        ))->resolve();
     }
 
     public static function broadcastAs(): string

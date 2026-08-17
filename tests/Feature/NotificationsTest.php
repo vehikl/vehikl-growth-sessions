@@ -264,6 +264,47 @@ class NotificationsTest extends TestCase
             ->assertJsonPath('0.growth_session.location', 'At AnyDesk XYZ - abcdefg');
     }
 
+    /**
+     * Pins the pushed payload to the fetched one. They fill the same place in a client, so a field
+     * added to the resource must not silently reach only half of it.
+     */
+    public function testTheBroadcastPayloadIsWhatTheEndpointWouldHaveReturned()
+    {
+        $user = User::factory()->create();
+        $initiator = User::factory()->create();
+        $growthSession = GrowthSession::factory()->create();
+
+        $notification = Notification::factory()->create([
+            'user_id' => $user->id,
+            'initiator' => $initiator->id,
+            'growth_session_id' => $growthSession->id,
+            'type' => NotificationType::GS_COMMENT_ADDED,
+        ]);
+
+        // Encoded and decoded so enums and dates are compared as they go over the wire.
+        $broadcast = json_decode(json_encode((new NotificationCreated($notification))->broadcastWith()), true);
+
+        $fetched = $this->actingAs($user)
+            ->getJson(route('notifications.index'))
+            ->assertSuccessful()
+            ->json()[0];
+
+        $this->assertSame($fetched, $broadcast);
+        $this->assertSame($initiator->id, $broadcast['initiator']['id']);
+        $this->assertSame($growthSession->id, $broadcast['growth_session']['id']);
+    }
+
+    public function testABroadcastDeletionCarriesItsSnapshot()
+    {
+        $user = User::factory()->create();
+        $notification = Notification::factory()->forDeletedGrowthSession()->create(['user_id' => $user->id]);
+
+        $payload = (new NotificationCreated($notification))->broadcastWith();
+
+        $this->assertNull($payload['growth_session']['id']);
+        $this->assertSame('A cancelled session', $payload['growth_session']['title']);
+    }
+
     public function testCommentingNotifiesTheOtherParticipantsButNotTheCommenter()
     {
         $owner = User::factory()->create();
