@@ -3,10 +3,11 @@ import VAvatar from '@/components/legacy/VAvatar.vue';
 import { useTheme } from '@/composables/useTheme';
 import { loginUrl } from '@/lib/loginUrl';
 import VehiklLogo from '@/svgs/VehiklLogo.vue';
-import type { BreadcrumbItemType } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import type { BreadcrumbItemType, IUser } from '@/types';
+import { Link, usePage } from '@inertiajs/vue3';
 import { onClickOutside } from '@vueuse/core';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { useEcho } from '@laravel/echo-vue';
 
 interface Props {
     breadcrumbs?: BreadcrumbItemType[];
@@ -39,6 +40,12 @@ function navigationClass(routeName: string): string {
     return `${navLinkClass} ${route().current(routeName) ? 'text-white' : 'text-white/55'}`;
 }
 
+const page = usePage<{
+    auth: {
+        user: IUser | null;
+    };
+}>();
+const user = computed(() => page.props.auth.user ?? null);
 const userMenuOpen = ref(false);
 const userMenu = ref<HTMLElement | null>(null);
 const mobileMenuOpen = ref(false);
@@ -46,6 +53,12 @@ const mobileMenu = ref<HTMLElement | null>(null);
 const shortcutsPopover = ref<HTMLElement | null>(null);
 onClickOutside(userMenu, () => (userMenuOpen.value = false));
 onClickOutside(mobileMenu, () => (mobileMenuOpen.value = false));
+
+if (user.value) {
+    useEcho(`notifications.${user.value.id}`, '.notification.created', (e) => {
+        console.log("Notification received:", e)
+    }, [], 'private')
+}
 
 function handleThemeShortcut(event: KeyboardEvent) {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.key.toLowerCase() !== 't') return;
