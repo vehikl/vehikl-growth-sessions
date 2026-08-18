@@ -1,5 +1,8 @@
-/** Mirrors App\Enums\NotificationType. */
-export type NotificationType = 'gs_comment' | 'gs_time' | 'gs_location' | 'gs_time_location' | 'gs_deleted';
+/**
+ * Mirrors App\Enums\NotificationType: one thing that happened, never a combination of things.
+ * A notification carries a list of these.
+ */
+export type NotificationType = 'gs_comment' | 'gs_time' | 'gs_location' | 'gs_date' | 'gs_deleted';
 
 /**
  * The growth session a notification is about. Null when there is nothing left to describe, and
@@ -24,7 +27,8 @@ export interface INotificationInitiator {
 
 export interface INotification {
     id: number;
-    type: NotificationType;
+    /** Everything one save reported, in the order a reader says it. Always a list, never empty. */
+    event_types: NotificationType[];
     read: boolean;
     growth_session: INotificationGrowthSession | null;
     initiator: INotificationInitiator | null;

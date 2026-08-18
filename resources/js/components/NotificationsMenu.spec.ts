@@ -16,7 +16,7 @@ vi.mock('@/lib/notificationSentence', async (importOriginal) => {
 function aNotification(overrides: Partial<INotification> = {}): INotification {
     return {
         id: 1,
-        type: 'gs_comment',
+        event_types: ['gs_comment'],
         read: false,
         growth_session: {
             id: 42,
@@ -64,8 +64,8 @@ describe('NotificationsMenu', () => {
         expect(wrapper.findAll('[data-testid="notification"]')).toHaveLength(3);
     });
 
-    it('reads the notification as a sentence rather than its type', async () => {
-        const wrapper = await menuShowing([aNotification({ type: 'gs_comment' })]);
+    it('reads the notification as a sentence rather than its raw events', async () => {
+        const wrapper = await menuShowing([aNotification({ event_types: ['gs_comment'] })]);
 
         expect(wrapper.find('[data-testid="notification-sentence"]').text()).toBe('Ada commented on Pairing on Vue');
         expect(wrapper.text()).not.toContain('gs_comment');
@@ -79,12 +79,20 @@ describe('NotificationsMenu', () => {
     });
 
     // The sentences themselves are covered in notificationSentence.spec.ts; this pins the wiring.
-    it('reads each type through the same translation', async () => {
-        const wrapper = await menuShowing([aNotification({ id: 1, type: 'gs_time' }), aNotification({ id: 2, type: 'gs_deleted' })]);
+    it('reads every notification through the same translation', async () => {
+        const wrapper = await menuShowing([
+            aNotification({ id: 1, event_types: ['gs_time'] }),
+            aNotification({ id: 2, event_types: ['gs_date', 'gs_location'] }),
+            aNotification({ id: 3, event_types: ['gs_deleted'] }),
+        ]);
 
         const sentences = wrapper.findAll('[data-testid="notification-sentence"]').map((row) => row.text());
 
-        expect(sentences).toEqual(['Ada updated the time of Pairing on Vue from 03:30 pm to 05:00 pm', 'Ada deleted Pairing on Vue']);
+        expect(sentences).toEqual([
+            'Ada updated the time of Pairing on Vue, now 03:30 pm to 05:00 pm',
+            'Ada updated the date and location of Pairing on Vue, now Aug 20, at AnyDesk 12',
+            'Ada deleted Pairing on Vue',
+        ]);
     });
 
     it('shows the initiator behind the notification', async () => {
