@@ -62,7 +62,15 @@ async function onDeleteClicked() {
 </script>
 
 <template>
-    <div class="group gs-card gs-border transition-smooth relative mb-3 rounded-lg border p-4 hover:shadow-md" :style="{ opacity: cardOpacity }">
+    <div
+        class="group gs-card gs-border transition-smooth relative isolate mb-3 rounded-lg border p-4 hover:shadow-md"
+        :style="{ opacity: cardOpacity }"
+    >
+        <!--
+            `isolate` on the root keeps the z-10/z-20 below from escaping into the page. The root is only
+            `relative`, so without it those layers land in the root stacking context and tie with every
+            z-20 dropdown in the header — which the card then wins on DOM order, covering the open menu.
+        -->
         <button
             type="button"
             class="absolute inset-0 z-10 h-full w-full cursor-pointer rounded-lg"

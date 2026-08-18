@@ -115,8 +115,9 @@ function isFull(session: GrowthSession): boolean {
                     {{ session.startTime }} – {{ session.endTime }}
                 </div>
 
+                <!-- `isolate` for the same reason as GrowthSessionCard: the z-10/z-20 below are internal layering, not page layering. -->
                 <div
-                    class="gs-card gs-border transition-smooth relative flex min-w-55 flex-1 flex-col gap-2.5 rounded-lg border p-3 px-4 hover:shadow-md"
+                    class="gs-card gs-border transition-smooth relative isolate flex min-w-55 flex-1 flex-col gap-2.5 rounded-lg border p-3 px-4 hover:shadow-md"
                     :style="{ opacity: currentStatus(session) === 'finished' ? 0.55 : 1 }"
                 >
                     <button

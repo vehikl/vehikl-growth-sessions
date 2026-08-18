@@ -95,6 +95,16 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.text()).toContain(growthSessionData.owner.name);
     });
 
+    /**
+     * The card stacks its click overlay under its content with z-10/z-20. Those are internal, but the
+     * root is only `relative`, so without an isolation boundary they join the root stacking context and
+     * paint over the header's z-20 dropdowns. Finished cards were never affected because their 0.55
+     * opacity happens to isolate them already, which is why this only ever showed on live sessions.
+     */
+    it('keeps its internal layering from painting over the page', () => {
+        expect(wrapper.classes()).toContain('isolate');
+    });
+
     it('displays the growth session location to attendees', () => {
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: attendee } });
         expect(wrapper.text()).toContain(growthSessionData.location);
