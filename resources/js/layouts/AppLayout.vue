@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import NotificationsMenu from '@/components/NotificationsMenu.vue';
 import VAvatar from '@/components/legacy/VAvatar.vue';
 import { useTheme } from '@/composables/useTheme';
 import { loginUrl } from '@/lib/loginUrl';
@@ -138,6 +139,8 @@ onBeforeUnmount(() => {
                 <Link :href="route('about')" :class="navigationClass('about')">About</Link>
 
                 <span class="mx-1 h-6 w-px bg-white/15 sm:mx-2"></span>
+
+                <NotificationsMenu />
 
                 <div ref="userMenu" class="relative">
                     <button

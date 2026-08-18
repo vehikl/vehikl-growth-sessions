@@ -1,0 +1,110 @@
+import NotificationsMenu from '@/components/NotificationsMenu.vue';
+import { NotificationApi } from '@/services/NotificationApi';
+import type { INotification } from '@/types';
+import { mount, type VueWrapper } from '@vue/test-utils';
+import flushPromises from 'flush-promises';
+import { vi } from 'vitest';
+
+function aNotification(overrides: Partial<INotification> = {}): INotification {
+    return {
+        id: 1,
+        type: 'gs_comment',
+        read: false,
+        growth_session: {
+            id: 42,
+            title: 'Pairing on Vue',
+            location: 'AnyDesk 12',
+            date: '2026-08-20',
+            start_time: '03:30 pm',
+            end_time: '05:00 pm',
+        },
+        initiator: { id: 7, name: 'Ada', avatar: 'ada.jpg' },
+        created_at: '2026-08-17T18:32:00.000000Z',
+        ...overrides,
+    };
+}
+
+async function menuShowing(notifications: INotification[]): Promise<VueWrapper> {
+    NotificationApi.index = vi.fn().mockResolvedValue(notifications);
+    const wrapper = mount(NotificationsMenu);
+    await flushPromises();
+    await wrapper.find('[data-testid="notifications-trigger"]').trigger('click');
+    await flushPromises();
+    return wrapper;
+}
+
+describe('NotificationsMenu', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it('asks the endpoint for the notifications as soon as it mounts', async () => {
+        NotificationApi.index = vi.fn().mockResolvedValue([]);
+
+        mount(NotificationsMenu);
+        await flushPromises();
+
+        expect(NotificationApi.index).toHaveBeenCalled();
+    });
+
+    it('lists one row per notification', async () => {
+        const wrapper = await menuShowing([aNotification({ id: 1 }), aNotification({ id: 2 }), aNotification({ id: 3 })]);
+
+        expect(wrapper.findAll('[data-testid="notification"]')).toHaveLength(3);
+    });
+
+    it('reads the notification as a sentence rather than its type', async () => {
+        const wrapper = await menuShowing([aNotification({ type: 'gs_comment' })]);
+
+        expect(wrapper.find('[data-testid="notification-sentence"]').text()).toBe('Ada commented on Pairing on Vue');
+        expect(wrapper.text()).not.toContain('gs_comment');
+    });
+
+    it('shows the time it was created', async () => {
+        const wrapper = await menuShowing([aNotification({ created_at: '2026-08-17T18:32:00.000000Z' })]);
+
+        // Tests run in America/Toronto, so 18:32 UTC lands in the afternoon.
+        expect(wrapper.find('[data-testid="notification-created-at"]').text()).toBe('Aug 17, 2:32 pm');
+    });
+
+    // The sentences themselves are covered in notificationSentence.spec.ts; this pins the wiring.
+    it('reads each type through the same translation', async () => {
+        const wrapper = await menuShowing([aNotification({ id: 1, type: 'gs_time' }), aNotification({ id: 2, type: 'gs_deleted' })]);
+
+        const sentences = wrapper.findAll('[data-testid="notification-sentence"]').map((row) => row.text());
+
+        expect(sentences).toEqual(['Ada updated the time of Pairing on Vue from 03:30 pm to 05:00 pm', 'Ada deleted Pairing on Vue']);
+    });
+
+    it('counts what it is holding on the trigger', async () => {
+        const wrapper = await menuShowing([aNotification({ id: 1 }), aNotification({ id: 2 })]);
+
+        expect(wrapper.find('[data-testid="notifications-count"]').text()).toBe('2');
+    });
+
+    it('stays closed until the trigger is clicked', async () => {
+        NotificationApi.index = vi.fn().mockResolvedValue([aNotification()]);
+
+        const wrapper = mount(NotificationsMenu);
+        await flushPromises();
+
+        expect(wrapper.find('[data-testid="notifications-panel"]').exists()).toBe(false);
+    });
+
+    it('says so when there is nothing to show', async () => {
+        const wrapper = await menuShowing([]);
+
+        expect(wrapper.find('[data-testid="notifications-empty"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="notifications-count"]').exists()).toBe(false);
+    });
+
+    // The header is on every page, so a failing request must not take the whole layout with it.
+    it('survives the endpoint failing', async () => {
+        NotificationApi.index = vi.fn().mockRejectedValue(new Error('502'));
+
+        const wrapper = mount(NotificationsMenu);
+        await flushPromises();
+        await wrapper.find('[data-testid="notifications-trigger"]').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('[data-testid="notifications-empty"]').exists()).toBe(true);
+    });
+});
