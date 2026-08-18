@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 #[ObservedBy(GrowthSessionObserver::class)]
@@ -232,6 +233,17 @@ class GrowthSession extends Model
     public function hasParticipant(User $user): bool
     {
         return $this->hasAttendee($user) || $this->hasWatcher($user);
+    }
+
+    public function participantsToNotify(): Collection
+    {
+        $ownerIds = $this->owners->pluck('id');
+
+        return $this->attendees
+            ->reject(fn (User $user) => $ownerIds->contains($user->id))
+            ->merge($this->watchers)
+            ->unique('id')
+            ->values();
     }
 
     public function hasUnlimitedSlots(): bool
