@@ -123,6 +123,12 @@ describe('notificationSentence', () => {
             expect(notificationSentence(nothingLeft)).toBe('Ada updated the time and location of Pairing on Vue');
         });
 
+        it('names what moved even when there is no session left to describe', () => {
+            const sessionless = notification(['gs_date', 'gs_time', 'gs_location'], { growth_session: null });
+
+            expect(notificationSentence(sessionless)).toBe('Ada updated the date, time and location of a growth session');
+        });
+
         it('still says something for an event it has not been taught', () => {
             const unknown = notification(['gs_something_new' as NotificationType]);
 
