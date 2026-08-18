@@ -18,7 +18,8 @@ export interface INotificationGrowthSession {
 export interface INotificationInitiator {
     id: number;
     name: string;
-    avatar: string;
+    /** Nullable: `users.avatar` is only populated for members who have one. */
+    avatar: string | null;
 }
 
 export interface INotification {

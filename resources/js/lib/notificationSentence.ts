@@ -15,8 +15,16 @@ const SOMEONE = 'Someone';
 /** Stands in for a growth session that can no longer describe itself. */
 const A_GROWTH_SESSION = 'a growth session';
 
+/**
+ * Who the sentence is about. Exported so anything else labelling the initiator — the avatar beside
+ * the sentence, for one — falls back to the same name and cannot disagree with the sentence itself.
+ */
+export function initiatorName(notification: INotification): string {
+    return notification.initiator?.name || SOMEONE;
+}
+
 export function notificationSentence(notification: INotification): string {
-    const who = notification.initiator?.name || SOMEONE;
+    const who = initiatorName(notification);
     const what = notification.growth_session?.title || A_GROWTH_SESSION;
     const when = timeRange(notification.growth_session);
     const where = notification.growth_session?.location;

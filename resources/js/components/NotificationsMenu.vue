@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { notificationSentence } from '@/lib/notificationSentence';
+import MemberAvatar from '@/components/MemberAvatar.vue';
+import { initiatorName, notificationSentence } from '@/lib/notificationSentence';
 import { NotificationApi } from '@/services/NotificationApi';
 import type { INotification } from '@/types';
 import { onClickOutside } from '@vueuse/core';
@@ -11,6 +12,8 @@ interface NotificationRow {
     id: number;
     sentence: string;
     createdAt: string;
+    initiatorName: string;
+    initiatorAvatar: string | null;
 }
 
 const notifications = ref<INotification[]>([]);
@@ -20,11 +23,25 @@ const root = ref<HTMLElement | null>(null);
 
 onClickOutside(root, () => (open.value = false));
 
+/**
+ * Every value a row shows is a pure function of a notification, and a notification never changes
+ * once fetched. Rendering them straight from the template would re-derive every row on every
+ * render — including each open and close of the panel, and every future push that appends a single
+ * item. This memoizes them against the list itself, so the work happens once per payload.
+ *
+ * The timestamp is absolute rather than "2 minutes ago" for the same reason it is safe to cache: a
+ * relative stamp is wrong the moment it is rendered and nothing here re-renders on a timer.
+ *
+ * The initiator name comes from the sentence builder so the avatar's initials and the subject of
+ * the sentence beside it are always the same person, fallback included.
+ */
 const rows = computed<NotificationRow[]>(() =>
     notifications.value.map((notification) => ({
         id: notification.id,
         sentence: notificationSentence(notification),
         createdAt: moment(notification.created_at).format('MMM D, h:mm a'),
+        initiatorName: initiatorName(notification),
+        initiatorAvatar: notification.initiator?.avatar ?? null,
     })),
 );
 
@@ -81,16 +98,20 @@ onMounted(async () => {
                 <p v-if="loaded && !rows.length" class="gs-text-muted px-4 py-3 text-sm" data-testid="notifications-empty">Nothing yet.</p>
 
                 <ul v-else class="max-h-80 overflow-y-auto">
-                    <!-- The deps are every value the row renders, so an unchanged row is skipped entirely when the list grows. -->
+                    <!-- v-memo must list every value the row renders, or a row goes stale when the list changes around it. -->
                     <li
                         v-for="row in rows"
                         :key="row.id"
-                        v-memo="[row.sentence, row.createdAt]"
-                        class="gs-border border-b px-4 py-2.5 last:border-b-0"
+                        v-memo="[row.sentence, row.createdAt, row.initiatorName, row.initiatorAvatar]"
+                        class="gs-border flex items-start gap-3 border-b px-4 py-2.5 last:border-b-0"
                         data-testid="notification"
                     >
-                        <p class="gs-text-strong text-sm" data-testid="notification-sentence">{{ row.sentence }}</p>
-                        <p class="gs-text-muted mt-0.5 text-xs" data-testid="notification-created-at">{{ row.createdAt }}</p>
+                        <MemberAvatar :name="row.initiatorName" :avatar="row.initiatorAvatar" data-testid="notification-avatar" />
+
+                        <div class="min-w-0">
+                            <p class="gs-text-strong text-sm" data-testid="notification-sentence">{{ row.sentence }}</p>
+                            <p class="gs-text-muted mt-0.5 text-xs" data-testid="notification-created-at">{{ row.createdAt }}</p>
+                        </div>
                     </li>
                 </ul>
             </div>

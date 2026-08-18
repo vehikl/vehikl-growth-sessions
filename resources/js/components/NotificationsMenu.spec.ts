@@ -10,7 +10,7 @@ import { vi } from 'vitest';
 vi.mock('@/lib/notificationSentence', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@/lib/notificationSentence')>();
 
-    return { notificationSentence: vi.fn(actual.notificationSentence) };
+    return { ...actual, notificationSentence: vi.fn(actual.notificationSentence) };
 });
 
 function aNotification(overrides: Partial<INotification> = {}): INotification {
@@ -85,6 +85,29 @@ describe('NotificationsMenu', () => {
         const sentences = wrapper.findAll('[data-testid="notification-sentence"]').map((row) => row.text());
 
         expect(sentences).toEqual(['Ada updated the time of Pairing on Vue from 03:30 pm to 05:00 pm', 'Ada deleted Pairing on Vue']);
+    });
+
+    it('shows the initiator behind the notification', async () => {
+        const wrapper = await menuShowing([aNotification({ initiator: { id: 7, name: 'Ada Lovelace', avatar: 'ada.jpg' } })]);
+
+        expect(wrapper.find('[data-testid="notification-avatar"] img').attributes()).toMatchObject({ src: 'ada.jpg', alt: 'Ada Lovelace' });
+    });
+
+    it('falls back to initials when the initiator has no avatar', async () => {
+        const wrapper = await menuShowing([aNotification({ initiator: { id: 7, name: 'Ada Lovelace', avatar: null } })]);
+
+        const avatar = wrapper.find('[data-testid="notification-avatar"]');
+
+        expect(avatar.find('img').exists()).toBe(false);
+        expect(avatar.text()).toBe('AL');
+    });
+
+    // The sentence says "Someone", so the avatar beside it must not claim to be anybody else.
+    it('shows the same stand-in as the sentence when there is no initiator', async () => {
+        const wrapper = await menuShowing([aNotification({ initiator: null })]);
+
+        expect(wrapper.find('[data-testid="notification-sentence"]').text()).toContain('Someone');
+        expect(wrapper.find('[data-testid="notification-avatar"]').text()).toBe('S');
     });
 
     it('counts what it is holding on the trigger', async () => {
