@@ -16,7 +16,9 @@ class Notification extends JsonResource
     {
         return [
             'id' => $this->id,
-            'type' => $this->type,
+            // Always a list, even for the one-event notifications, so a consumer never has to
+            // handle two shapes.
+            'event_types' => $this->event_types->map(fn (NotificationType $eventType) => $eventType->value)->values()->all(),
             'read' => $this->read,
             'growth_session' => $this->growthSessionPayload(),
             'initiator' => $this->whenLoaded('initiatedBy', fn() => [
@@ -30,7 +32,7 @@ class Notification extends JsonResource
 
     private function growthSessionPayload(): ?array
     {
-        if ($this->type === NotificationType::GS_DELETED) {
+        if ($this->hasEvent(NotificationType::GS_DELETED)) {
             return $this->fromSnapshot();
         }
 

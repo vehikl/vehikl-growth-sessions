@@ -19,12 +19,12 @@ class NotificationFactory extends Factory
             'user_id' => User::factory(),
             'growth_session_id' => GrowthSession::factory(),
             'read' => false,
-            'type' => $this->faker->randomElement(self::typesWithALiveGrowthSession()),
+            'event_types' => [$this->faker->randomElement(self::eventsWithALiveGrowthSession())],
         ];
     }
 
     /**
-     * Every type but GS_DELETED.
+     * Every event but GS_DELETED.
      *
      * A deletion is the one shape whose growth session no longer exists, so it is served from
      * the snapshot that forDeletedGrowthSession() sets. Leaving it in the default pool made a
@@ -32,12 +32,18 @@ class NotificationFactory extends Factory
      *
      * @return list<NotificationType>
      */
-    private static function typesWithALiveGrowthSession(): array
+    private static function eventsWithALiveGrowthSession(): array
     {
         return array_values(array_filter(
             NotificationType::cases(),
-            fn(NotificationType $type) => $type !== NotificationType::GS_DELETED,
+            fn(NotificationType $eventType) => $eventType !== NotificationType::GS_DELETED,
         ));
+    }
+
+    /** A notification reporting several events from one save, the case composite types existed for. */
+    public function reporting(NotificationType ...$eventTypes): static
+    {
+        return $this->state(['event_types' => $eventTypes]);
     }
 
     public function read(bool $read = true): static
@@ -49,7 +55,7 @@ class NotificationFactory extends Factory
     public function forDeletedGrowthSession(array $metadata = []): static
     {
         return $this->state([
-            'type' => NotificationType::GS_DELETED,
+            'event_types' => [NotificationType::GS_DELETED],
             // The session is gone, so there is no row to point at - the snapshot is all that is left.
             'growth_session_id' => null,
             'metadata' => $metadata + [
