@@ -33,7 +33,7 @@ describe('notificationSentence', () => {
     it('names the session a deletion took, from its snapshot', () => {
         const deleted = notification(['gs_deleted'], { growth_session: growthSession({ id: null }) });
 
-        expect(notificationSentence(deleted)).toBe('Ada deleted Pairing on Vue, scheduled for Aug 20, 03:30 pm to 05:00 pm');
+        expect(notificationSentence(deleted)).toBe('Ada cancelled Pairing on Vue, scheduled for Aug 20, 03:30 pm to 05:00 pm');
     });
 
     describe('an edit', () => {
@@ -88,25 +88,25 @@ describe('notificationSentence', () => {
         it('says only the time when the snapshot has no date', () => {
             const undated = notification(['gs_deleted'], { growth_session: growthSession({ date: null }) });
 
-            expect(notificationSentence(undated)).toBe('Ada deleted Pairing on Vue, scheduled for 03:30 pm to 05:00 pm');
+            expect(notificationSentence(undated)).toBe('Ada cancelled Pairing on Vue, scheduled for 03:30 pm to 05:00 pm');
         });
 
         it('says only the date when the snapshot has half a time range', () => {
             const halfARange = notification(['gs_deleted'], { growth_session: growthSession({ end_time: null }) });
 
-            expect(notificationSentence(halfARange)).toBe('Ada deleted Pairing on Vue, scheduled for Aug 20');
+            expect(notificationSentence(halfARange)).toBe('Ada cancelled Pairing on Vue, scheduled for Aug 20');
         });
 
         it('says when nothing at all when the snapshot has neither', () => {
             const undescribed = notification(['gs_deleted'], { growth_session: growthSession({ date: null, start_time: null, end_time: null }) });
 
-            expect(notificationSentence(undescribed)).toBe('Ada deleted Pairing on Vue');
+            expect(notificationSentence(undescribed)).toBe('Ada cancelled Pairing on Vue');
         });
 
         it('stands in for a session whose snapshot predates the title', () => {
             const untitled = notification(['gs_deleted'], { growth_session: growthSession({ title: null }) });
 
-            expect(notificationSentence(untitled)).toBe('Ada deleted a growth session, scheduled for Aug 20, 03:30 pm to 05:00 pm');
+            expect(notificationSentence(untitled)).toBe('Ada cancelled a growth session, scheduled for Aug 20, 03:30 pm to 05:00 pm');
         });
 
         // The alternative is "from null to null", which is worse than saying less.
@@ -167,7 +167,7 @@ describe('notificationSentence', () => {
         it('survives a payload with nothing in it at all', () => {
             const bare = notification(['gs_deleted'], { initiator: null, growth_session: null });
 
-            expect(notificationSentence(bare)).toBe('Someone deleted a growth session');
+            expect(notificationSentence(bare)).toBe('Someone cancelled a growth session');
         });
     });
 });

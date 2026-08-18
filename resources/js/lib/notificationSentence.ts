@@ -67,7 +67,7 @@ export function notificationSentence(notification: INotification): string {
         // Nobody can look the session up any more, so the sentence says when it would have been.
         const session = notification.growth_session;
 
-        return withDetail(`${who} deleted ${what}`, 'scheduled for', [readableDate(session?.date), timeRange(session)]);
+        return withDetail(`${who} cancelled ${what}`, 'scheduled for', [readableDate(session?.date), timeRange(session)]);
     }
 
     if (events.includes('gs_comment')) return `${who} commented on ${what}`;

@@ -180,7 +180,7 @@ describe('NotificationsMenu', () => {
         expect(sentences).toEqual([
             'Ada updated the time of Pairing on Vue, now 03:30 pm to 05:00 pm',
             'Ada updated the date and location of Pairing on Vue, now Aug 20, at AnyDesk 12',
-            'Ada deleted Pairing on Vue, scheduled for Aug 20, 03:30 pm to 05:00 pm',
+            'Ada cancelled Pairing on Vue, scheduled for Aug 20, 03:30 pm to 05:00 pm',
         ]);
     });
 
@@ -254,7 +254,7 @@ describe('NotificationsMenu', () => {
             await broadcast(aNotification({ id: 2, event_types: ['gs_deleted'] }));
 
             expect(sentences(wrapper)).toEqual([
-                'Ada deleted Pairing on Vue, scheduled for Aug 20, 03:30 pm to 05:00 pm',
+                'Ada cancelled Pairing on Vue, scheduled for Aug 20, 03:30 pm to 05:00 pm',
                 'Ada commented on Pairing on Vue',
             ]);
         });
@@ -292,7 +292,7 @@ describe('NotificationsMenu', () => {
             await wrapper.find('[data-testid="notifications-trigger"]').trigger('click');
 
             expect(sentences(wrapper)).toEqual([
-                'Ada deleted Pairing on Vue, scheduled for Aug 20, 03:30 pm to 05:00 pm',
+                'Ada cancelled Pairing on Vue, scheduled for Aug 20, 03:30 pm to 05:00 pm',
                 'Ada commented on Pairing on Vue',
             ]);
         });
