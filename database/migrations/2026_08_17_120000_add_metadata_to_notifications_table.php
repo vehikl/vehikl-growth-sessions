@@ -14,7 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('notifications', function (Blueprint $table) {
-            $table->json('metadata')->nullable()->after('type');
+            $table->json('metadata')->nullable()->after('event_types');
         });
     }
 

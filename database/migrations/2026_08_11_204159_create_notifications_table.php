@@ -19,7 +19,9 @@ return new class extends Migration
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(GrowthSession::class)->nullable();
             $table->boolean('read')->default(false);
-            $table->string('type');
+            // A list, not a single value: one save can move the date, the time and the location at
+            // once, and that is one notification naming three events rather than a composite type.
+            $table->json('event_types');
             $table->timestamps();
         });
     }
