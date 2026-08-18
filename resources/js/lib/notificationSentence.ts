@@ -40,9 +40,7 @@ const EDIT_AXES: EditAxis[] = [
     {
         event: 'gs_time',
         noun: 'time',
-        // Half a range is worse than no range, so both ends or neither.
-        newValue: (growthSession) =>
-            growthSession?.start_time && growthSession?.end_time ? `${growthSession.start_time} to ${growthSession.end_time}` : null,
+        newValue: (growthSession) => timeRange(growthSession),
     },
     {
         event: 'gs_location',
@@ -65,7 +63,13 @@ export function notificationSentence(notification: INotification): string {
     const what = notification.growth_session?.title || A_GROWTH_SESSION;
 
     // These two describe the notification on their own, so they win over anything else in the list.
-    if (events.includes('gs_deleted')) return `${who} deleted ${what}`;
+    if (events.includes('gs_deleted')) {
+        // Nobody can look the session up any more, so the sentence says when it would have been.
+        const session = notification.growth_session;
+
+        return withDetail(`${who} deleted ${what}`, 'scheduled for', [readableDate(session?.date), timeRange(session)]);
+    }
+
     if (events.includes('gs_comment')) return `${who} commented on ${what}`;
 
     const moved = EDIT_AXES.filter((axis) => events.includes(axis.event));
@@ -74,9 +78,24 @@ export function notificationSentence(notification: INotification): string {
     if (!moved.length) return `${who} updated ${what}`;
 
     const subject = `${who} updated the ${readAsList(moved.map((axis) => axis.noun))} of ${what}`;
-    const values = moved.map((axis) => axis.newValue(notification.growth_session)).filter((value) => value !== null);
 
-    return values.length ? `${subject}, now ${values.join(', ')}` : subject;
+    return withDetail(
+        subject,
+        'now',
+        moved.map((axis) => axis.newValue(notification.growth_session)),
+    );
+}
+
+/** The subject, then whichever details survived - or just the subject when none of them did. */
+function withDetail(subject: string, leadIn: string, details: (string | null)[]): string {
+    const present = details.filter((detail) => detail !== null);
+
+    return present.length ? `${subject}, ${leadIn} ${present.join(', ')}` : subject;
+}
+
+/** "03:30 pm to 05:00 pm". Half a range is worse than no range, so both ends or neither. */
+function timeRange(growthSession: INotificationGrowthSession | null | undefined): string | null {
+    return growthSession?.start_time && growthSession?.end_time ? `${growthSession.start_time} to ${growthSession.end_time}` : null;
 }
 
 /** "Aug 20" from the payload's Y-m-d, or nothing if it is not a date after all. */
