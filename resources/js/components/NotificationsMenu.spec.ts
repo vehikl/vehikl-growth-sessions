@@ -1,9 +1,17 @@
 import NotificationsMenu from '@/components/NotificationsMenu.vue';
+import { notificationSentence } from '@/lib/notificationSentence';
 import { NotificationApi } from '@/services/NotificationApi';
 import type { INotification } from '@/types';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import { vi } from 'vitest';
+
+// Spied rather than stubbed: the sentences below are the real ones, we just want to count the work.
+vi.mock('@/lib/notificationSentence', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@/lib/notificationSentence')>();
+
+    return { notificationSentence: vi.fn(actual.notificationSentence) };
+});
 
 function aNotification(overrides: Partial<INotification> = {}): INotification {
     return {
@@ -34,6 +42,11 @@ async function menuShowing(notifications: INotification[]): Promise<VueWrapper> 
 }
 
 describe('NotificationsMenu', () => {
+    // Braces matter: a function returned from beforeEach is registered as a cleanup callback and called.
+    beforeEach(() => {
+        vi.mocked(notificationSentence).mockClear();
+    });
+
     afterEach(() => vi.restoreAllMocks());
 
     it('asks the endpoint for the notifications as soon as it mounts', async () => {
@@ -94,6 +107,18 @@ describe('NotificationsMenu', () => {
 
         expect(wrapper.find('[data-testid="notifications-empty"]').exists()).toBe(true);
         expect(wrapper.find('[data-testid="notifications-count"]').exists()).toBe(false);
+    });
+
+    // Opening and closing must not re-derive rows that have not changed.
+    it('reads each notification once no matter how often the panel is opened', async () => {
+        const wrapper = await menuShowing([aNotification({ id: 1 }), aNotification({ id: 2 }), aNotification({ id: 3 })]);
+        const trigger = wrapper.find('[data-testid="notifications-trigger"]');
+
+        await trigger.trigger('click');
+        await trigger.trigger('click');
+        await trigger.trigger('click');
+
+        expect(notificationSentence).toHaveBeenCalledTimes(3);
     });
 
     // The header is on every page, so a failing request must not take the whole layout with it.

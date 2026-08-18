@@ -4,7 +4,14 @@ import { NotificationApi } from '@/services/NotificationApi';
 import type { INotification } from '@/types';
 import { onClickOutside } from '@vueuse/core';
 import moment from 'moment-timezone';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+
+/** What a row actually renders. Derived once per payload, not once per render. */
+interface NotificationRow {
+    id: number;
+    sentence: string;
+    createdAt: string;
+}
 
 const notifications = ref<INotification[]>([]);
 const loaded = ref(false);
@@ -12,6 +19,14 @@ const open = ref(false);
 const root = ref<HTMLElement | null>(null);
 
 onClickOutside(root, () => (open.value = false));
+
+const rows = computed<NotificationRow[]>(() =>
+    notifications.value.map((notification) => ({
+        id: notification.id,
+        sentence: notificationSentence(notification),
+        createdAt: moment(notification.created_at).format('MMM D, h:mm a'),
+    })),
+);
 
 onMounted(async () => {
     try {
@@ -23,14 +38,6 @@ onMounted(async () => {
         loaded.value = true;
     }
 });
-
-/**
- * Absolute rather than "2 minutes ago": a relative stamp is wrong the moment it is rendered and
- * nothing here re-renders on a timer.
- */
-function createdAt(notification: INotification): string {
-    return moment(notification.created_at).format('MMM D, h:mm a');
-}
 </script>
 
 <template>
@@ -46,10 +53,10 @@ function createdAt(notification: INotification): string {
         >
             <i class="fa fa-bell" aria-hidden="true"></i>
             <span
-                v-if="notifications.length"
+                v-if="rows.length"
                 data-testid="notifications-count"
                 class="gs-accent-bg ml-1 rounded-full px-1.5 text-[0.65rem] font-bold text-white"
-                >{{ notifications.length }}</span
+                >{{ rows.length }}</span
             >
         </button>
 
@@ -71,17 +78,19 @@ function createdAt(notification: INotification): string {
                     <p class="gs-text-muted text-xs font-bold tracking-[0.06em] uppercase">Notifications</p>
                 </div>
 
-                <p v-if="loaded && !notifications.length" class="gs-text-muted px-4 py-3 text-sm" data-testid="notifications-empty">Nothing yet.</p>
+                <p v-if="loaded && !rows.length" class="gs-text-muted px-4 py-3 text-sm" data-testid="notifications-empty">Nothing yet.</p>
 
                 <ul v-else class="max-h-80 overflow-y-auto">
+                    <!-- The deps are every value the row renders, so an unchanged row is skipped entirely when the list grows. -->
                     <li
-                        v-for="notification in notifications"
-                        :key="notification.id"
+                        v-for="row in rows"
+                        :key="row.id"
+                        v-memo="[row.sentence, row.createdAt]"
                         class="gs-border border-b px-4 py-2.5 last:border-b-0"
                         data-testid="notification"
                     >
-                        <p class="gs-text-strong text-sm" data-testid="notification-sentence">{{ notificationSentence(notification) }}</p>
-                        <p class="gs-text-muted mt-0.5 text-xs" data-testid="notification-created-at">{{ createdAt(notification) }}</p>
+                        <p class="gs-text-strong text-sm" data-testid="notification-sentence">{{ row.sentence }}</p>
+                        <p class="gs-text-muted mt-0.5 text-xs" data-testid="notification-created-at">{{ row.createdAt }}</p>
                     </li>
                 </ul>
             </div>

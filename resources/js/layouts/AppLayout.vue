@@ -6,9 +6,9 @@ import { loginUrl } from '@/lib/loginUrl';
 import VehiklLogo from '@/svgs/VehiklLogo.vue';
 import type { BreadcrumbItemType, IUser } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
+import { useEcho } from '@laravel/echo-vue';
 import { onClickOutside } from '@vueuse/core';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { useEcho } from '@laravel/echo-vue';
 
 interface Props {
     breadcrumbs?: BreadcrumbItemType[];
@@ -56,9 +56,15 @@ onClickOutside(userMenu, () => (userMenuOpen.value = false));
 onClickOutside(mobileMenu, () => (mobileMenuOpen.value = false));
 
 if (user.value) {
-    useEcho(`notifications.${user.value.id}`, '.notification.created', (e) => {
-        console.log("Notification received:", e)
-    }, [], 'private')
+    useEcho(
+        `notifications.${user.value.id}`,
+        '.notification.created',
+        (e) => {
+            console.log('Notification received:', e);
+        },
+        [],
+        'private',
+    );
 }
 
 function handleThemeShortcut(event: KeyboardEvent) {
