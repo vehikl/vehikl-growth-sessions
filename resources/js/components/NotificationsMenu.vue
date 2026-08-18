@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import MemberAvatar from '@/components/MemberAvatar.vue';
+import { useNow } from '@/composables/useNow';
 import { initiatorName, notificationSentence } from '@/lib/notificationSentence';
+import { relativeTime } from '@/lib/relativeTime';
 import { NotificationApi } from '@/services/NotificationApi';
 import type { INotification } from '@/types';
 import { useEcho } from '@laravel/echo-vue';
@@ -15,10 +17,11 @@ const props = defineProps<{ userId: number }>();
 /** How many the panel holds: the same window the endpoint serves, so a reload agrees with it. */
 const MOST_RECENT = 10;
 
-/** What a row actually renders. Derived once per payload, not once per render. */
+/** What a row renders that does not depend on the clock. Derived once per payload. */
 interface NotificationRow {
     id: number;
     sentence: string;
+    /** The exact time, shown on hover - the elapsed label alone loses it. */
     createdAt: string;
     initiatorName: string;
     initiatorAvatar: string | null;
@@ -37,8 +40,9 @@ onClickOutside(root, () => (open.value = false));
  * render — including each open and close of the panel, and every future push that appends a single
  * item. This memoizes them against the list itself, so the work happens once per payload.
  *
- * The timestamp is absolute rather than "2 minutes ago" for the same reason it is safe to cache: a
- * relative stamp is wrong the moment it is rendered and nothing here re-renders on a timer.
+ * How long ago each one was is deliberately not in here. That is the one thing that does change
+ * without the payload changing, so it is derived against the clock separately and a tick re-reads
+ * only the labels rather than every sentence.
  *
  * The initiator name comes from the sentence builder so the avatar's initials and the subject of
  * the sentence beside it are always the same person, fallback included.
@@ -51,6 +55,13 @@ const rows = computed<NotificationRow[]>(() =>
         initiatorName: initiatorName(notification),
         initiatorAvatar: notification.initiator?.avatar ?? null,
     })),
+);
+
+const now = useNow();
+
+/** How long ago each notification was, keyed by id and re-derived on every tick of the clock. */
+const elapsed = computed(
+    () => new Map(notifications.value.map((notification) => [notification.id, relativeTime(notification.created_at, now.value)])),
 );
 
 onMounted(async () => {
@@ -145,7 +156,7 @@ function keep(inOrder: INotification[]): void {
                     <li
                         v-for="row in rows"
                         :key="row.id"
-                        v-memo="[row.sentence, row.createdAt, row.initiatorName, row.initiatorAvatar]"
+                        v-memo="[row.sentence, elapsed.get(row.id), row.initiatorName, row.initiatorAvatar]"
                         class="gs-border flex items-start gap-3 border-b px-4 py-2.5 last:border-b-0"
                         data-testid="notification"
                     >
@@ -153,7 +164,9 @@ function keep(inOrder: INotification[]): void {
 
                         <div class="min-w-0">
                             <p class="gs-text-strong text-sm" data-testid="notification-sentence">{{ row.sentence }}</p>
-                            <p class="gs-text-muted mt-0.5 text-xs" data-testid="notification-created-at">{{ row.createdAt }}</p>
+                            <p class="gs-text-muted mt-0.5 text-xs" :title="row.createdAt" data-testid="notification-created-at">
+                                {{ elapsed.get(row.id) }}
+                            </p>
                         </div>
                     </li>
                 </ul>

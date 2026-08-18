@@ -69,7 +69,10 @@ describe('NotificationsMenu', () => {
         vi.mocked(useEcho).mockClear();
     });
 
-    afterEach(() => vi.restoreAllMocks());
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.restoreAllMocks();
+    });
 
     it('asks the endpoint for the notifications as soon as it mounts', async () => {
         NotificationApi.index = vi.fn().mockResolvedValue([]);
@@ -93,11 +96,75 @@ describe('NotificationsMenu', () => {
         expect(wrapper.text()).not.toContain('gs_comment');
     });
 
-    it('shows the time it was created', async () => {
-        const wrapper = await menuShowing([aNotification({ created_at: '2026-08-17T18:32:00.000000Z' })]);
+    describe('how long ago it was', () => {
+        const CREATED = '2026-08-17T18:32:00.000000Z';
 
-        // Tests run in America/Toronto, so 18:32 UTC lands in the afternoon.
-        expect(wrapper.find('[data-testid="notification-created-at"]').text()).toBe('Aug 17, 2:32 pm');
+        /** Freezes the clock before mounting, so the component's own interval is faked too. */
+        function atTime(iso: string): void {
+            vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] });
+            vi.setSystemTime(new Date(iso));
+        }
+
+        function elapsed(wrapper: VueWrapper): string {
+            return wrapper.find('[data-testid="notification-created-at"]').text();
+        }
+
+        it('says how long ago the notification was', async () => {
+            atTime('2026-08-17T18:35:00.000Z');
+
+            expect(elapsed(await menuShowing([aNotification({ created_at: CREATED })]))).toBe('3 minutes ago');
+        });
+
+        // The label is deliberately imprecise, so the exact time has to survive somewhere.
+        it('keeps the exact time on hover', async () => {
+            atTime('2026-08-17T18:35:00.000Z');
+            const wrapper = await menuShowing([aNotification({ created_at: CREATED })]);
+
+            // Tests run in America/Toronto, so 18:32 UTC lands in the afternoon.
+            expect(wrapper.find('[data-testid="notification-created-at"]').attributes('title')).toBe('Aug 17, 2:32 pm');
+        });
+
+        it('counts up on its own without anything else happening', async () => {
+            atTime('2026-08-17T18:32:30.000Z');
+            const wrapper = await menuShowing([aNotification({ created_at: CREATED })]);
+
+            expect(elapsed(wrapper)).toBe('just now');
+
+            await vi.advanceTimersByTimeAsync(60_000);
+            expect(elapsed(wrapper)).toBe('1 minute ago');
+
+            await vi.advanceTimersByTimeAsync(60_000);
+            expect(elapsed(wrapper)).toBe('2 minutes ago');
+        });
+
+        it('moves up to coarser units as time passes', async () => {
+            atTime('2026-08-17T18:32:30.000Z');
+            const wrapper = await menuShowing([aNotification({ created_at: CREATED })]);
+
+            await vi.advanceTimersByTimeAsync(59 * 60_000);
+            expect(elapsed(wrapper)).toBe('59 minutes ago');
+
+            await vi.advanceTimersByTimeAsync(60_000);
+            expect(elapsed(wrapper)).toBe('1 hour ago');
+
+            await vi.advanceTimersByTimeAsync(22 * 60 * 60_000);
+            expect(elapsed(wrapper)).toBe('23 hours ago');
+
+            await vi.advanceTimersByTimeAsync(60 * 60_000);
+            expect(elapsed(wrapper)).toBe('1 day ago');
+        });
+
+        // An interval outlives the component that started it, and this one closes over a ref.
+        it('stops its clock when the menu goes away', async () => {
+            atTime('2026-08-17T18:35:00.000Z');
+            const wrapper = await menuShowing([aNotification({ created_at: CREATED })]);
+
+            expect(vi.getTimerCount()).toBe(1);
+
+            wrapper.unmount();
+
+            expect(vi.getTimerCount()).toBe(0);
+        });
     });
 
     // The sentences themselves are covered in notificationSentence.spec.ts; this pins the wiring.
