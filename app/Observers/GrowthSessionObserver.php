@@ -21,21 +21,31 @@ class GrowthSessionObserver
         broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
         event(new GrowthSessionUpdated($growthSession));
 
-        $timeChanged = $growthSession->wasChanged(['start_time', 'end_time']);
-        $locationChanged = $growthSession->wasChanged(['location']);
+        // One save is one notification, however much it moved. Each thing that moved adds an event
+        // to the list rather than selecting a different type, so a new axis is three lines here and
+        // one case on the enum - never a new combination of the existing ones.
+        $eventTypes = [];
 
-        // One save is one notification, even when it moved both the clock and the room.
-        if ($timeChanged || $locationChanged) {
-            NotificationService::dispatchNotification(
-                $growthSession,
-                $growthSession->owner,
-                match (true) {
-                    $timeChanged && $locationChanged => NotificationType::GS_TIME_AND_LOCATION_CHANGED,
-                    $timeChanged => NotificationType::GS_TIME_CHANGED,
-                    default => NotificationType::GS_LOCATION_CHANGED,
-                }
-            );
+        if ($growthSession->wasChanged('date')) {
+            $eventTypes[] = NotificationType::GS_DATE_CHANGED;
         }
+
+        if ($growthSession->wasChanged(['start_time', 'end_time'])) {
+            $eventTypes[] = NotificationType::GS_TIME_CHANGED;
+        }
+
+        if ($growthSession->wasChanged('location')) {
+            $eventTypes[] = NotificationType::GS_LOCATION_CHANGED;
+        }
+
+        // Returning before the call rather than letting the service ignore an empty list: reading
+        // ->owner runs a query and can come back null for a session with no owner pivot, and an
+        // edit that moved nothing notifiable must not go looking.
+        if ($eventTypes === []) {
+            return;
+        }
+
+        NotificationService::dispatchNotification($growthSession, $growthSession->owner, ...$eventTypes);
     }
 
     /**

@@ -13,13 +13,14 @@ class ProcessNotifications implements ShouldQueue
     use Queueable;
 
     /**
+     * @param list<NotificationType> $eventTypes Everything the one save reported, in reading order.
      * @param Collection<int, int> $recipients
      * @param array<string, string|null> $metadata Snapshot of the growth session, taken at dispatch time.
      */
     public function __construct(
         protected int $growthSessionId,
         protected int $initiatorId,
-        protected NotificationType $notificationType,
+        protected array $eventTypes,
         protected Collection $recipients,
         protected array $metadata = [],
     ) {
@@ -37,7 +38,7 @@ class ProcessNotifications implements ShouldQueue
                 'initiator' => $this->initiatorId,
                 'user_id' => $recipient,
                 'growth_session_id' => $this->growthSessionId,
-                'type' => $this->notificationType,
+                'event_types' => $this->eventTypes,
                 'metadata' => $this->metadata,
             ]);
         }
