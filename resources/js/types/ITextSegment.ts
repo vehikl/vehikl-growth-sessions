@@ -1,7 +1,4 @@
-export interface ITextSegment {
-    // `string`, not a `'text' | 'link' | 'image'` union: sourced from the backend, and JSON can't carry TS literal types.
-    type: string;
-    value: string;
-    // Only present on 'link' segments; the backend decides this (see TextSegmentParser::SCHEMES).
-    opens_in_new_tab?: boolean;
-}
+// The backend always includes `opens_in_new_tab` on a 'link' segment and never on any other type
+// (see TextSegmentParser::parse()), so it's modeled as required on 'link' and absent elsewhere
+// rather than optional on every variant.
+export type ITextSegment = { type: 'text' | 'image'; value: string } | { type: 'link'; value: string; opens_in_new_tab: boolean };

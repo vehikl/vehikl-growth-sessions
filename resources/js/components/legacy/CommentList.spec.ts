@@ -1,13 +1,16 @@
-import growthSessionWithCommentsJson from '@/../../tests/fixtures/GrowthSessionWithComments.json';
+import rawGrowthSessionWithComments from '@/../../tests/fixtures/GrowthSessionWithComments.json';
 import userJson from '@/../../tests/fixtures/User.json';
 import { GrowthSession } from '@/classes/GrowthSession';
 import { User } from '@/classes/User';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
-import { IUser } from '@/types';
+import { IGrowthSession, IUser } from '@/types';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import { vi } from 'vitest';
 import CommentList from './CommentList.vue';
 
+// Fixture JSON has no literal string types (e.g. `type: string`, not `type: 'text'`), unlike the
+// discriminated unions the frontend types model - cast once here rather than at every spread below.
+const growthSessionWithCommentsJson = rawGrowthSessionWithComments as unknown as IGrowthSession;
 const growthSession: GrowthSession = new GrowthSession(growthSessionWithCommentsJson);
 const user: IUser = userJson;
 

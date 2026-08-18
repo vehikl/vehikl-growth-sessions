@@ -1,12 +1,16 @@
-import growthSessionsThisWeekJson from '@/../../tests/fixtures/WeekGrowthSessions.json';
+import rawGrowthSessionsThisWeek from '@/../../tests/fixtures/WeekGrowthSessions.json';
 import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
 import { WeekGrowthSessions } from '@/classes/WeekGrowthSessions';
-import { IUser } from '@/types';
+import { IUser, IWeekGrowthSessions } from '@/types';
 import { mount } from '@vue/test-utils';
 import { vi } from 'vitest';
 import GrowthSessionCard from './GrowthSessionCard.vue';
 import WeekView from './WeekView.vue';
+
+// Fixture JSON has no literal string types (e.g. `type: string`, not `type: 'text'`), unlike the
+// discriminated unions the frontend types model - cast once here rather than at every use below.
+const growthSessionsThisWeekJson = rawGrowthSessionsThisWeek as unknown as IWeekGrowthSessions;
 
 const authVehiklUser: IUser = {
     avatar: 'lastAirBender.jpg',

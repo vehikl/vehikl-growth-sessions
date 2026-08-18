@@ -1,11 +1,16 @@
-import { IGrowthSession, IUpdateGrowthSessionRequest } from '@/types';
+import { IGrowthSession, IStoreGrowthSessionRequest, IUpdateGrowthSessionRequest, IWeekGrowthSessions } from '@/types';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import growthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
-import growthSessionsThisWeekJson from '../../../tests/fixtures/WeekGrowthSessions.json';
+import rawGrowthSessionWithComments from '../../../tests/fixtures/GrowthSessionWithComments.json';
+import rawGrowthSessionsThisWeek from '../../../tests/fixtures/WeekGrowthSessions.json';
 import { DateTime } from '../classes/DateTime';
 import { WeekGrowthSessions } from '../classes/WeekGrowthSessions';
 import { GrowthSessionApi, growthSessionResource } from './GrowthSessionApi';
+
+// Fixture JSON has no literal string types (e.g. `type: string`, not `type: 'text'`), unlike the
+// discriminated unions the frontend types model - cast once here rather than at every use below.
+const growthSessionWithComments = rawGrowthSessionWithComments as unknown as IGrowthSession;
+const growthSessionsThisWeekJson = rawGrowthSessionsThisWeek as unknown as IWeekGrowthSessions;
 
 const growthSessionsThisWeek: WeekGrowthSessions = new WeekGrowthSessions(growthSessionsThisWeekJson);
 const dummyGrowthSession: IGrowthSession = growthSessionWithComments;
@@ -42,7 +47,8 @@ describe('GrowthSessionApi', () => {
     it('stores a new growth session', async () => {
         mockBackend.onPost(growthSessionResource).reply(201, growthSessionWithComments);
 
-        const result = await GrowthSessionApi.store(growthSessionWithComments);
+        // The full fixture stands in for a store request here - only the response shape matters to this test.
+        const result = await GrowthSessionApi.store(growthSessionWithComments as unknown as IStoreGrowthSessionRequest);
 
         expect(result.topic).toEqual(growthSessionWithComments.topic);
     });

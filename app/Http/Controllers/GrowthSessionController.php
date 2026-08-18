@@ -22,8 +22,6 @@ use Illuminate\Support\Facades\DB;
 
 class GrowthSessionController extends Controller
 {
-    private const RELATIONS = GrowthSession::RESOURCE_RELATIONS;
-
     public function show(Request $request, GrowthSession $growthSession)
     {
         abort_unless((new GrowthSessionPolicy)->view($request->user(), $growthSession), Response::HTTP_NOT_FOUND);
@@ -35,7 +33,7 @@ class GrowthSessionController extends Controller
             ]);
         }
 
-        $growthSession->load(self::RELATIONS);
+        $growthSession->load(GrowthSession::RESOURCE_RELATIONS);
 
         return response()->json(new GrowthSessionResource($growthSession));
     }
@@ -47,7 +45,7 @@ class GrowthSessionController extends Controller
             $user
         ) {
             return (new GrowthSessionPolicy)->view($user, $session);
-        })->loadMissing(self::RELATIONS);
+        })->loadMissing(GrowthSession::RESOURCE_RELATIONS);
 
         return new GrowthSessionWeek($sessions);
     }
@@ -56,7 +54,7 @@ class GrowthSessionController extends Controller
     {
         return GrowthSessionResource::collection(
             GrowthSession::today()
-                ->with(self::RELATIONS)
+                ->with(GrowthSession::RESOURCE_RELATIONS)
                 ->get()
         );
     }
@@ -75,7 +73,7 @@ class GrowthSessionController extends Controller
         // save() doesn't populate columns the request omitted (is_public, allow_watchers are
         // 'sometimes' rules) with their DB defaults, so refresh from the row fresh() just inserted
         // rather than merely loading relations onto the in-memory, still-attribute-incomplete model.
-        $newGrowthSession = $newGrowthSession->fresh(self::RELATIONS);
+        $newGrowthSession = $newGrowthSession->fresh(GrowthSession::RESOURCE_RELATIONS);
 
         broadcast(new GrowthSessionModified($newGrowthSession->id, GrowthSessionModified::ACTION_CREATED));
         event(new GrowthSessionCreated($newGrowthSession));
@@ -97,7 +95,7 @@ class GrowthSessionController extends Controller
             'user_type_id' => UserType::ATTENDEE_ID,
         ]);
 
-        return new GrowthSessionResource($growthSession->fresh()->load(self::RELATIONS));
+        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
     }
 
     public function watch(GrowthSession $growthSession, Request $request)
@@ -110,7 +108,7 @@ class GrowthSessionController extends Controller
             'user_type_id' => UserType::WATCHER_ID,
         ]);
 
-        return new GrowthSessionResource($growthSession->fresh()->load(self::RELATIONS));
+        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
     }
 
     public function leave(GrowthSession $growthSession, Request $request)
@@ -120,7 +118,7 @@ class GrowthSessionController extends Controller
             ->where('user_id', $request->user()->id)
             ->delete();
 
-        return new GrowthSessionResource($growthSession->fresh()->load(self::RELATIONS));
+        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
     }
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
@@ -143,7 +141,7 @@ class GrowthSessionController extends Controller
 
         $growthSession->save();
 
-        return new GrowthSessionResource($growthSession->refresh()->load(self::RELATIONS));
+        return new GrowthSessionResource($growthSession->refresh()->load(GrowthSession::RESOURCE_RELATIONS));
     }
 
     public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $growthSession)

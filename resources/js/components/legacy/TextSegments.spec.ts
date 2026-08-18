@@ -85,8 +85,10 @@ describe('TextSegments', () => {
         });
 
         it('does not add target/rel when opens_in_new_tab is absent', () => {
+            // The backend always sends opens_in_new_tab on a 'link' segment - this guards the
+            // template's rendering in case that contract is ever violated.
             const url = 'tel:5551234';
-            const segments: ITextSegment[] = [{ type: 'link', value: url }];
+            const segments = [{ type: 'link', value: url }] as ITextSegment[];
             wrapper = mount(TextSegments, { propsData: { segments } });
 
             const anchor = wrapper.find('a');
@@ -97,7 +99,8 @@ describe('TextSegments', () => {
     });
 
     it('renders an unknown segment type as plain text instead of disappearing', () => {
-        const segments: ITextSegment[] = [{ type: 'something_new', value: 'foo' }];
+        // Guards against a backend that starts sending a segment type this build doesn't know about yet.
+        const segments = [{ type: 'something_new', value: 'foo' }] as unknown as ITextSegment[];
         wrapper = mount(TextSegments, { propsData: { segments } });
 
         expect(wrapper.text()).toBe('foo');

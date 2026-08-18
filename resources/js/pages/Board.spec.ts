@@ -1,5 +1,5 @@
 import discordChannelsJson from '@/../../tests/fixtures/Discord/Channels.json';
-import growthSessionsThisWeekJson from '@/../../tests/fixtures/WeekGrowthSessions.json';
+import rawGrowthSessionsThisWeek from '@/../../tests/fixtures/WeekGrowthSessions.json';
 import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
 import { Nothingator } from '@/classes/Nothingator';
@@ -13,10 +13,14 @@ import { AnydesksApi } from '@/services/AnydesksApi';
 import { DiscordChannelApi } from '@/services/DiscordChannelApi';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
-import { IUser } from '@/types';
+import { IUser, IWeekGrowthSessions } from '@/types';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import { vi } from 'vitest';
+
+// Fixture JSON has no literal string types (e.g. `type: string`, not `type: 'text'`), unlike the
+// discriminated unions the frontend types model - cast once here rather than at every use below.
+const growthSessionsThisWeekJson = rawGrowthSessionsThisWeek as unknown as IWeekGrowthSessions;
 
 const authVehiklUser: IUser = {
     avatar: 'lastAirBender.jpg',

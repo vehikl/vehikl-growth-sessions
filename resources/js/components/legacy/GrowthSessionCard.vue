@@ -22,7 +22,7 @@ const { getInitials } = useInitials();
 const isDraggable = computed<boolean>(() => !!props.user && props.growthSession.canEditOrDelete(props.user));
 const status = computed(() => sessionStatus(props.growthSession));
 const statusColor = computed(() => statusMeta(status.value).color);
-const ownerName = computed(() => props.growthSession.owner?.name ?? 'Unknown');
+const ownerName = computed(() => props.growthSession.ownerName);
 const initials = computed(() => getInitials(ownerName.value));
 const ownerColor = computed(() => avatarColor(ownerName.value));
 const cardOpacity = computed(() => (status.value === 'finished' ? 0.55 : 1));

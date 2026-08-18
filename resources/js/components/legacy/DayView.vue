@@ -175,7 +175,7 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                         <div class="flex items-start gap-3">
                             <span
                                 class="flex h-12 w-12 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
-                                :style="{ backgroundColor: avatarColor(session.owner?.name ?? 'Unknown') }"
+                                :style="{ backgroundColor: avatarColor(session.ownerName) }"
                             >
                                 <img
                                     v-if="session.owner?.avatar"
@@ -183,7 +183,7 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                                     :alt="session.owner.name"
                                     class="h-full w-full object-cover"
                                 />
-                                <template v-else>{{ getInitials(session.owner?.name ?? 'Unknown') }}</template>
+                                <template v-else>{{ getInitials(session.ownerName) }}</template>
                             </span>
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-2 pr-20">
@@ -198,17 +198,17 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                                     >
                                 </div>
                                 <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">
-                                    {{ session.owner?.name ?? 'Unknown' }}
+                                    {{ session.ownerName }}
                                 </div>
                                 <div v-if="tagline(session)" class="gs-text-sub mt-1 text-sm">{{ tagline(session) }}</div>
                                 <div
                                     class="gs-text-body pointer-events-none relative z-20 mt-2 max-w-full text-sm leading-normal whitespace-pre-wrap xl:max-w-1/2"
                                 >
-                                    <text-segments :segments="session.topic_segments" />
+                                    <TextSegments :segments="session.topic_segments" />
                                 </div>
                                 <div class="gs-text-muted pointer-events-none relative z-20 mt-2 flex items-center gap-1.5 text-sm font-medium">
                                     <i class="fa fa-compass flex-none" aria-hidden="true"></i>
-                                    <text-segments :segments="session.location_segments" />
+                                    <TextSegments :segments="session.location_segments" />
                                 </div>
                             </div>
                         </div>

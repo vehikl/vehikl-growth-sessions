@@ -11,7 +11,7 @@ class TextSegmentParserTest extends TestCase
     {
         $this->assertEquals(
             [['type' => 'text', 'value' => 'just some plain text']],
-            TextSegmentParser::parse('just some plain text', true)
+            TextSegmentParser::parse('just some plain text', isTrustedAuthor: true)
         );
     }
 
@@ -19,7 +19,7 @@ class TextSegmentParserTest extends TestCase
     {
         $this->assertEquals(
             [['type' => 'text', 'value' => '']],
-            TextSegmentParser::parse('', true)
+            TextSegmentParser::parse('', isTrustedAuthor: true)
         );
     }
 
@@ -28,7 +28,7 @@ class TextSegmentParserTest extends TestCase
         $this->assertEquals([
             ['type' => 'text', 'value' => 'check this out '],
             ['type' => 'link', 'value' => 'https://example.com/page', 'opens_in_new_tab' => true],
-        ], TextSegmentParser::parse('check this out https://example.com/page', true));
+        ], TextSegmentParser::parse('check this out https://example.com/page', isTrustedAuthor: true));
     }
 
     /** @dataProvider imageExtensionProvider */
@@ -38,7 +38,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'image', 'value' => $url]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
@@ -49,7 +49,7 @@ class TextSegmentParserTest extends TestCase
 
     public function test_it_splits_surrounding_text_from_an_embedded_image_url()
     {
-        $result = TextSegmentParser::parse('look at this https://example.com/funny.gif so good', true);
+        $result = TextSegmentParser::parse('look at this https://example.com/funny.gif so good', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'look at this '],
@@ -60,7 +60,7 @@ class TextSegmentParserTest extends TestCase
 
     public function test_it_handles_multiple_image_urls_in_the_same_comment()
     {
-        $result = TextSegmentParser::parse('https://example.com/one.gif and https://example.com/two.png', true);
+        $result = TextSegmentParser::parse('https://example.com/one.gif and https://example.com/two.png', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'image', 'value' => 'https://example.com/one.gif'],
@@ -71,7 +71,7 @@ class TextSegmentParserTest extends TestCase
 
     public function test_it_strips_trailing_sentence_punctuation_from_the_url()
     {
-        $result = TextSegmentParser::parse('lol check this out https://example.com/funny.gif.', true);
+        $result = TextSegmentParser::parse('lol check this out https://example.com/funny.gif.', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'lol check this out '],
@@ -86,7 +86,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'image', 'value' => $url]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
@@ -96,20 +96,20 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'image', 'value' => $url]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
     public function test_it_is_case_insensitive_on_the_url_scheme()
     {
-        $result = TextSegmentParser::parse('Https://example.com/funny.gif', true);
+        $result = TextSegmentParser::parse('Https://example.com/funny.gif', isTrustedAuthor: true);
 
         $this->assertEquals([['type' => 'image', 'value' => 'Https://example.com/funny.gif']], $result);
     }
 
     public function test_opens_in_new_tab_is_case_insensitive_on_the_url_scheme()
     {
-        $result = TextSegmentParser::parse('HTTP://EXAMPLE.COM', true);
+        $result = TextSegmentParser::parse('HTTP://EXAMPLE.COM', isTrustedAuthor: true);
 
         $this->assertEquals([['type' => 'link', 'value' => 'HTTP://EXAMPLE.COM', 'opens_in_new_tab' => true]], $result);
     }
@@ -121,7 +121,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'link', 'value' => $url, 'opens_in_new_tab' => true]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
@@ -132,7 +132,7 @@ class TextSegmentParserTest extends TestCase
 
     public function test_it_splits_out_an_image_url_wrapped_in_markdown_style_parentheses()
     {
-        $result = TextSegmentParser::parse('link: (https://example.com/funny.gif) neat right?', true);
+        $result = TextSegmentParser::parse('link: (https://example.com/funny.gif) neat right?', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'link: ('],
@@ -153,7 +153,7 @@ class TextSegmentParserTest extends TestCase
 
     public function test_it_does_not_merge_comma_joined_adjacent_image_urls()
     {
-        $result = TextSegmentParser::parse('https://example.com/one.gif,https://example.com/two.png', true);
+        $result = TextSegmentParser::parse('https://example.com/one.gif,https://example.com/two.png', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'image', 'value' => 'https://example.com/one.gif'],
@@ -164,7 +164,7 @@ class TextSegmentParserTest extends TestCase
 
     public function test_it_does_not_merge_quoted_adjacent_image_urls()
     {
-        $result = TextSegmentParser::parse('"https://example.com/one.gif","https://example.com/two.png"', true);
+        $result = TextSegmentParser::parse('"https://example.com/one.gif","https://example.com/two.png"', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => '"'],
@@ -178,7 +178,7 @@ class TextSegmentParserTest extends TestCase
     /** @dataProvider separatorProvider */
     public function test_it_does_not_merge_adjacent_image_urls_joined_by_other_separators(string $separator)
     {
-        $result = TextSegmentParser::parse("https://example.com/one.gif{$separator}https://example.com/two.png", true);
+        $result = TextSegmentParser::parse("https://example.com/one.gif{$separator}https://example.com/two.png", isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'image', 'value' => 'https://example.com/one.gif'],
@@ -198,7 +198,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'link', 'value' => $url, 'opens_in_new_tab' => true]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
@@ -208,7 +208,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'image', 'value' => $url]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
@@ -218,7 +218,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'image', 'value' => $url]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
@@ -228,7 +228,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'image', 'value' => $url]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
@@ -238,13 +238,13 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'image', 'value' => $url]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
     public function test_it_strips_an_unbalanced_trailing_parenthesis_even_with_a_query_string()
     {
-        $result = TextSegmentParser::parse('(https://cdn.example.com/img.png?token=abc).', true);
+        $result = TextSegmentParser::parse('(https://cdn.example.com/img.png?token=abc).', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => '('],
@@ -259,7 +259,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'image', 'value' => $url]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
@@ -269,13 +269,13 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'image', 'value' => $url]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
     public function test_a_trailing_exclamation_then_question_mark_is_treated_as_sentence_punctuation_not_a_query_string()
     {
-        $result = TextSegmentParser::parse('nice https://example.com/img.png!?', true);
+        $result = TextSegmentParser::parse('nice https://example.com/img.png!?', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'nice '],
@@ -286,7 +286,7 @@ class TextSegmentParserTest extends TestCase
 
     public function test_it_strips_an_extra_unbalanced_trailing_parenthesis_but_keeps_the_inner_balanced_pair()
     {
-        $result = TextSegmentParser::parse('https://example.com/foo(bar))', true);
+        $result = TextSegmentParser::parse('https://example.com/foo(bar))', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'link', 'value' => 'https://example.com/foo(bar)', 'opens_in_new_tab' => true],
@@ -297,7 +297,7 @@ class TextSegmentParserTest extends TestCase
     /** @dataProvider lenientTrailingPunctuationProvider */
     public function test_lenient_trailing_punctuation_trimming_on_images(string $description, string $input, string $expected)
     {
-        $imageSegment = collect(TextSegmentParser::parse($input, true))->firstWhere('type', 'image');
+        $imageSegment = collect(TextSegmentParser::parse($input, isTrustedAuthor: true))->firstWhere('type', 'image');
 
         $this->assertNotNull($imageSegment, "$description: no image segment found");
         $this->assertEquals($expected, $imageSegment['value'], $description);
@@ -357,7 +357,7 @@ class TextSegmentParserTest extends TestCase
     /** @dataProvider strictTrailingPunctuationProvider */
     public function test_strict_trailing_punctuation_trimming_on_links(string $description, string $input, string $expected)
     {
-        $linkSegment = collect(TextSegmentParser::parse($input, true))->firstWhere('type', 'link');
+        $linkSegment = collect(TextSegmentParser::parse($input, isTrustedAuthor: true))->firstWhere('type', 'link');
 
         $this->assertNotNull($linkSegment, "$description: no link segment found");
         $this->assertEquals($expected, $linkSegment['value'], $description);
@@ -400,7 +400,7 @@ class TextSegmentParserTest extends TestCase
 
     public function test_it_renders_a_plain_url_as_a_link_segment()
     {
-        $result = TextSegmentParser::parse('hello https://example.com world', true);
+        $result = TextSegmentParser::parse('hello https://example.com world', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'hello '],
@@ -415,13 +415,13 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'link', 'value' => $url, 'opens_in_new_tab' => true]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
     public function test_it_still_strips_a_wrapping_apostrophe_around_a_url()
     {
-        $result = TextSegmentParser::parse("check 'https://example.com/page' out", true);
+        $result = TextSegmentParser::parse("check 'https://example.com/page' out", isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => "check '"],
@@ -432,7 +432,7 @@ class TextSegmentParserTest extends TestCase
 
     public function test_it_renders_a_mailto_url_as_a_link_segment()
     {
-        $result = TextSegmentParser::parse('email me at mailto:jane@example.com please', true);
+        $result = TextSegmentParser::parse('email me at mailto:jane@example.com please', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'email me at '],
@@ -443,7 +443,7 @@ class TextSegmentParserTest extends TestCase
 
     public function test_it_renders_a_tel_url_as_a_link_segment()
     {
-        $result = TextSegmentParser::parse('call tel:5551234 now', true);
+        $result = TextSegmentParser::parse('call tel:5551234 now', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'call '],
@@ -456,8 +456,8 @@ class TextSegmentParserTest extends TestCase
     {
         // Image rendering is an http(s)-only concept - a mailto:/tel: candidate whose local part
         // happens to end in an image extension must stay a link, not get misclassified as an image.
-        $telResult = TextSegmentParser::parse('call tel:funny.gif now', true);
-        $mailtoResult = TextSegmentParser::parse('email mailto:funny.gif now', true);
+        $telResult = TextSegmentParser::parse('call tel:funny.gif now', isTrustedAuthor: true);
+        $mailtoResult = TextSegmentParser::parse('email mailto:funny.gif now', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'call '],
@@ -476,7 +476,7 @@ class TextSegmentParserTest extends TestCase
     {
         $result = TextSegmentParser::parse(
             'photo https://example.com/funny.gif and info https://example.com/info',
-            true
+            isTrustedAuthor: true
         );
 
         $this->assertEquals([
@@ -517,8 +517,8 @@ class TextSegmentParserTest extends TestCase
 
     public function test_a_bare_http_substring_inside_a_urls_query_or_path_does_not_truncate_the_match()
     {
-        $queryResult = TextSegmentParser::parse('https://example.com/?q=http:test', true);
-        $pathResult = TextSegmentParser::parse('https://example.com/wiki/HTTP:_header', true);
+        $queryResult = TextSegmentParser::parse('https://example.com/?q=http:test', isTrustedAuthor: true);
+        $pathResult = TextSegmentParser::parse('https://example.com/wiki/HTTP:_header', isTrustedAuthor: true);
 
         $this->assertEquals([['type' => 'link', 'value' => 'https://example.com/?q=http:test', 'opens_in_new_tab' => true]], $queryResult);
         $this->assertEquals([['type' => 'link', 'value' => 'https://example.com/wiki/HTTP:_header', 'opens_in_new_tab' => true]], $pathResult);
@@ -530,7 +530,7 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'link', 'value' => $url, 'opens_in_new_tab' => true]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
@@ -541,17 +541,17 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'link', 'value' => $telUrl, 'opens_in_new_tab' => true]],
-            TextSegmentParser::parse($telUrl, true)
+            TextSegmentParser::parse($telUrl, isTrustedAuthor: true)
         );
         $this->assertEquals(
             [['type' => 'link', 'value' => $mailtoUrl, 'opens_in_new_tab' => true]],
-            TextSegmentParser::parse($mailtoUrl, true)
+            TextSegmentParser::parse($mailtoUrl, isTrustedAuthor: true)
         );
     }
 
     public function test_a_non_breaking_space_bounds_a_url_the_same_as_a_regular_space()
     {
-        $result = TextSegmentParser::parse("https://example.com/foo\u{00A0}bar", true);
+        $result = TextSegmentParser::parse("https://example.com/foo\u{00A0}bar", isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'link', 'value' => 'https://example.com/foo', 'opens_in_new_tab' => true],
@@ -570,7 +570,7 @@ class TextSegmentParserTest extends TestCase
         foreach ($cases as $input) {
             $this->assertEquals(
                 [['type' => 'text', 'value' => $input]],
-                TextSegmentParser::parse($input, true),
+                TextSegmentParser::parse($input, isTrustedAuthor: true),
                 $input
             );
         }
@@ -580,12 +580,12 @@ class TextSegmentParserTest extends TestCase
     {
         $this->assertEquals(
             [['type' => 'text', 'value' => 'tel:.']],
-            TextSegmentParser::parse('tel:.', true)
+            TextSegmentParser::parse('tel:.', isTrustedAuthor: true)
         );
 
         $this->assertEquals(
             [['type' => 'text', 'value' => 'mailto:!']],
-            TextSegmentParser::parse('mailto:!', true)
+            TextSegmentParser::parse('mailto:!', isTrustedAuthor: true)
         );
     }
 
@@ -625,7 +625,7 @@ class TextSegmentParserTest extends TestCase
         string $input,
         array $expected
     ) {
-        $this->assertEquals($expected, TextSegmentParser::parse($input, true));
+        $this->assertEquals($expected, TextSegmentParser::parse($input, isTrustedAuthor: true));
     }
 
     public static function adjacentSchemePairProvider(): array
@@ -659,7 +659,7 @@ class TextSegmentParserTest extends TestCase
     {
         $result = TextSegmentParser::parse(
             'web https://example.com email mailto:jane@example.com phone tel:5551234 done',
-            true
+            isTrustedAuthor: true
         );
 
         $this->assertEquals([
@@ -679,13 +679,13 @@ class TextSegmentParserTest extends TestCase
 
         $this->assertEquals(
             [['type' => 'link', 'value' => $url, 'opens_in_new_tab' => false]],
-            TextSegmentParser::parse($url, true)
+            TextSegmentParser::parse($url, isTrustedAuthor: true)
         );
     }
 
     public function test_the_strict_trim_policy_strips_a_trailing_exclamation_mark_from_any_link_scheme_including_mailto()
     {
-        $result = TextSegmentParser::parse('mailto:a@b.com?subject=Hello!', true);
+        $result = TextSegmentParser::parse('mailto:a@b.com?subject=Hello!', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'link', 'value' => 'mailto:a@b.com?subject=Hello', 'opens_in_new_tab' => false],
@@ -695,7 +695,7 @@ class TextSegmentParserTest extends TestCase
 
     public function test_it_pins_the_accepted_mid_word_false_positive_trade_off()
     {
-        $result = TextSegmentParser::parse('Hotel:5-star downtown', true);
+        $result = TextSegmentParser::parse('Hotel:5-star downtown', isTrustedAuthor: true);
 
         $this->assertEquals([
             ['type' => 'text', 'value' => 'Ho'],

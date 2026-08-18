@@ -5,7 +5,9 @@ namespace App\Http\Resources;
 use App\Models\GrowthSession as GrowthSessionModel;
 use App\Models\User as UserModel;
 use App\Support\InviteLink;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Collection;
 
 class GrowthSession extends JsonResource
 {
@@ -63,25 +65,18 @@ class GrowthSession extends JsonResource
      * Redacts a guest's identity from every viewer except the guest themselves - unlike location/anydesk,
      * this is a per-user decision (a viewer can always see their own info) rather than an all-or-nothing gate.
      */
-    private function usersArray($users, ?UserModel $viewer, bool $canSeeSensitiveInfo, $request): array
+    private function usersArray(Collection $users, ?UserModel $viewer, bool $canSeeSensitiveInfo, Request $request): array
     {
         return $users
             ->map(function (UserModel $user) use ($viewer, $canSeeSensitiveInfo, $request) {
-                $userArray = (new User($user))->toArray($request);
-
                 $isGuest = ! $user->is_vehikl_member;
                 $isViewingSelf = $viewer && $viewer->is($user);
 
-                if ($canSeeSensitiveInfo || ! $isGuest || $isViewingSelf) {
-                    return $userArray;
-                }
+                $resource = $canSeeSensitiveInfo || ! $isGuest || $isViewingSelf
+                    ? new User($user)
+                    : new GuestSafeUser($user);
 
-                return [
-                    ...$userArray,
-                    'name' => 'Guest',
-                    'avatar' => asset('images/guest-avatar.webp'),
-                    'github_nickname' => '',
-                ];
+                return $resource->toArray($request);
             })
             ->all();
     }

@@ -2,7 +2,7 @@ import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
 import GrowthSessionCard from '@/components/legacy/GrowthSessionCard.vue';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
-import { IUser } from '@/types';
+import { IGrowthSession, IUser } from '@/types';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import { vi } from 'vitest';
 
@@ -46,7 +46,7 @@ const nonVehiklMember: IUser = {
     is_vehikl_member: false,
 };
 
-const baseGrowthSessionDataAttributes = {
+const baseGrowthSessionDataAttributes: IGrowthSession = {
     id: 0,
     owner: ownerOfTheGrowthSession,
     is_public: true,

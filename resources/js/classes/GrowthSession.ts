@@ -121,12 +121,17 @@ export class GrowthSession implements IGrowthSession {
         return end.isValid() && end.isBefore(DateTime.today().toISOString());
     }
 
+    /** The owner's display name, or a placeholder for a session whose owner was deleted. */
+    get ownerName(): string {
+        return this.owner?.name ?? 'Unknown';
+    }
+
     get renderedTitle(): string {
         if (this.title) {
             return this.title;
         }
 
-        return `${this.owner?.name ?? 'Unknown'}'s ${DateTime.parseByDate(this.date).weekDayString()} Growth Session`;
+        return `${this.ownerName}'s ${DateTime.parseByDate(this.date).weekDayString()} Growth Session`;
     }
 
     get calendarUrl(): string {

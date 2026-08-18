@@ -1,15 +1,19 @@
-import growthSessionWithCommentsJson from '@/../../tests/fixtures/GrowthSessionWithComments.json';
+import rawGrowthSessionWithComments from '@/../../tests/fixtures/GrowthSessionWithComments.json';
 import { DateTime } from '@/classes/DateTime';
 import GrowthSessionForm from '@/components/legacy/GrowthSessionForm.vue';
 import { AnydesksApi } from '@/services/AnydesksApi';
 import { DiscordChannelApi } from '@/services/DiscordChannelApi';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
-import { IAnyDesk, IStoreGrowthSessionRequest, IUser } from '@/types';
+import { IAnyDesk, IGrowthSession, IStoreGrowthSessionRequest, IUser } from '@/types';
 import { IDiscordChannel } from '@/types/IDiscordChannel';
 import { mount } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import { vi } from 'vitest';
+
+// Fixture JSON has no literal string types (e.g. `type: string`, not `type: 'text'`), unlike the
+// discriminated unions the frontend types model - cast once here rather than at every spread below.
+const growthSessionWithCommentsJson = rawGrowthSessionWithComments as unknown as IGrowthSession;
 
 const user: IUser = {
     avatar: 'lastAirBender.jpg',

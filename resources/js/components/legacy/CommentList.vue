@@ -46,7 +46,7 @@ function shortTimestamp(timeStamp: string): string {
         <ul class="mb-4 flex flex-col gap-4">
             <li v-for="comment in growthSession.comments" :key="comment.id" class="flex gap-3">
                 <a :href="getGithubURL(comment)" aria-label="visit-their-github" class="flex-none">
-                    <v-avatar :src="comment.user.avatar" :size="6" :alt="`${comment.user.name}'s avatar`" />
+                    <VAvatar :src="comment.user.avatar" :size="6" :alt="`${comment.user.name}'s avatar`" />
                 </a>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2">
@@ -63,7 +63,7 @@ function shortTimestamp(timeStamp: string): string {
                         </button>
                     </div>
                     <p class="gs-text-body mt-1 text-sm leading-relaxed break-words whitespace-pre-wrap">
-                        <text-segments :segments="comment.segments" />
+                        <TextSegments :segments="comment.segments" />
                     </p>
                 </div>
             </li>

@@ -57,6 +57,7 @@ class TextSegmentParser
 
             $schemeLiteral = strtolower($matches[1][$index][0]);
             $isHttpScheme = $schemeLiteral === 'http://' || $schemeLiteral === 'https://';
+            $lenientUrl = null;
 
             if ($isHttpScheme) {
                 // A trailing `?` can itself be punctuation (e.g. "img.png!?"), so trim known-safe
