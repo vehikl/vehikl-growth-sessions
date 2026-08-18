@@ -183,7 +183,12 @@ async function getDiscordChannels() {
                     value: discordChannel.id,
                 };
             })
-            .filter((discordChannel) => !occupiedChannelIds.includes(discordChannel.value));
+            // A session occupies its own channel, so editing one would otherwise drop the channel it
+            // is already using out of its own picker - leaving the field looking unset.
+            .filter(
+                (discordChannel) =>
+                    !occupiedChannelIds.includes(discordChannel.value) || discordChannel.value === props.growthSession?.discord_channel_id,
+            );
     } catch (e) {
         onRequestFailed(e);
     }
@@ -221,8 +226,17 @@ watch(selectedDiscordChannelId, (selectedId: string | null) => {
     if (!selectedId) {
         return;
     }
+
+    const discordChannelName = discordChannels.value.find((channel) => channel.value === selectedId)?.label;
+
+    // The channel list is fetched without being awaited, so an edit sets this id before the names
+    // have arrived. Naming no channel is not a reason to overwrite the location the session already
+    // has - it used to write "Channel: undefined" over it.
+    if (!discordChannelName) {
+        return;
+    }
+
     if (!location.value || location.value.startsWith('Channel: ')) {
-        const discordChannelName = discordChannels.value.find((channel) => channel.value === selectedId)?.label;
         location.value = `Channel: ${discordChannelName}`;
     }
 });

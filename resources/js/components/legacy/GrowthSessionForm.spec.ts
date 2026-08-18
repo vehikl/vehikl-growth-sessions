@@ -459,6 +459,60 @@ describe('GrowthSessionForm', () => {
             expect(wrapper.find('#is-public').exists()).toBe(true);
         });
 
+        describe('when the session already sits on a Discord channel', () => {
+            const sessionOnAChannel = {
+                ...growthSessionWithCommentsJson,
+                discord_channel_id: discordChannels[0].id,
+                location: `Channel: ${discordChannels[0].name}`,
+            };
+
+            function editing(occupied: Array<IDiscordChannel> = []) {
+                DiscordChannelApi.occupied = vi.fn().mockImplementation(() => occupied);
+                return mount(GrowthSessionForm, {
+                    propsData: { owner: user, startDate, growthSession: sessionOnAChannel },
+                });
+            }
+
+            function locationValue(): string {
+                return (wrapper.find('#location').element as HTMLInputElement).value;
+            }
+
+            function channelOptions(): string[] {
+                return wrapper
+                    .find('#discord-channel')
+                    .findAll('option')
+                    .map((option) => option.text());
+            }
+
+            // The channel list is fetched without being awaited, so the id is set before the names
+            // arrive. Naming no channel used to write "Channel: undefined" over the real location.
+            it('keeps the location it was given rather than naming a channel it cannot name yet', async () => {
+                wrapper = editing();
+
+                await flushPromises();
+
+                expect(locationValue()).toBe(`Channel: ${discordChannels[0].name}`);
+            });
+
+            // A session occupies its own channel, so an unfiltered occupied list hides it from its
+            // own picker - and nothing could ever resolve its name.
+            it('keeps the channel it is already using in the picker', async () => {
+                wrapper = editing([{ name: '', id: discordChannels[0].id }]);
+
+                await flushPromises();
+
+                expect(channelOptions()).toContain(discordChannels[0].name);
+            });
+
+            it('still hides a channel another session has taken', async () => {
+                wrapper = editing([{ name: '', id: discordChannels[1].id }]);
+
+                await flushPromises();
+
+                expect(channelOptions()).not.toContain(discordChannels[1].name);
+            });
+        });
+
         it('shows confirmation modal when updating a private session to public', async () => {
             const privateGrowthSession = { ...growthSessionWithCommentsJson, is_public: false };
             wrapper = mount(GrowthSessionForm, {
