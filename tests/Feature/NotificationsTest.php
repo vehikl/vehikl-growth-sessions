@@ -10,6 +10,7 @@ use App\Models\GrowthSession;
 use App\Models\Notification;
 use App\Models\User;
 use App\Models\UserType;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -17,6 +18,21 @@ use Tests\TestCase;
 
 class NotificationsTest extends TestCase
 {
+    private static ?string $aLaterDate = null;
+
+    /**
+     * Further out than any session these tests create, so an edit moving a session here always
+     * changes the date and always satisfies the request's after_or_equal:today rule. Carbon rather
+     * than now(), because data providers run before the application is booted.
+     *
+     * Worked out once and kept: the provider builds the request payload long before the test body
+     * asserts on it, and recomputing would disagree with itself across a UTC midnight.
+     */
+    private static function aLaterDate(): string
+    {
+        return self::$aLaterDate ??= Carbon::now()->addDays(10)->format('Y-m-d');
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -109,13 +125,13 @@ class NotificationsTest extends TestCase
             'user_id' => $user->id,
             'initiator' => $initiator->id,
             'growth_session_id' => $growthSession->id,
-            'type' => NotificationType::GS_COMMENT_ADDED,
+            'event_types' => [NotificationType::GS_COMMENT_ADDED],
         ]);
 
         $this->actingAs($user)
             ->getJson(route('notifications.index'))
             ->assertSuccessful()
-            ->assertJsonPath('0.type', NotificationType::GS_COMMENT_ADDED->value)
+            ->assertJsonPath('0.event_types', [NotificationType::GS_COMMENT_ADDED->value])
             ->assertJsonPath('0.read', false)
             ->assertJsonPath('0.initiator.id', $initiator->id)
             ->assertJsonPath('0.initiator.name', $initiator->name)
@@ -129,6 +145,43 @@ class NotificationsTest extends TestCase
             ->assertJsonMissingPath('0.metadata');
     }
 
+    /**
+     * The shape the composite types were replaced by: several events on one notification, kept in
+     * the order they were reported so a reader can render them as one sentence.
+     */
+    public function testANotificationCarriesEveryEventItReports()
+    {
+        $user = User::factory()->create();
+
+        Notification::factory()
+            ->reporting(NotificationType::GS_DATE_CHANGED, NotificationType::GS_TIME_CHANGED, NotificationType::GS_LOCATION_CHANGED)
+            ->create(['user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->getJson(route('notifications.index'))
+            ->assertSuccessful()
+            ->assertJsonPath('0.event_types', [
+                NotificationType::GS_DATE_CHANGED->value,
+                NotificationType::GS_TIME_CHANGED->value,
+                NotificationType::GS_LOCATION_CHANGED->value,
+            ]);
+    }
+
+    /** A single event is still a list, so a consumer never has to tell the two shapes apart. */
+    public function testASingleEventIsStillReportedAsAList()
+    {
+        $user = User::factory()->create();
+
+        Notification::factory()
+            ->reporting(NotificationType::GS_COMMENT_ADDED)
+            ->create(['user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->getJson(route('notifications.index'))
+            ->assertSuccessful()
+            ->assertJsonPath('0.event_types', [NotificationType::GS_COMMENT_ADDED->value]);
+    }
+
     public function testALiveSessionIsReadFromTheRelationRatherThanItsSnapshot()
     {
         $user = User::factory()->create();
@@ -137,7 +190,7 @@ class NotificationsTest extends TestCase
         Notification::factory()->create([
             'user_id' => $user->id,
             'growth_session_id' => $growthSession->id,
-            'type' => NotificationType::GS_TIME_CHANGED,
+            'event_types' => [NotificationType::GS_TIME_CHANGED],
             'metadata' => ['title' => 'A stale title nobody should see'],
         ]);
 
@@ -154,7 +207,7 @@ class NotificationsTest extends TestCase
         Notification::factory()->create([
             'user_id' => $user->id,
             'growth_session_id' => null,
-            'type' => NotificationType::GS_TIME_CHANGED,
+            'event_types' => [NotificationType::GS_TIME_CHANGED],
             'metadata' => ['title' => 'A stale title nobody should see'],
         ]);
 
@@ -197,7 +250,7 @@ class NotificationsTest extends TestCase
         $payload = $this->actingAs($attendee)
             ->getJson(route('notifications.index'))
             ->assertSuccessful()
-            ->assertJsonPath('0.type', NotificationType::GS_DELETED->value)
+            ->assertJsonPath('0.event_types', [NotificationType::GS_DELETED->value])
             // The session it names is gone, so there is nothing to link to - but it still describes itself.
             ->assertJsonPath('0.growth_session.id', null)
             ->assertJsonPath('0.growth_session.title', 'Pairing on Vue')
@@ -216,7 +269,7 @@ class NotificationsTest extends TestCase
         Notification::factory()->create([
             'user_id' => $user->id,
             'growth_session_id' => null,
-            'type' => NotificationType::GS_DELETED,
+            'event_types' => [NotificationType::GS_DELETED],
             'metadata' => null,
         ]);
 
@@ -245,7 +298,7 @@ class NotificationsTest extends TestCase
         foreach ($payload as $notification) {
             $this->assertNotNull(
                 $notification['growth_session'],
-                "a default factory row rendered no growth session (type: {$notification['type']})",
+                'a default factory row rendered no growth session (events: ' . implode(', ', $notification['event_types']) . ')',
             );
         }
     }
@@ -258,7 +311,7 @@ class NotificationsTest extends TestCase
         $this->actingAs($user)
             ->getJson(route('notifications.index'))
             ->assertSuccessful()
-            ->assertJsonPath('0.type', NotificationType::GS_DELETED->value)
+            ->assertJsonPath('0.event_types', [NotificationType::GS_DELETED->value])
             ->assertJsonPath('0.growth_session.id', null)
             ->assertJsonPath('0.growth_session.title', 'A cancelled session')
             ->assertJsonPath('0.growth_session.location', 'At AnyDesk XYZ - abcdefg');
@@ -278,7 +331,7 @@ class NotificationsTest extends TestCase
             'user_id' => $user->id,
             'initiator' => $initiator->id,
             'growth_session_id' => $growthSession->id,
-            'type' => NotificationType::GS_COMMENT_ADDED,
+            'event_types' => [NotificationType::GS_COMMENT_ADDED],
         ]);
 
         // Encoded and decoded so enums and dates are compared as they go over the wire.
@@ -344,7 +397,13 @@ class NotificationsTest extends TestCase
             $notifications->pluck('user_id')->all(),
             'everyone involved except the commenter should hear about it',
         );
-        $this->assertSame([NotificationType::GS_COMMENT_ADDED], $notifications->pluck('type')->unique()->all());
+        $notifications->each(
+            fn (Notification $notification) => $this->assertSame(
+                [NotificationType::GS_COMMENT_ADDED],
+                $notification->event_types->all(),
+                'a comment reports one event and only that event',
+            ),
+        );
         $this->assertSame([$attendee->id], $notifications->pluck('initiator')->unique()->all());
     }
 
@@ -363,14 +422,14 @@ class NotificationsTest extends TestCase
         $this->actingAs($owner)
             ->getJson(route('notifications.index'))
             ->assertSuccessful()
-            ->assertJsonPath('0.type', NotificationType::GS_COMMENT_ADDED->value)
+            ->assertJsonPath('0.event_types', [NotificationType::GS_COMMENT_ADDED->value])
             ->assertJsonPath('0.growth_session.id', $growthSession->id)
             ->assertJsonPath('0.growth_session.title', 'Pairing on Vue')
             ->assertJsonPath('0.initiator.id', $commenter->id);
     }
 
     #[DataProvider('editProvider')]
-    public function testAnEditRaisesExactlyOneNotificationDescribingEverythingThatMoved(array $changes, NotificationType $expected)
+    public function testAnEditRaisesExactlyOneNotificationDescribingEverythingThatMoved(array $changes, array $expected)
     {
         $owner = User::factory()->create();
         $attendee = User::factory()->create();
@@ -393,32 +452,89 @@ class NotificationsTest extends TestCase
         $notifications = Notification::query()->where('user_id', $attendee->id)->get();
 
         $this->assertCount(1, $notifications, 'one save must not fan out into several notifications');
-        $this->assertSame($expected, $notifications->first()->type);
+        $this->assertSame($expected, $notifications->first()->event_types->all());
     }
 
+    /**
+     * The expectation is a list because the notification is: everything one save moved, in the
+     * order a reader would say it. The multi-event rows are the ones that used to need a composite
+     * type of their own.
+     */
     public static function editProvider(): array
     {
         return [
             'only the time moved' => [
                 ['start_time' => '09:00 am', 'end_time' => '10:00 am'],
-                NotificationType::GS_TIME_CHANGED,
+                [NotificationType::GS_TIME_CHANGED],
             ],
             'only the start time moved' => [
                 ['start_time' => '09:00 am'],
-                NotificationType::GS_TIME_CHANGED,
+                [NotificationType::GS_TIME_CHANGED],
             ],
             'only the location moved' => [
                 ['location' => 'Somewhere else entirely'],
-                NotificationType::GS_LOCATION_CHANGED,
+                [NotificationType::GS_LOCATION_CHANGED],
             ],
-            'both moved in one save' => [
+            'the time and the location moved' => [
                 ['start_time' => '09:00 am', 'end_time' => '10:00 am', 'location' => 'Somewhere else entirely'],
-                NotificationType::GS_TIME_AND_LOCATION_CHANGED,
+                [NotificationType::GS_TIME_CHANGED, NotificationType::GS_LOCATION_CHANGED],
+            ],
+            'only the date moved' => [
+                ['date' => self::aLaterDate()],
+                [NotificationType::GS_DATE_CHANGED],
+            ],
+            'the date and the time moved' => [
+                ['date' => self::aLaterDate(), 'start_time' => '09:00 am', 'end_time' => '10:00 am'],
+                [NotificationType::GS_DATE_CHANGED, NotificationType::GS_TIME_CHANGED],
+            ],
+            'the date and the location moved' => [
+                ['date' => self::aLaterDate(), 'location' => 'Somewhere else entirely'],
+                [NotificationType::GS_DATE_CHANGED, NotificationType::GS_LOCATION_CHANGED],
+            ],
+            'the day, the clock and the room all moved' => [
+                [
+                    'date' => self::aLaterDate(),
+                    'start_time' => '09:00 am',
+                    'end_time' => '10:00 am',
+                    'location' => 'Somewhere else entirely',
+                ],
+                [
+                    NotificationType::GS_DATE_CHANGED,
+                    NotificationType::GS_TIME_CHANGED,
+                    NotificationType::GS_LOCATION_CHANGED,
+                ],
             ],
         ];
     }
 
-    public function testAnEditThatTouchesNeitherTimeNorLocationNotifiesNobody()
+    /**
+     * The snapshot is taken after the save, so it holds where the session moved to rather than where
+     * it was. That is what a reader needs from a notification saying the date changed.
+     */
+    public function testADateChangeRecordsTheNewDateOnTheNotification()
+    {
+        $owner = User::factory()->create();
+        $attendee = User::factory()->create();
+        $growthSession = GrowthSession::factory()->create(['date' => now()->addDays(3)->format('Y-m-d')]);
+        $growthSession->attendees()->attach($owner, ['user_type_id' => UserType::OWNER_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->actingAs($owner)
+            ->putJson(route('growth_sessions.update', $growthSession), ['date' => self::aLaterDate()])
+            ->assertSuccessful();
+
+        $notification = Notification::query()->where('user_id', $attendee->id)->sole();
+
+        $this->assertSame(self::aLaterDate(), $notification->metadata['date']);
+
+        $this->actingAs($attendee)
+            ->getJson(route('notifications.index'))
+            ->assertSuccessful()
+            ->assertJsonPath('0.event_types', [NotificationType::GS_DATE_CHANGED->value])
+            ->assertJsonPath('0.growth_session.date', self::aLaterDate());
+    }
+
+    public function testAnEditThatMovesNoneOfTheDateTimeOrLocationNotifiesNobody()
     {
         $owner = User::factory()->create();
         $attendee = User::factory()->create();
