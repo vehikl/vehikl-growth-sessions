@@ -37,17 +37,6 @@ class Notification extends Model
         ];
     }
 
-    /**
-     * Whether this notification is reporting the given event among the ones it carries.
-     *
-     * Null-safe because the cast leaves the attribute null until the model is saved or hydrated,
-     * and asking an unsaved notification what it reports should answer "nothing", not fatal.
-     */
-    public function hasEvent(NotificationType $eventType): bool
-    {
-        return (bool) $this->event_types?->contains($eventType);
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

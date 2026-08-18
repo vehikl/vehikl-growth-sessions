@@ -182,25 +182,62 @@ class NotificationsTest extends TestCase
             ->assertJsonPath('0.event_types', [NotificationType::GS_COMMENT_ADDED->value]);
     }
 
-    public function testALiveSessionIsReadFromTheRelationRatherThanItsSnapshot()
+    public function testASessionIsReadFromItsSnapshotRatherThanTheLiveRow()
     {
         $user = User::factory()->create();
-        $growthSession = GrowthSession::factory()->create(['title' => 'The current title']);
+        $growthSession = GrowthSession::factory()->create(['title' => 'The title it has now']);
 
         Notification::factory()->create([
             'user_id' => $user->id,
             'growth_session_id' => $growthSession->id,
             'event_types' => [NotificationType::GS_TIME_CHANGED],
-            'metadata' => ['title' => 'A stale title nobody should see'],
+            'metadata' => ['title' => 'The title it had then'],
         ]);
 
         $this->actingAs($user)
             ->getJson(route('notifications.index'))
             ->assertSuccessful()
-            ->assertJsonPath('0.growth_session.title', 'The current title');
+            ->assertJsonPath('0.growth_session.title', 'The title it had then')
+            // The id is not something the session said, so it still points at the row to open.
+            ->assertJsonPath('0.growth_session.id', $growthSession->id);
     }
 
-    public function testAGrowthSessionDeletedAfterAnUnrelatedNotificationReportsNothing()
+    /**
+     * The regression the snapshot rule exists for. A notification used to quote the live row, so a
+     * later edit by somebody else silently rewrote what an earlier one said the first person did -
+     * "Ada moved it to 9am" would start reading "Ada moved it to 7pm" the moment Bob moved it again.
+     */
+    public function testALaterEditDoesNotChangeWhatAnEarlierNotificationSays()
+    {
+        $owner = User::factory()->create();
+        $attendee = User::factory()->create();
+        $growthSession = GrowthSession::factory()->create(['date' => now()->addDays(3)->format('Y-m-d')]);
+        $growthSession->attendees()->attach($owner, ['user_type_id' => UserType::OWNER_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        foreach ([['09:00 am', '10:00 am'], ['07:00 pm', '09:00 pm']] as [$start, $end]) {
+            $this->actingAs($owner)
+                ->putJson(route('growth_sessions.update', $growthSession), ['start_time' => $start, 'end_time' => $end])
+                ->assertSuccessful();
+        }
+
+        $payload = $this->actingAs($attendee)
+            ->getJson(route('notifications.index'))
+            ->assertSuccessful()
+            ->json();
+
+        // Keyed by id rather than read positionally: both were raised in the same second, and
+        // latest() has no tiebreaker, so their order in the response is not guaranteed.
+        $rows = collect($payload)->keyBy('id');
+        [$earlier, $later] = Notification::query()->where('user_id', $attendee->id)->orderBy('id')->pluck('id')->all();
+
+        $this->assertSame('09:00 am', $rows[$earlier]['growth_session']['start_time'], 'the first notification must still say what the first edit did');
+        $this->assertSame('10:00 am', $rows[$earlier]['growth_session']['end_time']);
+        $this->assertSame('07:00 pm', $rows[$later]['growth_session']['start_time']);
+        $this->assertSame('09:00 pm', $rows[$later]['growth_session']['end_time']);
+    }
+
+    public function testANotificationStillDescribesASessionThatHasSinceGone()
     {
         $user = User::factory()->create();
 
@@ -208,13 +245,15 @@ class NotificationsTest extends TestCase
             'user_id' => $user->id,
             'growth_session_id' => null,
             'event_types' => [NotificationType::GS_TIME_CHANGED],
-            'metadata' => ['title' => 'A stale title nobody should see'],
+            'metadata' => ['title' => 'A session that has since been deleted'],
         ]);
 
         $this->actingAs($user)
             ->getJson(route('notifications.index'))
             ->assertSuccessful()
-            ->assertJsonPath('0.growth_session', null);
+            ->assertJsonPath('0.growth_session.title', 'A session that has since been deleted')
+            // Nothing left to open, so nothing to link to.
+            ->assertJsonPath('0.growth_session.id', null);
     }
 
     /**

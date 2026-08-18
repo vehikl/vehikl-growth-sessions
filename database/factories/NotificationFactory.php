@@ -20,6 +20,9 @@ class NotificationFactory extends Factory
             'growth_session_id' => GrowthSession::factory(),
             'read' => false,
             'event_types' => [$this->faker->randomElement(self::eventsWithALiveGrowthSession())],
+            // The resource reads the session out of the snapshot, so a row without one describes
+            // nothing. Taken from the session this notification is about, as dispatch would.
+            'metadata' => fn (array $attributes) => GrowthSession::find($attributes['growth_session_id'])?->toNotificationMetadata() ?? [],
         ];
     }
 

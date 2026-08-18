@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use App\Enums\NotificationType;
-use App\Models\GrowthSession;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -30,43 +29,32 @@ class Notification extends JsonResource
         ];
     }
 
+    /**
+     * The growth session as it was when this happened, never as it is now.
+     *
+     * A notification is a record of a moment: reading the live row would have it quietly restate
+     * itself every time somebody edited the session again, so a notification saying who moved the
+     * time would end up quoting a time that person never set. The snapshot is written at dispatch,
+     * before the queue runs, and is the only source for what the session said.
+     *
+     * The id is the exception, because it is not something the session said - it is how the reader
+     * gets to it. It comes from the relation and is null once there is nothing left to open.
+     */
     private function growthSessionPayload(): ?array
     {
-        if ($this->hasEvent(NotificationType::GS_DELETED)) {
-            return $this->fromSnapshot();
-        }
+        $snapshot = $this->metadata ?: [];
 
-        return $this->growthSession ? $this->fromRelation($this->growthSession) : null;
-    }
-
-    private function fromSnapshot(): ?array
-    {
-        $metadata = $this->metadata ?: [];
-
-        if ($metadata === []) {
+        if ($snapshot === []) {
             return null;
         }
 
         return [
-            // The row is gone, so there is nothing to link to. A null id is the payload saying so.
-            'id' => null,
-            'title' => $metadata['title'] ?? null,
-            'location' => $metadata['location'] ?? null,
-            'date' => $metadata['date'] ?? null,
-            'start_time' => $metadata['start_time'] ?? null,
-            'end_time' => $metadata['end_time'] ?? null,
-        ];
-    }
-
-    private function fromRelation(GrowthSession $growthSession): array
-    {
-        return [
-            'id' => $growthSession->id,
-            'title' => $growthSession->title,
-            'location' => $growthSession->location,
-            'date' => $growthSession->date?->format('Y-m-d'),
-            'start_time' => $growthSession->start_time?->format('h:i a'),
-            'end_time' => $growthSession->end_time?->format('h:i a'),
+            'id' => $this->growthSession?->id,
+            'title' => $snapshot['title'] ?? null,
+            'location' => $snapshot['location'] ?? null,
+            'date' => $snapshot['date'] ?? null,
+            'start_time' => $snapshot['start_time'] ?? null,
+            'end_time' => $snapshot['end_time'] ?? null,
         ];
     }
 }
