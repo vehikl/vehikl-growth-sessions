@@ -2,9 +2,17 @@ import NotificationsMenu from '@/components/NotificationsMenu.vue';
 import { notificationSentence } from '@/lib/notificationSentence';
 import { NotificationApi } from '@/services/NotificationApi';
 import type { INotification } from '@/types';
+import { useEcho } from '@laravel/echo-vue';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import { vi } from 'vitest';
+
+vi.mock('@laravel/echo-vue', () => ({
+    default: vi.fn(),
+    useEcho: vi.fn(),
+}));
+
+const THE_USER = 7;
 
 // Spied rather than stubbed: the sentences below are the real ones, we just want to count the work.
 vi.mock('@/lib/notificationSentence', async (importOriginal) => {
@@ -34,17 +42,31 @@ function aNotification(overrides: Partial<INotification> = {}): INotification {
 
 async function menuShowing(notifications: INotification[]): Promise<VueWrapper> {
     NotificationApi.index = vi.fn().mockResolvedValue(notifications);
-    const wrapper = mount(NotificationsMenu);
+    const wrapper = mount(NotificationsMenu, { props: { userId: THE_USER } });
     await flushPromises();
     await wrapper.find('[data-testid="notifications-trigger"]').trigger('click');
     await flushPromises();
     return wrapper;
 }
 
+/** Hands a payload to the listener the menu gave Echo, the way a broadcast would arrive. */
+async function broadcast(notification: INotification): Promise<void> {
+    const calls = vi.mocked(useEcho).mock.calls;
+    const listener = calls[calls.length - 1][2] as (payload: INotification) => void;
+
+    listener(notification);
+    await flushPromises();
+}
+
+function sentences(wrapper: VueWrapper): string[] {
+    return wrapper.findAll('[data-testid="notification-sentence"]').map((row) => row.text());
+}
+
 describe('NotificationsMenu', () => {
     // Braces matter: a function returned from beforeEach is registered as a cleanup callback and called.
     beforeEach(() => {
         vi.mocked(notificationSentence).mockClear();
+        vi.mocked(useEcho).mockClear();
     });
 
     afterEach(() => vi.restoreAllMocks());
@@ -52,7 +74,7 @@ describe('NotificationsMenu', () => {
     it('asks the endpoint for the notifications as soon as it mounts', async () => {
         NotificationApi.index = vi.fn().mockResolvedValue([]);
 
-        mount(NotificationsMenu);
+        mount(NotificationsMenu, { props: { userId: THE_USER } });
         await flushPromises();
 
         expect(NotificationApi.index).toHaveBeenCalled();
@@ -127,7 +149,7 @@ describe('NotificationsMenu', () => {
     it('stays closed until the trigger is clicked', async () => {
         NotificationApi.index = vi.fn().mockResolvedValue([aNotification()]);
 
-        const wrapper = mount(NotificationsMenu);
+        const wrapper = mount(NotificationsMenu, { props: { userId: THE_USER } });
         await flushPromises();
 
         expect(wrapper.find('[data-testid="notifications-panel"]').exists()).toBe(false);
@@ -152,11 +174,78 @@ describe('NotificationsMenu', () => {
         expect(notificationSentence).toHaveBeenCalledTimes(3);
     });
 
+    describe('live notifications', () => {
+        it("listens on the signed-in user's own private channel", async () => {
+            await menuShowing([]);
+
+            expect(useEcho).toHaveBeenCalledWith(`notifications.${THE_USER}`, '.notification.created', expect.any(Function), [], 'private');
+        });
+
+        it('shows a notification that arrives while the menu is open', async () => {
+            const wrapper = await menuShowing([aNotification({ id: 1 })]);
+
+            await broadcast(aNotification({ id: 2, event_types: ['gs_deleted'] }));
+
+            expect(sentences(wrapper)).toEqual(['Ada deleted Pairing on Vue', 'Ada commented on Pairing on Vue']);
+        });
+
+        it('counts what arrived without the panel being open', async () => {
+            NotificationApi.index = vi.fn().mockResolvedValue([]);
+            const wrapper = mount(NotificationsMenu, { props: { userId: THE_USER } });
+            await flushPromises();
+
+            await broadcast(aNotification({ id: 1 }));
+
+            expect(wrapper.find('[data-testid="notifications-count"]').text()).toBe('1');
+        });
+
+        // Echo replays on reconnect, and two rows sharing an id would collide on the list key.
+        it('ignores a notification it is already showing', async () => {
+            const wrapper = await menuShowing([aNotification({ id: 1 })]);
+
+            await broadcast(aNotification({ id: 1 }));
+
+            expect(wrapper.findAll('[data-testid="notification"]')).toHaveLength(1);
+        });
+
+        // The request is in flight for as long as the round trip takes, and anything raised in
+        // that window would be lost if the response replaced the list instead of joining it.
+        it('does not lose a notification that arrives before the first request answers', async () => {
+            let answer: (notifications: INotification[]) => void = () => {};
+            NotificationApi.index = vi.fn().mockReturnValue(new Promise((resolve) => (answer = resolve)));
+
+            const wrapper = mount(NotificationsMenu, { props: { userId: THE_USER } });
+            await broadcast(aNotification({ id: 99, event_types: ['gs_deleted'] }));
+
+            answer([aNotification({ id: 1 })]);
+            await flushPromises();
+            await wrapper.find('[data-testid="notifications-trigger"]').trigger('click');
+
+            expect(sentences(wrapper)).toEqual(['Ada deleted Pairing on Vue', 'Ada commented on Pairing on Vue']);
+        });
+
+        // The cap is a window on the newest, not a ceiling that turns arrivals away: a full list
+        // must still let a new notification in, and the one it pushes out is the oldest.
+        it('makes room for a new notification by dropping the oldest', async () => {
+            const numbered = (id: number) =>
+                aNotification({ id, growth_session: { id, title: `Session ${id}`, location: null, date: null, start_time: null, end_time: null } });
+            const wrapper = await menuShowing(Array.from({ length: 10 }, (_, index) => numbered(index + 1)));
+
+            await broadcast(numbered(99));
+
+            const shown = sentences(wrapper);
+            expect(shown).toHaveLength(10);
+            expect(shown[0]).toBe('Ada commented on Session 99');
+            expect(shown).not.toContain('Ada commented on Session 10');
+            expect(wrapper.find('[data-testid="notifications-count"]').text()).toBe('10');
+        });
+    });
+
     // The header is on every page, so a failing request must not take the whole layout with it.
     it('survives the endpoint failing', async () => {
         NotificationApi.index = vi.fn().mockRejectedValue(new Error('502'));
 
-        const wrapper = mount(NotificationsMenu);
+        const wrapper = mount(NotificationsMenu, { props: { userId: THE_USER } });
         await flushPromises();
         await wrapper.find('[data-testid="notifications-trigger"]').trigger('click');
         await flushPromises();

@@ -3,9 +3,17 @@ import MemberAvatar from '@/components/MemberAvatar.vue';
 import { initiatorName, notificationSentence } from '@/lib/notificationSentence';
 import { NotificationApi } from '@/services/NotificationApi';
 import type { INotification } from '@/types';
+import { useEcho } from '@laravel/echo-vue';
 import { onClickOutside } from '@vueuse/core';
 import moment from 'moment-timezone';
 import { computed, onMounted, ref } from 'vue';
+
+// Whose notifications these are. A prop rather than the page props because the menu only ever
+// renders for a signed-in user, and taking it as input keeps the subscription drivable in a test.
+const props = defineProps<{ userId: number }>();
+
+/** How many the panel holds: the same window the endpoint serves, so a reload agrees with it. */
+const MOST_RECENT = 10;
 
 /** What a row actually renders. Derived once per payload, not once per render. */
 interface NotificationRow {
@@ -47,14 +55,49 @@ const rows = computed<NotificationRow[]>(() =>
 
 onMounted(async () => {
     try {
-        notifications.value = await NotificationApi.index();
+        // Merged behind whatever has already arrived, not assigned over it: a broadcast can land
+        // while this request is in flight, and assigning would drop it.
+        const fetched = await NotificationApi.index(MOST_RECENT);
+
+        keep([...notifications.value, ...fetched]);
     } catch {
         // An unreachable endpoint leaves the menu empty rather than taking the header down with it.
-        notifications.value = [];
     } finally {
         loaded.value = true;
     }
 });
+
+/**
+ * A pushed notification is the same payload the endpoint returns - the two are pinned to each
+ * other by a test - so it needs no translation on the way in. It goes on the front because it was
+ * raised just now, which makes it newer than anything already listed.
+ */
+useEcho(
+    `notifications.${props.userId}`,
+    '.notification.created',
+    (incoming: INotification) => keep([incoming, ...notifications.value]),
+    [],
+    'private',
+);
+
+/**
+ * Newest first, no repeats, and never more than the endpoint itself would have served.
+ *
+ * Repeats are not hypothetical: Echo replays on reconnect, and a notification that arrives while
+ * the initial request is in flight comes back in that response too. Two rows sharing an id would
+ * collide on the list key.
+ */
+function keep(inOrder: INotification[]): void {
+    const byId = new Map<number, INotification>();
+
+    for (const notification of inOrder) {
+        if (notification?.id !== undefined && !byId.has(notification.id)) {
+            byId.set(notification.id, notification);
+        }
+    }
+
+    notifications.value = [...byId.values()].slice(0, MOST_RECENT);
+}
 </script>
 
 <template>
