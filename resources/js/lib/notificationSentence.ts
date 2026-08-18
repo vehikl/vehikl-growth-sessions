@@ -11,6 +11,9 @@ import moment from 'moment-timezone';
  * Every part of a notification is nullable, and a session is described from a snapshot that may
  * predate the column holding it. So each clause drops out when its data is missing, rather than
  * being filled with "null" - the reader gets a shorter true sentence instead of a complete false one.
+ *
+ * The sentence is built as pieces rather than a string, because the parts a reader scans for - who
+ * did it, which session, what it says now - have to be told apart from the words joining them.
  */
 
 /** Stands in for an initiator the payload did not carry. */
@@ -50,6 +53,20 @@ const EDIT_AXES: EditAxis[] = [
 ];
 
 /**
+ * The parts of a sentence a reader actually scans for: who did it, which session, and what it says
+ * now. Naming them rather than flagging them keeps every decision about how they look in the
+ * component - the builder says what a piece is, not how much weight to give it.
+ */
+export type SegmentRole = 'initiator' | 'title' | 'value';
+
+/** A run of the sentence that reads as one piece. Concatenating them all gives the sentence back. */
+export interface NotificationSegment {
+    text: string;
+    /** Absent for the words that only join the interesting parts together. */
+    role?: SegmentRole;
+}
+
+/**
  * Who the sentence is about. Exported so anything else labelling the initiator - the avatar beside
  * the sentence, for one - falls back to the same name and cannot disagree with the sentence itself.
  */
@@ -57,40 +74,65 @@ export function initiatorName(notification: INotification): string {
     return notification.initiator?.name || SOMEONE;
 }
 
-export function notificationSentence(notification: INotification): string {
+/**
+ * The sentence in the pieces a reader distinguishes.
+ *
+ * A stand-in never takes a role. "Someone" and "a growth session" are what the payload could not
+ * tell us, so giving them weight would point the eye at the least informative words in the row.
+ */
+export function notificationSegments(notification: INotification): NotificationSegment[] {
     const events = notification.event_types ?? [];
-    const who = initiatorName(notification);
-    const what = notification.growth_session?.title || A_GROWTH_SESSION;
+    const session = notification.growth_session;
+
+    const who: NotificationSegment = named(initiatorName(notification), notification.initiator?.name, 'initiator');
+    const what: NotificationSegment = named(session?.title || A_GROWTH_SESSION, session?.title, 'title');
 
     // These two describe the notification on their own, so they win over anything else in the list.
     if (events.includes('gs_deleted')) {
         // Nobody can look the session up any more, so the sentence says when it would have been.
-        const session = notification.growth_session;
-
-        return withDetail(`${who} cancelled ${what}`, 'scheduled for', [readableDate(session?.date), timeRange(session)]);
+        return [who, { text: ' cancelled ' }, what, ...detail('scheduled for', [readableDate(session?.date), timeRange(session)])];
     }
 
-    if (events.includes('gs_comment')) return `${who} commented on ${what}`;
+    if (events.includes('gs_comment')) return [who, { text: ' commented on ' }, what];
 
     const moved = EDIT_AXES.filter((axis) => events.includes(axis.event));
 
     // Either nothing was reported, or every event in it postdates this build.
-    if (!moved.length) return `${who} updated ${what}`;
+    if (!moved.length) return [who, { text: ' updated ' }, what];
 
-    const subject = `${who} updated the ${readAsList(moved.map((axis) => axis.noun))} of ${what}`;
-
-    return withDetail(
-        subject,
-        'now',
-        moved.map((axis) => axis.newValue(notification.growth_session)),
-    );
+    return [
+        who,
+        { text: ` updated the ${readAsList(moved.map((axis) => axis.noun))} of ` },
+        what,
+        ...detail(
+            'now',
+            moved.map((axis) => axis.newValue(session)),
+        ),
+    ];
 }
 
-/** The subject, then whichever details survived - or just the subject when none of them did. */
-function withDetail(subject: string, leadIn: string, details: (string | null)[]): string {
-    const present = details.filter((detail) => detail !== null);
+/** The same sentence as one string - what it reads as, with nothing about how it looks. */
+export function notificationSentence(notification: INotification): string {
+    return notificationSegments(notification)
+        .map((segment) => segment.text)
+        .join('');
+}
 
-    return present.length ? `${subject}, ${leadIn} ${present.join(', ')}` : subject;
+/** Carries a role only when the text is the real thing rather than what stands in for it. */
+function named(text: string, real: string | null | undefined, role: SegmentRole): NotificationSegment {
+    return real ? { text, role } : { text };
+}
+
+/**
+ * ", now 03:30 pm to 05:00 pm" as pieces - each value on its own, so the words that introduce and
+ * separate them stay quiet. Nothing at all when none of the details survived.
+ */
+function detail(leadIn: string, details: (string | null)[]): NotificationSegment[] {
+    const present = details.filter((value) => value !== null);
+
+    if (!present.length) return [];
+
+    return present.flatMap((value, index) => [{ text: index === 0 ? `, ${leadIn} ` : ', ' }, { text: value, role: 'value' as const }]);
 }
 
 /** "03:30 pm to 05:00 pm". Half a range is worse than no range, so both ends or neither. */

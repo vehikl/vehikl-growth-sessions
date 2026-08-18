@@ -1,5 +1,5 @@
 import NotificationsMenu from '@/components/NotificationsMenu.vue';
-import { notificationSentence } from '@/lib/notificationSentence';
+import { notificationSegments } from '@/lib/notificationSentence';
 import { NotificationApi } from '@/services/NotificationApi';
 import type { INotification } from '@/types';
 import { useEcho } from '@laravel/echo-vue';
@@ -18,7 +18,7 @@ const THE_USER = 7;
 vi.mock('@/lib/notificationSentence', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@/lib/notificationSentence')>();
 
-    return { ...actual, notificationSentence: vi.fn(actual.notificationSentence) };
+    return { ...actual, notificationSegments: vi.fn(actual.notificationSegments) };
 });
 
 function aNotification(overrides: Partial<INotification> = {}): INotification {
@@ -65,7 +65,7 @@ function sentences(wrapper: VueWrapper): string[] {
 describe('NotificationsMenu', () => {
     // Braces matter: a function returned from beforeEach is registered as a cleanup callback and called.
     beforeEach(() => {
-        vi.mocked(notificationSentence).mockClear();
+        vi.mocked(notificationSegments).mockClear();
         vi.mocked(useEcho).mockClear();
     });
 
@@ -94,6 +94,24 @@ describe('NotificationsMenu', () => {
 
         expect(wrapper.find('[data-testid="notification-sentence"]').text()).toBe('Ada commented on Pairing on Vue');
         expect(wrapper.text()).not.toContain('gs_comment');
+    });
+
+    // Three tiers, not two: emphasising the person, the session and the new value alike would put the
+    // row back where it started, with nothing standing out because everything does.
+    it('ranks the session title above the person and the new value, and both above the rest', async () => {
+        const wrapper = await menuShowing([aNotification({ event_types: ['gs_location'] })]);
+
+        // textContent rather than text(), which trims the spaces that separate the pieces.
+        const pieces = wrapper.findAll('[data-testid="notification-sentence"] span');
+        const weight = new Map(pieces.map((piece) => [piece.element.textContent, piece.classes()]));
+
+        expect([...weight.keys()]).toEqual(['Ada', ' updated the location of ', 'Pairing on Vue', ', now ', 'at AnyDesk 12']);
+
+        expect(weight.get('Pairing on Vue')).toEqual(expect.arrayContaining(['gs-text-strong', 'font-semibold']));
+        expect(weight.get('Ada')).toEqual(['gs-text-strong']);
+        expect(weight.get('at AnyDesk 12')).toEqual(['gs-text-strong']);
+        expect(weight.get(' updated the location of ')).toEqual([]);
+        expect(weight.get(', now ')).toEqual([]);
     });
 
     describe('how long ago it was', () => {
@@ -238,7 +256,7 @@ describe('NotificationsMenu', () => {
         await trigger.trigger('click');
         await trigger.trigger('click');
 
-        expect(notificationSentence).toHaveBeenCalledTimes(3);
+        expect(notificationSegments).toHaveBeenCalledTimes(3);
     });
 
     describe('live notifications', () => {

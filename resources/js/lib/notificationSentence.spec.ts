@@ -1,4 +1,4 @@
-import { notificationSentence } from '@/lib/notificationSentence';
+import { notificationSegments, notificationSentence } from '@/lib/notificationSentence';
 import type { INotification, INotificationGrowthSession, NotificationType } from '@/types';
 
 function growthSession(overrides: Partial<INotificationGrowthSession> = {}): INotificationGrowthSession {
@@ -170,4 +170,58 @@ describe('notificationSentence', () => {
             expect(notificationSentence(bare)).toBe('Someone cancelled a growth session');
         });
     });
+});
+
+describe('notificationSegments', () => {
+    it('tells the person and the session apart from the words joining them', () => {
+        expect(notificationSegments(notification(['gs_comment']))).toEqual([
+            { text: 'Ada', role: 'initiator' },
+            { text: ' commented on ' },
+            { text: 'Pairing on Vue', role: 'title' },
+        ]);
+    });
+
+    it('gives each new value a piece of its own', () => {
+        expect(notificationSegments(notification(['gs_date', 'gs_location']))).toEqual([
+            { text: 'Ada', role: 'initiator' },
+            { text: ' updated the date and location of ' },
+            { text: 'Pairing on Vue', role: 'title' },
+            { text: ', now ' },
+            { text: 'Aug 20', role: 'value' },
+            { text: ', ' },
+            { text: 'at AnyDesk 12', role: 'value' },
+        ]);
+    });
+
+    // Pointing the eye at "a growth session" would emphasise the least informative thing in the row.
+    it('gives no role to the stand-ins for what the payload could not say', () => {
+        const bare = notification(['gs_comment'], { initiator: null, growth_session: null });
+
+        expect(notificationSegments(bare)).toEqual([{ text: 'Someone' }, { text: ' commented on ' }, { text: 'a growth session' }]);
+    });
+
+    it('still names the person when only the session is missing', () => {
+        const untitled = notification(['gs_comment'], { growth_session: growthSession({ title: null }) });
+
+        expect(notificationSegments(untitled)).toEqual([
+            { text: 'Ada', role: 'initiator' },
+            { text: ' commented on ' },
+            { text: 'a growth session' },
+        ]);
+    });
+
+    // Whatever the pieces are, reading them straight through has to give the sentence back.
+    // Each case is wrapped in its own array: it.each spreads an inner array across the arguments.
+    it.each([[['gs_comment']], [['gs_deleted']], [['gs_date', 'gs_time', 'gs_location']], [[]]] as NotificationType[][][])(
+        'reads as the sentence itself when joined (%s)',
+        (events) => {
+            const notified = notification(events);
+
+            expect(
+                notificationSegments(notified)
+                    .map((segment) => segment.text)
+                    .join(''),
+            ).toBe(notificationSentence(notified));
+        },
+    );
 });

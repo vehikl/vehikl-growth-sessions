@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import MemberAvatar from '@/components/MemberAvatar.vue';
 import { useNow } from '@/composables/useNow';
-import { initiatorName, notificationSentence } from '@/lib/notificationSentence';
+import { initiatorName, notificationSegments, type NotificationSegment, type SegmentRole } from '@/lib/notificationSentence';
 import { relativeTime } from '@/lib/relativeTime';
 import { NotificationApi } from '@/services/NotificationApi';
 import type { INotification } from '@/types';
@@ -17,10 +17,23 @@ const props = defineProps<{ userId: number }>();
 /** How many the panel holds: the same window the endpoint serves, so a reload agrees with it. */
 const MOST_RECENT = 10;
 
+/**
+ * How much weight each part of a sentence carries. Three tiers, not two: the title is what a row is
+ * scanned for, so it alone takes weight as well as contrast, while the person and the new values are
+ * lifted out of the connecting words by contrast only. Emphasising all three the same way would put
+ * the row back where it started, with nothing standing out because everything does.
+ */
+const EMPHASIS: Record<SegmentRole, string> = {
+    title: 'gs-text-strong font-semibold',
+    initiator: 'gs-text-strong',
+    value: 'gs-text-strong',
+};
+
 /** What a row renders that does not depend on the clock. Derived once per payload. */
 interface NotificationRow {
     id: number;
-    sentence: string;
+    /** The sentence in its pieces, so the session's title can be picked out of it. */
+    segments: NotificationSegment[];
     /** The exact time, shown on hover - the elapsed label alone loses it. */
     createdAt: string;
     initiatorName: string;
@@ -50,7 +63,7 @@ onClickOutside(root, () => (open.value = false));
 const rows = computed<NotificationRow[]>(() =>
     notifications.value.map((notification) => ({
         id: notification.id,
-        sentence: notificationSentence(notification),
+        segments: notificationSegments(notification),
         createdAt: moment(notification.created_at).format('MMM D, h:mm a'),
         initiatorName: initiatorName(notification),
         initiatorAvatar: notification.initiator?.avatar ?? null,
@@ -156,14 +169,23 @@ function keep(inOrder: INotification[]): void {
                     <li
                         v-for="row in rows"
                         :key="row.id"
-                        v-memo="[row.sentence, elapsed.get(row.id), row.initiatorName, row.initiatorAvatar]"
+                        v-memo="[row.segments, elapsed.get(row.id), row.initiatorName, row.initiatorAvatar]"
                         class="gs-border flex items-start gap-3 border-b px-4 py-2.5 last:border-b-0"
                         data-testid="notification"
                     >
                         <MemberAvatar :name="row.initiatorName" :avatar="row.initiatorAvatar" data-testid="notification-avatar" />
 
                         <div class="min-w-0">
-                            <p class="gs-text-strong text-sm" data-testid="notification-sentence">{{ row.sentence }}</p>
+                            <!-- Emphasis is relative, so the words that only join the interesting parts
+                                 together have to recede for any of them to stand out. -->
+                            <p class="gs-text-body text-sm" data-testid="notification-sentence">
+                                <span
+                                    v-for="(segment, index) in row.segments"
+                                    :key="index"
+                                    :class="segment.role ? EMPHASIS[segment.role] : undefined"
+                                    >{{ segment.text }}</span
+                                >
+                            </p>
                             <p class="gs-text-muted mt-0.5 text-xs" :title="row.createdAt" data-testid="notification-created-at">
                                 {{ elapsed.get(row.id) }}
                             </p>
