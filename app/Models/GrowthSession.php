@@ -119,7 +119,7 @@ class GrowthSession extends Model
 
     public function comments()
     {
-        return $this->hasMany(Comment::class)->orderByDesc('created_at');
+        return $this->hasMany(Comment::class)->orderByDesc('created_at')->orderByDesc('id');
     }
 
     public function anydesk()

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import UserAvatar from '@/components/UserAvatar.vue';
-import { useNotifications } from '@/composables/useNotifications';
-import type { INotification, INotificationData, INotificationType, IUser } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { onClickOutside } from '@vueuse/core';
-import { Bell, CalendarDays, CalendarX2, Clock, MapPin, MessageSquare } from 'lucide-vue-next';
+import {useNotifications} from '@/composables/useNotifications';
+import type {INotification, INotificationData, INotificationType, IUser} from '@/types';
+import {Link} from '@inertiajs/vue3';
+import {onClickOutside} from '@vueuse/core';
+import {Bell, CalendarDays, CalendarX2, Clock, MapPin, MessageSquare} from 'lucide-vue-next';
 import moment from 'moment-timezone';
-import type { Component } from 'vue';
-import { ref } from 'vue';
+import type {Component} from 'vue';
+import {ref} from 'vue';
 
 const props = defineProps<{ user: IUser }>();
 
@@ -61,20 +61,18 @@ type Headline = { prefix?: string; bold: string; suffix: string };
 
 const genericUpdate = ({ title }: INotificationData): Headline => ({ bold: title, suffix: ' was updated.' });
 
-const fieldsUpdated = ({ title, change }: INotificationData): Headline => ({
-    bold: title,
-    suffix: ` ${(change?.label ?? 'details').toLowerCase()} updated.`,
-});
-
 /**
  * The bold lead-in sits between `prefix` and `suffix`, so markup can style just the name/title.
  * One entry per notification type — same shape as `TYPE_ICONS` above — so a new type is a compile
  * error here instead of silently falling through to generic copy.
  */
 const HEADLINES: Record<INotificationType, (data: INotificationData) => Headline> = {
-    growth_session_date_changed: fieldsUpdated,
-    growth_session_time_changed: fieldsUpdated,
-    growth_session_location_changed: fieldsUpdated,
+    growth_session_date_changed: ({title, change}: INotificationData): Headline => ({bold: title, suffix: ` has been updated.`,
+    }),
+    growth_session_time_changed: ({title, change}: INotificationData): Headline => ({bold: title, suffix: ` has been updated.`,
+    }),
+    growth_session_location_changed: ({title, change}: INotificationData): Headline => ({bold: title, suffix: ` has been updated.`,
+    }),
     growth_session_comment_added: ({ title, commenter }) => ({ bold: commenter ?? 'Someone', suffix: ` commented on ${title}.` }),
     growth_session_deleted: ({ title, date }) => ({
         bold: title,
@@ -127,7 +125,7 @@ function changeDetails(notification: INotification): string | null {
         >
             <div
                 v-if="isOpen"
-                class="gs-card gs-border absolute right-0 z-20 mt-2 max-h-96 w-96 origin-top-right overflow-y-auto rounded-xl border p-4 shadow-lg"
+                class="gs-card gs-border fixed top-16 right-5 left-auto z-20 max-h-96 w-[calc(100vw-2.5rem)] origin-top-right overflow-y-auto rounded-xl border p-4 shadow-lg sm:absolute sm:top-auto sm:right-0 sm:left-auto sm:mt-2 sm:w-96"
                 role="menu"
             >
                 <p class="gs-text-strong mb-4 text-xs font-bold tracking-[0.08em] uppercase">Notifications</p>

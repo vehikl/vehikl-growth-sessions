@@ -41,8 +41,8 @@ class CommentsTest extends TestCase
             ->assertJsonMissing(['attendee_limit' => GrowthSession::NO_LIMIT]);
         $jsonDecoded = json_decode($response->getContent(), true);
         $this->assertEquals($jsonDecoded['attendees'][0]['id'], $user->id);
-        $this->assertEquals($jsonDecoded['comments'][1]['content'], 'Hello world');
-        $this->assertEquals($jsonDecoded['comments'][0]['content'], $existingComment->content);
+        $this->assertEquals($jsonDecoded['comments'][0]['content'], 'Hello world');
+        $this->assertEquals($jsonDecoded['comments'][1]['content'], $existingComment->content);
         $this->assertEquals($jsonDecoded['watchers'][0]['id'], $watcher->id);
     }
 
@@ -76,7 +76,7 @@ class CommentsTest extends TestCase
         $growthSession = GrowthSession::factory()->create();
         $comments = Comment::factory()->times(4)->create(['growth_session_id' => $growthSession->id]);
 
-        $expectedResponse = json_decode(json_encode(CommentResource::collection($comments)->toArray(request())), true);
+        $expectedResponse = json_decode(json_encode(CommentResource::collection($comments->sortByDesc('id')->values())->toArray(request())), true);
 
         $this->getJson(route('growth_sessions.comments.index', $growthSession))->assertJson($expectedResponse);
     }

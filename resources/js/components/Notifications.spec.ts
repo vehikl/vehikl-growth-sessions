@@ -69,8 +69,8 @@ const commentNotification = {
 
 describe('Notifications', () => {
     beforeEach(() => {
-        vi.mocked(NotificationApi.index).mockResolvedValue(emptyResponse);
-        vi.mocked(NotificationApi.markRead).mockResolvedValue(undefined);
+        vi.mocked(NotificationApi.index).mockReset().mockResolvedValue(emptyResponse);
+        vi.mocked(NotificationApi.markRead).mockReset().mockResolvedValue(undefined);
     });
 
     it('fetches notifications on mount and shows the unread badge', async () => {
@@ -99,7 +99,7 @@ describe('Notifications', () => {
 
         expect(wrapper.text()).toContain('Notifications');
         expect(wrapper.text()).toContain('Weekly Pairing');
-        expect(wrapper.text()).toContain('location updated.');
+        expect(wrapper.text()).toContain('has been updated.');
         expect(wrapper.text()).toContain('Lightning Talks');
         expect(wrapper.text()).toContain('has been cancelled for Aug 20');
     });
@@ -133,7 +133,7 @@ describe('Notifications', () => {
         await flushPromises();
         await wrapper.find('button').trigger('click');
 
-        expect(wrapper.text()).toContain('start time updated.');
+        expect(wrapper.text()).toContain('has been updated.');
         expect(wrapper.text()).toContain('Start time is now 11:00 AM.');
     });
 

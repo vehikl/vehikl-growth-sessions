@@ -38,6 +38,7 @@ class GrowthSessionDeleteNotificationTest extends TestCase
 
     public function test_the_notification_data_carries_the_sessions_date()
     {
+        $this->setTestNow('2020-08-01');
         $growthSession = GrowthSession::factory()
             ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
             ->create(['title' => 'Weekly Pairing', 'date' => '2020-08-20']);

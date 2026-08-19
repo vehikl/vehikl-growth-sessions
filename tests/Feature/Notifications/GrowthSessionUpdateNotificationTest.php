@@ -107,8 +107,8 @@ class GrowthSessionUpdateNotificationTest extends TestCase
             'growth_sessions.update',
             ['growth_session' => $growthSession->id]
         ), [
-            'start_time' => '11:00',
-            'end_time' => '12:00',
+            'start_time' => '11:00 am',
+            'end_time' => '12:00 pm',
         ])->assertSuccessful();
 
         Notification::assertSentToTimes($attendee, GrowthSessionUpdatedNotification::class, 1);
@@ -130,7 +130,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
             'growth_sessions.update',
             ['growth_session' => $growthSession->id]
         ), [
-            'end_time' => '12:00',
+            'end_time' => '12:00 pm',
         ])->assertSuccessful();
 
         Notification::assertNothingSent();
@@ -140,6 +140,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
     {
         Notification::fake();
 
+        $this->setTestNow('2020-01-01');
         $growthSession = $this->makeSessionWithParticipants(['date' => '2020-01-10', 'location' => 'Zoom']);
         $attendee = User::factory()->create();
         $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
