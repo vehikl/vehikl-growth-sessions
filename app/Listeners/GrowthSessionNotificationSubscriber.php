@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\NotificationType;
 use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionUpdated;
 use App\Models\GrowthSession;
@@ -11,25 +12,23 @@ use Illuminate\Support\Facades\Notification;
 
 class GrowthSessionNotificationSubscriber
 {
-    /**
-     * Only these fields are worth interrupting an attendee's day over — the "when" and "where"
-     * of a session. Everything else (title wording, tags, capacity, visibility...) stays silent.
-     */
-    private const MEANINGFUL_FIELDS = ['date', 'start_time', 'end_time', 'location', 'anydesk_id'];
+    private const FIELD_TYPES = [
+        'date' => NotificationType::GrowthSessionDateChanged,
+        'start_time' => NotificationType::GrowthSessionTimeChanged,
+        'end_time' => NotificationType::GrowthSessionTimeChanged,
+        'location' => NotificationType::GrowthSessionLocationChanged,
+    ];
 
     public function handleUpdated(GrowthSessionUpdated $event): void
     {
         $growthSession = $event->growthSession;
-        $changes = $this->meaningfulChanges($growthSession);
 
-        if (empty($changes)) {
-            return;
+        foreach ($this->meaningfulChangesByType($growthSession) as ['type' => $type, 'changes' => $changes]) {
+            Notification::send(
+                $growthSession->participantsToNotify($growthSession->owner),
+                new GrowthSessionUpdatedNotification($growthSession, $type, $changes)
+            );
         }
-
-        Notification::send(
-            $growthSession->participantsToNotify(),
-            new GrowthSessionUpdatedNotification($growthSession, $changes)
-        );
     }
 
     public function handleDeleted(GrowthSessionDeleted $event): void
@@ -37,26 +36,28 @@ class GrowthSessionNotificationSubscriber
         $growthSession = $event->growthSession;
 
         Notification::send(
-            $growthSession->participantsToNotify(),
-            new GrowthSessionDeletedNotification($growthSession->title)
+            $growthSession->participantsToNotify($growthSession->owner),
+            new GrowthSessionDeletedNotification($growthSession)
         );
     }
 
     /**
-     * @return array<string, array{old: mixed, new: mixed}>
+     * @return array<string, array{type: NotificationType, changes: array<string, array{old: mixed, new: mixed}>}>
      */
-    private function meaningfulChanges(GrowthSession $growthSession): array
+    private function meaningfulChangesByType(GrowthSession $growthSession): array
     {
-        $changedFields = array_intersect(array_keys($growthSession->getChanges()), self::MEANINGFUL_FIELDS);
+        $changedFields = array_intersect(array_keys($growthSession->getChanges()), array_keys(self::FIELD_TYPES));
 
-        $changes = [];
+        $grouped = [];
         foreach ($changedFields as $field) {
-            $changes[$field] = [
+            $type = self::FIELD_TYPES[$field];
+            $grouped[$type->value]['type'] = $type;
+            $grouped[$type->value]['changes'][$field] = [
                 'old' => $growthSession->getRawOriginal($field),
                 'new' => $growthSession->getAttributes()[$field] ?? null,
             ];
         }
 
-        return $changes;
+        return $grouped;
     }
 }

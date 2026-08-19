@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\AnyDesk;
+use App\Enums\NotificationType;
 use App\Models\GrowthSession;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -18,13 +18,16 @@ class GrowthSessionUpdatedNotification extends Notification implements ShouldQue
         'start_time' => 'Start time',
         'end_time' => 'End time',
         'location' => 'Location',
-        'anydesk_id' => 'Meeting link',
     ];
 
     /**
-     * @param  array<string, array{old: mixed, new: mixed}>  $changes  Raw old/new values keyed by field name.
+     * @param  array<string, array{old: mixed, new: mixed}>  $changes  Raw old/new values keyed by field name — every
+     *                                                                 field here belongs to the same $type, so a save
+     *                                                                 that moves both start and end time is still one
+     *                                                                 notification, while a save that moves the date
+     *                                                                 and the location is two.
      */
-    public function __construct(public GrowthSession $growthSession, public array $changes) {}
+    public function __construct(public GrowthSession $growthSession, public NotificationType $type, public array $changes) {}
 
     public function via(object $notifiable): array
     {
@@ -34,7 +37,7 @@ class GrowthSessionUpdatedNotification extends Notification implements ShouldQue
     public function toArray(object $notifiable): array
     {
         return [
-            'type' => 'growth_session_updated',
+            'type' => $this->type->value,
             'growth_session_id' => $this->growthSession->id,
             'title' => $this->growthSession->title,
             'changes' => $this->describeChanges(),
@@ -43,7 +46,7 @@ class GrowthSessionUpdatedNotification extends Notification implements ShouldQue
     }
 
     /**
-     * @return string[]
+     * @return array<int, array{field: string, label: string, description: string}>
      */
     private function describeChanges(): array
     {
@@ -51,12 +54,16 @@ class GrowthSessionUpdatedNotification extends Notification implements ShouldQue
 
         foreach ($this->changes as $field => $value) {
             $label = self::FIELD_LABELS[$field] ?? $field;
-            $lines[] = sprintf(
-                '%s changed %s → %s',
-                $label,
-                $this->formatValue($field, $value['old']),
-                $this->formatValue($field, $value['new']),
-            );
+            $lines[] = [
+                'field' => $field,
+                'label' => $label,
+                'description' => sprintf(
+                    '%s changed %s → %s',
+                    $label,
+                    $this->formatValue($field, $value['old']),
+                    $this->formatValue($field, $value['new']),
+                ),
+            ];
         }
 
         return $lines;
@@ -64,10 +71,6 @@ class GrowthSessionUpdatedNotification extends Notification implements ShouldQue
 
     private function formatValue(string $field, mixed $value): string
     {
-        if ($field === 'anydesk_id') {
-            return $value ? (optional(AnyDesk::find($value))->name ?? "AnyDesk #{$value}") : 'None';
-        }
-
         if ($field === 'date') {
             return $value ? Carbon::parse($value)->format('M j, Y') : 'None';
         }

@@ -235,13 +235,17 @@ class GrowthSession extends Model
         return $this->hasAttendee($user) || $this->hasWatcher($user);
     }
 
-    public function participantsToNotify(): Collection
+    /**
+     * Everyone with a stake in this session — owners, attendees, watchers — except whoever just
+     * caused the notification. An owner editing their own session shouldn't hear about it, but a
+     * comment from an attendee should still reach the owners, so exclusion follows the initiator
+     * rather than any fixed role.
+     */
+    public function participantsToNotify(?User $initiator): Collection
     {
-        $ownerIds = $this->owners->pluck('id');
-
         return $this->attendees
-            ->reject(fn (User $user) => $ownerIds->contains($user->id))
             ->merge($this->watchers)
+            ->reject(fn (User $user) => $initiator !== null && $user->is($initiator))
             ->unique('id')
             ->values();
     }

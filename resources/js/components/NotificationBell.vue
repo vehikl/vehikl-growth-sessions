@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useNotifications } from '@/composables/useNotifications';
-import type { INotification, IUser } from '@/types';
+import type { INotification, INotificationType, IUser } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { onClickOutside } from '@vueuse/core';
-import { Bell, CalendarCheck, CalendarX2 } from 'lucide-vue-next';
+import { Bell, CalendarDays, CalendarX2, Clock, MapPin, MessageSquare } from 'lucide-vue-next';
+import type { Component } from 'vue';
 import { ref } from 'vue';
 
 const props = defineProps<{ user: IUser }>();
@@ -35,9 +36,27 @@ function isLast(notification: INotification): boolean {
     return notifications.value[notifications.value.length - 1]?.id === notification.id;
 }
 
-/** The specific field changes, rendered on their own line, separate from the title/lead-in. */
-function changeDetails(notification: INotification): string {
-    return (notification.data.changes ?? []).join('; ');
+/** One icon per notification type, so a date change reads differently from a location or time change at a glance. */
+const TYPE_ICONS: Record<INotificationType, Component> = {
+    growth_session_date_changed: CalendarDays,
+    growth_session_time_changed: Clock,
+    growth_session_location_changed: MapPin,
+    growth_session_deleted: CalendarX2,
+    growth_session_comment_added: MessageSquare,
+};
+
+function notificationIcon(notification: INotification): Component {
+    return TYPE_ICONS[notification.data.type];
+}
+
+/** The bold lead-in and the sentence that follows it, split so markup can style just the name/title. */
+function headline(notification: INotification): { bold: string; rest: string } {
+    const { type, title, commenter } = notification.data;
+
+    if (type === 'growth_session_deleted') return { bold: title, rest: 'was cancelled.' };
+    if (type === 'growth_session_comment_added') return { bold: commenter ?? 'Someone', rest: `commented on ${title}.` };
+
+    return { bold: title, rest: 'was updated.' };
 }
 </script>
 
@@ -86,15 +105,16 @@ function changeDetails(notification: INotification): string {
                                 class="gs-border absolute top-8 left-4 -ml-px h-[calc(100%-2rem)] w-0.5 border-l"
                             />
 
-                            <Link
-                                v-if="notification.data.url"
-                                :href="notification.data.url"
+                            <component
+                                :is="notification.data.url ? Link : 'div'"
+                                :href="notification.data.url ?? undefined"
                                 role="menuitem"
-                                class="transition-smooth relative -m-2 flex items-start gap-3 rounded-lg p-2 hover:bg-black/5 dark:hover:bg-white/5"
-                                @click="isOpen = false"
+                                class="transition-smooth relative -m-2 flex items-start gap-3 rounded-lg p-2"
+                                :class="notification.data.url ? 'hover:bg-black/5 dark:hover:bg-white/5' : ''"
+                                @click="notification.data.url && (isOpen = false)"
                             >
                                 <span class="gs-card gs-border relative z-10 flex h-8 w-8 flex-none items-center justify-center">
-                                    <CalendarCheck class="gs-text-sub h-4 w-4" aria-hidden="true" />
+                                    <component :is="notificationIcon(notification)" class="gs-text-sub h-4 w-4" aria-hidden="true" />
                                     <span
                                         v-if="!notification.read_at"
                                         class="bg-vehikl-orange gs-card absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2"
@@ -103,34 +123,22 @@ function changeDetails(notification: INotification): string {
                                 </span>
                                 <span class="min-w-0 flex-1 pt-1">
                                     <span class="gs-text-strong block text-sm leading-snug">
-                                        <span class="font-bold">{{ notification.data.title }} </span> was updated.
+                                        <span class="font-bold">{{ headline(notification).bold }}</span> {{ headline(notification).rest }}
                                     </span>
-                                    <span v-if="changeDetails(notification)" class="gs-text-body mt-0.5 block text-xs">
-                                        {{ changeDetails(notification) }}
-                                    </span>
-                                    <span class="gs-text-muted mt-1 block text-xs">{{ timeAgo(notification.created_at) }}</span>
-                                </span>
-                            </Link>
 
-                            <div v-else role="menuitem" class="relative flex items-start gap-3 rounded-lg">
-                                <span class="gs-card gs-border relative z-10 flex h-8 w-8 flex-none items-center justify-center">
-                                    <CalendarX2 class="gs-text-sub h-4 w-4" aria-hidden="true" />
-                                    <span
-                                        v-if="!notification.read_at"
-                                        class="bg-vehikl-orange gs-card absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2"
-                                        aria-hidden="true"
-                                    />
-                                </span>
-                                <span class="min-w-0 flex-1 pt-1">
-                                    <span class="gs-text-strong block text-sm leading-snug">
-                                        <span class="font-bold">{{ notification.data.title }} </span> was cancelled.
+                                    <ul v-if="notification.data.changes?.length" class="mt-0.5 space-y-0.5">
+                                        <li v-for="change in notification.data.changes" :key="change.field" class="gs-text-body text-xs">
+                                            {{ change.description }}
+                                        </li>
+                                    </ul>
+
+                                    <span v-else-if="notification.data.excerpt" class="gs-text-body mt-0.5 block text-xs">
+                                        "{{ notification.data.excerpt }}"
                                     </span>
-                                    <span v-if="changeDetails(notification)" class="gs-text-body mt-0.5 block text-xs">
-                                        {{ changeDetails(notification) }}
-                                    </span>
+
                                     <span class="gs-text-muted mt-1 block text-xs">{{ timeAgo(notification.created_at) }}</span>
                                 </span>
-                            </div>
+                            </component>
                         </div>
                     </li>
                 </ul>

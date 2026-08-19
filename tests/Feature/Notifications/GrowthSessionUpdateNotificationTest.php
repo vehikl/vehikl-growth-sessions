@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Notifications;
 
+use App\Enums\NotificationType;
 use App\Models\GrowthSession;
 use App\Models\User;
 use App\Models\UserType;
@@ -35,7 +36,8 @@ class GrowthSessionUpdateNotificationTest extends TestCase
         ])->assertSuccessful();
 
         Notification::assertSentTo($attendee, GrowthSessionUpdatedNotification::class, function ($notification) {
-            return array_key_exists('date', $notification->changes)
+            return $notification->type === NotificationType::GrowthSessionDateChanged
+                && array_key_exists('date', $notification->changes)
                 && $notification->changes['date']['old'] === '2020-01-10'
                 && $notification->changes['date']['new'] === '2020-01-15';
         });
@@ -73,6 +75,73 @@ class GrowthSessionUpdateNotificationTest extends TestCase
         ])->assertSuccessful();
 
         Notification::assertNotSentTo($growthSession->owner, GrowthSessionUpdatedNotification::class);
+    }
+
+    public function test_a_co_owner_is_notified_when_another_owner_makes_the_edit()
+    {
+        Notification::fake();
+
+        $growthSession = $this->makeSessionWithParticipants(['location' => 'Zoom']);
+        $coOwner = User::factory()->create();
+        $growthSession->owners()->attach($coOwner, ['user_type_id' => UserType::OWNER_ID]);
+
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
+            'location' => 'The office',
+        ])->assertSuccessful();
+
+        Notification::assertSentTo($coOwner, GrowthSessionUpdatedNotification::class);
+    }
+
+    public function test_changing_both_start_and_end_time_sends_a_single_time_changed_notification()
+    {
+        Notification::fake();
+
+        $growthSession = $this->makeSessionWithParticipants(['start_time' => '09:00', 'end_time' => '10:00']);
+        $attendee = User::factory()->create();
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
+            'start_time' => '11:00',
+            'end_time' => '12:00',
+        ])->assertSuccessful();
+
+        Notification::assertSentToTimes($attendee, GrowthSessionUpdatedNotification::class, 1);
+        Notification::assertSentTo($attendee, GrowthSessionUpdatedNotification::class, function ($notification) {
+            return $notification->type === NotificationType::GrowthSessionTimeChanged
+                && array_key_exists('start_time', $notification->changes)
+                && array_key_exists('end_time', $notification->changes);
+        });
+    }
+
+    public function test_changing_date_and_location_together_sends_two_distinctly_typed_notifications()
+    {
+        Notification::fake();
+
+        $growthSession = $this->makeSessionWithParticipants(['date' => '2020-01-10', 'location' => 'Zoom']);
+        $attendee = User::factory()->create();
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
+            'date' => '2020-01-15',
+            'location' => 'The office',
+        ])->assertSuccessful();
+
+        Notification::assertSentToTimes($attendee, GrowthSessionUpdatedNotification::class, 2);
+        Notification::assertSentTo($attendee, GrowthSessionUpdatedNotification::class, function ($notification) {
+            return $notification->type === NotificationType::GrowthSessionDateChanged;
+        });
+        Notification::assertSentTo($attendee, GrowthSessionUpdatedNotification::class, function ($notification) {
+            return $notification->type === NotificationType::GrowthSessionLocationChanged;
+        });
     }
 
     public function test_no_notification_is_sent_when_only_non_meaningful_fields_change()

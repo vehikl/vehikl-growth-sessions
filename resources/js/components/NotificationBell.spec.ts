@@ -32,10 +32,10 @@ const updatedNotification = {
     read_at: null,
     created_at: '2020-01-01T12:00:00.000Z',
     data: {
-        type: 'growth_session_updated' as const,
+        type: 'growth_session_location_changed' as const,
         title: 'Weekly Pairing',
         growth_session_id: 5,
-        changes: ['Location changed Zoom → The office'],
+        changes: [{ field: 'location' as const, label: 'Location', description: 'Location changed Zoom → The office' }],
         url: '/growth_sessions/5',
     },
 };
@@ -49,6 +49,20 @@ const deletedNotification = {
         title: 'Lightning Talks',
         message: '"Lightning Talks" was cancelled',
         url: null,
+    },
+};
+
+const commentNotification = {
+    id: 'c3',
+    read_at: null,
+    created_at: '2020-01-03T12:00:00.000Z',
+    data: {
+        type: 'growth_session_comment_added' as const,
+        title: 'Weekly Pairing',
+        growth_session_id: 5,
+        commenter: 'Jane Doe',
+        excerpt: 'Great session!',
+        url: '/growth_sessions/5',
     },
 };
 
@@ -108,6 +122,19 @@ describe('NotificationBell', () => {
         await wrapper.find('button').trigger('click');
 
         expect(wrapper.find('a').exists()).toBe(false);
+    });
+
+    it('renders a comment notification with the commenter and excerpt', async () => {
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [commentNotification], unread_count: 1 });
+
+        const wrapper = mount(NotificationBell, { props: { user } });
+        await flushPromises();
+        await wrapper.find('button').trigger('click');
+
+        expect(wrapper.text()).toContain('Jane Doe');
+        expect(wrapper.text()).toContain('commented on Weekly Pairing');
+        expect(wrapper.text()).toContain('Great session!');
+        expect(wrapper.find('a[href="/growth_sessions/5"]').exists()).toBe(true);
     });
 
     it('marks all notifications as read when the dropdown is opened', async () => {

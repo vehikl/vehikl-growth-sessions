@@ -1,8 +1,25 @@
+export type INotificationType =
+    | 'growth_session_date_changed'
+    | 'growth_session_time_changed'
+    | 'growth_session_location_changed'
+    | 'growth_session_deleted'
+    | 'growth_session_comment_added';
+
+export type INotificationChangeField = 'date' | 'start_time' | 'end_time' | 'location';
+
+export interface INotificationChange {
+    field: INotificationChangeField;
+    label: string;
+    description: string;
+}
+
 export interface INotificationData {
-    type: 'growth_session_updated' | 'growth_session_deleted';
+    type: INotificationType;
     title: string;
     growth_session_id?: number;
-    changes?: string[];
+    changes?: INotificationChange[];
+    commenter?: string;
+    excerpt?: string;
     message?: string;
     url: string | null;
 }
