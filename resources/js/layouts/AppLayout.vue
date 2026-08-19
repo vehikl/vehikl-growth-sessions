@@ -106,7 +106,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <header class="gs-header-bg flex items-center justify-between gap-3 px-5 py-3.5 sm:px-7">
+    <header class="gs-header-bg relative z-30 flex items-center justify-between gap-3 px-5 py-3.5 sm:px-7">
         <div class="flex items-center gap-4">
             <Link :href="route('home')" class="transition-smooth flex items-center hover:opacity-80">
                 <VehiklLogo />

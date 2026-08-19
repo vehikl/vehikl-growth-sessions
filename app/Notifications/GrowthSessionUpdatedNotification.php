@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Enums\NotificationType;
 use App\Models\GrowthSession;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -46,39 +45,29 @@ class GrowthSessionUpdatedNotification extends Notification implements ShouldQue
     }
 
     /**
-     * @return array<int, array{field: string, label: string, description: string}>
+     * Without this, the broadcast payload's `type` gets overwritten with this class's fully
+     * qualified name — `BroadcastNotificationCreated::broadcastWith()` merges `toArray()` with
+     * `['type' => $this->broadcastType()]` last, and the default `broadcastType()` is `get_class()`.
+     */
+    public function broadcastType(): string
+    {
+        return $this->type->value;
+    }
+
+    /**
+     * @return array<int, array{field: string, label: string}>
      */
     private function describeChanges(): array
     {
         $lines = [];
 
-        foreach ($this->changes as $field => $value) {
-            $label = self::FIELD_LABELS[$field] ?? $field;
+        foreach (array_keys($this->changes) as $field) {
             $lines[] = [
                 'field' => $field,
-                'label' => $label,
-                'description' => sprintf(
-                    '%s changed %s → %s',
-                    $label,
-                    $this->formatValue($field, $value['old']),
-                    $this->formatValue($field, $value['new']),
-                ),
+                'label' => self::FIELD_LABELS[$field] ?? $field,
             ];
         }
 
         return $lines;
-    }
-
-    private function formatValue(string $field, mixed $value): string
-    {
-        if ($field === 'date') {
-            return $value ? Carbon::parse($value)->format('M j, Y') : 'None';
-        }
-
-        if (in_array($field, ['start_time', 'end_time'], true)) {
-            return $value ? Carbon::parse($value)->format('g:i A') : 'None';
-        }
-
-        return $value !== null && $value !== '' ? (string) $value : 'None';
     }
 }

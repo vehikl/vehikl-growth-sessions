@@ -10,7 +10,6 @@ export type INotificationChangeField = 'date' | 'start_time' | 'end_time' | 'loc
 export interface INotificationChange {
     field: INotificationChangeField;
     label: string;
-    description: string;
 }
 
 export interface INotificationData {
@@ -19,7 +18,6 @@ export interface INotificationData {
     growth_session_id?: number;
     changes?: INotificationChange[];
     commenter?: string;
-    excerpt?: string;
     date?: string;
     url: string | null;
 }

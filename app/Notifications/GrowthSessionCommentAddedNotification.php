@@ -7,7 +7,6 @@ use App\Models\Comment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Str;
 
 class GrowthSessionCommentAddedNotification extends Notification implements ShouldQueue
 {
@@ -27,8 +26,17 @@ class GrowthSessionCommentAddedNotification extends Notification implements Shou
             'growth_session_id' => $this->comment->growth_session_id,
             'title' => $this->comment->growthSession->title,
             'commenter' => $this->comment->user->name,
-            'excerpt' => Str::limit($this->comment->content, 120),
             'url' => "/growth_sessions/{$this->comment->growth_session_id}",
         ];
+    }
+
+    /**
+     * Without this, the broadcast payload's `type` gets overwritten with this class's fully
+     * qualified name — `BroadcastNotificationCreated::broadcastWith()` merges `toArray()` with
+     * `['type' => $this->broadcastType()]` last, and the default `broadcastType()` is `get_class()`.
+     */
+    public function broadcastType(): string
+    {
+        return NotificationType::GrowthSessionCommentAdded->value;
     }
 }

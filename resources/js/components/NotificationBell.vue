@@ -47,31 +47,44 @@ const TYPE_ICONS: Record<INotificationType, Component> = {
 };
 
 function notificationIcon(notification: INotification): Component {
-    return TYPE_ICONS[notification.data.type];
+    return TYPE_ICONS[notification.data.type] ?? Bell;
 }
 
-type Headline = { bold: string; rest: string };
+/** `prefix` and `suffix` sandwich `bold`, split out so markup can style just the name/title. */
+type Headline = { prefix?: string; bold: string; suffix: string };
 
-const wasUpdated = ({ title }: INotificationData): Headline => ({ bold: title, rest: 'was updated.' });
+const genericUpdate = ({ title }: INotificationData): Headline => ({ bold: title, suffix: ' was updated.' });
+
+const fieldsUpdated = ({ title, changes }: INotificationData): Headline => ({
+    prefix: `${(changes ?? []).map((change) => change.label).join(' & ')} updated for `,
+    bold: title,
+    suffix: '.',
+});
 
 /**
- * The bold lead-in and the sentence that follows it, split so markup can style just the name/title.
+ * The bold lead-in sits between `prefix` and `suffix`, so markup can style just the name/title.
  * One entry per notification type — same shape as `TYPE_ICONS` above — so a new type is a compile
  * error here instead of silently falling through to generic copy.
  */
 const HEADLINES: Record<INotificationType, (data: INotificationData) => Headline> = {
-    growth_session_date_changed: wasUpdated,
-    growth_session_time_changed: wasUpdated,
-    growth_session_location_changed: wasUpdated,
-    growth_session_comment_added: ({ title, commenter }) => ({ bold: commenter ?? 'Someone', rest: `commented on ${title}.` }),
+    growth_session_date_changed: fieldsUpdated,
+    growth_session_time_changed: fieldsUpdated,
+    growth_session_location_changed: fieldsUpdated,
+    growth_session_comment_added: ({ title, commenter }) => ({ bold: commenter ?? 'Someone', suffix: ` commented on ${title}.` }),
     growth_session_deleted: ({ title, date }) => ({
         bold: title,
-        rest: `has been cancelled for ${moment(date, 'YYYY-MM-DD').locale('en').format('MMM D')}.`,
+        suffix: date ? ` has been cancelled for ${moment(date, 'YYYY-MM-DD').locale('en').format('MMM D')}.` : ' has been cancelled.',
     }),
 };
 
+/**
+ * Falls back to generic "was updated" copy for a `type` this build doesn't recognize, rather than
+ * throwing — old notification rows keep whatever shape they were created with, so a schema change
+ * (like the one that split `growth_session_updated` into per-field types) leaves stale rows behind
+ * that would otherwise crash the whole bell until they age out of the feed.
+ */
 function headline(notification: INotification): Headline {
-    return HEADLINES[notification.data.type](notification.data);
+    return (HEADLINES[notification.data.type] ?? genericUpdate)(notification.data);
 }
 </script>
 
@@ -138,17 +151,9 @@ function headline(notification: INotification): Headline {
                                 </span>
                                 <span class="min-w-0 flex-1 pt-1">
                                     <span class="gs-text-strong block text-sm leading-snug">
-                                        <span class="font-bold">{{ headline(notification).bold }}</span> {{ headline(notification).rest }}
-                                    </span>
-
-                                    <ul v-if="notification.data.changes?.length" class="mt-0.5 space-y-0.5">
-                                        <li v-for="change in notification.data.changes" :key="change.field" class="gs-text-body text-xs">
-                                            {{ change.description }}
-                                        </li>
-                                    </ul>
-
-                                    <span v-else-if="notification.data.excerpt" class="gs-text-body mt-0.5 block text-xs">
-                                        "{{ notification.data.excerpt }}"
+                                        <template v-if="headline(notification).prefix">{{ headline(notification).prefix }}</template
+                                        ><span class="font-bold">{{ headline(notification).bold }}</span
+                                        >{{ headline(notification).suffix }}
                                     </span>
 
                                     <span class="gs-text-muted mt-1 block text-xs">{{ timeAgo(notification.created_at) }}</span>

@@ -35,7 +35,7 @@ const updatedNotification = {
         type: 'growth_session_location_changed' as const,
         title: 'Weekly Pairing',
         growth_session_id: 5,
-        changes: [{ field: 'location' as const, label: 'Location', description: 'Location changed Zoom → The office' }],
+        changes: [{ field: 'location' as const, label: 'Location' }],
         url: '/growth_sessions/5',
     },
 };
@@ -61,7 +61,6 @@ const commentNotification = {
         title: 'Weekly Pairing',
         growth_session_id: 5,
         commenter: 'Jane Doe',
-        excerpt: 'Great session!',
         url: '/growth_sessions/5',
     },
 };
@@ -97,9 +96,8 @@ describe('NotificationBell', () => {
         await wrapper.find('button').trigger('click');
 
         expect(wrapper.text()).toContain('Notifications');
+        expect(wrapper.text()).toContain('Location updated for session');
         expect(wrapper.text()).toContain('Weekly Pairing');
-        expect(wrapper.text()).toContain('was updated');
-        expect(wrapper.text()).toContain('Location changed Zoom → The office');
         expect(wrapper.text()).toContain('Lightning Talks');
         expect(wrapper.text()).toContain('has been cancelled for Aug 20');
     });
@@ -124,7 +122,7 @@ describe('NotificationBell', () => {
         expect(wrapper.find('a').exists()).toBe(false);
     });
 
-    it('renders a comment notification with the commenter and excerpt', async () => {
+    it('renders a comment notification with the commenter', async () => {
         vi.mocked(NotificationApi.index).mockResolvedValue({ data: [commentNotification], unread_count: 1 });
 
         const wrapper = mount(NotificationBell, { props: { user } });
@@ -133,7 +131,6 @@ describe('NotificationBell', () => {
 
         expect(wrapper.text()).toContain('Jane Doe');
         expect(wrapper.text()).toContain('commented on Weekly Pairing');
-        expect(wrapper.text()).toContain('Great session!');
         expect(wrapper.find('a[href="/growth_sessions/5"]').exists()).toBe(true);
     });
 

@@ -30,7 +30,7 @@ class GrowthSessionDeleteNotificationTest extends TestCase
         ))->assertSuccessful();
 
         Notification::assertSentTo($attendee, GrowthSessionDeletedNotification::class, function ($notification) {
-            return $notification->growthSession->title === 'Weekly Pairing';
+            return $notification->title === 'Weekly Pairing';
         });
         Notification::assertSentTo($watcher, GrowthSessionDeletedNotification::class);
         Notification::assertNotSentTo($owner, GrowthSessionDeletedNotification::class);
