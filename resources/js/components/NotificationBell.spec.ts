@@ -47,7 +47,7 @@ const deletedNotification = {
     data: {
         type: 'growth_session_deleted' as const,
         title: 'Lightning Talks',
-        message: '"Lightning Talks" was cancelled',
+        date: '2020-08-20',
         url: null,
     },
 };
@@ -101,7 +101,7 @@ describe('NotificationBell', () => {
         expect(wrapper.text()).toContain('was updated');
         expect(wrapper.text()).toContain('Location changed Zoom → The office');
         expect(wrapper.text()).toContain('Lightning Talks');
-        expect(wrapper.text()).toContain('was cancelled');
+        expect(wrapper.text()).toContain('has been cancelled for Aug 20');
     });
 
     it('links an updated notification to its session', async () => {

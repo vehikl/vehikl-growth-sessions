@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Notifications;
 
+use App\Models\GrowthSession;
 use App\Models\User;
 use App\Notifications\GrowthSessionDeletedNotification;
 use Tests\TestCase;
@@ -11,8 +12,8 @@ class NotificationControllerTest extends TestCase
     public function test_it_lists_the_authenticated_users_recent_notifications_with_an_unread_count()
     {
         $user = User::factory()->create();
-        $user->notify(new GrowthSessionDeletedNotification('Weekly Pairing'));
-        $user->notify(new GrowthSessionDeletedNotification('Lightning Talks'));
+        $user->notify(new GrowthSessionDeletedNotification(GrowthSession::factory()->create(['title' => 'Weekly Pairing'])));
+        $user->notify(new GrowthSessionDeletedNotification(GrowthSession::factory()->create(['title' => 'Lightning Talks'])));
         $user->notifications()->first()->markAsRead();
 
         $response = $this->actingAs($user)->getJson(route('notifications.index'))->assertSuccessful();
@@ -25,7 +26,7 @@ class NotificationControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
-        $otherUser->notify(new GrowthSessionDeletedNotification('Not yours'));
+        $otherUser->notify(new GrowthSessionDeletedNotification(GrowthSession::factory()->create(['title' => 'Not yours'])));
 
         $response = $this->actingAs($user)->getJson(route('notifications.index'))->assertSuccessful();
 
@@ -35,8 +36,8 @@ class NotificationControllerTest extends TestCase
     public function test_marking_notifications_as_read_clears_the_unread_count()
     {
         $user = User::factory()->create();
-        $user->notify(new GrowthSessionDeletedNotification('Weekly Pairing'));
-        $user->notify(new GrowthSessionDeletedNotification('Lightning Talks'));
+        $user->notify(new GrowthSessionDeletedNotification(GrowthSession::factory()->create(['title' => 'Weekly Pairing'])));
+        $user->notify(new GrowthSessionDeletedNotification(GrowthSession::factory()->create(['title' => 'Lightning Talks'])));
 
         $this->actingAs($user)->postJson(route('notifications.read'))->assertNoContent();
 

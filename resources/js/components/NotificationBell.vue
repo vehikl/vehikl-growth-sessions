@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useNotifications } from '@/composables/useNotifications';
-import type { INotification, INotificationType, IUser } from '@/types';
+import type { INotification, INotificationData, INotificationType, IUser } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { onClickOutside } from '@vueuse/core';
 import { Bell, CalendarDays, CalendarX2, Clock, MapPin, MessageSquare } from 'lucide-vue-next';
+import moment from 'moment-timezone';
 import type { Component } from 'vue';
 import { ref } from 'vue';
 
@@ -49,14 +50,28 @@ function notificationIcon(notification: INotification): Component {
     return TYPE_ICONS[notification.data.type];
 }
 
-/** The bold lead-in and the sentence that follows it, split so markup can style just the name/title. */
-function headline(notification: INotification): { bold: string; rest: string } {
-    const { type, title, commenter } = notification.data;
+type Headline = { bold: string; rest: string };
 
-    if (type === 'growth_session_deleted') return { bold: title, rest: 'was cancelled.' };
-    if (type === 'growth_session_comment_added') return { bold: commenter ?? 'Someone', rest: `commented on ${title}.` };
+const wasUpdated = ({ title }: INotificationData): Headline => ({ bold: title, rest: 'was updated.' });
 
-    return { bold: title, rest: 'was updated.' };
+/**
+ * The bold lead-in and the sentence that follows it, split so markup can style just the name/title.
+ * One entry per notification type — same shape as `TYPE_ICONS` above — so a new type is a compile
+ * error here instead of silently falling through to generic copy.
+ */
+const HEADLINES: Record<INotificationType, (data: INotificationData) => Headline> = {
+    growth_session_date_changed: wasUpdated,
+    growth_session_time_changed: wasUpdated,
+    growth_session_location_changed: wasUpdated,
+    growth_session_comment_added: ({ title, commenter }) => ({ bold: commenter ?? 'Someone', rest: `commented on ${title}.` }),
+    growth_session_deleted: ({ title, date }) => ({
+        bold: title,
+        rest: `has been cancelled for ${moment(date, 'YYYY-MM-DD').locale('en').format('MMM D')}.`,
+    }),
+};
+
+function headline(notification: INotification): Headline {
+    return HEADLINES[notification.data.type](notification.data);
 }
 </script>
 

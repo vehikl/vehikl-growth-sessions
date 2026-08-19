@@ -12,11 +12,6 @@ class GrowthSessionDeletedNotification extends Notification implements ShouldQue
 {
     use Queueable;
 
-    /**
-     * Takes the whole session, not just its title, because a hard delete removes the row after
-     * this fires — the date and time it was scheduled for only survive as long as this instance
-     * holds onto them.
-     */
     public function __construct(public GrowthSession $growthSession) {}
 
     public function via(object $notifiable): array
@@ -29,8 +24,7 @@ class GrowthSessionDeletedNotification extends Notification implements ShouldQue
         return [
             'type' => NotificationType::GrowthSessionDeleted->value,
             'title' => $this->growthSession->title,
-            'date' => $this->growthSession->date?->format('Y-m-d'),
-            'start_time' => $this->growthSession->start_time?->format('H:i'),
+            'date' => $this->growthSession->date->format('Y-m-d'),
             'url' => null,
         ];
     }

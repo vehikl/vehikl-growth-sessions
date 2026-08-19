@@ -20,7 +20,7 @@ export interface INotificationData {
     changes?: INotificationChange[];
     commenter?: string;
     excerpt?: string;
-    message?: string;
+    date?: string;
     url: string | null;
 }
 

@@ -30,9 +30,27 @@ class GrowthSessionDeleteNotificationTest extends TestCase
         ))->assertSuccessful();
 
         Notification::assertSentTo($attendee, GrowthSessionDeletedNotification::class, function ($notification) {
-            return $notification->growthSessionTitle === 'Weekly Pairing';
+            return $notification->growthSession->title === 'Weekly Pairing';
         });
         Notification::assertSentTo($watcher, GrowthSessionDeletedNotification::class);
         Notification::assertNotSentTo($owner, GrowthSessionDeletedNotification::class);
+    }
+
+    public function test_the_notification_data_carries_the_sessions_date()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->create(['title' => 'Weekly Pairing', 'date' => '2020-08-20']);
+        $attendee = User::factory()->create();
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->actingAs($growthSession->owner)->deleteJson(route(
+            'growth_sessions.destroy',
+            ['growth_session' => $growthSession->id]
+        ))->assertSuccessful();
+
+        $data = $attendee->notifications()->first()->data;
+
+        $this->assertSame('2020-08-20', $data['date']);
     }
 }
