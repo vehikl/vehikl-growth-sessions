@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Notifications;
 
+use App\Models\Comment;
 use App\Models\GrowthSession;
 use App\Models\User;
 use App\Models\UserType;
@@ -92,5 +93,20 @@ class GrowthSessionCommentNotificationTest extends TestCase
 
         Notification::assertNotSentTo($growthSession->owner, GrowthSessionCommentAddedNotification::class);
         Notification::assertSentTo($attendee, GrowthSessionCommentAddedNotification::class);
+    }
+
+    public function test_the_notification_payload_includes_the_commenters_id_and_avatar()
+    {
+        $growthSession = $this->makeSessionWithParticipants();
+        $commenter = User::factory()->create(['avatar' => 'https://example.com/avatar.jpg']);
+        $comment = Comment::factory()->create([
+            'user_id' => $commenter->id,
+            'growth_session_id' => $growthSession->id,
+        ]);
+
+        $payload = (new GrowthSessionCommentAddedNotification($comment))->toArray($growthSession->owner);
+
+        $this->assertSame($commenter->id, $payload['commenter_id']);
+        $this->assertSame('https://example.com/avatar.jpg', $payload['commenter_avatar']);
     }
 }

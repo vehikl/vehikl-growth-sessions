@@ -18,6 +18,8 @@ export interface INotificationData {
     growth_session_id?: number;
     changes?: INotificationChange[];
     commenter?: string;
+    commenter_id?: number;
+    commenter_avatar?: string | null;
     date?: string;
     url: string | null;
 }

@@ -61,6 +61,8 @@ const commentNotification = {
         title: 'Weekly Pairing',
         growth_session_id: 5,
         commenter: 'Jane Doe',
+        commenter_id: 7,
+        commenter_avatar: 'https://example.com/jane.jpg',
         url: '/growth_sessions/5',
     },
 };
@@ -132,6 +134,36 @@ describe('Notifications', () => {
         expect(wrapper.text()).toContain('Jane Doe');
         expect(wrapper.text()).toContain('commented on Weekly Pairing');
         expect(wrapper.find('a[href="/growth_sessions/5"]').exists()).toBe(true);
+
+        const avatarImg = wrapper.find('img');
+        expect(avatarImg.exists()).toBe(true);
+        expect(avatarImg.attributes('src')).toBe('https://example.com/jane.jpg');
+    });
+
+    it('falls back to initials when a comment notification has no avatar', async () => {
+        const commentWithoutAvatar = {
+            ...commentNotification,
+            id: 'c4',
+            data: { ...commentNotification.data, commenter_avatar: undefined },
+        };
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [commentWithoutAvatar], unread_count: 1 });
+
+        const wrapper = mount(Notifications, { props: { user } });
+        await flushPromises();
+        await wrapper.find('button').trigger('click');
+
+        expect(wrapper.find('img').exists()).toBe(false);
+        expect(wrapper.text()).toContain('JD');
+    });
+
+    it('does not render an avatar for non-comment notifications', async () => {
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1 });
+
+        const wrapper = mount(Notifications, { props: { user } });
+        await flushPromises();
+        await wrapper.find('button').trigger('click');
+
+        expect(wrapper.find('img').exists()).toBe(false);
     });
 
     it('marks all notifications as read when the dropdown is opened', async () => {

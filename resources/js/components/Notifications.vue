@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import UserAvatar from '@/components/UserAvatar.vue';
 import { useNotifications } from '@/composables/useNotifications';
 import type { INotification, INotificationData, INotificationType, IUser } from '@/types';
 import { Link } from '@inertiajs/vue3';
@@ -48,6 +49,11 @@ const TYPE_ICONS: Record<INotificationType, Component> = {
 
 function notificationIcon(notification: INotification): Component {
     return TYPE_ICONS[notification.data.type] ?? Bell;
+}
+
+/** Comments get the commenter's face instead of a generic icon, so they stand out in the feed at a glance. */
+function isComment(notification: INotification): boolean {
+    return notification.data.type === 'growth_session_comment_added';
 }
 
 /** `prefix` and `suffix` sandwich `bold`, split out so markup can style just the name/title. */
@@ -117,7 +123,7 @@ function headline(notification: INotification): Headline {
         >
             <div
                 v-if="isOpen"
-                class="gs-card gs-border absolute right-0 z-20 mt-2 max-h-96 w-80 origin-top-right overflow-y-auto rounded-xl border p-4 shadow-lg"
+                class="gs-card gs-border absolute right-0 z-20 mt-2 max-h-96 w-96 origin-top-right overflow-y-auto rounded-xl border p-4 shadow-lg"
                 role="menu"
             >
                 <p class="gs-text-strong mb-4 text-xs font-bold tracking-[0.08em] uppercase">Notifications</p>
@@ -141,7 +147,18 @@ function headline(notification: INotification): Headline {
                                 :class="notification.data.url ? 'hover:bg-black/5 dark:hover:bg-white/5' : ''"
                                 @click="notification.data.url && (isOpen = false)"
                             >
-                                <span class="gs-card gs-border relative z-10 flex h-8 w-8 flex-none items-center justify-center">
+                                <span v-if="isComment(notification)" class="relative z-10 flex-none">
+                                    <UserAvatar :name="notification.data.commenter ?? 'Someone'" :avatar="notification.data.commenter_avatar" size="h-8 w-8" />
+                                    <span class="gs-card gs-border absolute -right-1 -bottom-1 flex h-4 w-4 items-center justify-center rounded-full border">
+                                        <MessageSquare class="gs-text-sub h-3 w-3" aria-hidden="true" />
+                                    </span>
+                                    <span
+                                        v-if="!notification.read_at"
+                                        class="bg-vehikl-orange gs-card absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2"
+                                        aria-hidden="true"
+                                    />
+                                </span>
+                                <span v-else class="relative z-10 flex h-8 w-8 flex-none items-center justify-center">
                                     <component :is="notificationIcon(notification)" class="gs-text-sub h-4 w-4" aria-hidden="true" />
                                     <span
                                         v-if="!notification.read_at"
