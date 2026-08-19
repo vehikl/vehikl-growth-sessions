@@ -104,7 +104,7 @@ class GrowthSessionCommentNotificationTest extends TestCase
             'growth_session_id' => $growthSession->id,
         ]);
 
-        $payload = (new GrowthSessionCommentAddedNotification($comment))->toArray($growthSession->owner);
+        $payload = (new GrowthSessionCommentAddedNotification($comment))->toArray();
 
         $this->assertSame($commenter->id, $payload['commenter_id']);
         $this->assertSame('https://example.com/avatar.jpg', $payload['commenter_avatar']);

@@ -5,14 +5,9 @@ namespace App\Notifications;
 use App\Enums\NotificationType;
 use App\Models\GrowthSession;
 use Carbon\Carbon;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Notification;
 
-class GrowthSessionUpdatedNotification extends Notification implements ShouldQueue
+class GrowthSessionUpdatedNotification extends BaseGrowthSessionNotification
 {
-    use Queueable;
-
     private const FIELD_LABELS = [
         'date' => 'Date',
         'start_time' => 'Start time',
@@ -27,12 +22,12 @@ class GrowthSessionUpdatedNotification extends Notification implements ShouldQue
         public mixed $new,
     ) {}
 
-    public function via(object $notifiable): array
+    public function notificationType(): NotificationType
     {
-        return ['database', 'broadcast'];
+        return $this->type;
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         return [
             'type' => $this->type->value,
@@ -45,16 +40,6 @@ class GrowthSessionUpdatedNotification extends Notification implements ShouldQue
             ],
             'url' => "/growth_sessions/{$this->growthSession->id}",
         ];
-    }
-
-    /**
-     * Without this, the broadcast payload's `type` gets overwritten with this class's fully
-     * qualified name — `BroadcastNotificationCreated::broadcastWith()` merges `toArray()` with
-     * `['type' => $this->broadcastType()]` last, and the default `broadcastType()` is `get_class()`.
-     */
-    public function broadcastType(): string
-    {
-        return $this->type->value;
     }
 
     private function formatValue(): string

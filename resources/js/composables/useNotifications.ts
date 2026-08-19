@@ -3,16 +3,16 @@ import { INotification } from '@/types';
 import { useEchoNotification } from '@laravel/echo-vue';
 import { ref } from 'vue';
 
-const DROPDOWN_LIMIT = 15;
-
 export function useNotifications(userId: number) {
     const notifications = ref<INotification[]>([]);
     const unreadCount = ref(0);
+    const dropdownLimit = ref<number | null>(null);
 
     async function load() {
         const response = await NotificationApi.index();
         notifications.value = response.data;
         unreadCount.value = response.unread_count;
+        dropdownLimit.value = response.dropdown_limit;
     }
 
     async function markAllRead() {
@@ -29,7 +29,7 @@ export function useNotifications(userId: number) {
     }
 
     function handleIncoming(payload: INotification['data'] & { id: string }) {
-        notifications.value = [
+        const withIncoming = [
             {
                 id: payload.id,
                 data: payload,
@@ -37,7 +37,8 @@ export function useNotifications(userId: number) {
                 created_at: new Date().toISOString(),
             },
             ...notifications.value,
-        ].slice(0, DROPDOWN_LIMIT);
+        ];
+        notifications.value = dropdownLimit.value === null ? withIncoming : withIncoming.slice(0, dropdownLimit.value);
         unreadCount.value += 1;
     }
 

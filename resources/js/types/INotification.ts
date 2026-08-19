@@ -1,10 +1,3 @@
-export type INotificationType =
-    | 'growth_session_date_changed'
-    | 'growth_session_time_changed'
-    | 'growth_session_location_changed'
-    | 'growth_session_deleted'
-    | 'growth_session_comment_added';
-
 export type INotificationChangeField = 'date' | 'start_time' | 'location';
 
 export interface INotificationChange {
@@ -13,17 +6,34 @@ export interface INotificationChange {
     value: string;
 }
 
-export interface INotificationData {
-    type: INotificationType;
+interface IBaseNotificationData {
     title: string;
+    url: string | null;
+}
+
+export interface IGrowthSessionChangeNotificationData extends IBaseNotificationData {
+    type: 'growth_session_date_changed' | 'growth_session_time_changed' | 'growth_session_location_changed';
     growth_session_id?: number;
     change?: INotificationChange;
+}
+
+export interface IGrowthSessionDeletedNotificationData extends IBaseNotificationData {
+    type: 'growth_session_deleted';
+    date?: string;
+}
+
+export interface IGrowthSessionCommentAddedNotificationData extends IBaseNotificationData {
+    type: 'growth_session_comment_added';
+    growth_session_id?: number;
     commenter?: string;
     commenter_id?: number;
     commenter_avatar?: string | null;
-    date?: string;
-    url: string | null;
 }
+
+/** Discriminated on `type` — narrow with `notification.data.type === '...'` to reach a variant's own fields. */
+export type INotificationData = IGrowthSessionChangeNotificationData | IGrowthSessionDeletedNotificationData | IGrowthSessionCommentAddedNotificationData;
+
+export type INotificationType = INotificationData['type'];
 
 export interface INotification {
     id: string;
@@ -35,4 +45,5 @@ export interface INotification {
 export interface INotificationIndexResponse {
     data: INotification[];
     unread_count: number;
+    dropdown_limit: number;
 }

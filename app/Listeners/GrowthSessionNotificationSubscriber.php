@@ -45,13 +45,13 @@ class GrowthSessionNotificationSubscriber
      */
     private function meaningfulChanges(GrowthSession $growthSession): array
     {
-        $changedFields = array_intersect(array_keys($growthSession->getChanges()), array_keys(self::FIELD_TYPES));
+        $changes = $growthSession->changedValuesFor(array_keys(self::FIELD_TYPES));
 
         return array_map(fn (string $field) => [
             'type' => self::FIELD_TYPES[$field],
             'field' => $field,
-            'old' => $growthSession->getRawOriginal($field),
-            'new' => $growthSession->getAttributes()[$field] ?? null,
-        ], array_values($changedFields));
+            'old' => $changes[$field]['old'],
+            'new' => $changes[$field]['new'],
+        ], array_keys($changes));
     }
 }

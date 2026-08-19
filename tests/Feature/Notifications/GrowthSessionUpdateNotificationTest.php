@@ -176,7 +176,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
 
         $this->assertSame(
             ['field' => 'date', 'label' => 'Date', 'value' => 'Jan 15, 2020'],
-            $notification->toArray($growthSession->owner)['change']
+            $notification->toArray()['change']
         );
     }
 
@@ -194,7 +194,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
 
         $this->assertSame(
             ['field' => 'start_time', 'label' => 'Start time', 'value' => '11:00 AM'],
-            $timeNotification->toArray($growthSession->owner)['change']
+            $timeNotification->toArray()['change']
         );
 
         $locationNotification = new GrowthSessionUpdatedNotification(
@@ -207,7 +207,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
 
         $this->assertSame(
             ['field' => 'location', 'label' => 'Location', 'value' => 'The office'],
-            $locationNotification->toArray($growthSession->owner)['change']
+            $locationNotification->toArray()['change']
         );
     }
 

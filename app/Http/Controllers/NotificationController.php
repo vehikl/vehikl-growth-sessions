@@ -15,6 +15,7 @@ class NotificationController extends Controller
         return response()->json([
             'data' => $user->notifications()->latest()->limit(self::DROPDOWN_LIMIT)->get(),
             'unread_count' => $user->unreadNotifications()->count(),
+            'dropdown_limit' => self::DROPDOWN_LIMIT,
         ]);
     }
 

@@ -25,7 +25,7 @@ const user: IUser = {
     is_vehikl_member: true,
 };
 
-const emptyResponse: INotificationIndexResponse = { data: [], unread_count: 0 };
+const emptyResponse: INotificationIndexResponse = { data: [], unread_count: 0, dropdown_limit: 15 };
 
 const updatedNotification = {
     id: 'a1',
@@ -74,7 +74,7 @@ describe('Notifications', () => {
     });
 
     it('fetches notifications on mount and shows the unread badge', async () => {
-        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1 });
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1, dropdown_limit: 15 });
 
         const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
@@ -90,7 +90,7 @@ describe('Notifications', () => {
     });
 
     it('opens the dropdown and lists recent notifications when the bell is clicked', async () => {
-        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification, deletedNotification], unread_count: 2 });
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification, deletedNotification], unread_count: 2, dropdown_limit: 15 });
 
         const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
@@ -105,7 +105,7 @@ describe('Notifications', () => {
     });
 
     it('shows what the changed field is now set to', async () => {
-        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1 });
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1, dropdown_limit: 15 });
 
         const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
@@ -127,7 +127,7 @@ describe('Notifications', () => {
                 url: '/growth_sessions/5',
             },
         };
-        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [timeChangedNotification], unread_count: 1 });
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [timeChangedNotification], unread_count: 1, dropdown_limit: 15 });
 
         const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
@@ -138,7 +138,7 @@ describe('Notifications', () => {
     });
 
     it('links an updated notification to its session', async () => {
-        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1 });
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1, dropdown_limit: 15 });
 
         const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
@@ -148,7 +148,7 @@ describe('Notifications', () => {
     });
 
     it('renders a deleted notification as plain text with no link', async () => {
-        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [deletedNotification], unread_count: 1 });
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [deletedNotification], unread_count: 1, dropdown_limit: 15 });
 
         const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
@@ -158,7 +158,7 @@ describe('Notifications', () => {
     });
 
     it('renders a comment notification with the commenter', async () => {
-        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [commentNotification], unread_count: 1 });
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [commentNotification], unread_count: 1, dropdown_limit: 15 });
 
         const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
@@ -179,7 +179,7 @@ describe('Notifications', () => {
             id: 'c4',
             data: { ...commentNotification.data, commenter_avatar: undefined },
         };
-        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [commentWithoutAvatar], unread_count: 1 });
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [commentWithoutAvatar], unread_count: 1, dropdown_limit: 15 });
 
         const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
@@ -190,7 +190,7 @@ describe('Notifications', () => {
     });
 
     it('does not render an avatar for non-comment notifications', async () => {
-        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1 });
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1, dropdown_limit: 15 });
 
         const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
@@ -200,7 +200,7 @@ describe('Notifications', () => {
     });
 
     it('marks all notifications as read when the dropdown is opened', async () => {
-        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1 });
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1, dropdown_limit: 15 });
 
         const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();

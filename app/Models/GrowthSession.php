@@ -250,6 +250,21 @@ class GrowthSession extends Model
             ->values();
     }
 
+    /**
+     * The old/new values for whichever of `$fields` actually changed on this update.
+     *
+     * @param string[] $fields
+     * @return array<string, array{old: mixed, new: mixed}>
+     */
+    public function changedValuesFor(array $fields): array
+    {
+        $changedFields = array_intersect(array_keys($this->getChanges()), $fields);
+
+        return collect($changedFields)->mapWithKeys(fn (string $field) => [
+            $field => ['old' => $this->getRawOriginal($field), 'new' => $this->getAttributes()[$field] ?? null]
+        ])->all();
+    }
+
     public function hasUnlimitedSlots(): bool
     {
         return $this->attendee_limit === self::NO_LIMIT;

@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import UserAvatar from '@/components/UserAvatar.vue';
 import {useNotifications} from '@/composables/useNotifications';
-import type {INotification, INotificationData, INotificationType, IUser} from '@/types';
+import type {
+    IGrowthSessionChangeNotificationData,
+    IGrowthSessionCommentAddedNotificationData,
+    IGrowthSessionDeletedNotificationData,
+    INotification,
+    INotificationData,
+    INotificationType,
+    IUser,
+} from '@/types';
 import {Link} from '@inertiajs/vue3';
 import {onClickOutside} from '@vueuse/core';
 import {Bell, CalendarDays, CalendarX2, Clock, MapPin, MessageSquare} from 'lucide-vue-next';
@@ -52,33 +60,31 @@ function notificationIcon(notification: INotification): Component {
 }
 
 /** Comments get the commenter's face instead of a generic icon, so they stand out in the feed at a glance. */
-function isComment(notification: INotification): boolean {
+function isComment(notification: INotification): notification is INotification & { data: IGrowthSessionCommentAddedNotificationData } {
     return notification.data.type === 'growth_session_comment_added';
+}
+
+function isChange(notification: INotification): notification is INotification & { data: IGrowthSessionChangeNotificationData } {
+    const type = notification.data.type;
+    return type === 'growth_session_date_changed' || type === 'growth_session_time_changed' || type === 'growth_session_location_changed';
 }
 
 /** `prefix` and `suffix` sandwich `bold`, split out so markup can style just the name/title. */
 type Headline = { prefix?: string; bold: string; suffix: string };
 
-const genericUpdate = ({ title }: INotificationData): Headline => ({ bold: title, suffix: ' was updated.' });
+const genericUpdate = (data: INotificationData): Headline => ({ bold: data.title, suffix: ' was updated.' });
 
-/**
- * The bold lead-in sits between `prefix` and `suffix`, so markup can style just the name/title.
- * One entry per notification type — same shape as `TYPE_ICONS` above — so a new type is a compile
- * error here instead of silently falling through to generic copy.
- */
-const HEADLINES: Record<INotificationType, (data: INotificationData) => Headline> = {
-    growth_session_date_changed: ({title, change}: INotificationData): Headline => ({bold: title, suffix: ` has been updated.`,
-    }),
-    growth_session_time_changed: ({title, change}: INotificationData): Headline => ({bold: title, suffix: ` has been updated.`,
-    }),
-    growth_session_location_changed: ({title, change}: INotificationData): Headline => ({bold: title, suffix: ` has been updated.`,
-    }),
-    growth_session_comment_added: ({ title, commenter }) => ({ bold: commenter ?? 'Someone', suffix: ` commented on ${title}.` }),
-    growth_session_deleted: ({ title, date }) => ({
-        bold: title,
-        suffix: date ? ` has been cancelled for ${moment(date, 'YYYY-MM-DD').locale('en').format('MMM D')}.` : ' has been cancelled.',
-    }),
-};
+const changeUpdated = (data: IGrowthSessionChangeNotificationData): Headline => ({ bold: data.title, suffix: ' has been updated.' });
+
+const commentAdded = (data: IGrowthSessionCommentAddedNotificationData): Headline => ({
+    bold: data.commenter ?? 'Someone',
+    suffix: ` commented on ${data.title}.`,
+});
+
+const deleted = (data: IGrowthSessionDeletedNotificationData): Headline => ({
+    bold: data.title,
+    suffix: data.date ? ` has been cancelled for ${moment(data.date, 'YYYY-MM-DD').locale('en').format('MMM D')}.` : ' has been cancelled.',
+});
 
 /**
  * Falls back to generic "was updated" copy for a `type` this build doesn't recognize, rather than
@@ -87,10 +93,16 @@ const HEADLINES: Record<INotificationType, (data: INotificationData) => Headline
  * that would otherwise crash the whole bell until they age out of the feed.
  */
 function headline(notification: INotification): Headline {
-    return (HEADLINES[notification.data.type] ?? genericUpdate)(notification.data);
+    if (isChange(notification)) return changeUpdated(notification.data);
+    if (isComment(notification)) return commentAdded(notification.data);
+    if (notification.data.type === 'growth_session_deleted') return deleted(notification.data);
+
+    return genericUpdate(notification.data);
 }
 
 function changeDetails(notification: INotification): string | null {
+    if (!isChange(notification)) return null;
+
     const change = notification.data.change;
     return change ? `${change.label} is now ${change.value}.` : null;
 }

@@ -4,14 +4,9 @@ namespace App\Notifications;
 
 use App\Enums\NotificationType;
 use App\Models\GrowthSession;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Notification;
 
-class GrowthSessionDeletedNotification extends Notification implements ShouldQueue
+class GrowthSessionDeletedNotification extends BaseGrowthSessionNotification
 {
-    use Queueable;
-
     public readonly string $title;
 
     public readonly string $date;
@@ -28,28 +23,18 @@ class GrowthSessionDeletedNotification extends Notification implements ShouldQue
         $this->date = $growthSession->date->format('Y-m-d');
     }
 
-    public function via(object $notifiable): array
+    public function notificationType(): NotificationType
     {
-        return ['database', 'broadcast'];
+        return NotificationType::GrowthSessionDeleted;
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         return [
-            'type' => NotificationType::GrowthSessionDeleted->value,
+            'type' => $this->notificationType()->value,
             'title' => $this->title,
             'date' => $this->date,
             'url' => null,
         ];
-    }
-
-    /**
-     * Without this, the broadcast payload's `type` gets overwritten with this class's fully
-     * qualified name — `BroadcastNotificationCreated::broadcastWith()` merges `toArray()` with
-     * `['type' => $this->broadcastType()]` last, and the default `broadcastType()` is `get_class()`.
-     */
-    public function broadcastType(): string
-    {
-        return NotificationType::GrowthSessionDeleted->value;
     }
 }
