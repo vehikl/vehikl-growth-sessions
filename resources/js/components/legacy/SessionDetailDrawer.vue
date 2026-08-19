@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { GrowthSession } from '@/classes/GrowthSession';
 import CommentList from '@/components/legacy/CommentList.vue';
-import LinkifiedText from '@/components/legacy/LinkifiedText.vue';
-import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import ShareInviteLink from '@/components/legacy/ShareInviteLink.vue';
+import TextSegments from '@/components/legacy/TextSegments.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 import { useCopyStatus } from '@/composables/useCopyStatus';
 import { loginUrl } from '@/lib/loginUrl';
@@ -119,8 +118,8 @@ async function share() {
         >
             <div class="mb-3 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <UserAvatar :name="growthSession.owner.name" :avatar="growthSession.owner.avatar" />
-                    <span class="gs-text-sub text-sm font-semibold tracking-[0.03em]">{{ growthSession.owner.name }}</span>
+                    <UserAvatar :name="growthSession.ownerName" :avatar="growthSession.owner?.avatar" />
+                    <span class="gs-text-sub text-sm font-semibold tracking-[0.03em]">{{ growthSession.ownerName }}</span>
                 </div>
                 <button
                     type="button"
@@ -163,7 +162,7 @@ async function share() {
             </div>
 
             <p class="gs-text-body mb-5 text-sm leading-[1.6] whitespace-pre-wrap">
-                <LinkifiedText :text="growthSession.topic" />
+                <TextSegments :segments="growthSession.topic_segments" />
             </p>
 
             <div class="mb-6 flex flex-col gap-2.5">
@@ -221,7 +220,7 @@ async function share() {
             <div class="gs-border flex flex-col gap-3.5 border-t pt-4">
                 <div>
                     <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">LOCATION</div>
-                    <div class="gs-text-strong text-sm font-medium"><location-renderer :locationString="growthSession.location" /></div>
+                    <div class="gs-text-strong text-sm font-medium"><TextSegments :segments="growthSession.location_segments" /></div>
                 </div>
                 <div v-if="growthSession.anydesk">
                     <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">ANYDESK</div>
@@ -233,7 +232,7 @@ async function share() {
                 </div>
                 <div v-if="growthSession.share_url">
                     <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">INVITE LINK</div>
-                    <share-invite-link :share-url="growthSession.share_url" />
+                    <ShareInviteLink :share-url="growthSession.share_url" />
                 </div>
                 <div>
                     <div class="gs-text-muted mb-2.5 text-xs font-bold tracking-[0.06em]">ATTENDEES ({{ capacityLabel(growthSession) }})</div>
@@ -272,7 +271,7 @@ async function share() {
             </div>
 
             <div class="gs-border mt-5 border-t pt-4">
-                <comment-list :growth-session="growthSession" :user="user" />
+                <CommentList :growth-session="growthSession" :user="user" />
             </div>
         </div>
     </div>

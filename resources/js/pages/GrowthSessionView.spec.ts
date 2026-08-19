@@ -7,9 +7,14 @@ import { mountWithInertia } from '@/test-utils/inertia-test-helper';
 import { IGrowthSession, ITag, IUser } from '@/types';
 import type { DOMWrapper, VueWrapper } from '@vue/test-utils';
 import { vi } from 'vitest';
-import { default as growthSessionJson, default as growthSessionWithComments } from '../../../tests/fixtures/GrowthSessionWithComments.json';
+import { default as rawGrowthSessionJson, default as rawGrowthSessionWithComments } from '../../../tests/fixtures/GrowthSessionWithComments.json';
 import userJson from '../../../tests/fixtures/User.json';
 import GrowthSessionView from './GrowthSessionView.vue';
+
+// Fixture JSON has no literal string types (e.g. `type: string`, not `type: 'text'`), unlike the
+// discriminated unions the frontend types model - cast once here rather than at every use below.
+const growthSessionJson = rawGrowthSessionJson as unknown as IGrowthSession;
+const growthSessionWithComments = rawGrowthSessionWithComments as unknown as IGrowthSession;
 
 const user: IUser = {
     name: 'Alice',
@@ -37,11 +42,22 @@ describe('GrowthSessionView', () => {
     it('redirects to the owners GitHub page when clicked on the profile', async () => {
         const ownerComponent = wrapper.find('#owner-avatar-link');
 
-        expect(ownerComponent.attributes('href')).toEqual(new User(growthSessionJson.owner).githubURL);
+        expect(ownerComponent.attributes('href')).toEqual(new User(growthSessionJson.owner!).githubURL);
     });
 
     it('displays the host name', () => {
-        expect(wrapper.text()).toContain(growthSessionJson.owner.name);
+        expect(wrapper.text()).toContain(growthSessionJson.owner!.name);
+    });
+
+    it('falls back to Unknown instead of hiding the owner section when the session has no owner', () => {
+        AnydesksApi.getAllAnyDesks = vi.fn().mockResolvedValue([]);
+        TagsApi.index = vi.fn().mockResolvedValue([]);
+        const ownerlessWrapper = mountWithInertia(GrowthSessionView, {
+            propsData: { userJson, growthSessionJson: { ...growthSessionJson, owner: null } },
+        });
+
+        expect(ownerlessWrapper.find('#owner-avatar-link').exists()).toBe(false);
+        expect(ownerlessWrapper.text()).toContain('Unknown');
     });
 
     it('displays the mobtime link', () => {
@@ -51,8 +67,8 @@ describe('GrowthSessionView', () => {
     });
 
     it('displays the anydesk information for vehikl member user', () => {
-        expect(wrapper.html()).toContain(growthSessionJson.anydesk.name);
-        expect(wrapper.html()).toContain(growthSessionJson.anydesk.remote_desk_id);
+        expect(wrapper.html()).toContain(growthSessionJson.anydesk!.name);
+        expect(wrapper.html()).toContain(growthSessionJson.anydesk!.remote_desk_id);
     });
 
     it('displays tags', () => {

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { GrowthSession } from '@/classes/GrowthSession';
 import { User } from '@/classes/User';
+import TextSegments from '@/components/legacy/TextSegments.vue';
 import VAvatar from '@/components/legacy/VAvatar.vue';
-import { parseCommentContent } from '@/lib/commentContent';
 import { IComment, IUser } from '@/types';
 import { computed, ref } from 'vue';
 
@@ -13,12 +13,8 @@ interface IProps {
 
 const props = defineProps<IProps>();
 const newComment = ref('');
-const brokenImageUrls = ref(new Set<string>());
 const allowsNewCommentSubmission = computed<boolean>(() => !!props.user && !!newComment.value);
 const commentFormPlaceholder = computed<string>(() => (props.user ? 'Leave a comment...' : 'You must be logged in to comment...'));
-const commentSegmentsById = computed(
-    () => new Map(props.growthSession.comments.map((comment) => [comment.id, parseCommentContent(comment.content)])),
-);
 
 async function createNewComment() {
     await props.growthSession.postComment(newComment.value);
@@ -50,7 +46,7 @@ function shortTimestamp(timeStamp: string): string {
         <ul class="mb-4 flex flex-col gap-4">
             <li v-for="comment in growthSession.comments" :key="comment.id" class="flex gap-3">
                 <a :href="getGithubURL(comment)" aria-label="visit-their-github" class="flex-none">
-                    <v-avatar :src="comment.user.avatar" :size="6" :alt="`${comment.user.name}'s avatar`" />
+                    <VAvatar :src="comment.user.avatar" :size="6" :alt="`${comment.user.name}'s avatar`" />
                 </a>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2">
@@ -67,18 +63,7 @@ function shortTimestamp(timeStamp: string): string {
                         </button>
                     </div>
                     <p class="gs-text-body mt-1 text-sm leading-relaxed break-words whitespace-pre-wrap">
-                        <template v-for="(segment, index) in commentSegmentsById.get(comment.id) ?? []" :key="index">
-                            <img
-                                v-if="segment.type === 'image' && !brokenImageUrls.has(segment.value)"
-                                :src="segment.value"
-                                alt="Shared image"
-                                referrerpolicy="no-referrer"
-                                loading="lazy"
-                                class="my-1 block max-h-64 max-w-full rounded-md"
-                                @error="brokenImageUrls.add(segment.value)"
-                            />
-                            <template v-else>{{ segment.value }}</template>
-                        </template>
+                        <TextSegments :segments="comment.segments" />
                     </p>
                 </div>
             </li>

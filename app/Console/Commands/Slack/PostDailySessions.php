@@ -28,6 +28,7 @@ class PostDailySessions extends Command
     public function handle(SessionPoster $slack)
     {
         GrowthSession::query()
+            ->with('attendees')
             ->where('date', now()->timezone('America/Toronto')->toDateString())
             ->orderBy('start_time')
             ->each(function (GrowthSession $session) use ($slack) {

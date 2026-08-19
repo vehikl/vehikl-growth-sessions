@@ -2,7 +2,7 @@ import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
 import GrowthSessionCard from '@/components/legacy/GrowthSessionCard.vue';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
-import { IUser } from '@/types';
+import { IGrowthSession, IUser } from '@/types';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import { vi } from 'vitest';
 
@@ -46,12 +46,13 @@ const nonVehiklMember: IUser = {
     is_vehikl_member: false,
 };
 
-const baseGrowthSessionDataAttributes = {
+const baseGrowthSessionDataAttributes: IGrowthSession = {
     id: 0,
     owner: ownerOfTheGrowthSession,
     is_public: true,
     is_unlisted: false,
     location: 'Somewhere over the rainbow',
+    location_segments: [{ type: 'text', value: 'Somewhere over the rainbow' }],
     discord_channel_id: null,
     date: '2020-05-08',
     start_time: '03:30 pm',
@@ -59,6 +60,7 @@ const baseGrowthSessionDataAttributes = {
     allow_watchers: true,
     title: 'Foobar',
     topic: 'The fundamentals of Foobar',
+    topic_segments: [{ type: 'text', value: 'The fundamentals of Foobar' }],
     attendee_limit: 41,
     attendees: [attendee],
     watchers: [watcher],
@@ -92,7 +94,7 @@ describe('GrowthSessionCard', () => {
     });
 
     it('displays the owner name', () => {
-        expect(wrapper.text()).toContain(growthSessionData.owner.name);
+        expect(wrapper.text()).toContain(ownerOfTheGrowthSession.name);
     });
 
     it('displays the growth session location to attendees', () => {
@@ -100,8 +102,13 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.text()).toContain(growthSessionData.location);
     });
 
-    it('gates the location behind joining for users who have not joined', () => {
-        wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: outsider } });
+    it('renders whatever location_segments the backend sends, without re-deriving visibility itself', () => {
+        const redactedGrowthSession = new GrowthSession({
+            ...baseGrowthSessionDataAttributes,
+            location: '< Join to see location >',
+            location_segments: [{ type: 'text', value: '< Join to see location >' }],
+        });
+        wrapper = mount(GrowthSessionCard, { props: { growthSession: redactedGrowthSession, user: outsider } });
         expect(wrapper.text()).not.toContain(growthSessionData.location);
         expect(wrapper.text()).toContain('Join to see location');
     });

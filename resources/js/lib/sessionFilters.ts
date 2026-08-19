@@ -45,7 +45,7 @@ function matchesSearch(session: GrowthSession, searchQuery: string): boolean {
     return (
         session.title.toLowerCase().includes(query) ||
         session.topic.toLowerCase().includes(query) ||
-        session.owner.name.toLowerCase().includes(query) ||
+        (session.owner?.name.toLowerCase().includes(query) ?? false) ||
         session.attendees.some((attendee) => attendee.name.toLowerCase().includes(query))
     );
 }

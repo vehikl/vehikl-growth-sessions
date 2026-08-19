@@ -68,20 +68,21 @@ class GrowthSessionPolicy
             return Response::denyAsNotFound();
         }
 
-        return !$growthSession->hasParticipant($user)
+        return ! $growthSession->hasParticipant($user)
             && $this->isInTheFuture($growthSession);
     }
 
     public function watch(User $user, GrowthSession $growthSession): bool
     {
         return $growthSession->allow_watchers
-            && !$growthSession->hasParticipant($user)
+            && ! $growthSession->hasParticipant($user)
             && $this->isInTheFuture($growthSession);
     }
 
-
     public function leave(User $user, GrowthSession $growthSession): bool
     {
-        return $growthSession->hasParticipant($user) && $this->isInTheFuture($growthSession);
+        return ! $user->is($growthSession->owner)
+            && $growthSession->hasParticipant($user)
+            && $this->isInTheFuture($growthSession);
     }
 }

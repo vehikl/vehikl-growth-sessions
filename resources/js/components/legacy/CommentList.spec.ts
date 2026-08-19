@@ -1,13 +1,16 @@
-import growthSessionWithCommentsJson from '@/../../tests/fixtures/GrowthSessionWithComments.json';
+import rawGrowthSessionWithComments from '@/../../tests/fixtures/GrowthSessionWithComments.json';
 import userJson from '@/../../tests/fixtures/User.json';
 import { GrowthSession } from '@/classes/GrowthSession';
 import { User } from '@/classes/User';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
-import { IUser } from '@/types';
+import { IGrowthSession, IUser } from '@/types';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import { vi } from 'vitest';
 import CommentList from './CommentList.vue';
 
+// Fixture JSON has no literal string types (e.g. `type: string`, not `type: 'text'`), unlike the
+// discriminated unions the frontend types model - cast once here rather than at every spread below.
+const growthSessionWithCommentsJson = rawGrowthSessionWithComments as unknown as IGrowthSession;
 const growthSession: GrowthSession = new GrowthSession(growthSessionWithCommentsJson);
 const user: IUser = userJson;
 
@@ -56,11 +59,19 @@ describe('CommentList', () => {
         });
     });
 
-    it('renders an image URL in a comment as an embedded image', () => {
+    it('renders an image segment as an embedded image via TextSegments', () => {
         const imageUrl = 'https://example.com/funny.gif';
         const sessionWithImageComment = new GrowthSession({
             ...growthSessionWithCommentsJson,
-            comments: [{ ...growthSessionWithCommentsJson.comments[0], content: `look at this ${imageUrl}` }],
+            comments: [
+                {
+                    ...growthSessionWithCommentsJson.comments[0],
+                    segments: [
+                        { type: 'text', value: 'look at this ' },
+                        { type: 'image', value: imageUrl },
+                    ],
+                },
+            ],
         });
         wrapper = mount(CommentList, { propsData: { growthSession: sessionWithImageComment, user } });
 
@@ -68,21 +79,33 @@ describe('CommentList', () => {
         expect(wrapper.find('p').text()).toContain('look at this');
     });
 
-    it('renders comment content without an image URL as plain text', () => {
+    it('renders comment content without an image segment as plain text', () => {
         expect(wrapper.find('p img').exists()).toBe(false);
     });
 
-    it('falls back to the raw URL when an embedded image fails to load', async () => {
-        const imageUrl = 'https://example.com/dead-link.gif';
-        const sessionWithImageComment = new GrowthSession({
+    it('renders each comment from its own segments, independent of other comments', () => {
+        const memberImageUrl = 'https://example.com/member.gif';
+        const guestImageUrl = 'https://example.com/guest.gif';
+        const sessionWithMixedComments = new GrowthSession({
             ...growthSessionWithCommentsJson,
-            comments: [{ ...growthSessionWithCommentsJson.comments[0], content: imageUrl }],
+            comments: [
+                {
+                    ...growthSessionWithCommentsJson.comments[0],
+                    id: 101,
+                    segments: [{ type: 'image', value: memberImageUrl }],
+                },
+                {
+                    ...growthSessionWithCommentsJson.comments[0],
+                    id: 102,
+                    segments: [{ type: 'text', value: guestImageUrl }],
+                },
+            ],
         });
-        wrapper = mount(CommentList, { propsData: { growthSession: sessionWithImageComment, user } });
+        wrapper = mount(CommentList, { propsData: { growthSession: sessionWithMixedComments, user } });
 
-        await wrapper.find('p img').trigger('error');
-
-        expect(wrapper.find('p img').exists()).toBe(false);
-        expect(wrapper.find('p').text()).toBe(imageUrl);
+        const commentParagraphs = wrapper.findAll('p');
+        expect(commentParagraphs[0].find('img').attributes('src')).toBe(memberImageUrl);
+        expect(commentParagraphs[1].find('img').exists()).toBe(false);
+        expect(commentParagraphs[1].text()).toBe(guestImageUrl);
     });
 });

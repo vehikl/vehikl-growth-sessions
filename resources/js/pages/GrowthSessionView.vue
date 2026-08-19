@@ -3,8 +3,8 @@ import { GrowthSession } from '@/classes/GrowthSession';
 import CommentList from '@/components/legacy/CommentList.vue';
 import GrowthSessionForm from '@/components/legacy/GrowthSessionForm.vue';
 import GrowthSessionTags from '@/components/legacy/GrowthSessionTags.vue';
-import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
 import ShareInviteLink from '@/components/legacy/ShareInviteLink.vue';
+import TextSegments from '@/components/legacy/TextSegments.vue';
 import VAvatar from '@/components/legacy/VAvatar.vue';
 import VButton from '@/components/legacy/VButton.vue';
 import VModal from '@/components/legacy/VModal.vue';
@@ -56,7 +56,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
     <Head title="Session" />
 
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <v-modal :state="formModalState" @modal-closed="formModalState = 'closed'">
+        <VModal :state="formModalState" @modal-closed="formModalState = 'closed'">
             <div class="relative flex flex-row-reverse flex-wrap overflow-visible rounded-2xl bg-white p-6">
                 <button
                     class="hover:text-vehikl-dark transition-smooth absolute top-4 right-4 cursor-pointer rounded-lg bg-neutral-100 px-4 py-2 font-semibold text-neutral-700 hover:bg-neutral-200"
@@ -64,7 +64,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                 >
                     <i aria-hidden="true" class="fa fa-times mr-2"></i> Close
                 </button>
-                <growth-session-form
+                <GrowthSessionForm
                     v-if="formModalState === 'open'"
                     :growth-session="growthSession"
                     :owner="growthSession.owner"
@@ -73,16 +73,19 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                     @submitted="onGrowthSessionUpdated"
                 />
             </div>
-        </v-modal>
+        </VModal>
 
         <div class="grid grid-cols-1 gap-12 md:grid-cols-2">
             <div>
-                <a id="owner-avatar-link" :href="growthSession.owner.githubURL">
+                <a v-if="growthSession.owner" id="owner-avatar-link" :href="growthSession.owner.githubURL">
                     <div class="mb-2 flex flex-1 items-center justify-start text-gray-700">
-                        <v-avatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar" />
+                        <VAvatar :alt="`${growthSession.owner.name}'s Avatar`" :size="6" :src="growthSession.owner.avatar" />
                         <p class="ml-6 text-sm font-bold tracking-wider uppercase" v-text="growthSession.owner.name" />
                     </div>
                 </a>
+                <div v-else class="mb-2 flex flex-1 items-center justify-start text-gray-700">
+                    <p class="text-sm font-bold tracking-wider uppercase">{{ growthSession.ownerName }}</p>
+                </div>
 
                 <h1 class="mb-3 text-left text-4xl font-semibold break-words text-gray-700">
                     {{ growthSession.title }}
@@ -107,7 +110,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                 />
 
                 <div class="grid grid-cols-1 gap-2">
-                    <v-button
+                    <VButton
                         :class="isProcessing ? 'cursor-not-allowed opacity-75' : 'opacity-100'"
                         :disabled="isProcessing"
                         class="join-button"
@@ -116,7 +119,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                         v-show="growthSession.canJoin(userJson)"
                         text="Join"
                     />
-                    <v-button
+                    <VButton
                         :class="isProcessing ? 'cursor-not-allowed opacity-75' : 'opacity-100'"
                         :disabled="isProcessing"
                         class="watch-button"
@@ -126,7 +129,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                         v-show="growthSession.canWatch(userJson)"
                         text="Spectate"
                     />
-                    <v-button
+                    <VButton
                         :class="isProcessing ? 'cursor-not-allowed opacity-75' : 'opacity-100'"
                         :disabled="isProcessing"
                         class="leave-button"
@@ -136,7 +139,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                         v-show="growthSession.canLeave(userJson)"
                         text="Leave"
                     />
-                    <v-button
+                    <VButton
                         :class="isProcessing ? 'cursor-not-allowed opacity-75' : 'opacity-100'"
                         :disabled="isProcessing"
                         class="update-button"
@@ -145,7 +148,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                         v-if="growthSession.canEditOrDelete(userJson)"
                         @click="formModalState = 'open'"
                     />
-                    <v-button
+                    <VButton
                         :class="isProcessing ? 'cursor-not-allowed opacity-75' : 'opacity-100'"
                         :disabled="isProcessing"
                         color="red"
@@ -162,7 +165,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                 <div class="mb-4 text-left break-all text-gray-600">
                     <h3 class="text-lg font-semibold tracking-widest text-slate-600 uppercase">Location</h3>
                     <i class="fa fa-compass mr-2 text-xl" aria-hidden="true"></i>
-                    <location-renderer :locationString="growthSession.location" />
+                    <TextSegments :segments="growthSession.location_segments" />
                 </div>
 
                 <div class="mb-4">
@@ -195,7 +198,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
 
                 <div class="mb-4" v-if="growthSession.share_url">
                     <h3 class="text-lg font-semibold tracking-widest text-slate-600 uppercase">Invite Link</h3>
-                    <share-invite-link :share-url="growthSession.share_url" />
+                    <ShareInviteLink :share-url="growthSession.share_url" />
                 </div>
 
                 <div class="mb-4" v-if="growthSession.attendee_limit">
@@ -207,7 +210,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                 <ul class="mb-4">
                     <li v-for="attendee in growthSession.attendees" :key="attendee.id" class="py-2">
                         <a ref="attendee" :href="attendee.githubURL" class="flex items-center">
-                            <v-avatar :alt="`${attendee.name}'s Avatar`" :size="6" :src="attendee.avatar" class="mr-3" />
+                            <VAvatar :alt="`${attendee.name}'s Avatar`" :size="6" :src="attendee.avatar" class="mr-3" />
                             <p v-if="!attendee.is_vehikl_member" class="text-vehikl-orange ml-2 text-sm font-bold tracking-wider uppercase">
                                 {{ attendee.name }}
                             </p>
@@ -220,7 +223,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                 <ul>
                     <li v-for="watcher in growthSession.watchers" :key="watcher.id">
                         <a ref="attendee" :href="watcher.githubURL" class="mb-4 flex items-center">
-                            <v-avatar :alt="`${watcher.name}'s Avatar`" :size="6" :src="watcher.avatar" class="mr-3" />
+                            <VAvatar :alt="`${watcher.name}'s Avatar`" :size="6" :src="watcher.avatar" class="mr-3" />
                             <p v-if="!watcher.is_vehikl_member" class="text-vehikl-orange ml-2 text-sm font-bold tracking-wider uppercase">
                                 {{ watcher.name }}
                             </p>
@@ -230,7 +233,7 @@ useEcho(`gs-channel.${growthSession.value.id}`, '.session.modified', refetchGrow
                 </ul>
             </div>
 
-            <comment-list :growth-session="growthSession" :user="userJson" />
+            <CommentList :growth-session="growthSession" :user="userJson" />
         </div>
     </div>
 </template>

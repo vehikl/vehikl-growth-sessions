@@ -5,6 +5,7 @@ export * from './IGrowthSession';
 export * from './IGrowthSessionProposal';
 export * from './IStatistics';
 export * from './ITag';
+export * from './ITextSegment';
 export * from './ITimePreference';
 export * from './IUser';
 export * from './IWeekGrowthSessions';

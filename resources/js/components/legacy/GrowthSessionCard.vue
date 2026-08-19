@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { GrowthSession } from '@/classes/GrowthSession';
-import LocationRenderer from '@/components/legacy/LocationRenderer.vue';
+import TextSegments from '@/components/legacy/TextSegments.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import IconDraggable from '@/svgs/IconDraggable.vue';
@@ -22,14 +22,11 @@ const { getInitials } = useInitials();
 const isDraggable = computed<boolean>(() => !!props.user && props.growthSession.canEditOrDelete(props.user));
 const status = computed(() => sessionStatus(props.growthSession));
 const statusColor = computed(() => statusMeta(status.value).color);
-const initials = computed(() => getInitials(props.growthSession.owner.name));
-const ownerColor = computed(() => avatarColor(props.growthSession.owner.name));
+const ownerName = computed(() => props.growthSession.ownerName);
+const initials = computed(() => getInitials(ownerName.value));
+const ownerColor = computed(() => avatarColor(ownerName.value));
 const cardOpacity = computed(() => (status.value === 'finished' ? 0.55 : 1));
 const atCapacity = computed<boolean>(() => props.growthSession.hasReachedAttendeeLimit());
-
-const canSeeLocation = computed<boolean>(
-    () => !!props.user && (props.growthSession.isOwner(props.user) || props.growthSession.isAttendeeOrWatcher(props.user)),
-);
 
 async function joinGrowthSession() {
     await props.growthSession.join();
@@ -76,14 +73,14 @@ async function onDeleteClicked() {
                     :style="{ backgroundColor: ownerColor }"
                 >
                     <img
-                        v-if="growthSession.owner.avatar"
+                        v-if="growthSession.owner?.avatar"
                         :src="growthSession.owner.avatar"
                         :alt="growthSession.owner.name"
                         class="h-full w-full object-cover"
                     />
                     <template v-else>{{ initials }}</template>
                 </span>
-                <span class="gs-text-sub min-w-0 truncate text-sm font-medium" v-text="growthSession.owner.name" />
+                <span class="gs-text-sub min-w-0 truncate text-sm font-medium" v-text="ownerName" />
             </div>
             <span class="h-2 w-2 flex-none rounded-full" :style="{ backgroundColor: statusColor }" :title="statusMeta(status).label"></span>
         </div>
@@ -104,8 +101,7 @@ async function onDeleteClicked() {
         </div>
 
         <div class="gs-text-muted mb-3 truncate text-sm">
-            <location-renderer v-if="canSeeLocation" :locationString="growthSession.location" />
-            <template v-else>&lt; Join to see location &gt;</template>
+            <text-segments :segments="growthSession.location_segments" />
         </div>
 
         <div class="relative z-20 flex gap-1.5 empty:hidden" @click.stop>

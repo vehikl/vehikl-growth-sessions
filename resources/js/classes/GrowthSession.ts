@@ -1,7 +1,7 @@
 import { DateTime } from '@/classes/DateTime';
 import { inViewerTimeZone, sessionMoment, viewerDayOffset } from '@/lib/timezone';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
-import { IAnyDesk, IComment, IGrowthSession, ITag, IUser } from '@/types';
+import { IAnyDesk, IComment, IGrowthSession, ITag, ITextSegment, IUser } from '@/types';
 import { Moment } from 'moment-timezone';
 import { User } from './User';
 
@@ -21,13 +21,15 @@ export class GrowthSession implements IGrowthSession {
     id!: number;
     title!: string;
     topic!: string;
+    topic_segments!: ITextSegment[];
     location!: string;
+    location_segments!: ITextSegment[];
     date!: string;
     is_public!: boolean;
     is_unlisted!: boolean;
     start_time!: string;
     end_time!: string;
-    owner!: User;
+    owner!: User | null;
     attendees!: User[];
     watchers!: User[];
     comments!: IComment[];
@@ -93,14 +95,16 @@ export class GrowthSession implements IGrowthSession {
         this.id = growthSession.id;
         this.title = growthSession.title;
         this.topic = growthSession.topic;
+        this.topic_segments = growthSession.topic_segments;
         this.location = growthSession.location;
+        this.location_segments = growthSession.location_segments;
         this.date = growthSession.date;
         this.is_public = growthSession.is_public;
         this.is_unlisted = growthSession.is_unlisted ?? false;
         this.allow_watchers = growthSession.allow_watchers;
         this.start_time = growthSession.start_time;
         this.end_time = growthSession.end_time;
-        this.owner = new User(growthSession.owner);
+        this.owner = growthSession.owner ? new User(growthSession.owner) : null;
         this.attendees = growthSession.attendees?.map((attendee) => new User(attendee)) ?? [];
         this.watchers = growthSession.watchers?.map((attendee) => new User(attendee)) ?? [];
         this.comments = growthSession.comments;
@@ -117,12 +121,17 @@ export class GrowthSession implements IGrowthSession {
         return end.isValid() && end.isBefore(DateTime.today().toISOString());
     }
 
+    /** The owner's display name, or a placeholder for a session whose owner was deleted. */
+    get ownerName(): string {
+        return this.owner?.name ?? 'Unknown';
+    }
+
     get renderedTitle(): string {
         if (this.title) {
             return this.title;
         }
 
-        return `${this.owner.name}'s ${DateTime.parseByDate(this.date).weekDayString()} Growth Session`;
+        return `${this.ownerName}'s ${DateTime.parseByDate(this.date).weekDayString()} Growth Session`;
     }
 
     get calendarUrl(): string {
@@ -237,6 +246,6 @@ export class GrowthSession implements IGrowthSession {
         if (!user) {
             return false;
         }
-        return this.owner.id === user.id;
+        return this.owner?.id === user.id;
     }
 }

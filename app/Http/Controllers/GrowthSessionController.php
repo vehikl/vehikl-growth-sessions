@@ -24,7 +24,7 @@ class GrowthSessionController extends Controller
 {
     public function show(Request $request, GrowthSession $growthSession)
     {
-        abort_unless((new GrowthSessionPolicy())->view($request->user(), $growthSession), Response::HTTP_NOT_FOUND);
+        abort_unless((new GrowthSessionPolicy)->view($request->user(), $growthSession), Response::HTTP_NOT_FOUND);
 
         if (! $request->expectsJson()) {
             return redirect()->route('home', [
@@ -33,7 +33,7 @@ class GrowthSessionController extends Controller
             ]);
         }
 
-        $growthSession->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']);
+        $growthSession->load(GrowthSession::RESOURCE_RELATIONS);
 
         return response()->json(new GrowthSessionResource($growthSession));
     }
@@ -44,8 +44,9 @@ class GrowthSessionController extends Controller
         $sessions = GrowthSession::allInTheWeekOf($request->input('date'))->filter(function (GrowthSession $session) use (
             $user
         ) {
-            return (new GrowthSessionPolicy())->view($user, $session);
-        });
+            return (new GrowthSessionPolicy)->view($user, $session);
+        })->loadMissing(GrowthSession::RESOURCE_RELATIONS);
+
         return new GrowthSessionWeek($sessions);
     }
 
@@ -53,7 +54,7 @@ class GrowthSessionController extends Controller
     {
         return GrowthSessionResource::collection(
             GrowthSession::today()
-                ->with(['attendees', 'watchers', 'comments', 'anydesk', 'tags'])
+                ->with(GrowthSession::RESOURCE_RELATIONS)
                 ->get()
         );
     }
@@ -69,7 +70,10 @@ class GrowthSessionController extends Controller
             $newGrowthSession->tags()->sync($request->input('tags'));
         });
 
-        $newGrowthSession->fresh();
+        // save() doesn't populate columns the request omitted (is_public, allow_watchers are
+        // 'sometimes' rules) with their DB defaults, so refresh from the row fresh() just inserted
+        // rather than merely loading relations onto the in-memory, still-attribute-incomplete model.
+        $newGrowthSession = $newGrowthSession->fresh(GrowthSession::RESOURCE_RELATIONS);
 
         broadcast(new GrowthSessionModified($newGrowthSession->id, GrowthSessionModified::ACTION_CREATED));
         event(new GrowthSessionCreated($newGrowthSession));
@@ -88,10 +92,10 @@ class GrowthSessionController extends Controller
             'growth_session_id' => $growthSession->id,
             'user_id' => $request->user()->id,
         ], [
-            'user_type_id' => UserType::ATTENDEE_ID
+            'user_type_id' => UserType::ATTENDEE_ID,
         ]);
 
-        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
+        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
     }
 
     public function watch(GrowthSession $growthSession, Request $request)
@@ -101,10 +105,10 @@ class GrowthSessionController extends Controller
             'growth_session_id' => $growthSession->id,
             'user_id' => $request->user()->id,
         ], [
-            'user_type_id' => UserType::WATCHER_ID
+            'user_type_id' => UserType::WATCHER_ID,
         ]);
 
-        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
+        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
     }
 
     public function leave(GrowthSession $growthSession, Request $request)
@@ -114,7 +118,7 @@ class GrowthSessionController extends Controller
             ->where('user_id', $request->user()->id)
             ->delete();
 
-        return new GrowthSessionResource($growthSession->fresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
+        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
     }
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
@@ -137,7 +141,7 @@ class GrowthSessionController extends Controller
 
         $growthSession->save();
 
-        return new GrowthSessionResource($growthSession->refresh()->load(['attendees', 'watchers', 'comments', 'anydesk', 'tags']));
+        return new GrowthSessionResource($growthSession->refresh()->load(GrowthSession::RESOURCE_RELATIONS));
     }
 
     public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $growthSession)

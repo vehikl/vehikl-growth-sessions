@@ -12,7 +12,7 @@ import TimePicker from './TimePicker.vue';
 import VSelect from './VSelect.vue';
 
 interface IProps {
-    owner: IUser;
+    owner: IUser | null;
     growthSession?: IGrowthSession | null;
     startDate?: string;
 }

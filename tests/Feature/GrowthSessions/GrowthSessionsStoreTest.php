@@ -13,11 +13,10 @@ use Tests\TestCase;
 
 class GrowthSessionsStoreTest extends TestCase
 {
-    public function testAGrowthSessionCannotBeCreatedWithAnAnydeskIdThatDoesNotExist()
+    public function test_a_growth_session_cannot_be_created_with_an_anydesk_id_that_does_not_exist()
     {
         $growthSessionAttributes = GrowthSession::factory()->raw();
         $user = User::factory()->vehiklMember()->create();
-
 
         $growthSessionAttributes['anydesk_id'] = 999999;
         $growthSessionAttributes['start_time'] = '09:00 am';
@@ -28,7 +27,7 @@ class GrowthSessionsStoreTest extends TestCase
             ->assertJsonValidationErrors(['anydesk_id' => 'The selected anydesk id is invalid.']);
     }
 
-    public function testAUserCanCreateAGrowthSessionWithAnAnyDesk()
+    public function test_a_user_can_create_a_growth_session_with_an_any_desk()
     {
         $this->setTestNow('2020-01-15');
         $user = User::factory()->vehiklMember()->create();
@@ -54,7 +53,7 @@ class GrowthSessionsStoreTest extends TestCase
     }
 
     #[DataProvider('provideWatcherPayload')]
-    public function testAGrowthSessionCanBeCreatedWithAllowWatchers($watcherFlag)
+    public function test_a_growth_session_can_be_created_with_allow_watchers($watcherFlag)
     {
         $this->setTestNow('2020-01-15');
         $user = User::factory()->vehiklMember()->create();
@@ -67,7 +66,7 @@ class GrowthSessionsStoreTest extends TestCase
         $this->assertEquals($watcherFlag, $user->fresh()->growthSessions->first()->allow_watchers);
     }
 
-    public function testAGrowthSessionCanBeCreatedWithMultipleTags()
+    public function test_a_growth_session_can_be_created_with_multiple_tags()
     {
         $this->setTestNow('2020-01-15');
         $user = User::factory()->vehiklMember()->create();
@@ -83,7 +82,7 @@ class GrowthSessionsStoreTest extends TestCase
         $this->assertEqualsCanonicalizing($tags->pluck('name'), $growthSessionTagsNames);
     }
 
-    public function testAGrowthSessionCannotBeCreatedDuringTheWeekend()
+    public function test_a_growth_session_cannot_be_created_during_the_weekend()
     {
         $this->setTestNow('2020-01-15');
         $growthSessionAttributes = GrowthSession::factory()->raw();
@@ -98,7 +97,7 @@ class GrowthSessionsStoreTest extends TestCase
             ->assertJsonValidationErrors(['date' => 'A growth session can not be hosted on weekends.']);
     }
 
-    public function testAUserCanCreateAPubliclyAvailableGrowthSession()
+    public function test_a_user_can_create_a_publicly_available_growth_session()
     {
         $this->setTestNow('2020-01-15');
 
@@ -113,7 +112,7 @@ class GrowthSessionsStoreTest extends TestCase
         $this->assertDatabaseHas(GrowthSession::class, ['is_public' => true]);
     }
 
-    public function testVehiklMembersCanCreateAGrowthSession(): void
+    public function test_vehikl_members_can_create_a_growth_session(): void
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
         $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
@@ -125,7 +124,7 @@ class GrowthSessionsStoreTest extends TestCase
         $this->assertNotEmpty(GrowthSession::query()->where('title', $growthSessionsAttributes['title'])->first());
     }
 
-    public function testNonVehiklMembersCannotCreateAGrowthSession(): void
+    public function test_non_vehikl_members_cannot_create_a_growth_session(): void
     {
         /** @var User $nonVehiklMember */
         $nonVehiklMember = User::factory()->create();
@@ -138,7 +137,7 @@ class GrowthSessionsStoreTest extends TestCase
         $this->assertEmpty(GrowthSession::query()->where('title', $growthSessionsAttributes['title'])->first());
     }
 
-    public function testAnAttendeeLimitCanBeSetWhenCreatingAtGrowthSession()
+    public function test_an_attendee_limit_can_be_set_when_creating_at_growth_session()
     {
         $this->setTestNow('2020-01-15');
 
@@ -153,7 +152,7 @@ class GrowthSessionsStoreTest extends TestCase
         $this->assertEquals($expectedAttendeeLimit, $user->growthSessions->first()->attendee_limit);
     }
 
-    public function testAnAttendeeLimitCannotBeLessThanTwo()
+    public function test_an_attendee_limit_cannot_be_less_than_two()
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
 
@@ -178,19 +177,31 @@ class GrowthSessionsStoreTest extends TestCase
         ], $params);
     }
 
-    public function testIncludesAttendeesInformationEvenForANewlyCreatedGrowthSession(): void
+    public function test_response_reflects_database_defaults_for_fields_omitted_from_the_request(): void
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+
+        $this->actingAs($vehiklMember)
+            ->postJson(route('growth_sessions.store'), $this->defaultParameters())
+            ->assertSuccessful()
+            ->assertJsonPath('is_public', false)
+            ->assertJsonPath('allow_watchers', true);
+    }
+
+    public function test_includes_attendees_information_even_for_a_newly_created_growth_session(): void
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
         $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
 
+        // The owner counts as an attendee for capacity purposes (see GrowthSession::attendees()), so
+        // they're expected here too - matching what a subsequent GET of the same session would show.
         $this->actingAs($vehiklMember)
             ->post(route('growth_sessions.store'), $growthSessionsAttributes)
-            ->assertJsonFragment([
-                'attendees' => []
-            ]);
+            ->assertJsonCount(1, 'attendees')
+            ->assertJsonPath('attendees.0.id', $vehiklMember->id);
     }
 
-    public function testAUserCannotCreateTwoGrowthSessionsInTheSameTimeSlot()
+    public function test_a_user_cannot_create_two_growth_sessions_in_the_same_time_slot()
     {
         $vehiklMember = User::factory()->vehiklMember()->create();
         $growthSessionsAttributes = GrowthSession::factory()->make()->toArray();
@@ -204,7 +215,7 @@ class GrowthSessionsStoreTest extends TestCase
             ->assertUnprocessable();
     }
 
-    public function testTheOwnerIsOnlyStoredOnceInTheDatabase()
+    public function test_the_owner_is_only_stored_once_in_the_database()
     {
         $newGrowthSession = GrowthSession::factory()->make()->toArray();
         $host = User::factory()->vehiklMember()->create();
