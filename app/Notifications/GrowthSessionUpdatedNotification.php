@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Enums\NotificationType;
 use App\Models\GrowthSession;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -15,18 +16,16 @@ class GrowthSessionUpdatedNotification extends Notification implements ShouldQue
     private const FIELD_LABELS = [
         'date' => 'Date',
         'start_time' => 'Start time',
-        'end_time' => 'End time',
         'location' => 'Location',
     ];
 
-    /**
-     * @param  array<string, array{old: mixed, new: mixed}>  $changes  Raw old/new values keyed by field name — every
-     *                                                                 field here belongs to the same $type, so a save
-     *                                                                 that moves both start and end time is still one
-     *                                                                 notification, while a save that moves the date
-     *                                                                 and the location is two.
-     */
-    public function __construct(public GrowthSession $growthSession, public NotificationType $type, public array $changes) {}
+    public function __construct(
+        public GrowthSession $growthSession,
+        public NotificationType $type,
+        public string $field,
+        public mixed $old,
+        public mixed $new,
+    ) {}
 
     public function via(object $notifiable): array
     {
@@ -39,7 +38,11 @@ class GrowthSessionUpdatedNotification extends Notification implements ShouldQue
             'type' => $this->type->value,
             'growth_session_id' => $this->growthSession->id,
             'title' => $this->growthSession->title,
-            'changes' => $this->describeChanges(),
+            'change' => [
+                'field' => $this->field,
+                'label' => self::FIELD_LABELS[$this->field] ?? $this->field,
+                'value' => $this->formatValue(),
+            ],
             'url' => "/growth_sessions/{$this->growthSession->id}",
         ];
     }
@@ -54,20 +57,20 @@ class GrowthSessionUpdatedNotification extends Notification implements ShouldQue
         return $this->type->value;
     }
 
-    /**
-     * @return array<int, array{field: string, label: string}>
-     */
-    private function describeChanges(): array
+    private function formatValue(): string
     {
-        $lines = [];
-
-        foreach (array_keys($this->changes) as $field) {
-            $lines[] = [
-                'field' => $field,
-                'label' => self::FIELD_LABELS[$field] ?? $field,
-            ];
+        if ($this->new === null || $this->new === '') {
+            return 'None';
         }
 
-        return $lines;
+        if ($this->field === 'date') {
+            return Carbon::parse($this->new)->format('M j, Y');
+        }
+
+        if ($this->field === 'start_time') {
+            return Carbon::parse($this->new)->format('g:i A');
+        }
+
+        return (string) $this->new;
     }
 }

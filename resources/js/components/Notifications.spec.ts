@@ -35,7 +35,7 @@ const updatedNotification = {
         type: 'growth_session_location_changed' as const,
         title: 'Weekly Pairing',
         growth_session_id: 5,
-        changes: [{ field: 'location' as const, label: 'Location' }],
+        change: { field: 'location' as const, label: 'Location', value: 'The office' },
         url: '/growth_sessions/5',
     },
 };
@@ -98,10 +98,43 @@ describe('Notifications', () => {
         await wrapper.find('button').trigger('click');
 
         expect(wrapper.text()).toContain('Notifications');
-        expect(wrapper.text()).toContain('Location updated for session');
         expect(wrapper.text()).toContain('Weekly Pairing');
+        expect(wrapper.text()).toContain('location updated.');
         expect(wrapper.text()).toContain('Lightning Talks');
         expect(wrapper.text()).toContain('has been cancelled for Aug 20');
+    });
+
+    it('shows what the changed field is now set to', async () => {
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1 });
+
+        const wrapper = mount(Notifications, { props: { user } });
+        await flushPromises();
+        await wrapper.find('button').trigger('click');
+
+        expect(wrapper.text()).toContain('Location is now The office.');
+    });
+
+    it('renders the change detail for a time-changed notification', async () => {
+        const timeChangedNotification = {
+            id: 'd4',
+            read_at: null,
+            created_at: '2020-01-04T12:00:00.000Z',
+            data: {
+                type: 'growth_session_time_changed' as const,
+                title: 'Weekly Pairing',
+                growth_session_id: 5,
+                change: { field: 'start_time' as const, label: 'Start time', value: '11:00 AM' },
+                url: '/growth_sessions/5',
+            },
+        };
+        vi.mocked(NotificationApi.index).mockResolvedValue({ data: [timeChangedNotification], unread_count: 1 });
+
+        const wrapper = mount(Notifications, { props: { user } });
+        await flushPromises();
+        await wrapper.find('button').trigger('click');
+
+        expect(wrapper.text()).toContain('start time updated.');
+        expect(wrapper.text()).toContain('Start time is now 11:00 AM.');
     });
 
     it('links an updated notification to its session', async () => {

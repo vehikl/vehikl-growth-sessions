@@ -37,9 +37,9 @@ class GrowthSessionUpdateNotificationTest extends TestCase
 
         Notification::assertSentTo($attendee, GrowthSessionUpdatedNotification::class, function ($notification) {
             return $notification->type === NotificationType::GrowthSessionDateChanged
-                && array_key_exists('date', $notification->changes)
-                && $notification->changes['date']['old'] === '2020-01-10'
-                && $notification->changes['date']['new'] === '2020-01-15';
+                && $notification->field === 'date'
+                && $notification->old === '2020-01-10'
+                && $notification->new === '2020-01-15';
         });
     }
 
@@ -95,7 +95,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
         Notification::assertSentTo($coOwner, GrowthSessionUpdatedNotification::class);
     }
 
-    public function test_changing_both_start_and_end_time_sends_a_single_time_changed_notification()
+    public function test_changing_start_time_sends_a_time_changed_notification()
     {
         Notification::fake();
 
@@ -114,9 +114,26 @@ class GrowthSessionUpdateNotificationTest extends TestCase
         Notification::assertSentToTimes($attendee, GrowthSessionUpdatedNotification::class, 1);
         Notification::assertSentTo($attendee, GrowthSessionUpdatedNotification::class, function ($notification) {
             return $notification->type === NotificationType::GrowthSessionTimeChanged
-                && array_key_exists('start_time', $notification->changes)
-                && array_key_exists('end_time', $notification->changes);
+                && $notification->field === 'start_time';
         });
+    }
+
+    public function test_changing_only_end_time_does_not_send_a_notification()
+    {
+        Notification::fake();
+
+        $growthSession = $this->makeSessionWithParticipants(['start_time' => '09:00', 'end_time' => '10:00']);
+        $attendee = User::factory()->create();
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
+            'end_time' => '12:00',
+        ])->assertSuccessful();
+
+        Notification::assertNothingSent();
     }
 
     public function test_changing_date_and_location_together_sends_two_distinctly_typed_notifications()
@@ -142,6 +159,55 @@ class GrowthSessionUpdateNotificationTest extends TestCase
         Notification::assertSentTo($attendee, GrowthSessionUpdatedNotification::class, function ($notification) {
             return $notification->type === NotificationType::GrowthSessionLocationChanged;
         });
+    }
+
+    public function test_the_notification_payload_includes_a_human_readable_value_for_the_change()
+    {
+        $growthSession = $this->makeSessionWithParticipants();
+
+        $notification = new GrowthSessionUpdatedNotification(
+            $growthSession,
+            NotificationType::GrowthSessionDateChanged,
+            'date',
+            '2020-01-10',
+            '2020-01-15',
+        );
+
+        $this->assertSame(
+            ['field' => 'date', 'label' => 'Date', 'value' => 'Jan 15, 2020'],
+            $notification->toArray($growthSession->owner)['change']
+        );
+    }
+
+    public function test_the_notification_payload_formats_time_and_location_values()
+    {
+        $growthSession = $this->makeSessionWithParticipants();
+
+        $timeNotification = new GrowthSessionUpdatedNotification(
+            $growthSession,
+            NotificationType::GrowthSessionTimeChanged,
+            'start_time',
+            '09:00:00',
+            '11:00:00',
+        );
+
+        $this->assertSame(
+            ['field' => 'start_time', 'label' => 'Start time', 'value' => '11:00 AM'],
+            $timeNotification->toArray($growthSession->owner)['change']
+        );
+
+        $locationNotification = new GrowthSessionUpdatedNotification(
+            $growthSession,
+            NotificationType::GrowthSessionLocationChanged,
+            'location',
+            'Zoom',
+            'The office',
+        );
+
+        $this->assertSame(
+            ['field' => 'location', 'label' => 'Location', 'value' => 'The office'],
+            $locationNotification->toArray($growthSession->owner)['change']
+        );
     }
 
     public function test_no_notification_is_sent_when_only_non_meaningful_fields_change()

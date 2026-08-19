@@ -15,7 +15,6 @@ class GrowthSessionNotificationSubscriber
     private const FIELD_TYPES = [
         'date' => NotificationType::GrowthSessionDateChanged,
         'start_time' => NotificationType::GrowthSessionTimeChanged,
-        'end_time' => NotificationType::GrowthSessionTimeChanged,
         'location' => NotificationType::GrowthSessionLocationChanged,
     ];
 
@@ -23,10 +22,10 @@ class GrowthSessionNotificationSubscriber
     {
         $growthSession = $event->growthSession;
 
-        foreach ($this->meaningfulChangesByType($growthSession) as ['type' => $type, 'changes' => $changes]) {
+        foreach ($this->meaningfulChanges($growthSession) as ['type' => $type, 'field' => $field, 'old' => $old, 'new' => $new]) {
             Notification::send(
                 $growthSession->participantsToNotify($growthSession->owner),
-                new GrowthSessionUpdatedNotification($growthSession, $type, $changes)
+                new GrowthSessionUpdatedNotification($growthSession, $type, $field, $old, $new)
             );
         }
     }
@@ -42,22 +41,17 @@ class GrowthSessionNotificationSubscriber
     }
 
     /**
-     * @return array<string, array{type: NotificationType, changes: array<string, array{old: mixed, new: mixed}>}>
+     * @return array<int, array{type: NotificationType, field: string, old: mixed, new: mixed}>
      */
-    private function meaningfulChangesByType(GrowthSession $growthSession): array
+    private function meaningfulChanges(GrowthSession $growthSession): array
     {
         $changedFields = array_intersect(array_keys($growthSession->getChanges()), array_keys(self::FIELD_TYPES));
 
-        $grouped = [];
-        foreach ($changedFields as $field) {
-            $type = self::FIELD_TYPES[$field];
-            $grouped[$type->value]['type'] = $type;
-            $grouped[$type->value]['changes'][$field] = [
-                'old' => $growthSession->getRawOriginal($field),
-                'new' => $growthSession->getAttributes()[$field] ?? null,
-            ];
-        }
-
-        return $grouped;
+        return array_map(fn (string $field) => [
+            'type' => self::FIELD_TYPES[$field],
+            'field' => $field,
+            'old' => $growthSession->getRawOriginal($field),
+            'new' => $growthSession->getAttributes()[$field] ?? null,
+        ], array_values($changedFields));
     }
 }

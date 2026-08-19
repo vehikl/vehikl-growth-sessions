@@ -5,18 +5,19 @@ export type INotificationType =
     | 'growth_session_deleted'
     | 'growth_session_comment_added';
 
-export type INotificationChangeField = 'date' | 'start_time' | 'end_time' | 'location';
+export type INotificationChangeField = 'date' | 'start_time' | 'location';
 
 export interface INotificationChange {
     field: INotificationChangeField;
     label: string;
+    value: string;
 }
 
 export interface INotificationData {
     type: INotificationType;
     title: string;
     growth_session_id?: number;
-    changes?: INotificationChange[];
+    change?: INotificationChange;
     commenter?: string;
     commenter_id?: number;
     commenter_avatar?: string | null;

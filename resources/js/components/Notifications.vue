@@ -61,10 +61,9 @@ type Headline = { prefix?: string; bold: string; suffix: string };
 
 const genericUpdate = ({ title }: INotificationData): Headline => ({ bold: title, suffix: ' was updated.' });
 
-const fieldsUpdated = ({ title, changes }: INotificationData): Headline => ({
-    prefix: `${(changes ?? []).map((change) => change.label).join(' & ')} updated for `,
+const fieldsUpdated = ({ title, change }: INotificationData): Headline => ({
     bold: title,
-    suffix: '.',
+    suffix: ` ${(change?.label ?? 'details').toLowerCase()} updated.`,
 });
 
 /**
@@ -92,6 +91,11 @@ const HEADLINES: Record<INotificationType, (data: INotificationData) => Headline
 function headline(notification: INotification): Headline {
     return (HEADLINES[notification.data.type] ?? genericUpdate)(notification.data);
 }
+
+function changeDetails(notification: INotification): string | null {
+    const change = notification.data.change;
+    return change ? `${change.label} is now ${change.value}.` : null;
+}
 </script>
 
 <template>
@@ -104,7 +108,7 @@ function headline(notification: INotification): Headline {
             aria-label="Notifications"
             @click="toggle"
         >
-            <Bell class="h-[18px] w-[18px]" aria-hidden="true" />
+            <Bell class="h-4.5 w-4.5" aria-hidden="true" />
             <span
                 v-if="unreadCount > 0"
                 class="bg-vehikl-orange absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
@@ -148,8 +152,14 @@ function headline(notification: INotification): Headline {
                                 @click="notification.data.url && (isOpen = false)"
                             >
                                 <span v-if="isComment(notification)" class="relative z-10 flex-none">
-                                    <UserAvatar :name="notification.data.commenter ?? 'Someone'" :avatar="notification.data.commenter_avatar" size="h-8 w-8" />
-                                    <span class="gs-card gs-border absolute -right-1 -bottom-1 flex h-4 w-4 items-center justify-center rounded-full border">
+                                    <UserAvatar
+                                        :name="notification.data.commenter ?? 'Someone'"
+                                        :avatar="notification.data.commenter_avatar"
+                                        size="h-8 w-8"
+                                    />
+                                    <span
+                                        class="gs-card gs-border absolute -right-1 -bottom-1 flex h-4 w-4 items-center justify-center rounded-full border"
+                                    >
                                         <MessageSquare class="gs-text-sub h-3 w-3" aria-hidden="true" />
                                     </span>
                                     <span
@@ -172,6 +182,10 @@ function headline(notification: INotification): Headline {
                                         ><span class="font-bold">{{ headline(notification).bold }}</span
                                         >{{ headline(notification).suffix }}
                                     </span>
+
+                                    <span v-if="changeDetails(notification)" class="gs-text-muted mt-0.5 block text-sm">{{
+                                        changeDetails(notification)
+                                    }}</span>
 
                                     <span class="gs-text-muted mt-1 block text-xs">{{ timeAgo(notification.created_at) }}</span>
                                 </span>
