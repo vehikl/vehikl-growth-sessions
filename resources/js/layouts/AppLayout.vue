@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import NotificationBell from '@/components/NotificationBell.vue';
+import Notifications from '@/components/Notifications.vue';
 import VAvatar from '@/components/legacy/VAvatar.vue';
 import { useTheme } from '@/composables/useTheme';
 import { loginUrl } from '@/lib/loginUrl';
@@ -127,7 +127,7 @@ onBeforeUnmount(() => {
 
                 <span class="mx-1 h-6 w-px bg-white/15 sm:mx-2"></span>
 
-                <NotificationBell v-if="$page.props.auth.user" :user="$page.props.auth.user" />
+                <Notifications v-if="$page.props.auth.user" :user="$page.props.auth.user" />
 
                 <div ref="userMenu" class="relative">
                     <button

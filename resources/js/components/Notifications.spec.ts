@@ -1,4 +1,4 @@
-import NotificationBell from '@/components/NotificationBell.vue';
+import Notifications from '@/components/Notifications.vue';
 import { NotificationApi } from '@/services/NotificationApi';
 import { INotificationIndexResponse, IUser } from '@/types';
 import { mount } from '@vue/test-utils';
@@ -65,7 +65,7 @@ const commentNotification = {
     },
 };
 
-describe('NotificationBell', () => {
+describe('Notifications', () => {
     beforeEach(() => {
         vi.mocked(NotificationApi.index).mockResolvedValue(emptyResponse);
         vi.mocked(NotificationApi.markRead).mockResolvedValue(undefined);
@@ -74,14 +74,14 @@ describe('NotificationBell', () => {
     it('fetches notifications on mount and shows the unread badge', async () => {
         vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1 });
 
-        const wrapper = mount(NotificationBell, { props: { user } });
+        const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
 
         expect(wrapper.text()).toContain('1');
     });
 
     it('hides the badge when there are no unread notifications', async () => {
-        const wrapper = mount(NotificationBell, { props: { user } });
+        const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
 
         expect(wrapper.find('button span').exists()).toBe(false);
@@ -90,7 +90,7 @@ describe('NotificationBell', () => {
     it('opens the dropdown and lists recent notifications when the bell is clicked', async () => {
         vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification, deletedNotification], unread_count: 2 });
 
-        const wrapper = mount(NotificationBell, { props: { user } });
+        const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
 
         await wrapper.find('button').trigger('click');
@@ -105,7 +105,7 @@ describe('NotificationBell', () => {
     it('links an updated notification to its session', async () => {
         vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1 });
 
-        const wrapper = mount(NotificationBell, { props: { user } });
+        const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
         await wrapper.find('button').trigger('click');
 
@@ -115,7 +115,7 @@ describe('NotificationBell', () => {
     it('renders a deleted notification as plain text with no link', async () => {
         vi.mocked(NotificationApi.index).mockResolvedValue({ data: [deletedNotification], unread_count: 1 });
 
-        const wrapper = mount(NotificationBell, { props: { user } });
+        const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
         await wrapper.find('button').trigger('click');
 
@@ -125,7 +125,7 @@ describe('NotificationBell', () => {
     it('renders a comment notification with the commenter', async () => {
         vi.mocked(NotificationApi.index).mockResolvedValue({ data: [commentNotification], unread_count: 1 });
 
-        const wrapper = mount(NotificationBell, { props: { user } });
+        const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
         await wrapper.find('button').trigger('click');
 
@@ -137,7 +137,7 @@ describe('NotificationBell', () => {
     it('marks all notifications as read when the dropdown is opened', async () => {
         vi.mocked(NotificationApi.index).mockResolvedValue({ data: [updatedNotification], unread_count: 1 });
 
-        const wrapper = mount(NotificationBell, { props: { user } });
+        const wrapper = mount(Notifications, { props: { user } });
         await flushPromises();
 
         await wrapper.find('button').trigger('click');
