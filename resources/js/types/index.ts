@@ -3,6 +3,7 @@ export * from './IComment';
 export * from './IDashboard';
 export * from './IGrowthSession';
 export * from './IGrowthSessionProposal';
+export * from './INotification';
 export * from './IStatistics';
 export * from './ITag';
 export * from './ITextSegment';

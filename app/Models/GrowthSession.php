@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 #[ObservedBy(GrowthSessionObserver::class)]
@@ -118,7 +119,7 @@ class GrowthSession extends Model
 
     public function comments()
     {
-        return $this->hasMany(Comment::class)->orderByDesc('created_at');
+        return $this->hasMany(Comment::class)->orderByDesc('created_at')->orderByDesc('id');
     }
 
     public function anydesk()
@@ -232,6 +233,36 @@ class GrowthSession extends Model
     public function hasParticipant(User $user): bool
     {
         return $this->hasAttendee($user) || $this->hasWatcher($user);
+    }
+
+    /**
+     * Everyone with a stake in this session — owners, attendees, watchers — except whoever just
+     * caused the notification. An owner editing their own session shouldn't hear about it, but a
+     * comment from an attendee should still reach the owners, so exclusion follows the initiator
+     * rather than any fixed role.
+     */
+    public function participantsToNotify(?User $initiator): Collection
+    {
+        return $this->attendees
+            ->merge($this->watchers)
+            ->reject(fn (User $user) => $initiator !== null && $user->is($initiator))
+            ->unique('id')
+            ->values();
+    }
+
+    /**
+     * The old/new values for whichever of `$fields` actually changed on this update.
+     *
+     * @param string[] $fields
+     * @return array<string, array{old: mixed, new: mixed}>
+     */
+    public function changedValuesFor(array $fields): array
+    {
+        $changedFields = array_intersect(array_keys($this->getChanges()), $fields);
+
+        return collect($changedFields)->mapWithKeys(fn (string $field) => [
+            $field => ['old' => $this->getRawOriginal($field), 'new' => $this->getAttributes()[$field] ?? null]
+        ])->all();
     }
 
     public function hasUnlimitedSlots(): bool

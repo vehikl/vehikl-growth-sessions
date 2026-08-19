@@ -2,7 +2,6 @@
 
 namespace App\Observers;
 
-use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionModified;
 use App\Events\GrowthSessionUpdated;
@@ -19,6 +18,18 @@ class GrowthSessionObserver
     {
         broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
         event(new GrowthSessionUpdated($growthSession));
+    }
+
+    /**
+     * Handle the GrowthSession "deleting" event.
+     *
+     * Deletes are hard deletes, so anything downstream that needs to know who was attending
+     * (e.g. the deletion notification) has to be loaded before the row — and its pivot rows —
+     * disappear. Loaded here, it stays cached on this same instance through to `deleted()`.
+     */
+    public function deleting(GrowthSession $growthSession): void
+    {
+        $growthSession->loadMissing(['attendees', 'watchers', 'owners']);
     }
 
     /**

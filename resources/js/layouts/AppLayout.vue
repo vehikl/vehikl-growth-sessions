@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Notifications from '@/components/Notifications.vue';
 import VAvatar from '@/components/legacy/VAvatar.vue';
 import { useTheme } from '@/composables/useTheme';
 import { loginUrl } from '@/lib/loginUrl';
@@ -105,7 +106,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <header class="gs-header-bg flex items-center justify-between gap-3 px-5 py-3.5 sm:px-7">
+    <header class="gs-header-bg relative z-30 flex items-center justify-between gap-3 px-5 py-3.5 sm:px-7">
         <div class="flex items-center gap-4">
             <Link :href="route('home')" class="transition-smooth flex items-center hover:opacity-80">
                 <VehiklLogo />
@@ -125,6 +126,8 @@ onBeforeUnmount(() => {
                 <Link :href="route('about')" :class="navigationClass('about')">About</Link>
 
                 <span class="mx-1 h-6 w-px bg-white/15 sm:mx-2"></span>
+
+                <Notifications v-if="$page.props.auth.user" :user="$page.props.auth.user" />
 
                 <div ref="userMenu" class="relative">
                     <button
