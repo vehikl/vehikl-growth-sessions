@@ -109,11 +109,11 @@ async function onDeleteClicked() {
             <text-segments :segments="growthSession.location_segments" />
         </div>
 
-        <div class="relative z-20 flex gap-1.5 empty:hidden" @click.stop>
+        <div class="session-actions relative z-20 flex flex-wrap gap-1.5 empty:hidden" @click.stop>
             <button
                 v-show="growthSession.canJoin(user)"
                 type="button"
-                class="join-button gs-btn-primary flex-3 cursor-pointer rounded-sm px-4 py-1.5 text-sm font-medium"
+                class="join-button gs-btn-primary max-w-full flex-3 cursor-pointer truncate rounded-sm px-4 py-1.5 text-sm font-medium"
                 @click.stop="joinGrowthSession"
             >
                 Join
@@ -121,20 +121,20 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canJoinWaitlist(user)"
                 type="button"
-                class="join-waitlist-button gs-btn-primary flex-3 cursor-pointer rounded-sm px-4 py-1.5 text-sm font-medium whitespace-nowrap"
+                class="join-waitlist-button gs-btn-primary max-w-full flex-3 cursor-pointer truncate rounded-sm px-4 py-1.5 text-sm font-medium"
                 @click.stop="joinGrowthSession"
             >
                 Join waitlist
             </button>
             <span
                 v-if="showFullIndicator"
-                class="full-indicator gs-at-capacity flex-3 rounded-sm border border-current px-4 py-1.5 text-center text-sm font-medium"
+                class="full-indicator gs-at-capacity max-w-full flex-3 truncate rounded-sm border border-current px-4 py-1.5 text-center text-sm font-medium"
                 >Full</span
             >
             <button
                 v-show="growthSession.canWatch(user)"
                 type="button"
-                class="watch-button gs-btn-secondary flex-1 cursor-pointer rounded-sm px-4 py-1.5 text-sm font-medium"
+                class="watch-button gs-btn-secondary max-w-full flex-1 cursor-pointer truncate rounded-sm px-4 py-1.5 text-sm font-medium"
                 @click.stop="watchGrowthSession"
             >
                 Spectate
@@ -142,7 +142,7 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canLeave(user)"
                 type="button"
-                class="leave-button transition-smooth flex-1 cursor-pointer rounded-sm border border-red-600 px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-700 hover:text-white"
+                class="leave-button transition-smooth max-w-full flex-1 cursor-pointer truncate rounded-sm border border-red-600 px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-700 hover:text-white"
                 @click.stop="leaveGrowthSession"
             >
                 {{ isOnWaitlist ? 'Leave waitlist' : 'Leave' }}
@@ -150,7 +150,7 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canEditOrDelete(user)"
                 type="button"
-                class="update-button gs-btn-primary flex-3 cursor-pointer rounded-sm px-4 py-1.5 text-sm font-medium"
+                class="update-button gs-btn-primary max-w-full flex-3 cursor-pointer truncate rounded-sm px-4 py-1.5 text-sm font-medium"
                 @click.stop="emit('edit-requested', growthSession)"
             >
                 Edit
@@ -158,7 +158,7 @@ async function onDeleteClicked() {
             <button
                 v-show="growthSession.canEditOrDelete(user)"
                 type="button"
-                class="delete-button transition-smooth flex-1 cursor-pointer rounded-sm border border-red-600 px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-700 hover:text-white"
+                class="delete-button transition-smooth max-w-full flex-1 cursor-pointer truncate rounded-sm border border-red-600 px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-700 hover:text-white"
                 @click.stop="onDeleteClicked"
             >
                 Delete

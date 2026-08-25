@@ -218,6 +218,25 @@ describe('GrowthSessionCard', () => {
 
             expect(wrapper.find('.watch-button')).toBeVisible();
         });
+
+        /**
+         * `Join waitlist` and `Spectate` together need more room than the narrowest column the week
+         * view renders, and the pair used to run off the edge of the card. happy-dom has no layout
+         * to measure, so what is pinned here is the mechanism that keeps them inside it: the row
+         * may break between actions, and no single action may grow past the width it is given.
+         */
+        it('keeps its actions inside the card whatever their labels say', () => {
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), isFull: true, user: outsider } });
+            const actions = wrapper.find('.session-actions');
+            const rendered = actions.findAll('button, span');
+
+            expect(actions.classes()).toContain('flex-wrap');
+            expect(rendered.length).toBeGreaterThan(0);
+            rendered.forEach((action) => {
+                expect(action.classes()).toContain('max-w-full');
+                expect(action.classes()).toContain('truncate');
+            });
+        });
     });
 
     it('does not display the join button to the owner of the growth session', () => {
