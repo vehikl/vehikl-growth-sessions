@@ -5,6 +5,7 @@ import type {
     IGrowthSessionChangeNotificationData,
     IGrowthSessionCommentAddedNotificationData,
     IGrowthSessionDeletedNotificationData,
+    IGrowthSessionWaitlistPromotionNotificationData,
     INotification,
     INotificationData,
     INotificationType,
@@ -12,7 +13,7 @@ import type {
 } from '@/types';
 import {Link} from '@inertiajs/vue3';
 import {onClickOutside} from '@vueuse/core';
-import {Bell, CalendarDays, CalendarX2, Clock, MapPin, MessageSquare} from 'lucide-vue-next';
+import {Bell, CalendarCheck2, CalendarDays, CalendarX2, Clock, MapPin, MessageSquare} from 'lucide-vue-next';
 import moment from 'moment-timezone';
 import type {Component} from 'vue';
 import {ref} from 'vue';
@@ -53,6 +54,7 @@ const TYPE_ICONS: Record<INotificationType, Component> = {
     growth_session_location_changed: MapPin,
     growth_session_deleted: CalendarX2,
     growth_session_comment_added: MessageSquare,
+    growth_session_waitlist_promotion: CalendarCheck2,
 };
 
 function notificationIcon(notification: INotification): Component {
@@ -81,6 +83,12 @@ const commentAdded = (data: IGrowthSessionCommentAddedNotificationData): Headlin
     suffix: ` commented on ${data.title}.`,
 });
 
+const waitlistPromotion = (data: IGrowthSessionWaitlistPromotionNotificationData): Headline => ({
+    prefix: 'A seat opened up in ',
+    bold: data.title,
+    suffix: ' and it is yours.',
+});
+
 const deleted = (data: IGrowthSessionDeletedNotificationData): Headline => ({
     bold: data.title,
     suffix: data.date ? ` has been cancelled for ${moment(data.date, 'YYYY-MM-DD').locale('en').format('MMM D')}.` : ' has been cancelled.',
@@ -96,6 +104,7 @@ function headline(notification: INotification): Headline {
     if (isChange(notification)) return changeUpdated(notification.data);
     if (isComment(notification)) return commentAdded(notification.data);
     if (notification.data.type === 'growth_session_deleted') return deleted(notification.data);
+    if (notification.data.type === 'growth_session_waitlist_promotion') return waitlistPromotion(notification.data);
 
     return genericUpdate(notification.data);
 }
