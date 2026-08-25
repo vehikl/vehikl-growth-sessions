@@ -157,30 +157,24 @@ describe('GrowthSessionCard', () => {
         // Whether a session reads as full is decided by the Board and handed down, so the
         // card only renders the flag. The rules behind it are covered in Board.spec.ts.
         it('replaces the join button with a waitlist button when the session is full', () => {
-            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), isFull: true, user: outsider } });
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), user: outsider } });
 
-            expect(wrapper.find('.join-button')).not.toBeVisible();
-            expect(wrapper.find('.join-waitlist-button')).toBeVisible();
+            expect(wrapper.find('.join-button').exists()).toBe(false);
+            expect(wrapper.find('.join-waitlist-button').exists()).toBe(true);
             expect(wrapper.find('.join-waitlist-button').text()).toBe('Join waitlist');
-        });
-
-        it('does not stand a full indicator in the way of the waitlist button', () => {
-            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), isFull: true, user: outsider } });
-
-            expect(wrapper.find('.full-indicator').exists()).toBe(false);
         });
 
         it('does not offer the waitlist unless the session is full', () => {
             wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: outsider } });
 
-            expect(wrapper.find('.join-waitlist-button')).not.toBeVisible();
-            expect(wrapper.find('.join-button')).toBeVisible();
+            expect(wrapper.find('.join-waitlist-button').exists()).toBe(false);
+            expect(wrapper.find('.join-button').exists()).toBe(true);
         });
 
         it('enrols the user through the same endpoint joining uses', () => {
             GrowthSessionApi.join = vi.fn().mockImplementation((growthSession) => growthSession);
             const session = fullGrowthSession();
-            wrapper = mount(GrowthSessionCard, { props: { growthSession: session, isFull: true, user: outsider } });
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: session, user: outsider } });
 
             wrapper.find('.join-waitlist-button').trigger('click');
 
@@ -199,24 +193,23 @@ describe('GrowthSessionCard', () => {
             }
 
             it('stops offering the queue they are already in', () => {
-                wrapper = mount(GrowthSessionCard, { props: { growthSession: queuedGrowthSession(), isFull: true, user: outsider } });
+                wrapper = mount(GrowthSessionCard, { props: { growthSession: queuedGrowthSession(), user: outsider } });
 
-                expect(wrapper.find('.join-waitlist-button')).not.toBeVisible();
-                expect(wrapper.find('.full-indicator').exists()).toBe(false);
+                expect(wrapper.find('.join-waitlist-button').exists()).toBe(false);
             });
 
             it('offers to take them out of the queue by name', () => {
-                wrapper = mount(GrowthSessionCard, { props: { growthSession: queuedGrowthSession(), isFull: true, user: outsider } });
+                wrapper = mount(GrowthSessionCard, { props: { growthSession: queuedGrowthSession(), user: outsider } });
 
-                expect(wrapper.find('.leave-button')).toBeVisible();
+                expect(wrapper.find('.leave-button').exists()).toBe(true);
                 expect(wrapper.find('.leave-button').text()).toBe('Leave waitlist');
             });
         });
 
         it('still offers spectating when the session is full', () => {
-            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), isFull: true, user: outsider } });
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), user: outsider } });
 
-            expect(wrapper.find('.watch-button')).toBeVisible();
+            expect(wrapper.find('.watch-button').exists()).toBe(true);
         });
 
         /**
@@ -226,7 +219,7 @@ describe('GrowthSessionCard', () => {
          * may break between actions, and no single action may grow past the width it is given.
          */
         it('keeps its actions inside the card whatever their labels say', () => {
-            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), isFull: true, user: outsider } });
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), user: outsider } });
             const actions = wrapper.find('.session-actions');
             const rendered = actions.findAll('button, span');
 
@@ -241,28 +234,28 @@ describe('GrowthSessionCard', () => {
 
     it('does not display the join button to the owner of the growth session', () => {
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: ownerOfTheGrowthSession } });
-        expect(wrapper.find('.join-button')).not.toBeVisible();
+        expect(wrapper.find('.join-button').exists()).toBe(false);
     });
 
     it('does not display the join button if you are already part of the growth session', () => {
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: attendee } });
-        expect(wrapper.find('.join-button')).not.toBeVisible();
+        expect(wrapper.find('.join-button').exists()).toBe(false);
     });
 
     it('does not display the join button to guests', () => {
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData } });
-        expect(wrapper.find('.join-button')).not.toBeVisible();
+        expect(wrapper.find('.join-button').exists()).toBe(false);
     });
 
     it('does display the join button if you are authenticated and not part of the growth session', () => {
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: outsider } });
-        expect(wrapper.find('.join-button')).toBeVisible();
+        expect(wrapper.find('.join-button').exists()).toBe(true);
     });
 
     it('does display the join button even if the growth session does not allow watchers', () => {
         growthSessionData.allow_watchers = false;
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: outsider } });
-        expect(wrapper.find('.join-button')).toBeVisible();
+        expect(wrapper.find('.join-button').exists()).toBe(true);
     });
 
     it('allows a user to join a growth session', () => {
@@ -278,7 +271,7 @@ describe('GrowthSessionCard', () => {
         GrowthSessionApi.watch = vi.fn().mockImplementation((growthSession) => growthSession);
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: outsider } });
 
-        expect(wrapper.find('.watch-button')).toBeVisible();
+        expect(wrapper.find('.watch-button').exists()).toBe(true);
 
         wrapper.find('.watch-button').trigger('click');
         expect(GrowthSessionApi.watch).toHaveBeenCalledWith(growthSessionData);
@@ -290,15 +283,15 @@ describe('GrowthSessionCard', () => {
         growthSessionData.attendee_limit = 1;
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: outsider } });
 
-        expect(wrapper.find('.watch-button')).toBeVisible();
-        expect(wrapper.find('.join-button')).not.toBeVisible();
+        expect(wrapper.find('.watch-button').exists()).toBe(true);
+        expect(wrapper.find('.join-button').exists()).toBe(false);
     });
 
     it('allows a user to leave a growth session when they are a watcher', () => {
         GrowthSessionApi.leave = vi.fn().mockImplementation((growthSession) => growthSession);
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: watcher } });
 
-        expect(wrapper.find('.leave-button')).toBeVisible();
+        expect(wrapper.find('.leave-button').exists()).toBe(true);
         wrapper.find('.leave-button').trigger('click');
 
         expect(GrowthSessionApi.leave).toHaveBeenCalledWith(growthSessionData);
@@ -311,7 +304,7 @@ describe('GrowthSessionCard', () => {
 
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: outsider } });
 
-        expect(wrapper.find('.watch-button')).not.toBeVisible();
+        expect(wrapper.find('.watch-button').exists()).toBe(false);
     });
 
     it('allows a user to leave a growth session when they are an attendee', () => {
@@ -341,7 +334,7 @@ describe('GrowthSessionCard', () => {
         DateTime.setTestNow(oneDayAfterTheGrowthSession);
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: ownerOfTheGrowthSession } });
 
-        expect(wrapper.find('.delete-button')).not.toBeVisible();
+        expect(wrapper.find('.delete-button').exists()).toBe(false);
     });
 
     it('does not display the edit button to the owner if the date of the growth session is in the past', () => {
@@ -349,15 +342,15 @@ describe('GrowthSessionCard', () => {
         DateTime.setTestNow(oneDayAfterTheGrowthSession);
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: ownerOfTheGrowthSession } });
 
-        expect(wrapper.find('.update-button')).not.toBeVisible();
+        expect(wrapper.find('.update-button').exists()).toBe(false);
     });
 
     it('does not display edit or delete after the session ends today', () => {
         DateTime.setTestNow(DateTime.parseByDateTime(growthSessionData.date, '06:00 pm').toISOString());
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: ownerOfTheGrowthSession } });
 
-        expect(wrapper.find('.update-button')).not.toBeVisible();
-        expect(wrapper.find('.delete-button')).not.toBeVisible();
+        expect(wrapper.find('.update-button').exists()).toBe(false);
+        expect(wrapper.find('.delete-button').exists()).toBe(false);
     });
 
     it('does not display the join button if the date of the growth session is in the past', () => {
@@ -365,7 +358,7 @@ describe('GrowthSessionCard', () => {
         DateTime.setTestNow(oneDayAfterTheGrowthSession);
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: outsider } });
 
-        expect(wrapper.find('.join-button')).not.toBeVisible();
+        expect(wrapper.find('.join-button').exists()).toBe(false);
     });
 
     it('does not display the leave button if the date of the growth session is in the past', () => {
@@ -373,7 +366,7 @@ describe('GrowthSessionCard', () => {
         DateTime.setTestNow(oneDayAfterTheGrowthSession);
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: attendee } });
 
-        expect(wrapper.find('.leave-button')).not.toBeVisible();
+        expect(wrapper.find('.leave-button').exists()).toBe(false);
     });
 
     it('does not display the copy button if the user is not a vehikl member', () => {

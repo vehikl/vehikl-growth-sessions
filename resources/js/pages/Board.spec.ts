@@ -580,13 +580,7 @@ describe('Board', () => {
         // A session at capacity is no longer a dead end: the queue takes the Join button's place,
         // which is what now tells the viewer every seat is taken.
         it('offers the waitlist when every seat is taken', async () => {
-            expect(await boardShowing({}, authVehiklUser)).toBeVisible();
-        });
-
-        it('leaves no bare "Full" badge standing where the waitlist is on offer', async () => {
-            await boardShowing({}, authVehiklUser);
-
-            expect(wrapper.findComponent(DayView).find('.full-indicator').exists()).toBe(false);
+            expect((await boardShowing({}, authVehiklUser)).exists()).toBe(true);
         });
 
         it('colours the capacity readout in the day view', async () => {
@@ -609,30 +603,30 @@ describe('Board', () => {
         });
 
         it('does not offer the waitlist while seats remain', async () => {
-            expect(await boardShowing({ attendee_limit: 3 }, authVehiklUser)).not.toBeVisible();
+            expect((await boardShowing({ attendee_limit: 3 }, authVehiklUser)).exists()).toBe(false);
         });
 
         it('does not offer the waitlist on a limitless session however many have joined', async () => {
-            expect(await boardShowing({ attendee_limit: null }, authVehiklUser)).not.toBeVisible();
+            expect((await boardShowing({ attendee_limit: null }, authVehiklUser)).exists()).toBe(false);
         });
 
         it('does not offer the waitlist to the owner, who was never going to join', async () => {
-            expect(await boardShowing({}, sessionOwner)).not.toBeVisible();
+            expect((await boardShowing({}, sessionOwner)).exists()).toBe(false);
         });
 
         it('does not offer the waitlist to someone already attending', async () => {
-            expect(await boardShowing({}, memberA)).not.toBeVisible();
+            expect((await boardShowing({}, memberA)).exists()).toBe(false);
         });
 
         it('does not offer the waitlist to guests, who cannot join at all', async () => {
-            expect(await boardShowing({})).not.toBeVisible();
+            expect((await boardShowing({})).exists()).toBe(false);
         });
 
         it('does not offer the waitlist once the session has finished', async () => {
             // Later the same day, so the session is still on the selected day but already over.
             DateTime.setTestNow(`${todayDate} 18:00:00`);
 
-            expect(await boardShowing({ end_time: '05:00 pm' }, authVehiklUser)).not.toBeVisible();
+            expect((await boardShowing({ end_time: '05:00 pm' }, authVehiklUser)).exists()).toBe(false);
         });
     });
 

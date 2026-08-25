@@ -3,7 +3,7 @@ import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
 import TextSegments from '@/components/legacy/TextSegments.vue';
 import { useInitials } from '@/composables/useInitials';
-import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
+import { avatarColor, capacityLabel, ISessionAction, sessionActions, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
@@ -12,8 +12,6 @@ interface IProps {
     selectedIndex: number;
     sessions: GrowthSession[];
     currentLabel: string;
-    /** Ids of sessions the Board has determined should read as full. */
-    fullSessionIds?: number[];
     user?: IUser;
 }
 
@@ -53,14 +51,29 @@ function tagline(session: GrowthSession): string {
     return session.tags.map((t) => (t.name.includes('&') ? t.name : t.name.charAt(0).toUpperCase() + t.name.slice(1).toLowerCase())).join(', ');
 }
 
-function isFull(session: GrowthSession): boolean {
-    return (props.fullSessionIds ?? []).includes(session.id);
+function actionsFor(session: GrowthSession): ISessionAction[] {
+    return sessionActions(session, props.user);
 }
 
-// As on the card: the badge only stands in where the queue is not on offer or already joined.
-function showFullIndicator(session: GrowthSession): boolean {
-    return isFull(session) && !session.canJoinWaitlist(props.user) && !session.isOnWaitlist(props.user);
-}
+/** The day view gives its actions more room than a card does; the choosing is shared, the dressing is not. */
+const ACTION_CLASSES: Record<string, string> = {
+    join: 'gs-btn-primary max-w-48 px-4 md:px-20',
+    'join-waitlist': 'gs-btn-primary max-w-48 px-4 text-center whitespace-nowrap md:w-48',
+    watch: 'gs-btn-secondary px-5',
+    leave: 'transition-smooth border border-red-500 px-5 text-red-500 hover:bg-red-500 hover:text-white',
+    edit: 'gs-btn-primary max-w-48 px-4 md:px-20',
+    delete: 'transition-smooth border border-red-500 px-5 text-red-500 hover:bg-red-500 hover:text-white',
+};
+
+/** Which event the parent expects for each action; the day view acts through the Board, not itself. */
+const ACTION_EVENTS = {
+    join: 'join',
+    'join-waitlist': 'join',
+    watch: 'watch',
+    leave: 'leave',
+    edit: 'edit-requested',
+    delete: 'delete-requested',
+} as const;
 
 /**
  * Sessions arrive in start order, so neighbours sharing a window belong to the same slot.
@@ -220,77 +233,14 @@ const timeSlots = computed<ITimeSlot[]>(() =>
 
                         <div class="gs-divider-color relative z-20 flex flex-wrap items-center gap-2 border-t pt-2.5" @click.stop>
                             <button
-                                v-show="session.canJoin(user)"
+                                v-for="action in actionsFor(session)"
+                                :key="action.kind"
                                 type="button"
-                                class="join-button gs-btn-primary max-w-48 cursor-pointer rounded-md px-4 py-2 text-sm font-semibold md:px-20"
-                                @click.stop="emit('join', session)"
+                                :class="[action.hook, ACTION_CLASSES[action.kind]]"
+                                class="cursor-pointer rounded-md py-2 text-sm font-semibold"
+                                @click.stop="emit(ACTION_EVENTS[action.kind], session)"
                             >
-                                Join
-                            </button>
-                            <button
-                                v-show="session.canJoinWaitlist(user)"
-                                type="button"
-                                class="join-waitlist-button gs-btn-primary max-w-48 cursor-pointer rounded-md px-4 py-2 text-center text-sm font-semibold whitespace-nowrap md:w-48"
-                                @click.stop="emit('join', session)"
-                            >
-                                Join waitlist
-                            </button>
-                            <span
-                                v-if="showFullIndicator(session)"
-                                class="full-indicator gs-at-capacity max-w-48 rounded-md border border-current px-4 py-2 text-center text-sm font-semibold md:px-20"
-                                >Full</span
-                            >
-                            <button
-                                v-show="session.canWatch(user)"
-                                type="button"
-                                class="watch-button gs-btn-secondary cursor-pointer rounded-md px-5 py-2 text-sm font-semibold"
-                                @click.stop="emit('watch', session)"
-                            >
-                                Spectate
-                            </button>
-                            <button
-                                v-show="session.canLeave(user)"
-                                type="button"
-                                class="leave-button transition-smooth cursor-pointer rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
-                                @click.stop="emit('leave', session)"
-                            >
-                                {{ session.isOnWaitlist(user) ? 'Leave waitlist' : 'Leave' }}
-                            </button>
-                            <button
-                                v-show="session.canEditOrDelete(user)"
-                                type="button"
-                                class="update-button gs-btn-primary max-w-48 cursor-pointer rounded-md px-4 py-2 text-sm font-semibold md:px-20"
-                                @click.stop="emit('edit-requested', session)"
-                            >
-                                Edit
-                            </button>
-                            <button
-                                v-show="session.canEditOrDelete(user)"
-                                type="button"
-                                class="delete-button transition-smooth cursor-pointer rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
-                                @click.stop="emit('delete-requested', session)"
-                            >
-                                Delete
-                            </button>
-
-                            <a
-                                aria-label="add-to-calendar"
-                                :href="session.calendarUrl"
-                                target="_blank"
-                                class="gs-text-muted gs-border transition-smooth hover:text-gs-accent ml-auto inline-flex h-9 w-9 items-center justify-center rounded-md border"
-                                title="Add to calendar"
-                                @click.stop
-                            >
-                                <i class="fa fa-calendar text-sm" aria-hidden="true"></i>
-                            </a>
-                            <button
-                                v-show="user && user.is_vehikl_member"
-                                type="button"
-                                class="copy-button gs-text-muted gs-border transition-smooth hover:text-gs-accent inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border"
-                                title="Duplicate to another day"
-                                @click.stop="emit('copy-requested', session)"
-                            >
-                                <i class="fa fa-copy text-sm" aria-hidden="true"></i>
+                                {{ action.label }}
                             </button>
                         </div>
                     </div>
