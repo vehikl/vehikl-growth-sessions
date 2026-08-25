@@ -58,6 +58,7 @@ const rows = computed(() =>
                 >
                     <UserAvatar :name="row.member.name" :avatar="row.member.avatar" />
                     <span
+                        data-testid="session-roster-member"
                         class="gs-text-strong group-hover:text-gs-accent min-w-0 flex-1 text-sm font-semibold tracking-[0.02em] transition-colors"
                         >{{ row.member.name }}</span
                     >

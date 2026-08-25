@@ -4,6 +4,9 @@ import { IUser } from '@/types';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
+/** The row also carries an avatar, whose initials would otherwise run into the name a text() away. */
+const MEMBER_NAME = '[data-testid="session-roster-member"]';
+
 function member(overrides: Partial<IUser> = {}): User {
     return new User({ id: 1, name: 'Ada Lovelace', avatar: '', github_nickname: 'ada', is_vehikl_member: true, ...overrides });
 }
@@ -35,9 +38,9 @@ describe('SessionRoster', () => {
     });
 
     it('lists members in the order it was given them', () => {
-        const rows = mountRoster([member({ id: 1, name: 'First' }), member({ id: 2, name: 'Second' })]).findAll('li');
+        const names = mountRoster([member({ id: 1, name: 'First' }), member({ id: 2, name: 'Second' })]).findAll(MEMBER_NAME);
 
-        expect(rows.map((row) => row.text())).toEqual(['First', 'Second']);
+        expect(names.map((name) => name.text())).toEqual(['First', 'Second']);
     });
 
     describe('when the order is the point', () => {
@@ -48,14 +51,14 @@ describe('SessionRoster', () => {
             });
 
             expect(wrapper.find('ol').exists()).toBe(true);
-            expect(wrapper.findAll('li').map((row) => row.text())).toEqual(['First', 'Second']);
+            expect(wrapper.findAll(MEMBER_NAME).map((name) => name.text())).toEqual(['First', 'Second']);
         });
 
         it('marks a roster whose order carries no meaning up as a plain list', () => {
             const wrapper = mountRoster([member({ name: 'First' })]);
 
             expect(wrapper.find('ul').exists()).toBe(true);
-            expect(wrapper.find('li').text()).toBe('First');
+            expect(wrapper.find(MEMBER_NAME).text()).toBe('First');
         });
     });
 });
