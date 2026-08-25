@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\GrowthSession as GrowthSessionModel;
 use App\Models\User as UserModel;
 use App\Support\InviteLink;
+use App\Support\Waitlist;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Collection;
@@ -19,10 +20,11 @@ class GrowthSession extends JsonResource
         $growthSession = $this->resource;
         $viewer = $request->user();
 
-        $isParticipating = $viewer && $growthSession->hasParticipant($viewer);
         $isOwner = $viewer && $viewer->is($growthSession->owner);
         $canSeeSensitiveInfo = $isOwner || ($viewer && $viewer->is_vehikl_member);
-        $canSeeLocation = $isOwner || $isParticipating;
+        // Waiting in line deliberately does not count here: unmasking the location for the queue
+        // would turn it into a way around "join to see location". It unmasks on promotion instead.
+        $canSeeLocation = $isOwner || ($viewer && $growthSession->hasAttendeeOrWatcher($viewer));
 
         $inviteLink = InviteLink::for($growthSession);
 
@@ -51,6 +53,10 @@ class GrowthSession extends JsonResource
             'owner' => $growthSession->owner ? new User($growthSession->owner) : null,
             'attendees' => $this->usersArray($growthSession->attendees, $viewer, $canSeeSensitiveInfo, $request),
             'watchers' => $this->usersArray($growthSession->watchers, $viewer, $canSeeSensitiveInfo, $request),
+            // Anyone who can see the growth session can see who is in line; only the viewer is told
+            // where they themselves stand.
+            'waitlist' => $this->usersArray($growthSession->waitlist, $viewer, $canSeeSensitiveInfo, $request),
+            'waitlist_position' => Waitlist::for($growthSession)->positionOf($viewer),
             'comments' => Comment::collection($growthSession->comments),
             'anydesk' => $canSeeSensitiveInfo ? $growthSession->anydesk : null,
             'tags' => Tag::collection($growthSession->tags),
