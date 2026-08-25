@@ -32,6 +32,8 @@ function makeSession(overrides: Partial<Record<string, unknown>> = {}): GrowthSe
         owner,
         attendees: [attendee],
         watchers: [],
+        waitlist: [],
+        waitlist_position: null,
         comments: [],
         discord_channel_id: null,
         anydesk: null,
@@ -162,6 +164,64 @@ describe('SessionDetailDrawer', () => {
 
         await flushPromises();
         expect(wrapper.emitted('refresh')).toBeTruthy();
+    });
+
+    describe('the waitlist', () => {
+        const inLine: IUser = { id: 4, name: 'Ada Byron', avatar: '', github_nickname: 'adab', is_vehikl_member: true };
+
+        function fullSession(overrides: Partial<Record<string, unknown>> = {}) {
+            return makeSession({ attendee_limit: 1, attendees: [attendee], ...overrides });
+        }
+
+        it('offers the queue in place of joining once the seats are gone', () => {
+            const wrapper = mountDrawer(fullSession(), vehiklUser);
+
+            expect(shown(wrapper.find('.join-button'))).toBe(false);
+            expect(shown(wrapper.find('.join-waitlist-button'))).toBe(true);
+            expect(wrapper.find('.join-waitlist-button').text()).toBe('Join waitlist');
+        });
+
+        it('offers joining rather than the queue while a seat remains', () => {
+            const wrapper = mountDrawer(makeSession(), vehiklUser);
+
+            expect(shown(wrapper.find('.join-button'))).toBe(true);
+            expect(shown(wrapper.find('.join-waitlist-button'))).toBe(false);
+        });
+
+        it('enrols through the same call joining uses, and asks for a refresh', async () => {
+            const session = fullSession();
+            const joinSpy = vi.spyOn(session, 'join').mockResolvedValue(undefined);
+            const wrapper = mountDrawer(session, vehiklUser);
+
+            await wrapper.find('.join-waitlist-button').trigger('click');
+            expect(joinSpy).toHaveBeenCalled();
+
+            await flushPromises();
+            expect(wrapper.emitted('refresh')).toBeTruthy();
+        });
+
+        it('offers somebody in line only the way out of it', () => {
+            const wrapper = mountDrawer(fullSession({ waitlist: [vehiklUser], waitlist_position: 2 }), vehiklUser);
+
+            expect(shown(wrapper.find('.join-waitlist-button'))).toBe(false);
+            expect(shown(wrapper.find('.watch-button'))).toBe(false);
+            expect(wrapper.find('.leave-button').text()).toBe('Leave waitlist');
+        });
+
+        it('lists everyone in line, in order, to anyone who can see the session', () => {
+            const wrapper = mountDrawer(fullSession({ waitlist: [inLine, watcher] }), vehiklUser);
+
+            const rows = wrapper.findAll('.waitlist-roster li');
+
+            expect(wrapper.text()).toContain('WAITLIST (2)');
+            expect(rows).toHaveLength(2);
+            expect(rows[0].text()).toContain('Ada Byron');
+            expect(rows[1].text()).toContain('Alan Turing');
+        });
+
+        it('says nothing about a waitlist when nobody is in line', () => {
+            expect(mountDrawer(fullSession(), vehiklUser).text()).not.toContain('WAITLIST');
+        });
     });
 
     describe('sharing', () => {

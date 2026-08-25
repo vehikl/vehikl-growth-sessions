@@ -84,6 +84,7 @@ onUnmounted(() => {
 
 const status = computed(() => sessionStatus(props.growthSession));
 const meta = computed(() => statusMeta(status.value));
+const isOnWaitlist = computed<boolean>(() => props.growthSession.isOnWaitlist(props.user));
 const mobtimeUrl = computed(() => `https://mobtime.vehikl.com/vgs-${props.growthSession.id}`);
 
 async function join() {
@@ -178,6 +179,14 @@ async function share() {
                     Join
                 </button>
                 <button
+                    v-show="growthSession.canJoinWaitlist(user)"
+                    type="button"
+                    class="join-waitlist-button gs-btn-primary cursor-pointer rounded-md py-3 text-sm font-semibold"
+                    @click="join"
+                >
+                    Join waitlist
+                </button>
+                <button
                     v-show="growthSession.canWatch(user)"
                     type="button"
                     class="watch-button gs-btn-secondary cursor-pointer rounded-md py-3 text-sm font-semibold"
@@ -191,7 +200,7 @@ async function share() {
                     class="leave-button transition-smooth cursor-pointer rounded-md border border-red-500 py-3 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
                     @click="leave"
                 >
-                    Leave
+                    {{ isOnWaitlist ? 'Leave waitlist' : 'Leave' }}
                 </button>
                 <button
                     v-if="growthSession.canEditOrDelete(user)"
@@ -258,6 +267,15 @@ async function share() {
                             </a>
                         </li>
                     </ul>
+                </div>
+                <div v-if="growthSession.waitlist.length" class="waitlist-roster">
+                    <div class="gs-text-muted mb-2.5 text-xs font-bold tracking-[0.06em]">WAITLIST ({{ growthSession.waitlist.length }})</div>
+                    <ol class="flex flex-col gap-2.5">
+                        <li v-for="member in growthSession.waitlist" :key="member.id" class="flex items-center gap-2.5">
+                            <UserAvatar :name="member.name" :avatar="member.avatar" />
+                            <span class="gs-text-strong text-sm font-semibold tracking-[0.02em]">{{ member.name }}</span>
+                        </li>
+                    </ol>
                 </div>
                 <div v-if="growthSession.watchers.length">
                     <div class="gs-text-muted mb-2.5 text-xs font-bold tracking-[0.06em]">WATCHERS ({{ growthSession.watchers.length }})</div>
