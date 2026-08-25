@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionModified;
-use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreGrowthSessionRequest;
 use App\Http\Requests\UpdateGrowthSessionRequest;
@@ -16,6 +15,7 @@ use App\Models\GrowthSessionUser;
 use App\Models\UserType;
 use App\Policies\GrowthSessionPolicy;
 use App\Support\InviteLink;
+use App\Support\Waitlist;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -81,10 +81,16 @@ class GrowthSessionController extends Controller
         return new GrowthSessionResource($newGrowthSession);
     }
 
+    /**
+     * Joining a growth session with a seat free takes it; joining one with none takes a place in
+     * line instead, so a full growth session is something to ask for rather than a dead end.
+     */
     public function join(GrowthSession $growthSession, Request $request)
     {
-        if ($growthSession->attendees()->count() === $growthSession->attendee_limit) {
-            throw new AttendeeLimitReached;
+        if (! $growthSession->hasOpenSlots()) {
+            Waitlist::for($growthSession)->enrol($request->user());
+
+            return $this->rosterOf($growthSession);
         }
 
         // Switched from attach flow so the observer would run properly
@@ -95,11 +101,16 @@ class GrowthSessionController extends Controller
             'user_type_id' => UserType::ATTENDEE_ID,
         ]);
 
-        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
+        return $this->rosterOf($growthSession);
     }
 
     public function watch(GrowthSession $growthSession, Request $request)
     {
+        // A place in line is a role of its own: taking it up as a spectator instead means giving
+        // the place up first, so that a promotion never lands on somebody who has moved on.
+        // Route model binding hands over a bare model, and the roster is not loaded yet.
+        abort_if($growthSession->loadMissing('waitlist')->hasWaitlistedMember($request->user()), Response::HTTP_FORBIDDEN);
+
         // Switched from attach flow so the observer would run properly
         GrowthSessionUser::query()->updateOrCreate([
             'growth_session_id' => $growthSession->id,
@@ -108,9 +119,14 @@ class GrowthSessionController extends Controller
             'user_type_id' => UserType::WATCHER_ID,
         ]);
 
-        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
+        return $this->rosterOf($growthSession);
     }
 
+    /**
+     * Leaving covers giving up a seat and giving up a place in line alike. Either way the queue is
+     * asked to fill whatever is now free - withdrawing from it frees nothing, so the order behind
+     * the person who left is untouched.
+     */
     public function leave(GrowthSession $growthSession, Request $request)
     {
         GrowthSessionUser::query()
@@ -118,7 +134,9 @@ class GrowthSessionController extends Controller
             ->where('user_id', $request->user()->id)
             ->delete();
 
-        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
+        Waitlist::for($growthSession)->promote();
+
+        return $this->rosterOf($growthSession);
     }
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
@@ -141,11 +159,20 @@ class GrowthSessionController extends Controller
 
         $growthSession->save();
 
-        return new GrowthSessionResource($growthSession->refresh()->load(GrowthSession::RESOURCE_RELATIONS));
+        // Raising the limit is the other way a seat comes free, so the queue is served here too.
+        Waitlist::for($growthSession)->promote();
+
+        return $this->rosterOf($growthSession);
     }
 
     public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $growthSession)
     {
         $growthSession->delete();
+    }
+
+    /** Never a bare model: every growth session response is built from the same loaded relations. */
+    private function rosterOf(GrowthSession $growthSession): GrowthSessionResource
+    {
+        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
     }
 }
