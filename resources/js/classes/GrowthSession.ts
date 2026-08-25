@@ -169,9 +169,7 @@ export class GrowthSession implements IGrowthSession {
         }
 
         // Waiting in line is a role of its own: leaving it is the way to become a spectator instead.
-        return (
-            this.allow_watchers && !this.isOwner(user) && !this.isAttendeeOrWatcher(user) && !this.isOnWaitlist(user) && !this.hasAlreadyHappened
-        );
+        return this.allow_watchers && !this.isOwner(user) && !this.isAttendeeOrWatcher(user) && !this.isOnWaitlist(user) && !this.hasAlreadyHappened;
     }
 
     canJoin(user?: IUser | null): boolean {
