@@ -6,7 +6,7 @@ use App\Models\GrowthSession;
 use App\Models\User;
 use App\Models\UserType;
 use App\Policies\GrowthSessionPolicy;
-use App\Support\Waitlist;
+use App\Support\Seating;
 use Tests\TestCase;
 
 /**
@@ -95,7 +95,7 @@ class GrowthSessionPolicyTest extends TestCase
     private function memberInLineAt(GrowthSession $growthSession): User
     {
         $hopeful = User::factory()->vehiklMember()->create();
-        Waitlist::for($growthSession)->enrol($hopeful);
+        Seating::for($growthSession)->take($hopeful);
 
         return $hopeful;
     }

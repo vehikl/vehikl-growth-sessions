@@ -284,7 +284,7 @@ class GrowthSession extends Model
     /**
      * The old/new values for whichever of `$fields` actually changed on this update.
      *
-     * @param string[] $fields
+     * @param  string[]  $fields
      * @return array<string, array{old: mixed, new: mixed}>
      */
     public function changedValuesFor(array $fields): array
@@ -292,24 +292,12 @@ class GrowthSession extends Model
         $changedFields = array_intersect(array_keys($this->getChanges()), $fields);
 
         return collect($changedFields)->mapWithKeys(fn (string $field) => [
-            $field => ['old' => $this->getRawOriginal($field), 'new' => $this->getAttributes()[$field] ?? null]
+            $field => ['old' => $this->getRawOriginal($field), 'new' => $this->getAttributes()[$field] ?? null],
         ])->all();
     }
 
     public function hasUnlimitedSlots(): bool
     {
         return $this->attendee_limit === self::NO_LIMIT;
-    }
-
-    public function hasOpenSlots(): bool
-    {
-        return $this->remainingSlots() != 0;
-    }
-
-    public function remainingSlots(): int
-    {
-        return $this->hasUnlimitedSlots()
-            ? -1
-            : max(0, $this->attendee_limit - $this->attendees()->count());
     }
 }

@@ -7,7 +7,7 @@ use App\Models\GrowthSession;
 use App\Models\GrowthSessionUser;
 use App\Models\User;
 use App\Models\UserType;
-use App\Support\Waitlist;
+use App\Support\Seating;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -60,7 +60,7 @@ class GrowthSessionBroadcastTest extends TestCase
     {
         $growthSession = $this->fullGrowthSession();
 
-        Waitlist::for($growthSession)->enrol(User::factory()->create());
+        Seating::for($growthSession)->take(User::factory()->create());
 
         Event::assertDispatched(GrowthSessionModified::class, function (GrowthSessionModified $event) use ($growthSession) {
             return $event->growthSessionId === $growthSession->id
@@ -77,11 +77,11 @@ class GrowthSessionBroadcastTest extends TestCase
     {
         Notification::fake();
         $growthSession = $this->fullGrowthSession();
-        Waitlist::for($growthSession)->enrol(User::factory()->create());
+        Seating::for($growthSession)->take(User::factory()->create());
         $growthSession->update(['attendee_limit' => 2]);
         Event::fake([GrowthSessionModified::class]);
 
-        Waitlist::for($growthSession)->promote();
+        Seating::for($growthSession)->reseat();
 
         Event::assertDispatched(GrowthSessionModified::class, function (GrowthSessionModified $event) use ($growthSession) {
             return $event->growthSessionId === $growthSession->id

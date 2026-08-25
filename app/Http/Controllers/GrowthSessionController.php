@@ -11,11 +11,10 @@ use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
 use App\Models\AnyDesk;
 use App\Models\GrowthSession;
-use App\Models\GrowthSessionUser;
 use App\Models\UserType;
 use App\Policies\GrowthSessionPolicy;
 use App\Support\InviteLink;
-use App\Support\Waitlist;
+use App\Support\Seating;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -87,32 +86,14 @@ class GrowthSessionController extends Controller
      */
     public function join(GrowthSession $growthSession, Request $request)
     {
-        if (! $growthSession->hasOpenSlots()) {
-            Waitlist::for($growthSession)->enrol($request->user());
-
-            return $this->rosterOf($growthSession);
-        }
-
-        // Switched from attach flow so the observer would run properly
-        GrowthSessionUser::query()->updateOrCreate([
-            'growth_session_id' => $growthSession->id,
-            'user_id' => $request->user()->id,
-        ], [
-            'user_type_id' => UserType::ATTENDEE_ID,
-        ]);
+        Seating::for($growthSession)->take($request->user());
 
         return $this->rosterOf($growthSession);
     }
 
     public function watch(GrowthSession $growthSession, Request $request)
     {
-        // Switched from attach flow so the observer would run properly
-        GrowthSessionUser::query()->updateOrCreate([
-            'growth_session_id' => $growthSession->id,
-            'user_id' => $request->user()->id,
-        ], [
-            'user_type_id' => UserType::WATCHER_ID,
-        ]);
+        Seating::for($growthSession)->spectate($request->user());
 
         return $this->rosterOf($growthSession);
     }
@@ -124,7 +105,7 @@ class GrowthSessionController extends Controller
      */
     public function leave(GrowthSession $growthSession, Request $request)
     {
-        Waitlist::for($growthSession)->withdraw($request->user());
+        Seating::for($growthSession)->release($request->user());
 
         return $this->rosterOf($growthSession);
     }
@@ -150,7 +131,7 @@ class GrowthSessionController extends Controller
         $growthSession->save();
 
         // Raising the limit is the other way a seat comes free, so the queue is served here too.
-        Waitlist::for($growthSession)->promote();
+        Seating::for($growthSession)->reseat();
 
         return $this->rosterOf($growthSession);
     }
