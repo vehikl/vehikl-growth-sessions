@@ -71,8 +71,13 @@ function isChange(notification: INotification): notification is INotification & 
     return type === 'growth_session_date_changed' || type === 'growth_session_time_changed' || type === 'growth_session_location_changed';
 }
 
+/** Waitlist promotions get a green success treatment on their icon, since they outrank a routine update. */
+function isWaitlistPromotion(notification: INotification): notification is INotification & { data: IGrowthSessionWaitlistPromotionNotificationData } {
+    return notification.data.type === 'growth_session_waitlist_promotion';
+}
+
 /** `prefix` and `suffix` sandwich `bold`, split out so markup can style just the name/title. */
-type Headline = { prefix?: string; bold: string; suffix: string };
+type Headline = { lead?: string; prefix?: string; bold: string; suffix: string };
 
 const genericUpdate = (data: INotificationData): Headline => ({ bold: data.title, suffix: ' was updated.' });
 
@@ -84,9 +89,10 @@ const commentAdded = (data: IGrowthSessionCommentAddedNotificationData): Headlin
 });
 
 const waitlistPromotion = (data: IGrowthSessionWaitlistPromotionNotificationData): Headline => ({
+    lead: "You're in!",
     prefix: 'A seat opened up in ',
     bold: data.title,
-    suffix: ' and it is yours.',
+    suffix: '.',
 });
 
 const deleted = (data: IGrowthSessionDeletedNotificationData): Headline => ({
@@ -187,8 +193,17 @@ function changeDetails(notification: INotification): string | null {
                                         aria-hidden="true"
                                     />
                                 </span>
-                                <span v-else class="relative z-10 flex h-8 w-8 flex-none items-center justify-center">
-                                    <component :is="notificationIcon(notification)" class="gs-text-sub h-4 w-4" aria-hidden="true" />
+                                <span
+                                    v-else
+                                    class="relative z-10 flex h-8 w-8 flex-none items-center justify-center rounded-full"
+                                    :class="isWaitlistPromotion(notification) ? 'bg-green-100 dark:bg-green-900/30' : ''"
+                                >
+                                    <component
+                                        :is="notificationIcon(notification)"
+                                        class="h-4 w-4"
+                                        :class="isWaitlistPromotion(notification) ? 'text-green-700 dark:text-green-400' : 'gs-text-sub'"
+                                        aria-hidden="true"
+                                    />
                                     <span
                                         v-if="!notification.read_at"
                                         class="bg-vehikl-orange gs-card absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2"
@@ -197,7 +212,11 @@ function changeDetails(notification: INotification): string | null {
                                 </span>
                                 <span class="min-w-0 flex-1 pt-1">
                                     <span class="gs-text-strong block text-sm leading-snug">
-                                        <template v-if="headline(notification).prefix">{{ headline(notification).prefix }}</template
+                                        <template v-if="headline(notification).lead"
+                                            ><span class="mr-1 font-bold text-green-700 dark:text-green-400">{{
+                                                headline(notification).lead
+                                            }}</span></template
+                                        ><template v-if="headline(notification).prefix">{{ headline(notification).prefix }}</template
                                         ><span class="font-bold">{{ headline(notification).bold }}</span
                                         >{{ headline(notification).suffix }}
                                     </span>
