@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import UserAvatar from '@/components/UserAvatar.vue';
-import {useNotifications} from '@/composables/useNotifications';
+import { useNotifications } from '@/composables/useNotifications';
 import type {
     IGrowthSessionChangeNotificationData,
     IGrowthSessionCommentAddedNotificationData,
@@ -11,12 +11,12 @@ import type {
     INotificationType,
     IUser,
 } from '@/types';
-import {Link} from '@inertiajs/vue3';
-import {onClickOutside} from '@vueuse/core';
-import {Bell, CalendarCheck2, CalendarDays, CalendarX2, Clock, MapPin, MessageSquare} from 'lucide-vue-next';
+import { Link } from '@inertiajs/vue3';
+import { onClickOutside } from '@vueuse/core';
+import { Bell, CalendarCheck2, CalendarDays, CalendarX2, Clock, MapPin, MessageSquare } from 'lucide-vue-next';
 import moment from 'moment-timezone';
-import type {Component} from 'vue';
-import {ref} from 'vue';
+import type { Component } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps<{ user: IUser }>();
 
