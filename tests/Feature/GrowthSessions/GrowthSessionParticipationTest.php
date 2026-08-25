@@ -288,7 +288,7 @@ class GrowthSessionParticipationTest extends TestCase
     public function test_the_waitlist_is_served_in_the_order_it_was_joined(): void
     {
         $growthSession = $this->fullGrowthSession(2);
-        [$first, $second, $third] = User::factory()->vehiklMember()->times(3)->create()->all();
+        [$first, $second, $third] = User::factory()->vehiklMember()->count(3)->create()->all();
 
         foreach ([$first, $second, $third] as $hopeful) {
             $this->join($hopeful, $growthSession)->assertSuccessful();
@@ -304,7 +304,7 @@ class GrowthSessionParticipationTest extends TestCase
     public function test_somebody_already_in_line_cannot_take_a_second_place_in_it(): void
     {
         $growthSession = $this->fullGrowthSession(1);
-        [$first, $second] = User::factory()->vehiklMember()->times(2)->create()->all();
+        [$first, $second] = User::factory()->vehiklMember()->count(2)->create()->all();
 
         $this->join($first, $growthSession);
         $this->join($second, $growthSession);
@@ -341,7 +341,7 @@ class GrowthSessionParticipationTest extends TestCase
     public function test_withdrawing_from_the_waitlist_keeps_the_order_of_everyone_behind(): void
     {
         $growthSession = $this->fullGrowthSession(1);
-        [$first, $second, $third] = User::factory()->vehiklMember()->times(3)->create()->all();
+        [$first, $second, $third] = User::factory()->vehiklMember()->count(3)->create()->all();
 
         foreach ([$first, $second, $third] as $hopeful) {
             $this->join($hopeful, $growthSession);
@@ -358,7 +358,7 @@ class GrowthSessionParticipationTest extends TestCase
     {
         $growthSession = $this->fullGrowthSession(1);
         $seated = $growthSession->attendees->first();
-        [$first, $second] = User::factory()->vehiklMember()->times(2)->create()->all();
+        [$first, $second] = User::factory()->vehiklMember()->count(2)->create()->all();
 
         $this->join($first, $growthSession);
         $this->join($second, $growthSession);
@@ -375,7 +375,7 @@ class GrowthSessionParticipationTest extends TestCase
         $owner = User::factory()->vehiklMember()->create();
         $growthSession = $this->fullGrowthSession(2, $owner);
         $alreadySeated = $growthSession->attendees->pluck('name')->all();
-        [$first, $second, $third] = User::factory()->vehiklMember()->times(3)->create()->all();
+        [$first, $second, $third] = User::factory()->vehiklMember()->count(3)->create()->all();
 
         foreach ([$first, $second, $third] as $hopeful) {
             $this->join($hopeful, $growthSession);
@@ -484,7 +484,7 @@ class GrowthSessionParticipationTest extends TestCase
         }
 
         $growthSession->attendees()->attach(
-            User::factory()->vehiklMember()->times($attendeeLimit - ($owner ? 1 : 0))->create(),
+            User::factory()->vehiklMember()->count($attendeeLimit - ($owner ? 1 : 0))->create(),
             ['user_type_id' => UserType::ATTENDEE_ID]
         );
 

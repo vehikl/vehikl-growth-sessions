@@ -241,11 +241,11 @@ class GrowthSessionsShowTest extends TestCase
         $numberOfWatchers = 5;
         $growthSession = GrowthSession::factory()
             ->hasAttached(
-                User::factory()->vehiklMember(true)->times($numberOfAttendees),
+                User::factory()->vehiklMember()->count($numberOfAttendees),
                 ['user_type_id' => UserType::ATTENDEE_ID],
                 'attendees'
             )
-            ->hasAttached(User::factory()->vehiklMember(true)->times($numberOfWatchers),
+            ->hasAttached(User::factory()->vehiklMember()->count($numberOfWatchers),
                 ['user_type_id' => UserType::WATCHER_ID],
                 'watchers'
             )
@@ -275,7 +275,7 @@ class GrowthSessionsShowTest extends TestCase
     public function test_it_provides_topic_and_location_segments_in_the_payload()
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(true), [], 'attendees')
+            ->hasAttached(User::factory()->vehiklMember(), [], 'attendees')
             ->create([
                 'topic' => 'check out https://example.com',
                 'location' => 'join at https://example.com/room',
@@ -336,8 +336,8 @@ class GrowthSessionsShowTest extends TestCase
         $this->assertEqualsCanonicalizing([
             'id', 'title', 'topic', 'topic_segments', 'location', 'location_segments', 'date',
             'start_time', 'end_time', 'is_public', 'allow_watchers', 'attendee_limit',
-            'discord_channel_id', 'slack_thread_ts', 'owner', 'attendees', 'watchers', 'comments',
-            'anydesk', 'tags', 'is_unlisted',
+            'discord_channel_id', 'slack_thread_ts', 'owner', 'attendees', 'watchers', 'waitlist',
+            'waitlist_position', 'comments', 'anydesk', 'tags', 'is_unlisted',
         ], array_keys($response->json()));
 
         $response->assertJsonPath('date', '2020-01-20');
