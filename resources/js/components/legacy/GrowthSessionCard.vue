@@ -27,6 +27,11 @@ const initials = computed(() => getInitials(ownerName.value));
 const ownerColor = computed(() => avatarColor(ownerName.value));
 const cardOpacity = computed(() => (status.value === 'finished' ? 0.55 : 1));
 const atCapacity = computed<boolean>(() => props.growthSession.hasReachedAttendeeLimit());
+const isOnWaitlist = computed<boolean>(() => props.growthSession.isOnWaitlist(props.user));
+
+// Being full is now something to act on rather than a dead end, so the badge only stands in where
+// there is nothing to offer: the queue is already joined, or it is not on offer at all.
+const showFullIndicator = computed<boolean>(() => !!props.isFull && !props.growthSession.canJoinWaitlist(props.user) && !isOnWaitlist.value);
 
 async function joinGrowthSession() {
     await props.growthSession.join();
@@ -113,8 +118,16 @@ async function onDeleteClicked() {
             >
                 Join
             </button>
+            <button
+                v-show="growthSession.canJoinWaitlist(user)"
+                type="button"
+                class="join-waitlist-button gs-btn-primary flex-3 cursor-pointer rounded-sm px-4 py-1.5 text-sm font-medium whitespace-nowrap"
+                @click.stop="joinGrowthSession"
+            >
+                Join waitlist
+            </button>
             <span
-                v-if="isFull"
+                v-if="showFullIndicator"
                 class="full-indicator gs-at-capacity flex-3 rounded-sm border border-current px-4 py-1.5 text-center text-sm font-medium"
                 >Full</span
             >
@@ -132,7 +145,7 @@ async function onDeleteClicked() {
                 class="leave-button transition-smooth flex-1 cursor-pointer rounded-sm border border-red-600 px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-700 hover:text-white"
                 @click.stop="leaveGrowthSession"
             >
-                Leave
+                {{ isOnWaitlist ? 'Leave waitlist' : 'Leave' }}
             </button>
             <button
                 v-show="growthSession.canEditOrDelete(user)"

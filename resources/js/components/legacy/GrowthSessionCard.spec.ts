@@ -64,6 +64,8 @@ const baseGrowthSessionDataAttributes: IGrowthSession = {
     attendee_limit: 41,
     attendees: [attendee],
     watchers: [watcher],
+    waitlist: [],
+    waitlist_position: null,
     comments: [],
     anydesk: {
         id: 1,
@@ -154,18 +156,61 @@ describe('GrowthSessionCard', () => {
 
         // Whether a session reads as full is decided by the Board and handed down, so the
         // card only renders the flag. The rules behind it are covered in Board.spec.ts.
-        it('replaces the join button with a full indicator when told the session is full', () => {
+        it('replaces the join button with a waitlist button when the session is full', () => {
             wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), isFull: true, user: outsider } });
 
             expect(wrapper.find('.join-button')).not.toBeVisible();
-            expect(wrapper.find('.full-indicator').exists()).toBe(true);
-            expect(wrapper.find('.full-indicator').text()).toBe('Full');
+            expect(wrapper.find('.join-waitlist-button')).toBeVisible();
+            expect(wrapper.find('.join-waitlist-button').text()).toBe('Join waitlist');
         });
 
-        it('does not show the full indicator unless told to', () => {
-            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), user: outsider } });
+        it('does not stand a full indicator in the way of the waitlist button', () => {
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: fullGrowthSession(), isFull: true, user: outsider } });
 
             expect(wrapper.find('.full-indicator').exists()).toBe(false);
+        });
+
+        it('does not offer the waitlist unless the session is full', () => {
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: outsider } });
+
+            expect(wrapper.find('.join-waitlist-button')).not.toBeVisible();
+            expect(wrapper.find('.join-button')).toBeVisible();
+        });
+
+        it('enrols the user through the same endpoint joining uses', () => {
+            GrowthSessionApi.join = vi.fn().mockImplementation((growthSession) => growthSession);
+            const session = fullGrowthSession();
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: session, isFull: true, user: outsider } });
+
+            wrapper.find('.join-waitlist-button').trigger('click');
+
+            expect(GrowthSessionApi.join).toHaveBeenCalledWith(session);
+        });
+
+        describe('to somebody already in line', () => {
+            function queuedGrowthSession(): GrowthSession {
+                return new GrowthSession({
+                    ...baseGrowthSessionDataAttributes,
+                    attendee_limit: 1,
+                    attendees: [attendee],
+                    waitlist: [outsider],
+                    waitlist_position: 1,
+                });
+            }
+
+            it('stops offering the queue they are already in', () => {
+                wrapper = mount(GrowthSessionCard, { props: { growthSession: queuedGrowthSession(), isFull: true, user: outsider } });
+
+                expect(wrapper.find('.join-waitlist-button')).not.toBeVisible();
+                expect(wrapper.find('.full-indicator').exists()).toBe(false);
+            });
+
+            it('offers to take them out of the queue by name', () => {
+                wrapper = mount(GrowthSessionCard, { props: { growthSession: queuedGrowthSession(), isFull: true, user: outsider } });
+
+                expect(wrapper.find('.leave-button')).toBeVisible();
+                expect(wrapper.find('.leave-button').text()).toBe('Leave waitlist');
+            });
         });
 
         it('still offers spectating when the session is full', () => {
