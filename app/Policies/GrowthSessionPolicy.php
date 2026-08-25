@@ -14,6 +14,26 @@ class GrowthSessionPolicy
         return today()->diffInDays($growthSession->date, false) >= 0;
     }
 
+    /**
+     * Every question here is answered from the same relations, and route model binding hands the
+     * policy a bare model - so they are loaded once, here, rather than by whichever caller first
+     * trips over lazy loading. A session that arrived eager-loaded pays nothing.
+     */
+    private function rolesOf(GrowthSession $growthSession): GrowthSession
+    {
+        return $growthSession->loadMissing(GrowthSession::VISIBILITY_RELATIONS);
+    }
+
+    /**
+     * Whether the member already holds a role - a seat, a spectator's place, or a place in line.
+     * Holding one is what rules out taking a second, so join, watch and leave all ask it here
+     * rather than restating it for themselves.
+     */
+    private function alreadyTakesPart(User $user, GrowthSession $growthSession): bool
+    {
+        return $this->rolesOf($growthSession)->hasParticipant($user);
+    }
+
     public function viewAny(User $user): bool
     {
         return true;
@@ -26,7 +46,7 @@ class GrowthSessionPolicy
             || ($user && $user->is($growthSession->owner))
             // Taking part is a deliberate act by an authenticated identity, so it grants visibility on its own — it
             // does not depend on still holding the invite token or on the browser session that unlocked it.
-            || ($user && $growthSession->hasParticipant($user))
+            || ($user && $this->alreadyTakesPart($user, $growthSession))
             || InviteLink::for($growthSession)->hasBeenUnlocked();
     }
 
@@ -68,21 +88,26 @@ class GrowthSessionPolicy
             return Response::denyAsNotFound();
         }
 
-        return ! $growthSession->hasParticipant($user)
+        return ! $this->alreadyTakesPart($user, $growthSession)
             && $this->isInTheFuture($growthSession);
     }
 
+    /**
+     * A place in line is a role of its own, so somebody already queueing is refused here - taking up
+     * a spectator's place means giving the place up first, and a promotion never lands on somebody
+     * who has moved on.
+     */
     public function watch(User $user, GrowthSession $growthSession): bool
     {
         return $growthSession->allow_watchers
-            && ! $growthSession->hasParticipant($user)
+            && ! $this->alreadyTakesPart($user, $growthSession)
             && $this->isInTheFuture($growthSession);
     }
 
     public function leave(User $user, GrowthSession $growthSession): bool
     {
         return ! $user->is($growthSession->owner)
-            && $growthSession->hasParticipant($user)
+            && $this->alreadyTakesPart($user, $growthSession)
             && $this->isInTheFuture($growthSession);
     }
 }

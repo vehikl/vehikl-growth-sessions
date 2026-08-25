@@ -106,11 +106,6 @@ class GrowthSessionController extends Controller
 
     public function watch(GrowthSession $growthSession, Request $request)
     {
-        // A place in line is a role of its own: taking it up as a spectator instead means giving
-        // the place up first, so that a promotion never lands on somebody who has moved on.
-        // Route model binding hands over a bare model, and the roster is not loaded yet.
-        abort_if($growthSession->loadMissing('waitlist')->hasWaitlistedMember($request->user()), Response::HTTP_FORBIDDEN);
-
         // Switched from attach flow so the observer would run properly
         GrowthSessionUser::query()->updateOrCreate([
             'growth_session_id' => $growthSession->id,
