@@ -57,6 +57,11 @@ function isFull(session: GrowthSession): boolean {
     return (props.fullSessionIds ?? []).includes(session.id);
 }
 
+// As on the card: the badge only stands in where the queue is not on offer or already joined.
+function showFullIndicator(session: GrowthSession): boolean {
+    return isFull(session) && !session.canJoinWaitlist(props.user) && !session.isOnWaitlist(props.user);
+}
+
 /**
  * Sessions arrive in start order, so neighbours sharing a window belong to the same slot.
  * Only consecutive sessions are merged — a stray later session with the same window keeps
@@ -222,8 +227,16 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                             >
                                 Join
                             </button>
+                            <button
+                                v-show="session.canJoinWaitlist(user)"
+                                type="button"
+                                class="join-waitlist-button gs-btn-primary max-w-48 cursor-pointer rounded-md px-4 py-2 text-center text-sm font-semibold whitespace-nowrap md:w-48"
+                                @click.stop="emit('join', session)"
+                            >
+                                Join waitlist
+                            </button>
                             <span
-                                v-if="isFull(session)"
+                                v-if="showFullIndicator(session)"
                                 class="full-indicator gs-at-capacity max-w-48 rounded-md border border-current px-4 py-2 text-center text-sm font-semibold md:px-20"
                                 >Full</span
                             >
@@ -241,7 +254,7 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                                 class="leave-button transition-smooth cursor-pointer rounded-md border border-red-500 px-5 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
                                 @click.stop="emit('leave', session)"
                             >
-                                Leave
+                                {{ session.isOnWaitlist(user) ? 'Leave waitlist' : 'Leave' }}
                             </button>
                             <button
                                 v-show="session.canEditOrDelete(user)"
