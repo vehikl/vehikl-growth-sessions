@@ -23,10 +23,10 @@ class GrowthSession extends Model
     const NO_LIMIT = PHP_INT_MAX;
 
     /** The relations GrowthSessionResource reads - eager-load these before building one to avoid lazy loading. */
-    const RESOURCE_RELATIONS = ['owners', 'attendees', 'watchers', 'comments', 'anydesk', 'tags'];
+    const RESOURCE_RELATIONS = ['owners', 'attendees', 'watchers', 'waitlist', 'comments', 'anydesk', 'tags'];
 
     /** The subset of RESOURCE_RELATIONS the visibility policy reads via `owner`/`hasParticipant()`. */
-    const VISIBILITY_RELATIONS = ['owners', 'attendees', 'watchers'];
+    const VISIBILITY_RELATIONS = ['owners', 'attendees', 'watchers', 'waitlist'];
 
     const SOCIAL_TAG = 'Social';
 
@@ -115,6 +115,19 @@ class GrowthSession extends Model
     public function watchers()
     {
         return $this->belongsToMany(User::class)->wherePivot('user_type_id', UserType::WATCHER_ID);
+    }
+
+    /**
+     * Everyone waiting for a seat, front of the queue first. The tie-break on user id only matters
+     * when two enrolments share a timestamp to the microsecond, and exists so the order a member
+     * is shown in is never arbitrary.
+     */
+    public function waitlist(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->wherePivot('user_type_id', UserType::WAITLISTED_ID)
+            ->orderByPivot('waitlisted_at')
+            ->orderByPivot('user_id');
     }
 
     public function comments()
@@ -230,9 +243,27 @@ class GrowthSession extends Model
         return (bool) $this->watchers->find($watcher);
     }
 
-    public function hasParticipant(User $user): bool
+    public function hasWaitlistedMember(User $user): bool
+    {
+        return (bool) $this->waitlist->find($user);
+    }
+
+    /**
+     * Whoever will actually be in the room. Someone still queueing is not one of them, which is why
+     * this is the question the location asks rather than {@see hasParticipant()}.
+     */
+    public function hasAttendeeOrWatcher(User $user): bool
     {
         return $this->hasAttendee($user) || $this->hasWatcher($user);
+    }
+
+    /**
+     * Whether the member holds any role at all - including a place in the queue. That place is a
+     * deliberate act, so it grants sight of the growth session and rules out taking a second role.
+     */
+    public function hasParticipant(User $user): bool
+    {
+        return $this->hasAttendeeOrWatcher($user) || $this->hasWaitlistedMember($user);
     }
 
     /**
