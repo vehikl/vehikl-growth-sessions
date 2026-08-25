@@ -15,10 +15,10 @@ use Throwable;
  * The queue of members waiting for a seat at a full growth session, and the only way anybody comes
  * off it.
  *
- * Every path that frees a seat - an attendee leaving, an owner raising the limit - hands over to
- * {@see promote()} rather than deciding for itself who is next, so the queue can only ever be
- * served in the order it was joined. Promotion is immediate: there is no window in which a seat is
- * held open for someone to claim.
+ * Every path that frees a seat - an attendee leaving through {@see withdraw()}, an owner raising
+ * the limit through {@see promote()} - hands the seating over here rather than deciding for itself
+ * who is next, so the queue can only ever be served in the order it was joined. Promotion is
+ * immediate: there is no window in which a seat is held open for someone to claim.
  *
  * Callers say what should happen to the queue, not how the roster is stored; enrolment and
  * promotion write through the pivot so the observers that keep the board current still fire.
@@ -50,6 +50,9 @@ class Waitlist
 
         $enrolment->user_type_id = UserType::WAITLISTED_ID;
         $enrolment->waitlisted_at = now();
+        // The pivot observer reads the growth session off the row it was handed, so it is given the
+        // one already in hand rather than left to fetch it back out of the database.
+        $enrolment->setRelation('growthSession', $this->growthSession);
         $enrolment->save();
 
         $this->growthSession->unsetRelation('waitlist');
@@ -82,25 +85,67 @@ class Waitlist
      */
     public function promote(): void
     {
-        if ($this->hasPassed()) {
-            return;
-        }
-
         // Seating runs under a lock on the growth session's pivot rows so two people leaving at the
         // same moment cannot each hand the same seat to a different member of the queue. Telling
         // people waits for the commit - the seat is theirs before anyone tries to reach them.
         $promoted = DB::transaction(fn () => $this->seatWhoeverFits());
 
+        $this->forgetRoster();
+        $this->announceTo($promoted);
+    }
+
+    /**
+     * Give up whatever place is held here - a seat or a place in line - and serve the queue in the
+     * same breath.
+     *
+     * Freeing the seat and filling it are one write: committing the departure on its own would
+     * leave a growth session sitting full-but-empty beside a queue nobody can serve, and nothing in
+     * the interface can recover that state, since being in line is what disqualifies the member at
+     * the front from simply joining.
+     */
+    public function withdraw(User $user): void
+    {
+        $promoted = DB::transaction(function () use ($user) {
+            GrowthSessionUser::query()
+                ->where('growth_session_id', $this->growthSession->id)
+                ->where('user_id', $user->id)
+                ->delete();
+
+            return $this->seatWhoeverFits();
+        });
+
+        $this->forgetRoster();
+        $this->announceTo($promoted);
+    }
+
+    /** The roster held in memory predates the seating, so it is dropped rather than left to mislead. */
+    private function forgetRoster(): void
+    {
         $this->growthSession->unsetRelation('waitlist');
         $this->growthSession->unsetRelation('attendees');
+    }
 
+    /** @param  Collection<int, User>  $promoted */
+    private function announceTo(Collection $promoted): void
+    {
         $promoted->each(fn (User $user) => $this->announce($user));
     }
 
     /** @return Collection<int, User> */
     private function seatWhoeverFits(): Collection
     {
+        // The one place the day is checked, so no caller can free a seat at a growth session that
+        // is over and then promote somebody into it.
+        if ($this->hasPassed()) {
+            return collect();
+        }
+
+        // Both relations are read while the promotion runs - the member so they can be told, and the
+        // growth session by the pivot observer that keeps the board current - so they are loaded up
+        // front rather than one row at a time. Outside production that is not merely an N+1: lazy
+        // loading is prevented there, so reaching for either would throw and roll the seating back.
         $roster = GrowthSessionUser::query()
+            ->with(['user', 'growthSession'])
             ->where('growth_session_id', $this->growthSession->id)
             ->lockForUpdate()
             ->orderBy('waitlisted_at')

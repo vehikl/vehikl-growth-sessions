@@ -129,12 +129,7 @@ class GrowthSessionController extends Controller
      */
     public function leave(GrowthSession $growthSession, Request $request)
     {
-        GrowthSessionUser::query()
-            ->where('growth_session_id', $growthSession->id)
-            ->where('user_id', $request->user()->id)
-            ->delete();
-
-        Waitlist::for($growthSession)->promote();
+        Waitlist::for($growthSession)->withdraw($request->user());
 
         return $this->rosterOf($growthSession);
     }

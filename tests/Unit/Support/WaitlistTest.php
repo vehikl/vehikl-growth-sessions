@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\UserType;
 use App\Notifications\PromotedFromTheWaitlistNotification;
 use App\Support\Waitlist;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
@@ -55,6 +56,20 @@ class WaitlistTest extends TestCase
         $this->assertEquals(2, $waitlist->positionOf($second));
         $this->assertNull($waitlist->positionOf(User::factory()->create()));
         $this->assertNull($waitlist->positionOf(null));
+    }
+
+    /**
+     * Promotion reads relations off pivot rows it has just fetched, and every one of those reads is
+     * a lazy load waiting to happen. Only while lazy loading is prevented does a missing eager load
+     * fail here rather than in a browser, so the rest of this file is worth less without it.
+     *
+     * Worth knowing alongside this: Eloquent arms the guard on a hydrated model only when its query
+     * returned more than one row (see Builder::hydrate()). A roster with a single row proves
+     * nothing about eager loading, which is why the tests below keep at least two.
+     */
+    public function testTheseTestsRunWithLazyLoadingPrevented()
+    {
+        $this->assertTrue(Model::preventsLazyLoading());
     }
 
     public function testPromotingFillsEverySeatThatIsFreeAtOnce()
@@ -142,6 +157,54 @@ class WaitlistTest extends TestCase
 
         Notification::assertSentTo($hopeful, PromotedFromTheWaitlistNotification::class,
             fn (PromotedFromTheWaitlistNotification $notification) => $notification->growthSession->is($growthSession));
+    }
+
+    public function testGivingUpASeatHandsItToTheFrontOfTheQueue()
+    {
+        $growthSession = $this->fullGrowthSession(2);
+        $seated = $growthSession->attendees->first();
+        [$first, $second] = User::factory()->times(2)->create()->all();
+        $waitlist = Waitlist::for($growthSession);
+        $waitlist->enrol($first);
+        $waitlist->enrol($second);
+
+        $waitlist->withdraw($seated);
+
+        $this->assertFalse($growthSession->fresh()->hasAttendee($seated));
+        $this->assertTrue($growthSession->fresh()->hasAttendee($first));
+        $this->assertEquals([$second->id], $this->queueOf($growthSession));
+        Notification::assertSentTo($first, PromotedFromTheWaitlistNotification::class);
+    }
+
+    public function testGivingUpAPlaceInLineFreesNoSeatAndMovesNobodyUpIntoOne()
+    {
+        $growthSession = $this->fullGrowthSession(1);
+        [$first, $second, $third] = User::factory()->times(3)->create()->all();
+        $waitlist = Waitlist::for($growthSession);
+
+        foreach ([$first, $second, $third] as $hopeful) {
+            $waitlist->enrol($hopeful);
+        }
+
+        $waitlist->withdraw($second);
+
+        $this->assertCount(1, $growthSession->fresh()->attendees);
+        $this->assertEquals([$first->id, $third->id], $this->queueOf($growthSession));
+        Notification::assertNothingSent();
+    }
+
+    public function testGivingUpASeatAtAGrowthSessionWhoseDayHasPassedPromotesNobody()
+    {
+        $growthSession = $this->fullGrowthSession(1, today()->subWeek());
+        $seated = $growthSession->attendees->first();
+        $hopeful = User::factory()->create();
+        Waitlist::for($growthSession)->enrol($hopeful);
+
+        Waitlist::for($growthSession)->withdraw($seated);
+
+        $this->assertCount(0, $growthSession->fresh()->attendees);
+        $this->assertEquals([$hopeful->id], $this->queueOf($growthSession));
+        Notification::assertNothingSent();
     }
 
     /** @return array<int, int> The user ids in line, front of the queue first. */
