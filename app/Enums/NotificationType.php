@@ -9,4 +9,5 @@ enum NotificationType: string
     case GrowthSessionLocationChanged = 'growth_session_location_changed';
     case GrowthSessionDeleted = 'growth_session_deleted';
     case GrowthSessionCommentAdded = 'growth_session_comment_added';
+    case GrowthSessionWaitlistPromotion = 'growth_session_waitlist_promotion';
 }
