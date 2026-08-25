@@ -20,6 +20,10 @@ export interface IGrowthSession {
     owner: IUser | null;
     attendees: IUser[];
     watchers: IUser[];
+    /** Everyone waiting for a seat, front of the queue first. */
+    waitlist: IUser[];
+    /** Where the viewer stands in that queue, counting from 1, or null if they are not in it. */
+    waitlist_position: number | null;
     comments: IComment[];
     anydesk: IAnyDesk | null;
     tags: ITag[];
