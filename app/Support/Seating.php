@@ -169,7 +169,7 @@ class Seating
     private function seatsTaken(): int
     {
         return $this->rows()
-            ->whereIn('user_type_id', Role::occupyingASeat())
+            ->whereIn('user_type_id', Role::seatOccupyingIds())
             ->count();
     }
 

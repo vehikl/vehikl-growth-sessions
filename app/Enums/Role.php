@@ -2,8 +2,6 @@
 
 namespace App\Enums;
 
-use App\Events\GrowthSessionModified;
-
 /**
  * What a member holds at a growth session: the pivot's `user_type_id`, and everything the rest of
  * the app used to work out for itself from a list of those ids.
@@ -55,16 +53,6 @@ enum Role: int
         };
     }
 
-    /** Which part of the roster the board redraws when somebody takes or gives up this role. */
-    public function broadcastType(): string
-    {
-        return match ($this) {
-            self::Owner, self::Attendee => GrowthSessionModified::TYPE_ATTENDEES,
-            self::Watcher => GrowthSessionModified::TYPE_WATCHERS,
-            self::Waitlisted => GrowthSessionModified::TYPE_WAITLIST,
-        };
-    }
-
     /**
      * The ids of every role that takes up a seat, for the queries that have to ask it in SQL.
      * Derived from {@see occupiesASeat()}, so no query can be left holding a list that has fallen
@@ -72,7 +60,7 @@ enum Role: int
      *
      * @return list<int>
      */
-    public static function occupyingASeat(): array
+    public static function seatOccupyingIds(): array
     {
         return array_values(array_map(
             fn (self $role) => $role->value,

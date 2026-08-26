@@ -110,7 +110,7 @@ class GrowthSession extends Model
     public function attendees()
     {
         return $this->belongsToMany(User::class)
-            ->wherePivotIn('user_type_id', Role::occupyingASeat());
+            ->wherePivotIn('user_type_id', Role::seatOccupyingIds());
     }
 
     public function watchers()

@@ -75,7 +75,7 @@ class ShowDashboardController extends Controller
     {
         return GrowthSession::scheduledMinutes(
             $user->allSessions()
-                ->wherePivotIn('user_type_id', Role::occupyingASeat())
+                ->wherePivotIn('user_type_id', Role::seatOccupyingIds())
                 ->whereDate('growth_sessions.date', '<=', today())
                 ->excludingPurelySocial()
         );
@@ -147,8 +147,8 @@ class ShowDashboardController extends Controller
             ->where('main_user_id', $user->id)
             // Watching is not mobbing, which is the line the statistics matrix behind
             // `yet_to_mob_with` draws too.
-            ->whereIn('main_user_type_id', Role::occupyingASeat())
-            ->whereIn('other_user_type_id', Role::occupyingASeat())
+            ->whereIn('main_user_type_id', Role::seatOccupyingIds())
+            ->whereIn('other_user_type_id', Role::seatOccupyingIds())
             ->where('total_number_of_attendees', '<', config('statistics.max_mob_size'))
             ->whereIn('other_user_id', User::query()->vehikaliens()->select('id'))
             ->whereHas('growthSession', fn (Builder $query) => $query->whereDate('date', '<=', today()))

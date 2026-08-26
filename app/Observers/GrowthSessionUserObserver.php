@@ -38,7 +38,7 @@ class GrowthSessionUserObserver
         broadcast(new GrowthSessionModified(
             $growthSessionUser->growth_session_id,
             $action,
-            $growthSessionUser->user_type_id?->broadcastType() ?? GrowthSessionModified::TYPE_ATTENDEES
+            GrowthSessionModified::typeFor($growthSessionUser->user_type_id)
         ));
     }
 }

@@ -16,7 +16,6 @@ class RoleTest extends TestCase
     {
         foreach (Role::cases() as $role) {
             $this->assertNotEmpty($role->label());
-            $this->assertNotEmpty($role->broadcastType());
             $this->assertIsBool($role->occupiesASeat());
             $this->assertIsBool($role->countsAsPresent());
         }
@@ -24,7 +23,7 @@ class RoleTest extends TestCase
 
     public function test_hosting_takes_a_seat_and_spectating_and_waiting_take_none()
     {
-        $this->assertSame([Role::Owner->value, Role::Attendee->value], Role::occupyingASeat());
+        $this->assertSame([Role::Owner->value, Role::Attendee->value], Role::seatOccupyingIds());
     }
 
     public function test_waiting_in_line_is_the_one_role_that_is_not_in_the_room()

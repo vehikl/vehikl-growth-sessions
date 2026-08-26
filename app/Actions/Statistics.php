@@ -29,7 +29,7 @@ class Statistics
                     ? "OR ((main_user_id IN ({$exceptionUserIds}) OR other_user_id IN ({$exceptionUserIds})) AND growth_session_id IS NOT NULL)"
                     : '';
                 $maxMobSize = config('statistics.max_mob_size');
-                $mobbingRoles = implode(',', Role::occupyingASeat());
+                $mobbingRoleIds = implode(',', Role::seatOccupyingIds());
 
                 $participationCountStatistics = User::query()
                     ->withCount([
@@ -50,8 +50,8 @@ class Statistics
                     WHEN (
                          total_number_of_attendees < {$maxMobSize}
                          AND (
-                             main_user_type_id IN ({$mobbingRoles})
-                             AND other_user_type_id IN ({$mobbingRoles})
+                             main_user_type_id IN ({$mobbingRoleIds})
+                             AND other_user_type_id IN ({$mobbingRoleIds})
                          )
                          )
                          {$loosenParticipationRules}
