@@ -242,6 +242,10 @@ class GrowthSession extends Model
      *
      * Hosting is checked first because an owner is an attendee too: the more particular role is
      * the true one.
+     *
+     * Reads all four of {@see VISIBILITY_RELATIONS} - every role has to be ruled out before the
+     * answer can be null - so a caller holding a growth session that was hydrated alongside others
+     * must have eager-loaded them, or the lazy-loading guard will refuse the read.
      */
     public function roleOf(?User $user): ?Role
     {

@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Models\AnyDesk;
 use App\Models\GrowthSession;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -24,6 +25,37 @@ class GrowthSessionTest extends TestCase
         $growthSession->save();
 
         $this->assertEquals('05:00 pm', $growthSession->fresh()->toArray()['end_time']);
+    }
+
+    /**
+     * roleOf() has to rule out every role before it can answer null, so it reads all four of
+     * VISIBILITY_RELATIONS. Eager-loading those four is the whole contract: the second growth
+     * session is here to arm the lazy-loading guard (Eloquent only arms it on hydration of more
+     * than one row), so a fifth relation creeping into the answer fails here rather than in a
+     * browser.
+     */
+    public function test_it_names_the_role_a_member_holds_from_the_visibility_relations()
+    {
+        $this->assertTrue(Model::preventsLazyLoading());
+        [$owner, $attendee, $watcher, $queued, $stranger] = User::factory()->count(5)->create()->all();
+        $growthSession = GrowthSession::factory()->create();
+        $growthSession->owners()->attach($owner, ['user_type_id' => Role::Owner->value]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
+        $growthSession->watchers()->attach($watcher, ['user_type_id' => Role::Watcher->value]);
+        $growthSession->waitlist()->attach($queued, ['user_type_id' => Role::Waitlisted->value]);
+        GrowthSession::factory()->create();
+
+        $loaded = GrowthSession::query()
+            ->with(GrowthSession::VISIBILITY_RELATIONS)
+            ->get()
+            ->firstWhere('id', $growthSession->id);
+
+        $this->assertSame(Role::Owner, $loaded->roleOf($owner));
+        $this->assertSame(Role::Attendee, $loaded->roleOf($attendee));
+        $this->assertSame(Role::Watcher, $loaded->roleOf($watcher));
+        $this->assertSame(Role::Waitlisted, $loaded->roleOf($queued));
+        $this->assertNull($loaded->roleOf($stranger));
+        $this->assertNull($loaded->roleOf(null));
     }
 
     public function test_it_can_have_a_custom_title()

@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Observers\GrowthSessionUserObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -32,9 +33,23 @@ class GrowthSessionUser extends Model
     protected function casts(): array
     {
         return [
-            'user_type_id' => Role::class,
             'waitlisted_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The role as a {@see Role}, read leniently: an id this application has no case for reads as
+     * null rather than throwing where the row is hydrated. The foreign key to `user_types` should
+     * make that impossible, but a role the database knows and this deploy does not is exactly the
+     * shape a half-finished rollout takes - and losing the whole growth session to it would be a
+     * worse answer than not knowing what one member holds.
+     */
+    protected function userTypeId(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($id) => $id === null ? null : Role::tryFrom((int) $id),
+            set: fn ($role) => $role instanceof Role ? $role->value : $role,
+        );
     }
 
     public function user(): BelongsTo
