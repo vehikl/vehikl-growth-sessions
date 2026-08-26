@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Role;
 use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionModified;
 use App\Http\Requests\DeleteGrowthSessionRequest;
@@ -11,7 +12,6 @@ use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
 use App\Models\AnyDesk;
 use App\Models\GrowthSession;
-use App\Models\UserType;
 use App\Policies\GrowthSessionPolicy;
 use App\Support\InviteLink;
 use App\Support\Seating;
@@ -65,7 +65,7 @@ class GrowthSessionController extends Controller
 
         DB::transaction(function () use ($newGrowthSession, $request) {
             $newGrowthSession->save();
-            $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::OWNER_ID]);
+            $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => Role::Owner->value]);
             $newGrowthSession->tags()->sync($request->input('tags'));
         });
 

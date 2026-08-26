@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\GrowthSessions;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\Tag;
 use App\Models\User;
-use App\Models\UserType;
 use Carbon\CarbonImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -242,11 +242,11 @@ class GrowthSessionsShowTest extends TestCase
         $growthSession = GrowthSession::factory()
             ->hasAttached(
                 User::factory()->vehiklMember()->count($numberOfAttendees),
-                ['user_type_id' => UserType::ATTENDEE_ID],
+                ['user_type_id' => Role::Attendee->value],
                 'attendees'
             )
             ->hasAttached(User::factory()->vehiklMember()->count($numberOfWatchers),
-                ['user_type_id' => UserType::WATCHER_ID],
+                ['user_type_id' => Role::Watcher->value],
                 'watchers'
             )
             ->create();
@@ -327,7 +327,7 @@ class GrowthSessionsShowTest extends TestCase
             'end_time' => '05:00 pm',
             'attendee_limit' => 4,
         ]);
-        $growthSession->owners()->attach($owner, ['user_type_id' => UserType::OWNER_ID]);
+        $growthSession->owners()->attach($owner, ['user_type_id' => Role::Owner->value]);
 
         $response = $this->actingAs($owner)
             ->getJson(route('growth_sessions.show', $growthSession))
@@ -352,8 +352,8 @@ class GrowthSessionsShowTest extends TestCase
     public static function providesGrowthSessionGuests(): array
     {
         return [
-            'The guest is an attendee' => [['user_type_id' => UserType::ATTENDEE_ID], 'attendees'],
-            'The guest is a watcher' => [['user_type_id' => UserType::WATCHER_ID], 'watchers'],
+            'The guest is an attendee' => [['user_type_id' => Role::Attendee->value], 'attendees'],
+            'The guest is a watcher' => [['user_type_id' => Role::Watcher->value], 'watchers'],
         ];
     }
 }

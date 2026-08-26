@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\UserType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +12,7 @@ class RemoveOwnerIdColumnFromGrowthSessionsTable extends Migration{
             DB::table('growth_session_user')->insert([
                 'growth_session_id' => $growthsession->id,
                 'user_id' => $growthsession->owner_id,
-                'user_type_id' => UserType::OWNER_ID
+                'user_type_id' => 1, // owner
             ]);
         });
 
@@ -39,6 +38,6 @@ class RemoveOwnerIdColumnFromGrowthSessionsTable extends Migration{
             $table->foreignId('owner_id')->nullable(false)->change();
         });
 
-        DB::table('growth_session_user')->where('user_type_id', UserType::OWNER_ID)->delete();
+        DB::table('growth_session_user')->where('user_type_id', 1)->delete(); // owner rows
     }
 }

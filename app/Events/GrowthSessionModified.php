@@ -3,7 +3,6 @@
 namespace App\Events;
 
 use App\Models\GrowthSession;
-use App\Models\UserType;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -24,13 +23,6 @@ class GrowthSessionModified implements ShouldBroadcast
     const TYPE_ATTENDEES = 'attendees';
     const TYPE_WATCHERS = 'watchers';
     const TYPE_WAITLIST = 'waitlist';
-
-    const TYPE_MAP = [
-        UserType::OWNER => self::TYPE_ATTENDEES,
-        UserType::ATTENDEE => self::TYPE_ATTENDEES,
-        UserType::WATCHER => self::TYPE_WATCHERS,
-        UserType::WAITLISTED => self::TYPE_WAITLIST,
-    ];
 
     public static function fire(GrowthSession $growthSession, string $action, string $type): self
     {

@@ -3,9 +3,9 @@
 namespace Tests\Feature\Notifications;
 
 use App\Enums\NotificationType;
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use App\Notifications\PromotedFromTheWaitlistNotification;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -46,7 +46,7 @@ class WaitlistPromotionNotificationTest extends TestCase
         $growthSession = GrowthSession::factory()->create(['attendee_limit' => 1]);
         $seated = User::factory()->create();
         $hopeful = User::factory()->create();
-        $growthSession->attendees()->attach($seated, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($seated, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($hopeful)->postJson(route('growth_sessions.join', ['growth_session' => $growthSession->id]))
             ->assertSuccessful();
@@ -69,7 +69,7 @@ class WaitlistPromotionNotificationTest extends TestCase
 
         $growthSession = GrowthSession::factory()->create(['attendee_limit' => 1]);
         $seated = User::factory()->create();
-        $growthSession->attendees()->attach($seated, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($seated, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($seated)->postJson(route('growth_sessions.leave', ['growth_session' => $growthSession->id]))
             ->assertSuccessful();

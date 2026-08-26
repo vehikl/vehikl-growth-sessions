@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Notifications;
 
+use App\Enums\Role;
 use App\Models\Comment;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use App\Notifications\GrowthSessionCommentAddedNotification;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -15,7 +15,7 @@ class GrowthSessionCommentNotificationTest extends TestCase
     private function makeSessionWithParticipants(): GrowthSession
     {
         return GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create();
     }
 
@@ -26,8 +26,8 @@ class GrowthSessionCommentNotificationTest extends TestCase
         $growthSession = $this->makeSessionWithParticipants();
         $attendee = User::factory()->create();
         $watcher = User::factory()->create();
-        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
-        $growthSession->watchers()->attach($watcher, ['user_type_id' => UserType::WATCHER_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
+        $growthSession->watchers()->attach($watcher, ['user_type_id' => Role::Watcher->value]);
 
         $this->actingAs($growthSession->owner)->postJson(route(
             'growth_sessions.comments.store',
@@ -46,7 +46,7 @@ class GrowthSessionCommentNotificationTest extends TestCase
 
         $growthSession = $this->makeSessionWithParticipants();
         $attendee = User::factory()->create();
-        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($attendee)->postJson(route(
             'growth_sessions.comments.store',
@@ -64,7 +64,7 @@ class GrowthSessionCommentNotificationTest extends TestCase
 
         $growthSession = $this->makeSessionWithParticipants();
         $attendee = User::factory()->create();
-        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($attendee)->postJson(route(
             'growth_sessions.comments.store',
@@ -82,7 +82,7 @@ class GrowthSessionCommentNotificationTest extends TestCase
 
         $growthSession = $this->makeSessionWithParticipants();
         $attendee = User::factory()->create();
-        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($growthSession->owner)->postJson(route(
             'growth_sessions.comments.store',

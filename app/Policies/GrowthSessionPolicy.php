@@ -31,7 +31,7 @@ class GrowthSessionPolicy
      */
     private function alreadyTakesPart(User $user, GrowthSession $growthSession): bool
     {
-        return $this->rolesOf($growthSession)->hasParticipant($user);
+        return $this->rolesOf($growthSession)->roleOf($user) !== null;
     }
 
     public function viewAny(User $user): bool

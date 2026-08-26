@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Role;
 use App\Http\Resources\Comment as CommentResource;
 use App\Models\Comment;
 use App\Models\GrowthSession;
@@ -33,7 +34,7 @@ class CommentsTest extends TestCase
 
         $limitlessSession = GrowthSession::factory()->create(['attendee_limit' => GrowthSession::NO_LIMIT]);
         $limitlessSession->attendees()->attach($user);
-        $limitlessSession->watchers()->attach($watcher, ['user_type_id' => 3]);
+        $limitlessSession->watchers()->attach($watcher, ['user_type_id' => Role::Watcher->value]);
         $existingComment = Comment::factory()->create(['growth_session_id' => $limitlessSession->id]);
 
         $response = $this->actingAs($user)

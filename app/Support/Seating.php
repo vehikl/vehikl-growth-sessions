@@ -2,10 +2,10 @@
 
 namespace App\Support;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\GrowthSessionUser;
 use App\Models\User;
-use App\Models\UserType;
 use App\Notifications\PromotedFromTheWaitlistNotification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -40,13 +40,13 @@ class Seating
     public function take(User $user): void
     {
         $this->serve(function (int $seatsFree) use ($user) {
-            if ($this->roleOf($user) === UserType::WAITLISTED_ID) {
+            if ($this->roleOf($user) === Role::Waitlisted) {
                 return;
             }
 
             $seatsFree > 0
-                ? $this->write($user, UserType::ATTENDEE_ID)
-                : $this->write($user, UserType::WAITLISTED_ID, now());
+                ? $this->write($user, Role::Attendee)
+                : $this->write($user, Role::Waitlisted, now());
         });
     }
 
@@ -56,7 +56,7 @@ class Seating
      */
     public function spectate(User $user): void
     {
-        $this->serve(fn () => $this->write($user, UserType::WATCHER_ID));
+        $this->serve(fn () => $this->write($user, Role::Watcher));
     }
 
     /**
@@ -130,14 +130,14 @@ class Seating
         // loading is prevented there, so reaching for either would throw and roll the seating back.
         $queue = $this->rows()
             ->with(['user', 'growthSession'])
-            ->where('user_type_id', UserType::WAITLISTED_ID)
+            ->where('user_type_id', Role::Waitlisted->value)
             ->orderBy('waitlisted_at')
             ->orderBy('user_id')
             ->take(max(0, $limit - $this->seatsTaken()))
             ->get();
 
         return $queue->map(function (GrowthSessionUser $enrolment) {
-            $enrolment->user_type_id = UserType::ATTENDEE_ID;
+            $enrolment->user_type_id = Role::Attendee;
             $enrolment->waitlisted_at = null;
             $enrolment->save();
 
@@ -145,7 +145,7 @@ class Seating
         })->values();
     }
 
-    private function write(User $user, int $role, $waitlistedAt = null): void
+    private function write(User $user, Role $role, $waitlistedAt = null): void
     {
         $enrolment = GrowthSessionUser::query()->firstOrNew([
             'growth_session_id' => $this->growthSession->id,
@@ -160,7 +160,8 @@ class Seating
         $enrolment->save();
     }
 
-    private function roleOf(User $user): ?int
+    /** What the member holds right now, read from the row itself rather than a roster that predates the lock. */
+    private function roleOf(User $user): ?Role
     {
         return $this->rows()->where('user_id', $user->id)->value('user_type_id');
     }
@@ -168,7 +169,7 @@ class Seating
     private function seatsTaken(): int
     {
         return $this->rows()
-            ->whereIn('user_type_id', [UserType::OWNER_ID, UserType::ATTENDEE_ID])
+            ->whereIn('user_type_id', Role::occupyingASeat())
             ->count();
     }
 

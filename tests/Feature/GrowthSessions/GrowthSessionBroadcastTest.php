@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\GrowthSessions;
 
+use App\Enums\Role;
 use App\Events\GrowthSessionModified;
 use App\Models\GrowthSession;
 use App\Models\GrowthSessionUser;
 use App\Models\User;
-use App\Models\UserType;
 use App\Support\Seating;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
@@ -28,7 +28,7 @@ class GrowthSessionBroadcastTest extends TestCase
         $pivot = new GrowthSessionUser;
         $pivot->growth_session_id = $growthSession->id;
         $pivot->user_id = $user->id;
-        $pivot->user_type_id = UserType::WATCHER_ID;
+        $pivot->user_type_id = Role::Watcher->value;
         $pivot->save();
 
         Event::assertDispatched(GrowthSessionModified::class, function (GrowthSessionModified $event) use ($growthSession) {
@@ -46,7 +46,7 @@ class GrowthSessionBroadcastTest extends TestCase
         $pivot = new GrowthSessionUser;
         $pivot->growth_session_id = $growthSession->id;
         $pivot->user_id = $user->id;
-        $pivot->user_type_id = UserType::ATTENDEE_ID;
+        $pivot->user_type_id = Role::Attendee->value;
         $pivot->save();
 
         Event::assertDispatched(GrowthSessionModified::class, function (GrowthSessionModified $event) use ($growthSession) {
@@ -93,7 +93,7 @@ class GrowthSessionBroadcastTest extends TestCase
     private function fullGrowthSession(): GrowthSession
     {
         $growthSession = GrowthSession::factory()->create(['attendee_limit' => 1]);
-        $growthSession->attendees()->attach(User::factory()->create(), ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach(User::factory()->create(), ['user_type_id' => Role::Attendee->value]);
 
         return $growthSession;
     }

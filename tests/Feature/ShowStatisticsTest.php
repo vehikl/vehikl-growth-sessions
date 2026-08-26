@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\Tag;
 use App\Models\User;
-use App\Models\UserType;
 use Carbon\CarbonInterface;
 use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
@@ -387,7 +387,7 @@ class ShowStatisticsTest extends TestCase
     private function makeGrowthSessionOwnedBy(User $owner, CarbonInterface $date): void
     {
         GrowthSession::factory()
-            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached($owner, ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['date' => $date]);
     }
 
@@ -397,8 +397,8 @@ class ShowStatisticsTest extends TestCase
         CarbonInterface $date
     ): void {
         GrowthSession::factory()
-            ->hasAttached($attendee, ['user_type_id' => UserType::ATTENDEE_ID], 'attendees')
-            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached($attendee, ['user_type_id' => Role::Attendee->value], 'attendees')
+            ->hasAttached($owner, ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['date' => $date]);
     }
 

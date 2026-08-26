@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Role;
 use App\Observers\GrowthSessionUserObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,7 +32,7 @@ class GrowthSessionUser extends Model
     protected function casts(): array
     {
         return [
-            'user_type_id' => 'int',
+            'user_type_id' => Role::class,
             'waitlisted_at' => 'datetime',
         ];
     }
@@ -44,11 +45,6 @@ class GrowthSessionUser extends Model
     public function growthSession(): BelongsTo
     {
         return $this->belongsTo(GrowthSession::class);
-    }
-
-    public function getUserType(): string
-    {
-        return UserType::getTypeById($this->user_type_id);
     }
 
     /**

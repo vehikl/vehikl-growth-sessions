@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\GrowthSessions;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -72,7 +72,7 @@ class GrowthSessionParticipationTest extends TestCase
 
         /** @var User $owner */
         $owner = User::factory()->create();
-        $existingGrowthSession->owners()->attach($owner, ['user_type_id' => UserType::OWNER_ID]);
+        $existingGrowthSession->owners()->attach($owner, ['user_type_id' => Role::Owner->value]);
 
         $this->actingAs($owner)
             ->postJson(route('growth_sessions.leave', ['growth_session' => $existingGrowthSession->id]))
@@ -123,7 +123,7 @@ class GrowthSessionParticipationTest extends TestCase
     {
         $watcher = User::factory()->vehiklMember()->create();
         $growthSession = GrowthSession::factory()->create();
-        $growthSession->watchers()->attach($watcher, ['user_type_id' => UserType::WATCHER_ID]);
+        $growthSession->watchers()->attach($watcher, ['user_type_id' => Role::Watcher->value]);
 
         $watcher = $growthSession->watchers()->first();
 
@@ -140,7 +140,7 @@ class GrowthSessionParticipationTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create();
-        $existingGrowthSession->watchers()->attach($user, ['user_type_id' => UserType::WATCHER_ID]);
+        $existingGrowthSession->watchers()->attach($user, ['user_type_id' => Role::Watcher->value]);
 
         $this->actingAs($user)
             ->postJson(route('growth_sessions.watch', ['growth_session' => $existingGrowthSession->id]))
@@ -156,7 +156,7 @@ class GrowthSessionParticipationTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
 
-        $existingGrowthSession->attendees()->attach($user, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $existingGrowthSession->attendees()->attach($user, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($user)
             ->postJson(route('growth_sessions.watch', ['growth_session' => $existingGrowthSession->id]))
@@ -171,7 +171,7 @@ class GrowthSessionParticipationTest extends TestCase
         $user = User::factory()->create();
 
         // watcher
-        $existingGrowthSession->watchers()->attach($user, ['user_type_id' => UserType::WATCHER_ID]);
+        $existingGrowthSession->watchers()->attach($user, ['user_type_id' => Role::Watcher->value]);
 
         $this->actingAs($user)
             ->postJson(route('growth_sessions.join', ['growth_session' => $existingGrowthSession->id]))
@@ -319,7 +319,7 @@ class GrowthSessionParticipationTest extends TestCase
         $growthSession = $this->fullGrowthSession(2);
         $attendee = $growthSession->attendees->first();
         $watcher = User::factory()->vehiklMember()->create();
-        $growthSession->watchers()->attach($watcher, ['user_type_id' => UserType::WATCHER_ID]);
+        $growthSession->watchers()->attach($watcher, ['user_type_id' => Role::Watcher->value]);
 
         $this->join($attendee, $growthSession)->assertForbidden();
         $this->join($watcher, $growthSession)->assertForbidden();
@@ -427,7 +427,7 @@ class GrowthSessionParticipationTest extends TestCase
         $response = $this->join($latecomer, $growthSession)->assertSuccessful();
 
         $this->assertEmpty($response->json('waitlist'));
-        $this->assertTrue($growthSession->fresh()->hasAttendee($latecomer));
+        $this->assertSame(Role::Attendee, $growthSession->fresh()->roleOf($latecomer));
     }
 
     public function test_somebody_who_cannot_see_a_growth_session_cannot_take_a_place_in_its_queue(): void
@@ -480,12 +480,12 @@ class GrowthSessionParticipationTest extends TestCase
         $growthSession = GrowthSession::factory()->create(['attendee_limit' => $attendeeLimit, 'is_public' => true]);
 
         if ($owner) {
-            $growthSession->owners()->attach($owner, ['user_type_id' => UserType::OWNER_ID]);
+            $growthSession->owners()->attach($owner, ['user_type_id' => Role::Owner->value]);
         }
 
         $growthSession->attendees()->attach(
             User::factory()->vehiklMember()->count($attendeeLimit - ($owner ? 1 : 0))->create(),
-            ['user_type_id' => UserType::ATTENDEE_ID]
+            ['user_type_id' => Role::Attendee->value]
         );
 
         return $growthSession->load('attendees');

@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Support;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use App\Notifications\PromotedFromTheWaitlistNotification;
 use App\Support\Seating;
 use Illuminate\Database\Eloquent\Model;
@@ -40,7 +40,7 @@ class SeatingTest extends TestCase
 
         Seating::for($growthSession)->take($hopeful);
 
-        $this->assertTrue($growthSession->fresh()->hasAttendee($hopeful));
+        $this->assertSame(Role::Attendee, $growthSession->fresh()->roleOf($hopeful));
         $this->assertEquals([], $this->queueOf($growthSession));
     }
 
@@ -51,7 +51,7 @@ class SeatingTest extends TestCase
 
         Seating::for($growthSession)->take($hopeful);
 
-        $this->assertFalse($growthSession->fresh()->hasAttendee($hopeful));
+        $this->assertSame(Role::Waitlisted, $growthSession->fresh()->roleOf($hopeful));
         $this->assertEquals([$hopeful->id], $this->queueOf($growthSession));
     }
 
@@ -69,7 +69,7 @@ class SeatingTest extends TestCase
         $seating->take($second);
 
         $this->assertCount(1, $growthSession->fresh()->attendees);
-        $this->assertTrue($growthSession->fresh()->hasAttendee($first));
+        $this->assertSame(Role::Attendee, $growthSession->fresh()->roleOf($first));
         $this->assertEquals([$second->id], $this->queueOf($growthSession));
     }
 
@@ -106,7 +106,7 @@ class SeatingTest extends TestCase
 
         Seating::for($growthSession)->spectate($spectator);
 
-        $this->assertTrue($growthSession->fresh()->hasWatcher($spectator));
+        $this->assertSame(Role::Watcher, $growthSession->fresh()->roleOf($spectator));
         $this->assertCount(1, $growthSession->fresh()->attendees);
         $this->assertEquals([$hopeful->id], $this->queueOf($growthSession));
     }
@@ -124,8 +124,8 @@ class SeatingTest extends TestCase
         $growthSession->update(['attendee_limit' => 3]);
         $seating->reseat();
 
-        $this->assertTrue($growthSession->fresh()->hasAttendee($first));
-        $this->assertTrue($growthSession->fresh()->hasAttendee($second));
+        $this->assertSame(Role::Attendee, $growthSession->fresh()->roleOf($first));
+        $this->assertSame(Role::Attendee, $growthSession->fresh()->roleOf($second));
         $this->assertEquals([$third->id], $this->queueOf($growthSession));
     }
 
@@ -209,8 +209,8 @@ class SeatingTest extends TestCase
 
         $seating->release($seated);
 
-        $this->assertFalse($growthSession->fresh()->hasAttendee($seated));
-        $this->assertTrue($growthSession->fresh()->hasAttendee($first));
+        $this->assertNull($growthSession->fresh()->roleOf($seated));
+        $this->assertSame(Role::Attendee, $growthSession->fresh()->roleOf($first));
         $this->assertEquals([$second->id], $this->queueOf($growthSession));
         Notification::assertSentTo($first, PromotedFromTheWaitlistNotification::class);
     }
@@ -259,7 +259,7 @@ class SeatingTest extends TestCase
 
         $growthSession->attendees()->attach(
             User::factory()->count($attendeeLimit)->create(),
-            ['user_type_id' => UserType::ATTENDEE_ID]
+            ['user_type_id' => Role::Attendee->value]
         );
 
         return $growthSession;

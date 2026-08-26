@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Role;
 use App\Observers\GrowthSessionObserver;
 use App\Support\TextSegmentParser;
 use Carbon\Carbon;
@@ -25,7 +26,7 @@ class GrowthSession extends Model
     /** The relations GrowthSessionResource reads - eager-load these before building one to avoid lazy loading. */
     const RESOURCE_RELATIONS = ['owners', 'attendees', 'watchers', 'waitlist', 'comments', 'anydesk', 'tags'];
 
-    /** The subset of RESOURCE_RELATIONS the visibility policy reads via `owner`/`hasParticipant()`. */
+    /** The subset of RESOURCE_RELATIONS the visibility policy reads via `owner`/`roleOf()`. */
     const VISIBILITY_RELATIONS = ['owners', 'attendees', 'watchers', 'waitlist'];
 
     const SOCIAL_TAG = 'Social';
@@ -103,18 +104,18 @@ class GrowthSession extends Model
 
     public function owners()
     {
-        return $this->belongsToMany(User::class)->wherePivot('user_type_id', UserType::OWNER_ID);
+        return $this->belongsToMany(User::class)->wherePivot('user_type_id', Role::Owner->value);
     }
 
     public function attendees()
     {
         return $this->belongsToMany(User::class)
-            ->wherePivotIn('user_type_id', [UserType::ATTENDEE_ID, UserType::OWNER_ID]);
+            ->wherePivotIn('user_type_id', Role::occupyingASeat());
     }
 
     public function watchers()
     {
-        return $this->belongsToMany(User::class)->wherePivot('user_type_id', UserType::WATCHER_ID);
+        return $this->belongsToMany(User::class)->wherePivot('user_type_id', Role::Watcher->value);
     }
 
     /**
@@ -125,7 +126,7 @@ class GrowthSession extends Model
     public function waitlist(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->wherePivot('user_type_id', UserType::WAITLISTED_ID)
+            ->wherePivot('user_type_id', Role::Waitlisted->value)
             ->orderByPivot('waitlisted_at')
             ->orderByPivot('user_id');
     }
@@ -233,37 +234,28 @@ class GrowthSession extends Model
         return (int) round($seconds / 60);
     }
 
-    public function hasAttendee(User $attendee): bool
-    {
-        return (bool) $this->attendees->find($attendee);
-    }
-
-    public function hasWatcher(User $watcher): bool
-    {
-        return (bool) $this->watchers->find($watcher);
-    }
-
-    public function hasWaitlistedMember(User $user): bool
-    {
-        return (bool) $this->waitlist->find($user);
-    }
-
     /**
-     * Whoever will actually be in the room. Someone still queueing is not one of them, which is why
-     * this is the question the location asks rather than {@see hasParticipant()}.
+     * What the member holds here, or null if they hold nothing at all. Every question anyone asks
+     * about somebody's standing is asked of the answer - whether they will be in the room, whether
+     * they already take part, what they are giving up - so no caller has to know which relation to
+     * look in, and no two of them can come to disagree about what a role means.
+     *
+     * Hosting is checked first because an owner is an attendee too: the more particular role is
+     * the true one.
      */
-    public function hasAttendeeOrWatcher(User $user): bool
+    public function roleOf(?User $user): ?Role
     {
-        return $this->hasAttendee($user) || $this->hasWatcher($user);
-    }
+        if (! $user) {
+            return null;
+        }
 
-    /**
-     * Whether the member holds any role at all - including a place in the queue. That place is a
-     * deliberate act, so it grants sight of the growth session and rules out taking a second role.
-     */
-    public function hasParticipant(User $user): bool
-    {
-        return $this->hasAttendeeOrWatcher($user) || $this->hasWaitlistedMember($user);
+        return match (true) {
+            (bool) $this->owners->find($user) => Role::Owner,
+            (bool) $this->attendees->find($user) => Role::Attendee,
+            (bool) $this->watchers->find($user) => Role::Watcher,
+            (bool) $this->waitlist->find($user) => Role::Waitlisted,
+            default => null,
+        };
     }
 
     /**

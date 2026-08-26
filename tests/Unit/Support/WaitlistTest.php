@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Support;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use App\Support\Seating;
 use App\Support\Waitlist;
 use Illuminate\Support\Facades\Notification;
@@ -54,7 +54,7 @@ class WaitlistTest extends TestCase
 
         $growthSession->attendees()->attach(
             User::factory()->create(),
-            ['user_type_id' => UserType::ATTENDEE_ID]
+            ['user_type_id' => Role::Attendee->value]
         );
 
         return $growthSession;

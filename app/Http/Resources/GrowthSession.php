@@ -24,7 +24,7 @@ class GrowthSession extends JsonResource
         $canSeeSensitiveInfo = $isOwner || ($viewer && $viewer->is_vehikl_member);
         // Waiting in line deliberately does not count here: unmasking the location for the queue
         // would turn it into a way around "join to see location". It unmasks on promotion instead.
-        $canSeeLocation = $isOwner || ($viewer && $growthSession->hasAttendeeOrWatcher($viewer));
+        $canSeeLocation = $isOwner || ($growthSession->roleOf($viewer)?->countsAsPresent() ?? false);
 
         $inviteLink = InviteLink::for($growthSession);
 

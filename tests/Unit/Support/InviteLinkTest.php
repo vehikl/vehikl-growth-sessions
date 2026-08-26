@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Support;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use App\Support\GrowthSessionUnlocks;
 use App\Support\InviteLink;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -113,7 +113,7 @@ class InviteLinkTest extends TestCase
     public function testThereIsNoUrlToShowWhenNoLinkHasBeenHandedOut()
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory()->vehiklMember(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['is_public' => false]);
 
         $this->assertFalse(InviteLink::for($growthSession)->isVisibleTo($growthSession->owner));
@@ -146,7 +146,7 @@ class InviteLinkTest extends TestCase
     private function unlistedGrowthSession(): GrowthSession
     {
         return GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory()->vehiklMember(), ['user_type_id' => Role::Owner->value], 'owners')
             ->unlisted()
             ->create();
     }

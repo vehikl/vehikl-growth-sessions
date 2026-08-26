@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Role;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -47,7 +48,7 @@ class User extends Authenticatable
     public function growthSessions()
     {
         // TODO: Replace implementation of this to be "all Growth sessions involving this user"
-        return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', UserType::OWNER_ID);
+        return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', Role::Owner->value);
     }
 
     public function allSessions(): BelongsToMany
@@ -57,17 +58,17 @@ class User extends Authenticatable
 
     public function sessionsHosted(): BelongsToMany
     {
-        return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', UserType::OWNER_ID);
+        return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', Role::Owner->value);
     }
 
     public function sessionsAttended(): BelongsToMany
     {
-        return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', UserType::ATTENDEE_ID);
+        return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', Role::Attendee->value);
     }
 
     public function sessionsWatched(): BelongsToMany
     {
-        return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', UserType::WATCHER_ID);
+        return $this->belongsToMany(GrowthSession::class)->wherePivot('user_type_id', Role::Watcher->value);
     }
 
     public function comments(): HasMany

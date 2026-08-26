@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Policies;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use App\Policies\GrowthSessionPolicy;
 use App\Support\Seating;
 use Tests\TestCase;
@@ -51,7 +51,7 @@ class GrowthSessionPolicyTest extends TestCase
     {
         $growthSession = GrowthSession::factory()->create(['allow_watchers' => true]);
         $attendee = User::factory()->create();
-        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
 
         $this->assertFalse($this->policy->watch($attendee, $growthSession->fresh()));
     }
@@ -86,7 +86,7 @@ class GrowthSessionPolicyTest extends TestCase
 
         $growthSession->attendees()->attach(
             User::factory()->create(),
-            ['user_type_id' => UserType::ATTENDEE_ID]
+            ['user_type_id' => Role::Attendee->value]
         );
 
         return $growthSession;

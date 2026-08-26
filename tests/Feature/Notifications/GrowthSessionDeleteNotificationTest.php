@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Notifications;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use App\Notifications\GrowthSessionDeletedNotification;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -16,12 +16,12 @@ class GrowthSessionDeleteNotificationTest extends TestCase
         Notification::fake();
 
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['title' => 'Weekly Pairing']);
         $attendee = User::factory()->create();
         $watcher = User::factory()->create();
-        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
-        $growthSession->watchers()->attach($watcher, ['user_type_id' => UserType::WATCHER_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
+        $growthSession->watchers()->attach($watcher, ['user_type_id' => Role::Watcher->value]);
         $owner = $growthSession->owner;
 
         $this->actingAs($owner)->deleteJson(route(
@@ -40,10 +40,10 @@ class GrowthSessionDeleteNotificationTest extends TestCase
     {
         $this->setTestNow('2020-08-01');
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['title' => 'Weekly Pairing', 'date' => '2020-08-20']);
         $attendee = User::factory()->create();
-        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($growthSession->owner)->deleteJson(route(
             'growth_sessions.destroy',
