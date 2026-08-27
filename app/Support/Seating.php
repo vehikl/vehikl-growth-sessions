@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Enums\Role;
+use App\Events\GrowthSessionAttendeeChanged;
 use App\Models\GrowthSession;
 use App\Models\GrowthSessionUser;
 use App\Models\User;
@@ -90,14 +91,16 @@ class Seating
      * The one lock every path passes through, and the one place the day is checked - so no caller
      * can free a seat at a growth session that is over and then seat somebody into it.
      *
-     * Telling the promoted member waits for the commit: the seat is already theirs before anyone
-     * tries to reach them, and a delivery channel that will not answer must not cost them it.
+     * Everything that reaches outside this application waits for the commit. The promoted member is
+     * told after it, because the seat is already theirs before anyone tries to reach them and a
+     * delivery channel that will not answer must not cost them it; the world is told the attendees
+     * changed after it, for the reasons on {@see announceSeating()}.
      *
      * @param  callable(int): void  $write  Handed the seats free before it runs.
      */
     private function serve(callable $write): void
     {
-        $promoted = DB::transaction(function () use ($write) {
+        [$promoted, $seatsChangedHands] = DB::transaction(function () use ($write) {
             // Locking the growth session itself rather than its pivot rows: it is the one row that
             // is always there, so two members asking for the last seat at a growth session nobody
             // has joined yet still queue up behind each other here.
@@ -106,34 +109,43 @@ class Seating
                 ->lockForUpdate()
                 ->value('attendee_limit');
 
+            // Who holds a seat before the write, read under that same lock - so setting it against
+            // who holds one after says what this call did to the seats, and only what it did. Read
+            // in here rather than after the commit for the same reason: outside the lock the answer
+            // could already have somebody else's write in it.
+            $seatedBefore = $this->seated();
+            $promoted = collect();
+
             if ($this->hasPassed()) {
                 $write(0);
-
-                return collect();
+            } else {
+                $write(max(0, $limit - count($seatedBefore)));
+                $promoted = $this->seatWhoeverFits($limit);
             }
 
-            $write(max(0, $limit - $this->seatsTaken()));
-
-            return $this->seatWhoeverFits($limit);
+            return [$promoted, $this->seated() !== $seatedBefore];
         });
 
         $this->forgetRoster();
         $promoted->each(fn (User $user) => $this->announce($user));
+
+        if ($seatsChangedHands) {
+            $this->announceSeating();
+        }
     }
 
     /** @return Collection<int, User> */
     private function seatWhoeverFits(int $limit): Collection
     {
-        // Both relations are read while the promotion runs - the member so they can be told, and the
-        // growth session by the pivot observer that keeps the board current - so they are loaded up
-        // front rather than one row at a time. Outside production that is not merely an N+1: lazy
-        // loading is prevented there, so reaching for either would throw and roll the seating back.
+        // The member is read off every promoted row so they can be told, so they are loaded up front
+        // rather than one row at a time. Outside production that is not merely an N+1: lazy loading
+        // is prevented there, so reaching for one would throw and roll the seating back.
         $queue = $this->rows()
-            ->with(['user', 'growthSession'])
+            ->with('user')
             ->where('user_type_id', Role::Waitlisted->value)
             ->orderBy('waitlisted_at')
             ->orderBy('user_id')
-            ->take(max(0, $limit - $this->seatsTaken()))
+            ->take(max(0, $limit - count($this->seated())))
             ->get();
 
         return $queue->map(function (GrowthSessionUser $enrolment) {
@@ -154,9 +166,6 @@ class Seating
 
         $enrolment->user_type_id = $role;
         $enrolment->waitlisted_at = $waitlistedAt;
-        // The pivot observer reads the growth session off the row it was handed, so it is given the
-        // one already in hand rather than left to fetch it back out of the database.
-        $enrolment->setRelation('growthSession', $this->growthSession);
         $enrolment->save();
     }
 
@@ -166,11 +175,20 @@ class Seating
         return $this->rows()->where('user_id', $user->id)->value('user_type_id');
     }
 
-    private function seatsTaken(): int
+    /**
+     * Everyone holding a seat right now, in an order two reads will agree on - so the same list read
+     * before and after a write can simply be compared to see whether the seats changed hands.
+     *
+     * @return list<int>
+     */
+    private function seated(): array
     {
         return $this->rows()
             ->whereIn('user_type_id', Role::seatOccupyingIds())
-            ->count();
+            ->orderBy('user_id')
+            ->pluck('user_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
     }
 
     private function rows()
@@ -190,6 +208,33 @@ class Seating
     {
         try {
             $user->notify(new PromotedFromTheWaitlistNotification($this->growthSession));
+        } catch (Throwable $failure) {
+            report($failure);
+        }
+    }
+
+    /**
+     * Say, once, that the seats changed hands - and only when they actually did.
+     *
+     * Once, because what listens to this posts the whole attendee list to Slack: said per promotion
+     * it would make that same request several times over, each one carrying the same finished list.
+     *
+     * Only when they actually did, because that Slack message says nothing about spectators or the
+     * queue. Somebody joining the line, leaving it, or giving up a spectator's place would have it
+     * rewritten word for word with what is already there.
+     *
+     * Said from out here rather than beside the write, so in the ordinary case the listener runs at
+     * no transaction depth at all and its failure can be caught. Should a caller ever nest the
+     * seating inside a transaction of its own, out here is still inside it - which is what the
+     * {@see GrowthSessionAttendeeChanged} contract is for, and why this is belt as well as braces.
+     *
+     * Reported rather than rethrown for the same reason the seat is committed first: it is theirs
+     * whether or not Slack heard.
+     */
+    private function announceSeating(): void
+    {
+        try {
+            event(new GrowthSessionAttendeeChanged($this->growthSession));
         } catch (Throwable $failure) {
             report($failure);
         }

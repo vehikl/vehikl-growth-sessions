@@ -3,12 +3,16 @@
 namespace Tests\Unit\Support;
 
 use App\Enums\Role;
+use App\Events\GrowthSessionAttendeeChanged;
 use App\Models\GrowthSession;
 use App\Models\User;
 use App\Notifications\PromotedFromTheWaitlistNotification;
 use App\Support\Seating;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
+use RuntimeException;
 use Tests\TestCase;
 
 class SeatingTest extends TestCase
@@ -56,8 +60,11 @@ class SeatingTest extends TestCase
     }
 
     /**
-     * The seat-or-queue decision is made here, under the lock, rather than by the caller - so two
-     * members going after the same last seat cannot both be told it was free.
+     * The seat-or-queue decision is made here rather than by the caller, so the second member to
+     * ask for the last seat is queued rather than seated beside the first.
+     *
+     * This runs the two asks one after the other, which is all a single-connection test can do -
+     * what stops them overlapping in production is asserted separately, below.
      */
     public function test_two_members_going_after_the_same_last_seat_get_one_seat_between_them()
     {
@@ -71,6 +78,28 @@ class SeatingTest extends TestCase
         $this->assertCount(1, $growthSession->fresh()->attendees);
         $this->assertSame(Role::Attendee, $growthSession->fresh()->roleOf($first));
         $this->assertEquals([$second->id], $this->queueOf($growthSession));
+    }
+
+    /**
+     * The guarantee the test above is named for rests entirely on the growth session row being read
+     * `for update`: without it two connections read the same free seat and both hand it out. Two
+     * connections cannot be had here - the test's own transaction hides its rows from any other - so
+     * what is asserted is that the lock is still asked for at all.
+     */
+    public function test_the_seats_are_counted_under_a_lock_on_the_growth_session()
+    {
+        $growthSession = GrowthSession::factory()->create(['attendee_limit' => 1]);
+        $hopeful = User::factory()->create();
+
+        DB::enableQueryLog();
+        Seating::for($growthSession)->take($hopeful);
+        $statements = collect(DB::getQueryLog())->pluck('query');
+        DB::disableQueryLog();
+
+        $this->assertTrue(
+            $statements->contains(fn (string $sql) => str_contains(strtolower($sql), 'for update')),
+            'Expected the growth session to be read for update. Statements: '.$statements->join('; ')
+        );
     }
 
     public function test_asking_puts_the_member_at_the_back_of_the_queue()
@@ -244,6 +273,161 @@ class SeatingTest extends TestCase
         $this->assertCount(0, $growthSession->fresh()->attendees);
         $this->assertEquals([$hopeful->id], $this->queueOf($growthSession));
         Notification::assertNothingSent();
+    }
+
+    public function test_taking_a_seat_says_the_attendees_changed()
+    {
+        $growthSession = $this->growthSessionSeating(4);
+        $hopeful = User::factory()->create();
+        Event::fake([GrowthSessionAttendeeChanged::class]);
+
+        Seating::for($growthSession)->take($hopeful);
+
+        Event::assertDispatched(GrowthSessionAttendeeChanged::class, 1);
+    }
+
+    public function test_giving_up_a_seat_says_the_attendees_changed()
+    {
+        $growthSession = $this->fullGrowthSession(2);
+        $seated = $growthSession->attendees->first();
+        Event::fake([GrowthSessionAttendeeChanged::class]);
+
+        Seating::for($growthSession)->release($seated);
+
+        Event::assertDispatched(GrowthSessionAttendeeChanged::class, 1);
+    }
+
+    /**
+     * One word, however many seats changed hands - the message it sends is the whole attendee list,
+     * so saying it once per promotion would only make the same request several times over.
+     */
+    public function test_a_promotion_says_the_attendees_changed_once_however_many_were_promoted()
+    {
+        $growthSession = $this->fullGrowthSession(1);
+        [$first, $second] = User::factory()->count(2)->create()->all();
+        $seating = Seating::for($growthSession);
+        $seating->take($first);
+        $seating->take($second);
+        $growthSession->update(['attendee_limit' => 3]);
+        Event::fake([GrowthSessionAttendeeChanged::class]);
+
+        $seating->reseat();
+
+        Event::assertDispatched(GrowthSessionAttendeeChanged::class, 1);
+    }
+
+    public function test_spectating_says_nothing_about_the_attendees()
+    {
+        $growthSession = $this->growthSessionSeating(4);
+        $spectator = User::factory()->create();
+        Event::fake([GrowthSessionAttendeeChanged::class]);
+
+        Seating::for($growthSession)->spectate($spectator);
+
+        Event::assertNotDispatched(GrowthSessionAttendeeChanged::class);
+    }
+
+    public function test_taking_a_place_in_line_says_nothing_about_the_attendees()
+    {
+        $growthSession = $this->fullGrowthSession(1);
+        $hopeful = User::factory()->create();
+        Event::fake([GrowthSessionAttendeeChanged::class]);
+
+        Seating::for($growthSession)->take($hopeful);
+
+        Event::assertNotDispatched(GrowthSessionAttendeeChanged::class);
+    }
+
+    public function test_giving_up_a_place_in_line_says_nothing_about_the_attendees()
+    {
+        $growthSession = $this->fullGrowthSession(1);
+        [$first, $second] = User::factory()->count(2)->create()->all();
+        $seating = Seating::for($growthSession);
+        $seating->take($first);
+        $seating->take($second);
+        Event::fake([GrowthSessionAttendeeChanged::class]);
+
+        $seating->release($second);
+
+        Event::assertNotDispatched(GrowthSessionAttendeeChanged::class);
+    }
+
+    public function test_giving_up_a_spectators_place_says_nothing_about_the_attendees()
+    {
+        $growthSession = $this->growthSessionSeating(4);
+        $spectator = User::factory()->create();
+        $seating = Seating::for($growthSession);
+        $seating->spectate($spectator);
+        Event::fake([GrowthSessionAttendeeChanged::class]);
+
+        $seating->release($spectator);
+
+        Event::assertNotDispatched(GrowthSessionAttendeeChanged::class);
+    }
+
+    public function test_reseating_that_moves_nobody_says_nothing_about_the_attendees()
+    {
+        $growthSession = $this->fullGrowthSession(2);
+        Event::fake([GrowthSessionAttendeeChanged::class]);
+
+        Seating::for($growthSession)->reseat();
+
+        Event::assertNotDispatched(GrowthSessionAttendeeChanged::class);
+    }
+
+    /**
+     * What the subscriber on this does is post to Slack. Held inside the seating transaction, that
+     * request would keep the growth session locked for as long as Slack took to answer, and a Slack
+     * that answered with an error would roll back a seat that had already been handed out.
+     */
+    public function test_the_attendees_are_only_said_to_have_changed_once_the_seating_is_committed()
+    {
+        $growthSession = $this->growthSessionSeating(4);
+        $hopeful = User::factory()->create();
+        $depthOutsideTheSeating = DB::transactionLevel();
+        $depthWhenTold = null;
+        Event::listen(GrowthSessionAttendeeChanged::class, function () use (&$depthWhenTold) {
+            $depthWhenTold = DB::transactionLevel();
+        });
+
+        Seating::for($growthSession)->take($hopeful);
+
+        $this->assertSame($depthOutsideTheSeating, $depthWhenTold);
+    }
+
+    /**
+     * The same guarantee where the seating is nested inside a caller's own transaction, which the
+     * placement of the dispatch alone cannot give - out there is still in here. This is what the
+     * event's ShouldDispatchAfterCommit contract carries.
+     */
+    public function test_the_attendees_are_not_said_to_have_changed_until_a_surrounding_transaction_commits()
+    {
+        $growthSession = $this->growthSessionSeating(4);
+        $hopeful = User::factory()->create();
+        $told = false;
+        Event::listen(GrowthSessionAttendeeChanged::class, function () use (&$told) {
+            $told = true;
+        });
+
+        DB::transaction(function () use ($growthSession, $hopeful, &$told) {
+            Seating::for($growthSession)->take($hopeful);
+
+            $this->assertFalse($told, 'Expected nothing to be said while the surrounding transaction was still open.');
+        });
+
+        $this->assertTrue($told, 'Expected the attendees to be said to have changed once the surrounding transaction committed.');
+    }
+
+    /** A subscriber that throws must not cost the member the seat they have already been given. */
+    public function test_a_seat_survives_a_subscriber_that_fails_to_pass_the_word_on()
+    {
+        $growthSession = $this->growthSessionSeating(4);
+        $hopeful = User::factory()->create();
+        Event::listen(GrowthSessionAttendeeChanged::class, fn () => throw new RuntimeException('Slack is down'));
+
+        Seating::for($growthSession)->take($hopeful);
+
+        $this->assertSame(Role::Attendee, $growthSession->fresh()->roleOf($hopeful));
     }
 
     /** @return array<int, int> The user ids in line, front of the queue first. */

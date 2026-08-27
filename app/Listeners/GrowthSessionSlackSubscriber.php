@@ -29,6 +29,11 @@ class GrowthSessionSlackSubscriber
     }
 
     /**
+     * The posted message lists the attendees and nothing else, so this is only ever reached when the
+     * seats themselves changed hands - never for a spectator or somebody joining or leaving the
+     * queue, which would only rewrite the message with what it already said. {@see \App\Support\Seating}
+     * is what draws that line, and what keeps this request outside its transaction.
+     *
      * @throws CircularDependencyException
      * @throws BindingResolutionException
      * @throws ConnectionException
