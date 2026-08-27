@@ -1,5 +1,6 @@
 import { GrowthSession } from '@/classes/GrowthSession';
 import { sessionMoment } from '@/lib/timezone';
+import { IUser } from '@/types';
 import moment from 'moment-timezone';
 
 export type SessionStatus = 'live' | 'upcoming' | 'finished';
@@ -47,4 +48,53 @@ export function statusMeta(status: SessionStatus): { color: string; label: strin
 export function capacityLabel(session: GrowthSession): string {
     const joined = session.attendees.length;
     return session.isLimitless ? `${joined}` : `${joined}/${session.attendee_limit}`;
+}
+
+export type SessionActionKind = 'join' | 'join-waitlist' | 'watch' | 'leave' | 'edit' | 'delete';
+
+export interface ISessionAction {
+    kind: SessionActionKind;
+    label: string;
+    /** The class each renderer has always hung on this button, kept as the hook tests reach for. */
+    hook: string;
+}
+
+/**
+ * What this viewer may do about this session, in the order the buttons read.
+ *
+ * The board card, the day view and the detail drawer all offer the same choices and differ only in
+ * how they dress them, so the choosing happens once, here. Deriving it per renderer is what let the
+ * `Full` badge's two conditions cancel each other out unnoticed - the rule was stated three times
+ * and agreed with itself nowhere.
+ */
+export function sessionActions(session: GrowthSession, user?: IUser | null): ISessionAction[] {
+    const actions: ISessionAction[] = [];
+
+    if (session.canJoin(user)) {
+        actions.push({ kind: 'join', label: 'Join', hook: 'join-button' });
+    }
+
+    // The other half of canJoin: a session with no seat left is something to queue for, never both.
+    if (session.canJoinWaitlist(user)) {
+        actions.push({ kind: 'join-waitlist', label: 'Join waitlist', hook: 'join-waitlist-button' });
+    }
+
+    if (session.canWatch(user)) {
+        actions.push({ kind: 'watch', label: 'Spectate', hook: 'watch-button' });
+    }
+
+    if (session.canLeave(user)) {
+        actions.push({
+            kind: 'leave',
+            label: session.isOnWaitlist(user) ? 'Leave waitlist' : 'Leave',
+            hook: 'leave-button',
+        });
+    }
+
+    if (session.canEditOrDelete(user)) {
+        actions.push({ kind: 'edit', label: 'Edit', hook: 'update-button' });
+        actions.push({ kind: 'delete', label: 'Delete', hook: 'delete-button' });
+    }
+
+    return actions;
 }

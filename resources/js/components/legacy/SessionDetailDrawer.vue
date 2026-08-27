@@ -1,14 +1,15 @@
 <script lang="ts" setup>
 import { GrowthSession } from '@/classes/GrowthSession';
 import CommentList from '@/components/legacy/CommentList.vue';
+import SessionRoster from '@/components/legacy/SessionRoster.vue';
 import ShareInviteLink from '@/components/legacy/ShareInviteLink.vue';
 import TextSegments from '@/components/legacy/TextSegments.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 import { useCopyStatus } from '@/composables/useCopyStatus';
 import { loginUrl } from '@/lib/loginUrl';
-import { capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
+import { capacityLabel, ISessionAction, sessionActions, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
-import { ChevronRight, Forward, X } from 'lucide-vue-next';
+import { Forward, X } from 'lucide-vue-next';
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 
 interface IProps {
@@ -84,6 +85,25 @@ onUnmounted(() => {
 
 const status = computed(() => sessionStatus(props.growthSession));
 const meta = computed(() => statusMeta(status.value));
+const actions = computed<ISessionAction[]>(() => sessionActions(props.growthSession, props.user));
+
+/** The drawer stacks its actions full width; the choosing is shared with the board, the dressing is not. */
+const ACTION_CLASSES: Record<string, string> = {
+    join: 'gs-btn-primary',
+    'join-waitlist': 'gs-btn-primary',
+    watch: 'gs-btn-secondary',
+    leave: 'transition-smooth border border-red-500 text-red-500 hover:bg-red-500 hover:text-white',
+    edit: 'gs-btn-primary',
+    delete: 'transition-smooth border border-red-500 text-red-500 hover:bg-red-500 hover:text-white',
+};
+
+async function runAction(kind: ISessionAction['kind']) {
+    if (kind === 'join' || kind === 'join-waitlist') return join();
+    if (kind === 'watch') return watch();
+    if (kind === 'leave') return leave();
+
+    return request(kind === 'edit' ? 'edit-requested' : 'delete-requested');
+}
 const mobtimeUrl = computed(() => `https://mobtime.vehikl.com/vgs-${props.growthSession.id}`);
 
 async function join() {
@@ -170,44 +190,14 @@ async function share() {
                     Log in to join
                 </a>
                 <button
-                    v-show="growthSession.canJoin(user)"
+                    v-for="action in actions"
+                    :key="action.kind"
                     type="button"
-                    class="join-button gs-btn-primary cursor-pointer rounded-md py-3 text-sm font-semibold"
-                    @click="join"
+                    :class="[action.hook, ACTION_CLASSES[action.kind]]"
+                    class="cursor-pointer rounded-md py-3 text-sm font-semibold"
+                    @click="runAction(action.kind)"
                 >
-                    Join
-                </button>
-                <button
-                    v-show="growthSession.canWatch(user)"
-                    type="button"
-                    class="watch-button gs-btn-secondary cursor-pointer rounded-md py-3 text-sm font-semibold"
-                    @click="watch"
-                >
-                    Spectate
-                </button>
-                <button
-                    v-show="growthSession.canLeave(user)"
-                    type="button"
-                    class="leave-button transition-smooth cursor-pointer rounded-md border border-red-500 py-3 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
-                    @click="leave"
-                >
-                    Leave
-                </button>
-                <button
-                    v-if="growthSession.canEditOrDelete(user)"
-                    type="button"
-                    class="update-button gs-btn-primary cursor-pointer rounded-md py-3 text-sm font-semibold"
-                    @click="request('edit-requested')"
-                >
-                    Edit
-                </button>
-                <button
-                    v-if="growthSession.canEditOrDelete(user)"
-                    type="button"
-                    class="delete-button transition-smooth cursor-pointer rounded-md border border-red-500 py-3 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white"
-                    @click="request('delete-requested')"
-                >
-                    Delete
+                    {{ action.label }}
                 </button>
                 <span v-if="shareResult === 'copied'" role="status" class="text-center text-sm font-semibold text-green-600">
                     Link copied to clipboard
@@ -234,40 +224,19 @@ async function share() {
                     <div class="gs-text-muted mb-1 text-xs font-bold tracking-[0.06em]">INVITE LINK</div>
                     <ShareInviteLink :share-url="growthSession.share_url" />
                 </div>
-                <div>
-                    <div class="gs-text-muted mb-2.5 text-xs font-bold tracking-[0.06em]">ATTENDEES ({{ capacityLabel(growthSession) }})</div>
-                    <ul class="flex flex-col gap-1">
-                        <li v-for="attendee in growthSession.attendees" :key="attendee.id">
-                            <a
-                                :href="attendee.githubURL"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="group focus-visible:ring-gs-accent flex items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-black/5 focus-visible:ring-2 focus-visible:outline-none dark:hover:bg-white/8"
-                            >
-                                <UserAvatar :name="attendee.name" :avatar="attendee.avatar" />
-                                <span
-                                    class="gs-text-strong group-hover:text-gs-accent min-w-0 flex-1 text-sm font-semibold tracking-[0.02em] transition-colors"
-                                    >{{ attendee.name }}</span
-                                >
-                                <ChevronRight
-                                    aria-hidden="true"
-                                    :size="17"
-                                    :stroke-width="2"
-                                    class="gs-text-muted group-hover:text-gs-accent flex-none transition-transform group-hover:translate-x-0.5"
-                                />
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div v-if="growthSession.watchers.length">
-                    <div class="gs-text-muted mb-2.5 text-xs font-bold tracking-[0.06em]">WATCHERS ({{ growthSession.watchers.length }})</div>
-                    <ul class="flex flex-col gap-2.5">
-                        <li v-for="w in growthSession.watchers" :key="w.id" class="flex items-center gap-2.5">
-                            <UserAvatar :name="w.name" :avatar="w.avatar" />
-                            <span class="gs-text-strong text-sm font-semibold tracking-[0.02em] uppercase">{{ w.name }}</span>
-                        </li>
-                    </ul>
-                </div>
+                <SessionRoster :heading="`ATTENDEES (${capacityLabel(growthSession)})`" :members="growthSession.attendees" />
+                <SessionRoster
+                    v-if="growthSession.waitlist.length"
+                    class="waitlist-roster"
+                    :heading="`WAITLIST (${growthSession.waitlist.length})`"
+                    :members="growthSession.waitlist"
+                    ordered
+                />
+                <SessionRoster
+                    v-if="growthSession.watchers.length"
+                    :heading="`WATCHERS (${growthSession.watchers.length})`"
+                    :members="growthSession.watchers"
+                />
             </div>
 
             <div class="gs-border mt-5 border-t pt-4">

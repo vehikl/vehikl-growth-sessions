@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\GrowthSessions;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use App\Support\InviteLink;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
@@ -175,7 +175,7 @@ class GrowthSessionInviteLinkManagementTest extends TestCase
             ->putJson(route('growth_sessions.update', $growthSession), ['has_invite_link' => false])
             ->assertSuccessful();
 
-        $this->assertTrue($growthSession->fresh()->hasAttendee($client));
+        $this->assertSame(Role::Attendee, $growthSession->fresh()->roleOf($client));
 
         $this->flushSession();
         $this->actingAs($client);
@@ -208,7 +208,7 @@ class GrowthSessionInviteLinkManagementTest extends TestCase
     {
         $growthSession = $this->ownedGrowthSession(unlisted: true);
         $colleague = User::factory()->vehiklMember()->create();
-        $growthSession->attendees()->attach($colleague, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($colleague, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($colleague);
 
@@ -232,7 +232,7 @@ class GrowthSessionInviteLinkManagementTest extends TestCase
     {
         $growthSession = $this->ownedGrowthSession(unlisted: true);
         $client = User::factory()->vehiklMember(false)->create();
-        $growthSession->attendees()->attach($client, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($client, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($client);
 
@@ -309,7 +309,7 @@ class GrowthSessionInviteLinkManagementTest extends TestCase
     private function ownedGrowthSession(bool $unlisted = false, bool $public = false): GrowthSession
     {
         $factory = GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember(), ['user_type_id' => UserType::OWNER_ID], 'owners');
+            ->hasAttached(User::factory()->vehiklMember(), ['user_type_id' => Role::Owner->value], 'owners');
 
         return $unlisted
             ? $factory->unlisted()->create()

@@ -2,9 +2,9 @@
 
 namespace App\Actions;
 
+use App\Enums\Role;
 use App\Models\User;
 use App\Models\UserHasMobbedWithView;
-use App\Models\UserType;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
@@ -29,8 +29,7 @@ class Statistics
                     ? "OR ((main_user_id IN ({$exceptionUserIds}) OR other_user_id IN ({$exceptionUserIds})) AND growth_session_id IS NOT NULL)"
                     : '';
                 $maxMobSize = config('statistics.max_mob_size');
-                $atendeeId = UserType::ATTENDEE_ID;
-                $ownerId = UserType::OWNER_ID;
+                $mobbingRoleIds = implode(',', Role::seatOccupyingIds());
 
                 $participationCountStatistics = User::query()
                     ->withCount([
@@ -51,8 +50,8 @@ class Statistics
                     WHEN (
                          total_number_of_attendees < {$maxMobSize}
                          AND (
-                             (main_user_type_id = {$atendeeId} OR main_user_type_id = {$ownerId})
-                             AND (other_user_type_id = {$atendeeId} OR other_user_type_id = {$ownerId})
+                             main_user_type_id IN ({$mobbingRoleIds})
+                             AND other_user_type_id IN ({$mobbingRoleIds})
                          )
                          )
                          {$loosenParticipationRules}

@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\Role;
+use App\Events\GrowthSessionCreated;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -44,7 +45,12 @@ class AnydeskReminderSessionsCommand extends Command
         }
         $newGrowthSession = GrowthSession::query()->create([...$defaultAttributes, ...$overrides]);
 
-        $this->vehikl->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::OWNER_ID]);
+        $this->vehikl->growthSessions()->attach($newGrowthSession, ['user_type_id' => Role::Owner->value]);
+
+        // Said here rather than by the model observer for the same reason the controller says it
+        // here: a growth session is only worth announcing once it has an owner on it.
+        event(new GrowthSessionCreated($newGrowthSession));
+
         return Command::SUCCESS;
     }
 

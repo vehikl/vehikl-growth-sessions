@@ -1,21 +1,22 @@
 <script setup lang="ts">
 import UserAvatar from '@/components/UserAvatar.vue';
-import {useNotifications} from '@/composables/useNotifications';
+import { useNotifications } from '@/composables/useNotifications';
 import type {
     IGrowthSessionChangeNotificationData,
     IGrowthSessionCommentAddedNotificationData,
     IGrowthSessionDeletedNotificationData,
+    IGrowthSessionWaitlistPromotionNotificationData,
     INotification,
     INotificationData,
     INotificationType,
     IUser,
 } from '@/types';
-import {Link} from '@inertiajs/vue3';
-import {onClickOutside} from '@vueuse/core';
-import {Bell, CalendarDays, CalendarX2, Clock, MapPin, MessageSquare} from 'lucide-vue-next';
+import { Link } from '@inertiajs/vue3';
+import { onClickOutside } from '@vueuse/core';
+import { Bell, CalendarCheck2, CalendarDays, CalendarX2, Clock, MapPin, MessageSquare } from 'lucide-vue-next';
 import moment from 'moment-timezone';
-import type {Component} from 'vue';
-import {ref} from 'vue';
+import type { Component } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps<{ user: IUser }>();
 
@@ -53,6 +54,7 @@ const TYPE_ICONS: Record<INotificationType, Component> = {
     growth_session_location_changed: MapPin,
     growth_session_deleted: CalendarX2,
     growth_session_comment_added: MessageSquare,
+    growth_session_waitlist_promotion: CalendarCheck2,
 };
 
 function notificationIcon(notification: INotification): Component {
@@ -69,8 +71,13 @@ function isChange(notification: INotification): notification is INotification & 
     return type === 'growth_session_date_changed' || type === 'growth_session_time_changed' || type === 'growth_session_location_changed';
 }
 
+/** Waitlist promotions get a green success treatment on their icon, since they outrank a routine update. */
+function isWaitlistPromotion(notification: INotification): notification is INotification & { data: IGrowthSessionWaitlistPromotionNotificationData } {
+    return notification.data.type === 'growth_session_waitlist_promotion';
+}
+
 /** `prefix` and `suffix` sandwich `bold`, split out so markup can style just the name/title. */
-type Headline = { prefix?: string; bold: string; suffix: string };
+type Headline = { lead?: string; prefix?: string; bold: string; suffix: string };
 
 const genericUpdate = (data: INotificationData): Headline => ({ bold: data.title, suffix: ' was updated.' });
 
@@ -79,6 +86,13 @@ const changeUpdated = (data: IGrowthSessionChangeNotificationData): Headline => 
 const commentAdded = (data: IGrowthSessionCommentAddedNotificationData): Headline => ({
     bold: data.commenter ?? 'Someone',
     suffix: ` commented on ${data.title}.`,
+});
+
+const waitlistPromotion = (data: IGrowthSessionWaitlistPromotionNotificationData): Headline => ({
+    lead: "You're in!",
+    prefix: 'A seat opened up in ',
+    bold: data.title,
+    suffix: '.',
 });
 
 const deleted = (data: IGrowthSessionDeletedNotificationData): Headline => ({
@@ -96,6 +110,7 @@ function headline(notification: INotification): Headline {
     if (isChange(notification)) return changeUpdated(notification.data);
     if (isComment(notification)) return commentAdded(notification.data);
     if (notification.data.type === 'growth_session_deleted') return deleted(notification.data);
+    if (notification.data.type === 'growth_session_waitlist_promotion') return waitlistPromotion(notification.data);
 
     return genericUpdate(notification.data);
 }
@@ -178,8 +193,17 @@ function changeDetails(notification: INotification): string | null {
                                         aria-hidden="true"
                                     />
                                 </span>
-                                <span v-else class="relative z-10 flex h-8 w-8 flex-none items-center justify-center">
-                                    <component :is="notificationIcon(notification)" class="gs-text-sub h-4 w-4" aria-hidden="true" />
+                                <span
+                                    v-else
+                                    class="relative z-10 flex h-8 w-8 flex-none items-center justify-center rounded-full"
+                                    :class="isWaitlistPromotion(notification) ? 'bg-green-100 dark:bg-green-900/30' : ''"
+                                >
+                                    <component
+                                        :is="notificationIcon(notification)"
+                                        class="h-4 w-4"
+                                        :class="isWaitlistPromotion(notification) ? 'text-green-700 dark:text-green-400' : 'gs-text-sub'"
+                                        aria-hidden="true"
+                                    />
                                     <span
                                         v-if="!notification.read_at"
                                         class="bg-vehikl-orange gs-card absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2"
@@ -188,7 +212,11 @@ function changeDetails(notification: INotification): string | null {
                                 </span>
                                 <span class="min-w-0 flex-1 pt-1">
                                     <span class="gs-text-strong block text-sm leading-snug">
-                                        <template v-if="headline(notification).prefix">{{ headline(notification).prefix }}</template
+                                        <template v-if="headline(notification).lead"
+                                            ><span class="mr-1 font-bold text-green-700 dark:text-green-400">{{
+                                                headline(notification).lead
+                                            }}</span></template
+                                        ><template v-if="headline(notification).prefix">{{ headline(notification).prefix }}</template
                                         ><span class="font-bold">{{ headline(notification).bold }}</span
                                         >{{ headline(notification).suffix }}
                                     </span>

@@ -23,6 +23,8 @@
     },
     "attendees": [],
     "watchers": [],
+    "waitlist": [],
+    "waitlist_position": null,
     "comments": [
         {
             "id": 7,

@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\GrowthSessionProposals;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\GrowthSessionProposal;
 use App\Models\Tag;
 use App\Models\User;
-use App\Models\UserType;
 use Tests\TestCase;
 
 class GrowthSessionProposalApproveTest extends TestCase
@@ -78,7 +78,7 @@ class GrowthSessionProposalApproveTest extends TestCase
         $this->assertDatabaseHas('growth_session_user', [
             'growth_session_id' => $growthSession->id,
             'user_id' => $proposalCreator->id,
-            'user_type_id' => UserType::OWNER_ID,
+            'user_type_id' => Role::Owner->value,
         ]);
     }
 

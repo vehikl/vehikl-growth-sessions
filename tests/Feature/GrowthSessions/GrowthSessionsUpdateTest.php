@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\GrowthSessions;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\Tag;
 use App\Models\User;
-use App\Models\UserType;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
@@ -14,7 +14,7 @@ class GrowthSessionsUpdateTest extends TestCase
     public function testTheOwnerOfAGrowthSessionCanEditIt()
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create([
                 'is_public' => false
             ]);
@@ -39,7 +39,7 @@ class GrowthSessionsUpdateTest extends TestCase
     public function testTheOwnerOfAGrowthSessionCanChangeTheAttendeeLimit()
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['attendee_limit' => 5]);
 
         $newAttendeeLimit = 10;
@@ -70,7 +70,7 @@ class GrowthSessionsUpdateTest extends TestCase
     public function testAGrowthSessionCannotBeUpdatedWithAnAnydeskIdThatDoesNotExist()
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create();
 
         $payload = ['anydesk_id' => 999999];
@@ -83,7 +83,7 @@ class GrowthSessionsUpdateTest extends TestCase
     public function testTheNewAttendeeLimitHasToBeANumber()
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['attendee_limit' => 5]);
 
         $newAttendeeLimit = 'bananas';
@@ -99,7 +99,7 @@ class GrowthSessionsUpdateTest extends TestCase
     public function testItAllowsTheAttendeeLimitToBeUnset()
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['attendee_limit' => 5]);
 
         $this->actingAs($growthSession->owner)->putJson(route(
@@ -115,7 +115,7 @@ class GrowthSessionsUpdateTest extends TestCase
     public function testTheOwnerOfAGrowthSessionCanNotChangeTheAttendeeLimitBelowTheCurrentAttendeeCount()
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['attendee_limit' => 6]);
         $users = User::factory()->times(5)->create();
         $growthSession->attendees()->attach($users->pluck('id'));
@@ -136,7 +136,7 @@ class GrowthSessionsUpdateTest extends TestCase
     {
         $this->setTestNow('2020-01-01');
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['date' => "2020-01-02"]);
         $newDate = '2020-01-10';
 
@@ -154,7 +154,7 @@ class GrowthSessionsUpdateTest extends TestCase
     {
         $this->setTestNow('2020-01-05');
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['date' => "2020-01-06"]);
         $newDate = '2020-01-03';
 
@@ -170,7 +170,7 @@ class GrowthSessionsUpdateTest extends TestCase
     {
         $this->setTestNow('2020-01-05');
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['date' => "2020-01-01"]);
         $newDate = '2020-01-10';
 
@@ -185,7 +185,7 @@ class GrowthSessionsUpdateTest extends TestCase
     public function testTheOwnerCanUpdateTheWatcherFlag()
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['allow_watchers' => true]);
 
         $this->actingAs($growthSession->owner)->putJson(route(
@@ -201,7 +201,7 @@ class GrowthSessionsUpdateTest extends TestCase
     public function testTheOwnerCanUpdateTheTags()
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['allow_watchers' => true]);
 
         $tag = Tag::factory()->create();

@@ -3,10 +3,10 @@
 namespace Tests\Unit\Actions;
 
 use App\Actions\Statistics;
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\GrowthSessionUser;
 use App\Models\User;
-use App\Models\UserType;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -84,13 +84,13 @@ class StatisticsTest extends TestCase
         $attendees = User::factory()->vehiklMember()->count(config('statistics.max_mob_size'))->create(['is_visible_in_statistics' => true]);
 
         $growthSession = GrowthSession::factory()
-            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached($owner, ['user_type_id' => Role::Owner->value], 'owners')
             ->create();
 
         GrowthSessionUser::query()->insert($attendees->map(fn (User $attendee) => [
             'growth_session_id' => $growthSession->id,
             'user_id' => $attendee->id,
-            'user_type_id' => UserType::ATTENDEE_ID,
+            'user_type_id' => Role::Attendee->value,
         ])->toArray());
 
         $statistics = $this->statisticsForLastWeek();
@@ -108,19 +108,19 @@ class StatisticsTest extends TestCase
         $otherAttendees = User::factory()->vehiklMember()->count(config('statistics.max_mob_size'))->create(['is_visible_in_statistics' => true]);
 
         $growthSession = GrowthSession::factory()
-            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached($owner, ['user_type_id' => Role::Owner->value], 'owners')
             ->create();
 
         GrowthSessionUser::query()->insert($otherAttendees->map(fn (User $attendee) => [
             'growth_session_id' => $growthSession->id,
             'user_id' => $attendee->id,
-            'user_type_id' => UserType::ATTENDEE_ID,
+            'user_type_id' => Role::Attendee->value,
         ])->toArray());
 
         GrowthSessionUser::query()->forceCreate([
             'user_id' => $loosenRulesUser->id,
             'growth_session_id' => $growthSession->id,
-            'user_type_id' => UserType::ATTENDEE_ID,
+            'user_type_id' => Role::Attendee->value,
         ]);
 
         config()->set(['statistics.loosen_participation_rules.user_ids' => [$loosenRulesUser->id]]);
@@ -138,13 +138,13 @@ class StatisticsTest extends TestCase
         $loosenRulesUser = User::factory()->create(['name' => 'Exception', 'is_visible_in_statistics' => true]);
 
         $growthSession = GrowthSession::factory()
-            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached($owner, ['user_type_id' => Role::Owner->value], 'owners')
             ->create();
 
         GrowthSessionUser::query()->forceCreate([
             'user_id' => $loosenRulesUser->id,
             'growth_session_id' => $growthSession->id,
-            'user_type_id' => UserType::WATCHER_ID,
+            'user_type_id' => Role::Watcher->value,
         ]);
 
         config()->set(['statistics.loosen_participation_rules.user_ids' => [$loosenRulesUser->id]]);
@@ -275,8 +275,8 @@ class StatisticsTest extends TestCase
     ): void
     {
         GrowthSession::factory()
-            ->hasAttached($attendee, ['user_type_id' => UserType::ATTENDEE_ID], 'attendees')
-            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached($attendee, ['user_type_id' => Role::Attendee->value], 'attendees')
+            ->hasAttached($owner, ['user_type_id' => Role::Owner->value], 'owners')
             ->create(['date' => $date]);
     }
 

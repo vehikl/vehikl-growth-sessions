@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\UserType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -16,9 +15,9 @@ class CreateUserTypesTable extends Migration
         });
 
         DB::table('user_types')->insert([
-            ['id' => UserType::OWNER_ID, 'type' => UserType::OWNER],
-            ['id' => UserType::ATTENDEE_ID, 'type' => UserType::ATTENDEE],
-            ['id' => UserType::WATCHER_ID, 'type' => UserType::WATCHER],
+            ['id' => 1, 'type' => 'owner'],
+            ['id' => 2, 'type' => 'attendee'],
+            ['id' => 3, 'type' => 'watcher'],
         ]);
     }
 

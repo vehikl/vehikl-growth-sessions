@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\UserType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
@@ -39,7 +38,7 @@ return new class extends Migration {
                     JOIN (
                         SELECT growth_session_id, COUNT(user_id) AS total_attendees
                         FROM growth_session_user
-                        WHERE user_type_id IN (" . UserType::ATTENDEE_ID . ", " . UserType::OWNER_ID . ")
+                        WHERE user_type_id IN (2, 1)
                         GROUP BY growth_session_id
                     ) AS attendee_count ON gsu1.growth_session_id = attendee_count.growth_session_id
                 ) AS participated ON u1.id = participated.main_user_id AND u2.id = participated.other_user_id
@@ -82,7 +81,7 @@ return new class extends Migration {
                     JOIN (
                         SELECT growth_session_id, COUNT(user_id) AS total_attendees
                         FROM growth_session_user
-                        WHERE user_type_id = " . UserType::ATTENDEE_ID . "
+                        WHERE user_type_id = 2
                         GROUP BY growth_session_id
                     ) AS attendee_count ON gsu1.growth_session_id = attendee_count.growth_session_id
                 ) AS participated ON u1.id = participated.main_user_id AND u2.id = participated.other_user_id

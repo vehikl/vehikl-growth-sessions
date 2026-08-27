@@ -3,9 +3,9 @@
 namespace Tests\Feature\Notifications;
 
 use App\Enums\NotificationType;
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use App\Notifications\GrowthSessionUpdatedNotification;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -15,7 +15,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
     private function makeSessionWithParticipants(array $attributes = []): GrowthSession
     {
         return GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create($attributes);
     }
 
@@ -26,7 +26,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
         $this->setTestNow('2020-01-01');
         $growthSession = $this->makeSessionWithParticipants(['date' => '2020-01-10']);
         $attendee = User::factory()->create();
-        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($growthSession->owner)->putJson(route(
             'growth_sessions.update',
@@ -49,7 +49,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
 
         $growthSession = $this->makeSessionWithParticipants(['location' => 'Zoom']);
         $watcher = User::factory()->create();
-        $growthSession->watchers()->attach($watcher, ['user_type_id' => UserType::WATCHER_ID]);
+        $growthSession->watchers()->attach($watcher, ['user_type_id' => Role::Watcher->value]);
 
         $this->actingAs($growthSession->owner)->putJson(route(
             'growth_sessions.update',
@@ -83,7 +83,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
 
         $growthSession = $this->makeSessionWithParticipants(['location' => 'Zoom']);
         $coOwner = User::factory()->create();
-        $growthSession->owners()->attach($coOwner, ['user_type_id' => UserType::OWNER_ID]);
+        $growthSession->owners()->attach($coOwner, ['user_type_id' => Role::Owner->value]);
 
         $this->actingAs($growthSession->owner)->putJson(route(
             'growth_sessions.update',
@@ -101,7 +101,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
 
         $growthSession = $this->makeSessionWithParticipants(['start_time' => '09:00', 'end_time' => '10:00']);
         $attendee = User::factory()->create();
-        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($growthSession->owner)->putJson(route(
             'growth_sessions.update',
@@ -124,7 +124,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
 
         $growthSession = $this->makeSessionWithParticipants(['start_time' => '09:00', 'end_time' => '10:00']);
         $attendee = User::factory()->create();
-        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($growthSession->owner)->putJson(route(
             'growth_sessions.update',
@@ -143,7 +143,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
         $this->setTestNow('2020-01-01');
         $growthSession = $this->makeSessionWithParticipants(['date' => '2020-01-10', 'location' => 'Zoom']);
         $attendee = User::factory()->create();
-        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($growthSession->owner)->putJson(route(
             'growth_sessions.update',
@@ -217,7 +217,7 @@ class GrowthSessionUpdateNotificationTest extends TestCase
 
         $growthSession = $this->makeSessionWithParticipants(['title' => 'Old title']);
         $attendee = User::factory()->create();
-        $growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($growthSession->owner)->putJson(route(
             'growth_sessions.update',

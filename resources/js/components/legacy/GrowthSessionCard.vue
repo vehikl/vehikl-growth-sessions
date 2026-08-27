@@ -2,15 +2,13 @@
 import { GrowthSession } from '@/classes/GrowthSession';
 import TextSegments from '@/components/legacy/TextSegments.vue';
 import { useInitials } from '@/composables/useInitials';
-import { avatarColor, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
+import { avatarColor, ISessionAction, sessionActions, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import IconDraggable from '@/svgs/IconDraggable.vue';
 import { IUser } from '@/types';
 import { computed } from 'vue';
 
 interface IProps {
     growthSession: GrowthSession;
-    /** Decided by the Board so every view marks the same sessions as full. */
-    isFull?: boolean;
     user?: IUser;
 }
 
@@ -27,6 +25,26 @@ const initials = computed(() => getInitials(ownerName.value));
 const ownerColor = computed(() => avatarColor(ownerName.value));
 const cardOpacity = computed(() => (status.value === 'finished' ? 0.55 : 1));
 const atCapacity = computed<boolean>(() => props.growthSession.hasReachedAttendeeLimit());
+const actions = computed<ISessionAction[]>(() => sessionActions(props.growthSession, props.user));
+
+/** Every action is dressed the same way wherever it appears on a card; only the accent differs. */
+const ACTION_CLASSES: Record<string, string> = {
+    join: 'gs-btn-primary flex-3',
+    'join-waitlist': 'gs-btn-primary flex-3',
+    watch: 'gs-btn-secondary flex-1',
+    leave: 'transition-smooth flex-1 border border-red-600 text-red-600 hover:bg-red-700 hover:text-white',
+    edit: 'gs-btn-primary flex-3',
+    delete: 'transition-smooth flex-1 border border-red-600 text-red-600 hover:bg-red-700 hover:text-white',
+};
+
+async function runAction(kind: ISessionAction['kind']) {
+    if (kind === 'join' || kind === 'join-waitlist') return joinGrowthSession();
+    if (kind === 'watch') return watchGrowthSession();
+    if (kind === 'leave') return leaveGrowthSession();
+    if (kind === 'edit') return emit('edit-requested', props.growthSession);
+
+    return onDeleteClicked();
+}
 
 async function joinGrowthSession() {
     await props.growthSession.join();
@@ -104,51 +122,16 @@ async function onDeleteClicked() {
             <text-segments :segments="growthSession.location_segments" />
         </div>
 
-        <div class="relative z-20 flex gap-1.5 empty:hidden" @click.stop>
+        <div class="session-actions relative z-20 flex flex-wrap gap-1.5 empty:hidden" @click.stop>
             <button
-                v-show="growthSession.canJoin(user)"
+                v-for="action in actions"
+                :key="action.kind"
                 type="button"
-                class="join-button gs-btn-primary flex-3 cursor-pointer rounded-sm px-4 py-1.5 text-sm font-medium"
-                @click.stop="joinGrowthSession"
+                :class="[action.hook, ACTION_CLASSES[action.kind]]"
+                class="max-w-full cursor-pointer truncate rounded-sm px-4 py-1.5 text-sm font-medium"
+                @click.stop="runAction(action.kind)"
             >
-                Join
-            </button>
-            <span
-                v-if="isFull"
-                class="full-indicator gs-at-capacity flex-3 rounded-sm border border-current px-4 py-1.5 text-center text-sm font-medium"
-                >Full</span
-            >
-            <button
-                v-show="growthSession.canWatch(user)"
-                type="button"
-                class="watch-button gs-btn-secondary flex-1 cursor-pointer rounded-sm px-4 py-1.5 text-sm font-medium"
-                @click.stop="watchGrowthSession"
-            >
-                Spectate
-            </button>
-            <button
-                v-show="growthSession.canLeave(user)"
-                type="button"
-                class="leave-button transition-smooth flex-1 cursor-pointer rounded-sm border border-red-600 px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-700 hover:text-white"
-                @click.stop="leaveGrowthSession"
-            >
-                Leave
-            </button>
-            <button
-                v-show="growthSession.canEditOrDelete(user)"
-                type="button"
-                class="update-button gs-btn-primary flex-3 cursor-pointer rounded-sm px-4 py-1.5 text-sm font-medium"
-                @click.stop="emit('edit-requested', growthSession)"
-            >
-                Edit
-            </button>
-            <button
-                v-show="growthSession.canEditOrDelete(user)"
-                type="button"
-                class="delete-button transition-smooth flex-1 cursor-pointer rounded-sm border border-red-600 px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-700 hover:text-white"
-                @click.stop="onDeleteClicked"
-            >
-                Delete
+                {{ action.label }}
             </button>
         </div>
 

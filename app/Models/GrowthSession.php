@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Role;
 use App\Observers\GrowthSessionObserver;
 use App\Support\TextSegmentParser;
 use Carbon\Carbon;
@@ -23,10 +24,10 @@ class GrowthSession extends Model
     const NO_LIMIT = PHP_INT_MAX;
 
     /** The relations GrowthSessionResource reads - eager-load these before building one to avoid lazy loading. */
-    const RESOURCE_RELATIONS = ['owners', 'attendees', 'watchers', 'comments', 'anydesk', 'tags'];
+    const RESOURCE_RELATIONS = ['owners', 'attendees', 'watchers', 'waitlist', 'comments', 'anydesk', 'tags'];
 
-    /** The subset of RESOURCE_RELATIONS the visibility policy reads via `owner`/`hasParticipant()`. */
-    const VISIBILITY_RELATIONS = ['owners', 'attendees', 'watchers'];
+    /** The subset of RESOURCE_RELATIONS the visibility policy reads via `owner`/`roleOf()`. */
+    const VISIBILITY_RELATIONS = ['owners', 'attendees', 'watchers', 'waitlist'];
 
     const SOCIAL_TAG = 'Social';
 
@@ -103,18 +104,31 @@ class GrowthSession extends Model
 
     public function owners()
     {
-        return $this->belongsToMany(User::class)->wherePivot('user_type_id', UserType::OWNER_ID);
+        return $this->belongsToMany(User::class)->wherePivot('user_type_id', Role::Owner->value);
     }
 
     public function attendees()
     {
         return $this->belongsToMany(User::class)
-            ->wherePivotIn('user_type_id', [UserType::ATTENDEE_ID, UserType::OWNER_ID]);
+            ->wherePivotIn('user_type_id', Role::seatOccupyingIds());
     }
 
     public function watchers()
     {
-        return $this->belongsToMany(User::class)->wherePivot('user_type_id', UserType::WATCHER_ID);
+        return $this->belongsToMany(User::class)->wherePivot('user_type_id', Role::Watcher->value);
+    }
+
+    /**
+     * Everyone waiting for a seat, front of the queue first. The tie-break on user id only matters
+     * when two enrolments share a timestamp to the microsecond, and exists so the order a member
+     * is shown in is never arbitrary.
+     */
+    public function waitlist(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->wherePivot('user_type_id', Role::Waitlisted->value)
+            ->orderByPivot('waitlisted_at')
+            ->orderByPivot('user_id');
     }
 
     public function comments()
@@ -220,19 +234,32 @@ class GrowthSession extends Model
         return (int) round($seconds / 60);
     }
 
-    public function hasAttendee(User $attendee): bool
+    /**
+     * What the member holds here, or null if they hold nothing at all. Every question anyone asks
+     * about somebody's standing is asked of the answer - whether they will be in the room, whether
+     * they already take part, what they are giving up - so no caller has to know which relation to
+     * look in, and no two of them can come to disagree about what a role means.
+     *
+     * Hosting is checked first because an owner is an attendee too: the more particular role is
+     * the true one.
+     *
+     * Reads all four of {@see VISIBILITY_RELATIONS} - every role has to be ruled out before the
+     * answer can be null - so a caller holding a growth session that was hydrated alongside others
+     * must have eager-loaded them, or the lazy-loading guard will refuse the read.
+     */
+    public function roleOf(?User $user): ?Role
     {
-        return (bool) $this->attendees->find($attendee);
-    }
+        if (! $user) {
+            return null;
+        }
 
-    public function hasWatcher(User $watcher): bool
-    {
-        return (bool) $this->watchers->find($watcher);
-    }
-
-    public function hasParticipant(User $user): bool
-    {
-        return $this->hasAttendee($user) || $this->hasWatcher($user);
+        return match (true) {
+            (bool) $this->owners->find($user) => Role::Owner,
+            (bool) $this->attendees->find($user) => Role::Attendee,
+            (bool) $this->watchers->find($user) => Role::Watcher,
+            (bool) $this->waitlist->find($user) => Role::Waitlisted,
+            default => null,
+        };
     }
 
     /**
@@ -253,7 +280,7 @@ class GrowthSession extends Model
     /**
      * The old/new values for whichever of `$fields` actually changed on this update.
      *
-     * @param string[] $fields
+     * @param  string[]  $fields
      * @return array<string, array{old: mixed, new: mixed}>
      */
     public function changedValuesFor(array $fields): array
@@ -261,24 +288,12 @@ class GrowthSession extends Model
         $changedFields = array_intersect(array_keys($this->getChanges()), $fields);
 
         return collect($changedFields)->mapWithKeys(fn (string $field) => [
-            $field => ['old' => $this->getRawOriginal($field), 'new' => $this->getAttributes()[$field] ?? null]
+            $field => ['old' => $this->getRawOriginal($field), 'new' => $this->getAttributes()[$field] ?? null],
         ])->all();
     }
 
     public function hasUnlimitedSlots(): bool
     {
         return $this->attendee_limit === self::NO_LIMIT;
-    }
-
-    public function hasOpenSlots(): bool
-    {
-        return $this->remainingSlots() != 0;
-    }
-
-    public function remainingSlots(): int
-    {
-        return $this->hasUnlimitedSlots()
-            ? -1
-            : max(0, $this->attendee_limit - $this->attendees()->count());
     }
 }

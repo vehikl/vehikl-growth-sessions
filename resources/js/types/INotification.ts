@@ -30,8 +30,18 @@ export interface IGrowthSessionCommentAddedNotificationData extends IBaseNotific
     commenter_avatar?: string | null;
 }
 
+export interface IGrowthSessionWaitlistPromotionNotificationData extends IBaseNotificationData {
+    type: 'growth_session_waitlist_promotion';
+    growth_session_id?: number;
+    date?: string;
+}
+
 /** Discriminated on `type` — narrow with `notification.data.type === '...'` to reach a variant's own fields. */
-export type INotificationData = IGrowthSessionChangeNotificationData | IGrowthSessionDeletedNotificationData | IGrowthSessionCommentAddedNotificationData;
+export type INotificationData =
+    | IGrowthSessionChangeNotificationData
+    | IGrowthSessionDeletedNotificationData
+    | IGrowthSessionCommentAddedNotificationData
+    | IGrowthSessionWaitlistPromotionNotificationData;
 
 export type INotificationType = INotificationData['type'];
 

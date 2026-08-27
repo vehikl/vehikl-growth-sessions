@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\Tag;
 use App\Models\User;
-use App\Models\UserType;
 use Carbon\CarbonInterface;
 use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
@@ -192,10 +192,10 @@ class ShowDashboardTest extends TestCase
         $host = User::factory()->vehiklMember()->create();
 
         $busy = $this->hostedBy($host, today()->subWeek(), 'Three came');
-        $busy->attendees()->attach(User::factory()->count(3)->create()->pluck('id'), ['user_type_id' => UserType::ATTENDEE_ID]);
+        $busy->attendees()->attach(User::factory()->count(3)->create()->pluck('id'), ['user_type_id' => Role::Attendee->value]);
 
         $upcoming = $this->hostedBy($host, today()->addWeek(), 'Two are coming');
-        $upcoming->attendees()->attach(User::factory()->count(2)->create()->pluck('id'), ['user_type_id' => UserType::ATTENDEE_ID]);
+        $upcoming->attendees()->attach(User::factory()->count(2)->create()->pluck('id'), ['user_type_id' => Role::Attendee->value]);
 
         $this->hostedBy($host, today()->subDay(), 'Nobody came');
         $this->attendedBy($host, today()->subDay(), 'Somebody else hosted this');
@@ -337,7 +337,7 @@ class ShowDashboardTest extends TestCase
         $popular = $this->hostedBy($host, today()->subDay(), 'Two others came');
         $popular->attendees()->attach(
             User::factory()->count(2)->create()->pluck('id'),
-            ['user_type_id' => UserType::ATTENDEE_ID]
+            ['user_type_id' => Role::Attendee->value]
         );
 
         $this->actingAs($host)
@@ -383,7 +383,7 @@ class ShowDashboardTest extends TestCase
 
         $this->hostedBy($host, today()->subDay(), 'Mobbed together')
             ->attendees()
-            ->attach($attendee->id, ['user_type_id' => UserType::ATTENDEE_ID]);
+            ->attach($attendee->id, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($host)
             ->get(route('dashboard'))
@@ -409,7 +409,7 @@ class ShowDashboardTest extends TestCase
 
         $this->hostedBy($host, today()->subDay(), 'Mobbed together')
             ->attendees()
-            ->attach($attendee->id, ['user_type_id' => UserType::ATTENDEE_ID]);
+            ->attach($attendee->id, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($host)
             ->get(route('dashboard'))
@@ -434,7 +434,7 @@ class ShowDashboardTest extends TestCase
         // Their only session together was well before the current week.
         $this->hostedBy($host, today()->subDays(30), 'Mobbed together, a while ago')
             ->attendees()
-            ->attach($attendee->id, ['user_type_id' => UserType::ATTENDEE_ID]);
+            ->attach($attendee->id, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($host)
             ->get(route('dashboard'))
@@ -486,7 +486,7 @@ class ShowDashboardTest extends TestCase
 
         // The busier session is the older one, so date cannot be what puts it on top.
         $busy = $this->hostedBy($host, today()->subDays(2), 'Three came');
-        $busy->attendees()->attach(User::factory()->count(3)->create()->pluck('id'), ['user_type_id' => UserType::ATTENDEE_ID]);
+        $busy->attendees()->attach(User::factory()->count(3)->create()->pluck('id'), ['user_type_id' => Role::Attendee->value]);
         $this->hostedBy($host, today()->subDay(), 'Nobody came');
 
         $this->actingAs($host)
@@ -760,7 +760,7 @@ class ShowDashboardTest extends TestCase
 
         $this->hostedBy($user, today()->subDay(), 'They only watched')
             ->watchers()
-            ->attach($watcher->id, ['user_type_id' => UserType::WATCHER_ID]);
+            ->attach($watcher->id, ['user_type_id' => Role::Watcher->value]);
 
         $this->watchedBy($user, today()->subDays(2), 'I only watched');
 
@@ -885,7 +885,7 @@ class ShowDashboardTest extends TestCase
         $session = $this->hostedBy($host, $date, 'Mobbed together');
         $session->attendees()->attach(
             collect($peers)->pluck('id'),
-            ['user_type_id' => UserType::ATTENDEE_ID]
+            ['user_type_id' => Role::Attendee->value]
         );
 
         return $session;
@@ -908,7 +908,7 @@ class ShowDashboardTest extends TestCase
     private function hostedBy(User $host, CarbonInterface $date, string $title, array $attributes = []): GrowthSession
     {
         return GrowthSession::factory()
-            ->hasAttached($host, ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached($host, ['user_type_id' => Role::Owner->value], 'owners')
             ->create([...$attributes, 'date' => $date, 'title' => $title]);
     }
 
@@ -919,7 +919,7 @@ class ShowDashboardTest extends TestCase
         if ($attendees > 0) {
             $session->attendees()->attach(
                 User::factory()->count($attendees)->create()->pluck('id'),
-                ['user_type_id' => UserType::ATTENDEE_ID]
+                ['user_type_id' => Role::Attendee->value]
             );
         }
 
@@ -929,16 +929,16 @@ class ShowDashboardTest extends TestCase
     private function attendedBy(User $attendee, CarbonInterface $date, string $title, array $attributes = []): GrowthSession
     {
         return GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember()->create(), ['user_type_id' => UserType::OWNER_ID], 'owners')
-            ->hasAttached($attendee, ['user_type_id' => UserType::ATTENDEE_ID], 'attendees')
+            ->hasAttached(User::factory()->vehiklMember()->create(), ['user_type_id' => Role::Owner->value], 'owners')
+            ->hasAttached($attendee, ['user_type_id' => Role::Attendee->value], 'attendees')
             ->create([...$attributes, 'date' => $date, 'title' => $title]);
     }
 
     private function watchedBy(User $watcher, CarbonInterface $date, string $title, array $attributes = []): GrowthSession
     {
         return GrowthSession::factory()
-            ->hasAttached(User::factory()->vehiklMember()->create(), ['user_type_id' => UserType::OWNER_ID], 'owners')
-            ->hasAttached($watcher, ['user_type_id' => UserType::WATCHER_ID], 'watchers')
+            ->hasAttached(User::factory()->vehiklMember()->create(), ['user_type_id' => Role::Owner->value], 'owners')
+            ->hasAttached($watcher, ['user_type_id' => Role::Watcher->value], 'watchers')
             ->create([...$attributes, 'date' => $date, 'title' => $title]);
     }
 

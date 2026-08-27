@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -22,12 +23,21 @@ class GrowthSessionModified implements ShouldBroadcast
     const TYPE_COMMENT = 'comment';
     const TYPE_ATTENDEES = 'attendees';
     const TYPE_WATCHERS = 'watchers';
+    const TYPE_WAITLIST = 'waitlist';
 
-    const TYPE_MAP = [
-        'owner' => self::TYPE_ATTENDEES,
-        'attendee' => self::TYPE_ATTENDEES,
-        'watcher' => self::TYPE_WATCHERS,
-    ];
+    /**
+     * Which of the roster's lists the board has to redraw for a member holding this role. Owning
+     * and attending both sit in the attendee list, so both redraw it - and a row still holding no
+     * role has moved the seats all the same, which is why nothing is the attendee list too.
+     */
+    public static function typeFor(?Role $role): string
+    {
+        return match ($role) {
+            Role::Owner, Role::Attendee, null => self::TYPE_ATTENDEES,
+            Role::Watcher => self::TYPE_WATCHERS,
+            Role::Waitlisted => self::TYPE_WAITLIST,
+        };
+    }
 
     public static function fire(GrowthSession $growthSession, string $action, string $type): self
     {

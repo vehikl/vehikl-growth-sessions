@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -28,7 +28,7 @@ class GrowthSessionSeeder extends Seeder
                 'start_time' => Carbon::createFromTime(random_int(15, 16))
             ]);
             $owner = User::factory()->vehiklMember()->create();
-            $owner->growthSessions()->attach($growthSession, ['user_type_id' => UserType::OWNER_ID]);
+            $owner->growthSessions()->attach($growthSession, ['user_type_id' => Role::Owner->value]);
         }
 
         $growthSession = GrowthSession::factory()
@@ -37,7 +37,7 @@ class GrowthSessionSeeder extends Seeder
                 'title' => 'This one has guests',
                 'date' => $monday,
             ]);
-        User::find(1)->growthSessions()->attach($growthSession, ['user_type_id' => UserType::OWNER_ID]);
+        User::find(1)->growthSessions()->attach($growthSession, ['user_type_id' => Role::Owner->value]);
 
         $privateSession = GrowthSession::factory()
             ->create([
@@ -45,6 +45,6 @@ class GrowthSessionSeeder extends Seeder
                 'date' => $monday->addDays(random_int(0, 4)),
                 'is_public' => false
             ]);
-        User::find(1)->growthSessions()->attach($privateSession, ['user_type_id' => UserType::OWNER_ID]);
+        User::find(1)->growthSessions()->attach($privateSession, ['user_type_id' => Role::Owner->value]);
     }
 }

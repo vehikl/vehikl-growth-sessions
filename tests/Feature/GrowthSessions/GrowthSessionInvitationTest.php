@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\GrowthSessions;
 
+use App\Enums\Role;
 use App\Models\AnyDesk;
 use App\Models\GrowthSession;
 use App\Models\Tag;
 use App\Models\User;
-use App\Models\UserType;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -175,7 +175,7 @@ class GrowthSessionInvitationTest extends TestCase
         $owner = User::factory()->vehiklMember(false)->create();
         $growthSession = GrowthSession::factory()
             ->unlisted()
-            ->hasAttached($owner, ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached($owner, ['user_type_id' => Role::Owner->value], 'owners')
             ->create();
         $vehiklMember = User::factory()->vehiklMember()->create();
 
@@ -232,7 +232,7 @@ class GrowthSessionInvitationTest extends TestCase
     public function testAnAttendeeSeesTheGrowthSessionWithoutEverHoldingTheToken()
     {
         $attendee = User::factory()->vehiklMember(false)->create();
-        $this->growthSession->attendees()->attach($attendee, ['user_type_id' => UserType::ATTENDEE_ID]);
+        $this->growthSession->attendees()->attach($attendee, ['user_type_id' => Role::Attendee->value]);
 
         $this->actingAs($attendee);
 
@@ -242,7 +242,7 @@ class GrowthSessionInvitationTest extends TestCase
     public function testAWatcherSeesTheGrowthSessionWithoutEverHoldingTheToken()
     {
         $watcher = User::factory()->vehiklMember(false)->create();
-        $this->growthSession->watchers()->attach($watcher, ['user_type_id' => UserType::WATCHER_ID]);
+        $this->growthSession->watchers()->attach($watcher, ['user_type_id' => Role::Watcher->value]);
 
         $this->actingAs($watcher);
 

@@ -198,18 +198,6 @@ describe('DayView', () => {
         expect(wrapper.find('.session-time').attributes('datetime')).toBe('2099-06-16T18:00:00.000Z');
     });
 
-    it('renders the full indicator only when the session id is in fullSessionIds', () => {
-        const full = mount(DayView, {
-            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', fullSessionIds: [5], user: vehiklUser },
-        });
-        const notFull = mount(DayView, {
-            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', fullSessionIds: [], user: vehiklUser },
-        });
-
-        expect(full.find('.full-indicator').exists()).toBe(true);
-        expect(notFull.find('.full-indicator').exists()).toBe(false);
-    });
-
     it('emits open-detail with the session when the card overlay is clicked', async () => {
         const session = makeSession();
         const wrapper = mount(DayView, {

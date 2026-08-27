@@ -136,23 +136,6 @@ function growthSessionsVisibleInDate(date: DateTime): GrowthSession[] {
 
 const daySessions = computed(() => growthSessionsVisibleInDate(selectedDate.value));
 
-// Sessions that should read as full: at capacity, and capacity is the only thing stopping
-// this user joining. Owners, people already in the session, guests and finished sessions
-// are excluded, because the indicator exists to explain a missing Join button.
-const fullSessionIds = computed<number[]>(() => {
-    if (!props.user) return [];
-
-    return growthSessions.value.allGrowthSessions
-        .filter(
-            (session) =>
-                session.hasReachedAttendeeLimit() &&
-                !session.isOwner(props.user!) &&
-                !session.isAttendeeOrWatcher(props.user!) &&
-                !session.hasAlreadyHappened,
-        )
-        .map((session) => session.id);
-});
-
 // Precompute the filtered sessions for each day so the dumb WeekView renders from props alone.
 const sessionsByDate = computed<Record<string, GrowthSession[]>>(() => {
     const map: Record<string, GrowthSession[]> = {};
@@ -471,7 +454,6 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             v-show="view === 'week'"
             :week-dates="growthSessions.weekDates"
             :sessions-by-date="sessionsByDate"
-            :full-session-ids="fullSessionIds"
             :user="user"
             @create="onCreateNewGrowthSessionClicked"
             @edit-requested="onGrowthSessionEditRequested"
@@ -489,7 +471,6 @@ useEcho('gs-channel', '.session.modified', refreshGrowthSessions, [], 'public');
             :selected-index="dayIndex"
             :sessions="daySessions"
             :current-label="selectedDate.weekDayString()"
-            :full-session-ids="fullSessionIds"
             :user="user"
             @select-day="dayIndex = $event"
             @open-detail="selectSession"

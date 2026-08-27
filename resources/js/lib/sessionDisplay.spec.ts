@@ -1,6 +1,7 @@
 import { GrowthSession } from '@/classes/GrowthSession';
-import { avatarColor, capacityLabel, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { avatarColor, capacityLabel, sessionActions, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
+import { IUser } from '@/types';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 function makeSession(overrides: Partial<Record<string, unknown>> = {}): GrowthSession {
     return new GrowthSession({
@@ -112,5 +113,78 @@ describe('capacityLabel', () => {
             attendees: [{ id: 2, name: 'B', avatar: '', github_nickname: 'b', is_vehikl_member: true }],
         });
         expect(capacityLabel(session)).toBe('1');
+    });
+});
+
+describe('sessionActions', () => {
+    // The shared session sits on a fixed date, so the clock is pinned beside it - otherwise every
+    // list here empties out the moment that date falls into the past.
+    beforeEach(() => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(2024, 5, 15, 12, 0, 0));
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    const owner: IUser = { id: 1, name: 'Ada Lovelace', avatar: '', github_nickname: 'ada', is_vehikl_member: true };
+    const member: IUser = { id: 2, name: 'Grace Hopper', avatar: '', github_nickname: 'grace', is_vehikl_member: true };
+    const other: IUser = { id: 3, name: 'Alan Turing', avatar: '', github_nickname: 'alan', is_vehikl_member: true };
+
+    /** The board renders whatever comes back, in order - so the kinds are the whole contract. */
+    function kindsFor(overrides: Partial<Record<string, unknown>>, user?: IUser | null): string[] {
+        return sessionActions(makeSession(overrides), user).map((action) => action.kind);
+    }
+
+    const openSession = { attendee_limit: 4, attendees: [] };
+    const fullSession = { attendee_limit: 1, attendees: [other] };
+
+    it('offers nothing to somebody not logged in', () => {
+        expect(kindsFor(openSession, null)).toEqual([]);
+    });
+
+    it('offers a seat and a spectator place while seats are left', () => {
+        expect(kindsFor(openSession, member)).toEqual(['join', 'watch']);
+    });
+
+    it('offers the queue instead of a seat once the seats are gone', () => {
+        expect(kindsFor(fullSession, member)).toEqual(['join-waitlist', 'watch']);
+    });
+
+    it('never offers a seat and the queue together', () => {
+        for (const session of [openSession, fullSession]) {
+            const kinds = kindsFor(session, member);
+
+            expect(kinds.includes('join') && kinds.includes('join-waitlist')).toBe(false);
+        }
+    });
+
+    it('offers a queued member their way out and nothing else', () => {
+        expect(kindsFor({ ...fullSession, waitlist: [member] }, member)).toEqual(['leave']);
+    });
+
+    it('names the way out after the place being given up', () => {
+        const queued = sessionActions(makeSession({ ...fullSession, waitlist: [member] }), member);
+        const seated = sessionActions(makeSession({ attendee_limit: 4, attendees: [member] }), member);
+
+        expect(queued.find((action) => action.kind === 'leave')?.label).toBe('Leave waitlist');
+        expect(seated.find((action) => action.kind === 'leave')?.label).toBe('Leave');
+    });
+
+    it('offers an attendee their way out rather than a second role', () => {
+        expect(kindsFor({ attendee_limit: 4, attendees: [member] }, member)).toEqual(['leave']);
+    });
+
+    it('offers the owner the session itself, and no way to join their own', () => {
+        expect(kindsFor(openSession, owner)).toEqual(['edit', 'delete']);
+    });
+
+    it('offers nothing to act on once the session has finished', () => {
+        expect(kindsFor({ ...fullSession, date: '2000-01-01' }, member)).toEqual([]);
+    });
+
+    it('offers no spectator place where the session refuses watchers', () => {
+        expect(kindsFor({ ...openSession, allow_watchers: false }, member)).toEqual(['join']);
     });
 });

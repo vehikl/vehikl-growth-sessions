@@ -32,6 +32,8 @@ export class GrowthSession implements IGrowthSession {
     owner!: User | null;
     attendees!: User[];
     watchers!: User[];
+    waitlist!: User[];
+    waitlist_position!: number | null;
     comments!: IComment[];
     attendee_limit!: number | null;
     allow_watchers!: boolean;
@@ -107,6 +109,8 @@ export class GrowthSession implements IGrowthSession {
         this.owner = growthSession.owner ? new User(growthSession.owner) : null;
         this.attendees = growthSession.attendees?.map((attendee) => new User(attendee)) ?? [];
         this.watchers = growthSession.watchers?.map((attendee) => new User(attendee)) ?? [];
+        this.waitlist = growthSession.waitlist?.map((member) => new User(member)) ?? [];
+        this.waitlist_position = growthSession.waitlist_position ?? null;
         this.comments = growthSession.comments;
         this.attendee_limit = growthSession.attendee_limit;
         this.discord_channel_id = growthSession.discord_channel_id;
@@ -164,7 +168,8 @@ export class GrowthSession implements IGrowthSession {
             return false;
         }
 
-        return this.allow_watchers && !this.isOwner(user) && !this.isAttendeeOrWatcher(user) && !this.hasAlreadyHappened;
+        // Waiting in line is a role of its own: leaving it is the way to become a spectator instead.
+        return this.allow_watchers && !this.isOwner(user) && !this.isAttendeeOrWatcher(user) && !this.isOnWaitlist(user) && !this.hasAlreadyHappened;
     }
 
     canJoin(user?: IUser | null): boolean {
@@ -172,7 +177,39 @@ export class GrowthSession implements IGrowthSession {
             return false;
         }
 
-        return !this.isOwner(user) && !this.isAttendeeOrWatcher(user) && !this.hasAlreadyHappened && !this.hasReachedAttendeeLimit();
+        return (
+            !this.isOwner(user) &&
+            !this.isAttendeeOrWatcher(user) &&
+            !this.isOnWaitlist(user) &&
+            !this.hasAlreadyHappened &&
+            !this.hasReachedAttendeeLimit()
+        );
+    }
+
+    /**
+     * The other half of {@see canJoin}: a session with no seat left is something to queue for. The
+     * two are mutually exclusive by construction, so the buttons are never offered together.
+     */
+    canJoinWaitlist(user?: IUser | null): boolean {
+        if (!user) {
+            return false;
+        }
+
+        return (
+            this.hasReachedAttendeeLimit() &&
+            !this.isOwner(user) &&
+            !this.isAttendeeOrWatcher(user) &&
+            !this.isOnWaitlist(user) &&
+            !this.hasAlreadyHappened
+        );
+    }
+
+    isOnWaitlist(user?: IUser | null): boolean {
+        if (!user) {
+            return false;
+        }
+
+        return this.waitlist.some((member) => member.id === user.id);
     }
 
     hasReachedAttendeeLimit(): boolean {
@@ -201,7 +238,7 @@ export class GrowthSession implements IGrowthSession {
         if (!user) {
             return false;
         }
-        return !this.isOwner(user) && this.isAttendeeOrWatcher(user) && !this.hasAlreadyHappened;
+        return !this.isOwner(user) && (this.isAttendeeOrWatcher(user) || this.isOnWaitlist(user)) && !this.hasAlreadyHappened;
     }
 
     async leave() {

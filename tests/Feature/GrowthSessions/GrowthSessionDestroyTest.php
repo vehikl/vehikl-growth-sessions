@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\GrowthSessions;
 
+use App\Enums\Role;
 use App\Models\GrowthSession;
 use App\Models\User;
-use App\Models\UserType;
 use Tests\TestCase;
 
 class GrowthSessionDestroyTest extends TestCase
@@ -12,7 +12,7 @@ class GrowthSessionDestroyTest extends TestCase
     public function testTheOwnerCanDeleteAnExistingGrowthSession()
     {
         $growthSession = GrowthSession::factory()
-            ->hasAttached(User::factory(), ['user_type_id' => UserType::OWNER_ID], 'owners')
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
             ->create();
 
         $this->actingAs($growthSession->owner)->deleteJson(route(

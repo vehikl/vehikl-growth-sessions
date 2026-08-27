@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Statistics;
+use App\Enums\Role;
 use App\Http\Resources\HostedGrowthSession;
 use App\Models\GrowthSession;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserHasMobbedWithView;
-use App\Models\UserType;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -25,12 +25,6 @@ class ShowDashboardController extends Controller
     private const MOB_SQUAD_LIMIT = 5;
 
     private const DEFAULT_SORT = 'date';
-
-    /**
-     * The pivot roles that put someone in the mob, at either end of the pairing. Watching is
-     * not mobbing, which is the line the statistics matrix behind `yet_to_mob_with` draws too.
-     */
-    private const MOBBING_ROLES = [UserType::OWNER_ID, UserType::ATTENDEE_ID];
 
     /**
      * The orders the hosted sessions list offers, keyed by the value the query string carries.
@@ -81,7 +75,7 @@ class ShowDashboardController extends Controller
     {
         return GrowthSession::scheduledMinutes(
             $user->allSessions()
-                ->wherePivotIn('user_type_id', self::MOBBING_ROLES)
+                ->wherePivotIn('user_type_id', Role::seatOccupyingIds())
                 ->whereDate('growth_sessions.date', '<=', today())
                 ->excludingPurelySocial()
         );
@@ -151,8 +145,10 @@ class ShowDashboardController extends Controller
     {
         $pairings = UserHasMobbedWithView::query()
             ->where('main_user_id', $user->id)
-            ->whereIn('main_user_type_id', self::MOBBING_ROLES)
-            ->whereIn('other_user_type_id', self::MOBBING_ROLES)
+            // Watching is not mobbing, which is the line the statistics matrix behind
+            // `yet_to_mob_with` draws too.
+            ->whereIn('main_user_type_id', Role::seatOccupyingIds())
+            ->whereIn('other_user_type_id', Role::seatOccupyingIds())
             ->where('total_number_of_attendees', '<', config('statistics.max_mob_size'))
             ->whereIn('other_user_id', User::query()->vehikaliens()->select('id'))
             ->whereHas('growthSession', fn (Builder $query) => $query->whereDate('date', '<=', today()))

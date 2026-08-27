@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Role;
 use App\Events\GrowthSessionCreated;
 use App\Events\GrowthSessionModified;
-use App\Exceptions\AttendeeLimitReached;
 use App\Http\Requests\DeleteGrowthSessionRequest;
 use App\Http\Requests\StoreGrowthSessionRequest;
 use App\Http\Requests\UpdateGrowthSessionRequest;
@@ -12,10 +12,9 @@ use App\Http\Resources\GrowthSession as GrowthSessionResource;
 use App\Http\Resources\GrowthSessionWeek;
 use App\Models\AnyDesk;
 use App\Models\GrowthSession;
-use App\Models\GrowthSessionUser;
-use App\Models\UserType;
 use App\Policies\GrowthSessionPolicy;
 use App\Support\InviteLink;
+use App\Support\Seating;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -66,7 +65,7 @@ class GrowthSessionController extends Controller
 
         DB::transaction(function () use ($newGrowthSession, $request) {
             $newGrowthSession->save();
-            $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => UserType::OWNER_ID]);
+            $request->user()->growthSessions()->attach($newGrowthSession, ['user_type_id' => Role::Owner->value]);
             $newGrowthSession->tags()->sync($request->input('tags'));
         });
 
@@ -81,44 +80,34 @@ class GrowthSessionController extends Controller
         return new GrowthSessionResource($newGrowthSession);
     }
 
+    /**
+     * Joining a growth session with a seat free takes it; joining one with none takes a place in
+     * line instead, so a full growth session is something to ask for rather than a dead end.
+     */
     public function join(GrowthSession $growthSession, Request $request)
     {
-        if ($growthSession->attendees()->count() === $growthSession->attendee_limit) {
-            throw new AttendeeLimitReached;
-        }
+        Seating::for($growthSession)->take($request->user());
 
-        // Switched from attach flow so the observer would run properly
-        GrowthSessionUser::query()->updateOrCreate([
-            'growth_session_id' => $growthSession->id,
-            'user_id' => $request->user()->id,
-        ], [
-            'user_type_id' => UserType::ATTENDEE_ID,
-        ]);
-
-        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
+        return $this->rosterOf($growthSession);
     }
 
     public function watch(GrowthSession $growthSession, Request $request)
     {
-        // Switched from attach flow so the observer would run properly
-        GrowthSessionUser::query()->updateOrCreate([
-            'growth_session_id' => $growthSession->id,
-            'user_id' => $request->user()->id,
-        ], [
-            'user_type_id' => UserType::WATCHER_ID,
-        ]);
+        Seating::for($growthSession)->spectate($request->user());
 
-        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
+        return $this->rosterOf($growthSession);
     }
 
+    /**
+     * Leaving covers giving up a seat and giving up a place in line alike. Either way the queue is
+     * asked to fill whatever is now free - withdrawing from it frees nothing, so the order behind
+     * the person who left is untouched.
+     */
     public function leave(GrowthSession $growthSession, Request $request)
     {
-        GrowthSessionUser::query()
-            ->where('growth_session_id', $growthSession->id)
-            ->where('user_id', $request->user()->id)
-            ->delete();
+        Seating::for($growthSession)->release($request->user());
 
-        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
+        return $this->rosterOf($growthSession);
     }
 
     public function update(UpdateGrowthSessionRequest $request, GrowthSession $growthSession)
@@ -141,11 +130,20 @@ class GrowthSessionController extends Controller
 
         $growthSession->save();
 
-        return new GrowthSessionResource($growthSession->refresh()->load(GrowthSession::RESOURCE_RELATIONS));
+        // Raising the limit is the other way a seat comes free, so the queue is served here too.
+        Seating::for($growthSession)->reseat();
+
+        return $this->rosterOf($growthSession);
     }
 
     public function destroy(DeleteGrowthSessionRequest $request, GrowthSession $growthSession)
     {
         $growthSession->delete();
+    }
+
+    /** Never a bare model: every growth session response is built from the same loaded relations. */
+    private function rosterOf(GrowthSession $growthSession): GrowthSessionResource
+    {
+        return new GrowthSessionResource($growthSession->fresh()->load(GrowthSession::RESOURCE_RELATIONS));
     }
 }

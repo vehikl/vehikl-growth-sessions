@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Role;
 use App\Events\GrowthSessionCreated;
 use App\Http\Requests\ApproveGrowthSessionProposalRequest;
 use App\Http\Requests\StoreGrowthSessionProposalRequest;
@@ -9,7 +10,6 @@ use App\Http\Requests\UpdateGrowthSessionProposalRequest;
 use App\Http\Resources\GrowthSessionProposal as GrowthSessionProposalResource;
 use App\Models\GrowthSession;
 use App\Models\GrowthSessionProposal;
-use App\Models\UserType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -104,7 +104,7 @@ class GrowthSessionProposalController extends Controller
         $growthSession->save();
 
         // Attach the proposal creator as the owner
-        $growthSession->owners()->attach($proposal->creator_id, ['user_type_id' => UserType::OWNER_ID]);
+        $growthSession->owners()->attach($proposal->creator_id, ['user_type_id' => Role::Owner->value]);
 
         // Sync tags from proposal to session
         $growthSession->tags()->sync($proposal->tags->pluck('id'));

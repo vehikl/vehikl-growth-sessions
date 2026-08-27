@@ -31,6 +31,8 @@ describe('GrowthSession', () => {
         owner,
         attendees: [],
         watchers: [],
+        waitlist: [],
+        waitlist_position: null,
         comments: [],
         title: 'The growth session title',
         topic: 'The growth session topic',
@@ -163,6 +165,67 @@ describe('GrowthSession', () => {
             };
 
             expect(growthSession.canJoin(someUser)).toBe(true);
+        });
+    });
+
+    describe('the waitlist', () => {
+        const hopeful: IUser = { id: 3, name: 'Jane Doe', github_nickname: 'jane', is_vehikl_member: true, avatar: '' };
+        const seated: IUser = { id: 2, name: 'John Doe', github_nickname: 'john', is_vehikl_member: true, avatar: '' };
+        const inLine: IUser = { id: 4, name: 'Ada Byron', github_nickname: 'ada', is_vehikl_member: true, avatar: '' };
+
+        function fullSession(overrides: Partial<IGrowthSession> = {}): GrowthSession {
+            return new GrowthSession({ ...growthSessionJson, date: '2099-01-01', attendee_limit: 1, attendees: [seated], ...overrides });
+        }
+
+        it('is offered once the seats are gone', () => {
+            expect(fullSession().canJoinWaitlist(hopeful)).toBe(true);
+        });
+
+        it('is not offered while a seat remains, where joining outright is', () => {
+            const session = fullSession({ attendee_limit: 2 });
+
+            expect(session.canJoinWaitlist(hopeful)).toBe(false);
+            expect(session.canJoin(hopeful)).toBe(true);
+        });
+
+        it('is never offered alongside joining', () => {
+            const session = fullSession();
+
+            expect(session.canJoin(hopeful)).toBe(false);
+            expect(session.canJoinWaitlist(hopeful)).toBe(true);
+        });
+
+        it('is not offered to the owner, to someone already taking part, or to anyone waiting already', () => {
+            expect(fullSession().canJoinWaitlist(owner)).toBe(false);
+            expect(fullSession().canJoinWaitlist(seated)).toBe(false);
+            expect(fullSession({ waitlist: [inLine] }).canJoinWaitlist(inLine)).toBe(false);
+        });
+
+        it('is not offered on a session that has already happened, nor to a visitor who is not signed in', () => {
+            expect(fullSession({ date: '2020-01-01' }).canJoinWaitlist(hopeful)).toBe(false);
+            expect(fullSession().canJoinWaitlist(null)).toBe(false);
+        });
+
+        it('is not offered on a limitless session, which is never full', () => {
+            expect(fullSession({ attendee_limit: null }).canJoinWaitlist(hopeful)).toBe(false);
+        });
+
+        it('knows who is waiting on it', () => {
+            const session = fullSession({ waitlist: [inLine] });
+
+            expect(session.isOnWaitlist(inLine)).toBe(true);
+            expect(session.isOnWaitlist(hopeful)).toBe(false);
+            expect(session.isOnWaitlist(null)).toBe(false);
+        });
+
+        it('holds someone waiting to that one role: spectating means leaving the queue first', () => {
+            expect(fullSession({ waitlist: [inLine] }).canWatch(inLine)).toBe(false);
+            expect(fullSession().canWatch(hopeful)).toBe(true);
+        });
+
+        it('lets someone waiting withdraw, the same way an attendee leaves', () => {
+            expect(fullSession({ waitlist: [inLine] }).canLeave(inLine)).toBe(true);
+            expect(fullSession().canLeave(hopeful)).toBe(false);
         });
     });
 

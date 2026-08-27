@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\GrowthSessions;
 
+use App\Enums\Role;
 use App\Models\AnyDesk;
 use App\Models\GrowthSession;
 use App\Models\Tag;
 use App\Models\User;
-use App\Models\UserType;
 use Illuminate\Http\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -231,6 +231,6 @@ class GrowthSessionsStoreTest extends TestCase
             ->get();
 
         $this->assertCount(1, $ownerEntries);
-        $this->assertEquals(UserType::OWNER_ID, $ownerEntries->first()->pivot->user_type_id);
+        $this->assertEquals(Role::Owner->value, $ownerEntries->first()->pivot->user_type_id);
     }
 }
