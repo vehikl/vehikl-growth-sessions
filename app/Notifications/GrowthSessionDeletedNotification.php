@@ -12,10 +12,10 @@ class GrowthSessionDeletedNotification extends BaseGrowthSessionNotification
     public readonly string $date;
 
     /**
-     * Copies the title and date out of the session rather than keeping the model itself: this
-     * notification is queued, and Laravel's queued-job serialization re-fetches Eloquent model
-     * properties from the database when the job runs — which fails every time here, since the
-     * hard delete has already removed the row by the time this notification is dispatched.
+     * Copies the title and date out of the session rather than keeping the model itself: the
+     * broadcast leg is queued by the framework, and queued-job serialization re-fetches Eloquent
+     * model properties from the database when the job runs — which fails every time here, since
+     * the hard delete has already removed the row by the time this notification is dispatched.
      */
     public function __construct(GrowthSession $growthSession)
     {
