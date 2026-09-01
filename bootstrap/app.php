@@ -45,6 +45,10 @@ return Application::configure(basePath: dirname(__DIR__))
             ->timezone('America/Toronto')
             ->at('09:00')
             ->daily();
+
+        $schedule->command('notifications:prune')
+            ->timezone('America/Toronto')
+            ->dailyAt('02:00');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
