@@ -3,14 +3,10 @@
 namespace App\Notifications;
 
 use App\Enums\NotificationType;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-abstract class BaseGrowthSessionNotification extends Notification implements ShouldQueue
+abstract class BaseGrowthSessionNotification extends Notification
 {
-    use Queueable;
-
     abstract public function notificationType(): NotificationType;
 
     public function via(): array
