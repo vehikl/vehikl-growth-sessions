@@ -71,7 +71,8 @@ const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
     end_time: endTime.value,
     is_public: isPublic.value,
     attendee_limit: isLimitless.value ? undefined : attendeeLimit.value,
-    discord_channel_id: selectedDiscordChannelId.value ?? undefined,
+    // Explicit null so clearing the channel reaches the server.
+    discord_channel_id: selectedDiscordChannelId.value || null,
     anydesk_id: selectedAnydeskId.value ? Number.parseInt(selectedAnydeskId.value) : undefined,
     allow_watchers: allowWatchers.value,
     has_invite_link: hasInviteLink.value,
@@ -80,12 +81,6 @@ const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
 
 onBeforeMount(() => {
     date.value = props.startDate;
-
-    getDiscordChannels();
-
-    getAnyDesks();
-
-    getTags();
 
     if (props.growthSession) {
         date.value = props.growthSession.date;
@@ -104,6 +99,16 @@ onBeforeMount(() => {
         allowWatchers.value = props.growthSession.allow_watchers;
         tagIds.value = props.growthSession.tags.map((tag) => tag.id.toString());
     }
+
+    // Fetched after restoring, so the occupied lookup uses the session's own date and id.
+    getDiscordChannels();
+
+    getAnyDesks();
+
+    getTags();
+
+    // Watched from here on, so restoring a saved channel does not rewrite the saved location.
+    watch(selectedDiscordChannelId, autofillLocationFromDiscordChannel);
 });
 
 onMounted(() => {
@@ -173,7 +178,8 @@ async function updateGrowthSession() {
 async function getDiscordChannels() {
     try {
         const discordChannelsFromApi = await DiscordChannelApi.index();
-        const occupiedFromApi = await DiscordChannelApi.occupied(date.value);
+        // A session never occupies a channel against itself. A copy arrives under id 0, so only a real edit excludes itself.
+        const occupiedFromApi = await DiscordChannelApi.occupied(date.value, props.growthSession?.id || undefined);
         const occupiedChannelIds = occupiedFromApi.map((discordChannel) => discordChannel.id);
 
         discordChannels.value = discordChannelsFromApi
@@ -183,7 +189,10 @@ async function getDiscordChannels() {
                     value: discordChannel.id,
                 };
             })
-            .filter((discordChannel) => !occupiedChannelIds.includes(discordChannel.value));
+            // The channel the form already holds is always offered, however the occupied list reads.
+            .filter(
+                (discordChannel) => discordChannel.value === selectedDiscordChannelId.value || !occupiedChannelIds.includes(discordChannel.value),
+            );
     } catch (e) {
         onRequestFailed(e);
     }
@@ -217,15 +226,26 @@ async function getTags() {
     }
 }
 
-watch(selectedDiscordChannelId, (selectedId: string | null) => {
+// A location carrying this prefix is the autofill's own work; anything else the owner typed is theirs to keep.
+const DISCORD_LOCATION_PREFIX = 'Channel: ';
+
+// Only ever names a channel present in the loaded list — a missed lookup would persist 'Channel: undefined'.
+function autofillLocationFromDiscordChannel(selectedId: string | null) {
     if (!selectedId) {
         return;
     }
-    if (!location.value || location.value.startsWith('Channel: ')) {
-        const discordChannelName = discordChannels.value.find((channel) => channel.value === selectedId)?.label;
-        location.value = `Channel: ${discordChannelName}`;
+
+    if (location.value && !location.value.startsWith(DISCORD_LOCATION_PREFIX)) {
+        return;
     }
-});
+
+    const discordChannelName = discordChannels.value.find((channel) => channel.value === selectedId)?.label;
+    if (!discordChannelName) {
+        return;
+    }
+
+    location.value = `${DISCORD_LOCATION_PREFIX}${discordChannelName}`;
+}
 </script>
 
 <template>

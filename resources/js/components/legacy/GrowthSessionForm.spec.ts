@@ -173,7 +173,8 @@ describe('GrowthSessionForm', () => {
                     start_time: chosenStartTime,
                     end_time: '05:00 pm',
                     topic: chosenTopic,
-                    discord_channel_id: discordChannelId,
+                    // No channel is sent as an explicit null so clearing one reaches the server.
+                    discord_channel_id: discordChannelId ?? null,
                     anydesk_id: anyDeskId,
                     allow_watchers,
                 };
@@ -448,6 +449,54 @@ describe('GrowthSessionForm', () => {
         });
     });
 
+    // The Board copies a session by handing the form the source's values under id 0.
+    describe('used for copying', () => {
+        const copiedSession = {
+            ...growthSessionWithCommentsJson,
+            id: 0,
+            discord_channel_id: discordChannels[0].id,
+            location: `Channel: ${discordChannels[0].name}`,
+        } as unknown as IGrowthSession;
+
+        beforeEach(() => {
+            // The session being copied still occupies its own channel.
+            DiscordChannelApi.occupied = vi.fn().mockImplementation(() => [discordChannels[0]]);
+            wrapper = mount(GrowthSessionForm, {
+                propsData: {
+                    owner: user,
+                    startDate,
+                    growthSession: copiedSession,
+                },
+            });
+        });
+
+        it('preselects the copied Discord channel', async () => {
+            await flushPromises();
+
+            const selector = wrapper.find<HTMLSelectElement>('#discord-channel');
+            expect(selector.element.value).toBe(discordChannels[0].id);
+            expect(selector.findAll('option').map((option) => option.text())).toContain(discordChannels[0].name);
+        });
+
+        it('does not exclude the session it was copied from', async () => {
+            await flushPromises();
+
+            expect(DiscordChannelApi.occupied).toHaveBeenCalledWith(copiedSession.date, undefined);
+        });
+
+        it('submits the copied Discord channel', async () => {
+            await flushPromises();
+
+            await wrapper.find('button[type="submit"]').trigger('click');
+            // A copy of a public session is a new public session, so it goes through the same confirmation.
+            await wrapper.vm.$nextTick();
+            await wrapper.find('.confirm-button').trigger('click');
+            await flushPromises();
+
+            expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining({ discord_channel_id: discordChannels[0].id }));
+        });
+    });
+
     describe('used for editing', () => {
         beforeEach(() => {
             wrapper = mount(GrowthSessionForm, {
@@ -520,6 +569,66 @@ describe('GrowthSessionForm', () => {
             });
 
             expect(wrapper.find<HTMLInputElement>('#has-invite-link').element.checked).toBe(false);
+        });
+
+        // Restoring a saved channel used to autofill 'Channel: undefined' before the channel list had loaded.
+        describe('with a saved Discord channel', () => {
+            const sessionWithChannel = {
+                ...growthSessionWithCommentsJson,
+                discord_channel_id: discordChannels[0].id,
+                location: `Channel: ${discordChannels[0].name}`,
+            } as unknown as IGrowthSession;
+
+            beforeEach(() => {
+                wrapper = mount(GrowthSessionForm, {
+                    propsData: {
+                        owner: user,
+                        startDate,
+                        growthSession: sessionWithChannel,
+                    },
+                });
+            });
+
+            it('keeps the saved location while the channel list is still loading', async () => {
+                await wrapper.vm.$nextTick();
+
+                expect(wrapper.find<HTMLInputElement>('#location').element.value).toBe(sessionWithChannel.location);
+            });
+
+            it('keeps the saved location once the channel list arrives', async () => {
+                await flushPromises();
+
+                expect(wrapper.find<HTMLInputElement>('#location').element.value).toBe(sessionWithChannel.location);
+            });
+
+            it('does not count the session being edited as occupying its own channel', async () => {
+                await flushPromises();
+
+                expect(DiscordChannelApi.occupied).toHaveBeenCalledWith(sessionWithChannel.date, sessionWithChannel.id);
+            });
+
+            it('still autofills the location when the owner picks a different channel', async () => {
+                await flushPromises();
+
+                await wrapper.find('#discord-channel').setValue(discordChannels[1].id);
+
+                expect(wrapper.find<HTMLInputElement>('#location').element.value).toBe(`Channel: ${discordChannels[1].name}`);
+            });
+
+            it('leaves the location alone when the chosen channel is no longer offered', async () => {
+                DiscordChannelApi.index = vi.fn().mockImplementation(() => []);
+                wrapper = mount(GrowthSessionForm, {
+                    propsData: {
+                        owner: user,
+                        startDate,
+                        growthSession: sessionWithChannel,
+                    },
+                });
+
+                await flushPromises();
+
+                expect(wrapper.find<HTMLInputElement>('#location').element.value).toBe(sessionWithChannel.location);
+            });
         });
 
         it('hands the server a public session so it can revoke the invite link', async () => {

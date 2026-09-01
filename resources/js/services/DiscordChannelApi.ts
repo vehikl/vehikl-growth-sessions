@@ -9,8 +9,10 @@ export class DiscordChannelApi extends BaseApi {
         return response.data;
     }
 
-    static async occupied(date: string): Promise<Array<IDiscordChannel>> {
-        const response = await BaseApi.httpRequest.get<Array<IDiscordChannel>>(`/${discordChannelResource}/${date}/occupied`);
+    static async occupied(date: string, exceptGrowthSessionId?: number): Promise<Array<IDiscordChannel>> {
+        const response = await BaseApi.httpRequest.get<Array<IDiscordChannel>>(`/${discordChannelResource}/${date}/occupied`, {
+            params: exceptGrowthSessionId ? { except: exceptGrowthSessionId } : undefined,
+        });
         return response.data;
     }
 }

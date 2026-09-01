@@ -53,6 +53,54 @@ class GrowthSessionsUpdateTest extends TestCase
         $this->assertEquals($newAttendeeLimit, $growthSession->fresh()->attendee_limit);
     }
 
+    public function testTheOwnerOfAGrowthSessionCanChangeTheDiscordChannel()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
+            ->create(['discord_channel_id' => '1234567890']);
+
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
+            'discord_channel_id' => '1234567891'
+        ])->assertSuccessful();
+
+        $this->assertEquals('1234567891', $growthSession->fresh()->discord_channel_id);
+    }
+
+    public function testTheOwnerOfAGrowthSessionCanRemoveTheDiscordChannel()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
+            ->create(['discord_channel_id' => '1234567890']);
+
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
+            'discord_channel_id' => null
+        ])->assertSuccessful();
+
+        $this->assertNull($growthSession->fresh()->discord_channel_id);
+    }
+
+    public function testAnUpdateThatSaysNothingAboutTheDiscordChannelLeavesItAlone()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
+            ->create(['discord_channel_id' => '1234567890']);
+
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
+            'topic' => 'Anything at all'
+        ])->assertSuccessful();
+
+        $this->assertEquals('1234567890', $growthSession->fresh()->discord_channel_id);
+    }
+
     public function testAUserThatIsNotAnOwnerOfAGrowthSessionCannotEditIt()
     {
         $growthSession = GrowthSession::factory()->create();

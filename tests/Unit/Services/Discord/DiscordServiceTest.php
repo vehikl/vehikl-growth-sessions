@@ -103,6 +103,32 @@ class DiscordServiceTest extends TestCase
         });
     }
 
+    public function testItReturnsEmptyIfDiscordRespondsWithAnError(): void
+    {
+        Http::fake([
+            '*' => Http::response(['message' => '401: Unauthorized', 'code' => 0], Response::HTTP_UNAUTHORIZED)
+        ]);
+
+        $discord = new DiscordService();
+
+        $this->assertEmpty($discord->getChannels());
+    }
+
+    public function testItKeepsChannelsThatCarryNoParentId(): void
+    {
+        $channelsFixture = $this->loadJsonFixture('Discord/Channels', true);
+        unset($channelsFixture[0]['parent_id']);
+        Http::fake([
+            '*' => Http::response($channelsFixture, Response::HTTP_OK)
+        ]);
+
+        $discord = new DiscordService();
+
+        $channels = $discord->getChannels();
+
+        $this->assertTrue($channels->pluck('id')->contains($channelsFixture[0]['id']));
+    }
+
     public function testItReturnsEmptyIfTheDiscordCredentialsAreNotSet(): void
     {
         config(['services.discord.guild_id' => null]);
@@ -145,5 +171,25 @@ class DiscordServiceTest extends TestCase
             $occupiedGrowthSession->discord_channel_id,
             $result->first()->id
         );
+    }
+
+    public function testItDoesNotCountTheExcludedGrowthSessionAsOccupyingItsOwnChannel(): void
+    {
+        $growthSessionBeingEdited = GrowthSession::factory()->create([
+            'date' => Carbon::now(),
+            'discord_channel_id' => fake()->numerify('#####'),
+        ]);
+
+        $otherGrowthSession = GrowthSession::factory()->create([
+            'date' => Carbon::now(),
+            'discord_channel_id' => fake()->numerify('#####'),
+        ]);
+
+        $discordService = new DiscordService();
+
+        $result = $discordService->getOccupiedChannels(Carbon::now()->toDateString(), $growthSessionBeingEdited->id);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals($otherGrowthSession->discord_channel_id, $result->first()->id);
     }
 }

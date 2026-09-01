@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DiscordChannelCollection;
 use App\Services\Discord\DiscordService;
+use Illuminate\Http\Request;
 
 class DiscordChannelsController extends Controller
 {
@@ -13,8 +14,10 @@ class DiscordChannelsController extends Controller
         return new DiscordChannelCollection($discord->getChannels());
     }
 
-    public function occupied(string $date, DiscordService $discord): DiscordChannelCollection
+    public function occupied(Request $request, string $date, DiscordService $discord): DiscordChannelCollection
     {
-        return new DiscordChannelCollection($discord->getOccupiedChannels($date));
+        return new DiscordChannelCollection(
+            $discord->getOccupiedChannels($date, $request->integer('except') ?: null)
+        );
     }
 }

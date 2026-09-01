@@ -80,6 +80,30 @@ class DiscordChannelsTest extends TestCase
             ]);
     }
 
+    public function testItPassesTheGrowthSessionToExcludeToTheOccupiedChannelLookup(): void
+    {
+        $this->mockedDiscord->expects($this->once())
+            ->method('getOccupiedChannels')
+            ->with('2030-06-11', 42)
+            ->willReturn(collect());
+
+        $this->actingAs(User::factory()->create())
+            ->get('/api/discord-channels/2030-06-11/occupied?except=42')
+            ->assertOk();
+    }
+
+    public function testItLooksUpEveryOccupiedChannelWhenNoGrowthSessionIsExcluded(): void
+    {
+        $this->mockedDiscord->expects($this->once())
+            ->method('getOccupiedChannels')
+            ->with('2030-06-11', null)
+            ->willReturn(collect());
+
+        $this->actingAs(User::factory()->create())
+            ->get('/api/discord-channels/2030-06-11/occupied')
+            ->assertOk();
+    }
+
     public function testItRedirectsIfUserIsNotLoggedIn(): void
     {
         $this->get('/api/discord-channels')->assertRedirect('/');

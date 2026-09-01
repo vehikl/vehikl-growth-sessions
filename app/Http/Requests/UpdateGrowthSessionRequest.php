@@ -39,6 +39,7 @@ class UpdateGrowthSessionRequest extends FormRequest
             'is_public' => 'sometimes|boolean',
             'allow_watchers' => 'sometimes|boolean',
             'has_invite_link' => 'sometimes|boolean',
+            'discord_channel_id' => 'sometimes|nullable|string',
             'anydesk_id' => 'sometimes|integer|exists:' . AnyDesk::class . ',id',
             'tags' => 'nullable|array|exists:' . Tag::class . ',id',
         ];
