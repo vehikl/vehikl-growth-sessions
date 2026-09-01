@@ -41,7 +41,7 @@ class StoreGrowthSessionRequest extends FormRequest
                 new CannotBeInDuplicatedTimeSlot($this->user(), $timeValues)
             ],
             'attendee_limit' => 'sometimes|integer|min:2',
-            'discord_channel_id' => 'sometimes|string',
+            'discord_channel_id' => 'sometimes|nullable|string',
             'anydesk_id' => 'sometimes|integer|exists:' . AnyDesk::class . ',id',
             'is_public' => 'sometimes|boolean',
             'allow_watchers' => 'sometimes|boolean',
