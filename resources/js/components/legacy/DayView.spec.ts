@@ -39,6 +39,12 @@ function makeSession(overrides: Partial<Record<string, unknown>> = {}): GrowthSe
     } as never);
 }
 
+function finishTheSession(): void {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2099, 5, 16, 17));
+    DateTime.setTestNow('2099-06-16T17:00:00');
+}
+
 function shown(w: DOMWrapper<Element>): boolean {
     return w.exists() && !(w.attributes('style') ?? '').includes('display: none');
 }
@@ -241,6 +247,62 @@ describe('DayView', () => {
 
         expect((wrapper.emitted('edit-requested')?.[0]?.[0] as GrowthSession).id).toBe(session.id);
         expect((wrapper.emitted('delete-requested')?.[0]?.[0] as GrowthSession).id).toBe(session.id);
+    });
+
+    it('emits copy-requested with the session when the owner clicks the copy button', async () => {
+        const session = makeSession();
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [session], currentLabel: 'THU', user: owner },
+        });
+
+        await wrapper.find('.copy-button').trigger('click');
+
+        expect((wrapper.emitted('copy-requested')?.[0]?.[0] as GrowthSession).id).toBe(session.id);
+    });
+
+    it('hides the copy button from everyone but the owner', () => {
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        expect(wrapper.find('.copy-button').exists()).toBe(false);
+    });
+
+    it('offers an add-to-calendar link pointing at Google Calendar', () => {
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        const link = wrapper.find('[aria-label=add-to-calendar]').element as HTMLAnchorElement;
+        expect(link.href).toContain('google.com/calendar');
+    });
+
+    it('drops the add-to-calendar link once the session has finished', () => {
+        finishTheSession();
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        expect(wrapper.find('[aria-label=add-to-calendar]').exists()).toBe(false);
+    });
+
+    it('drops the footer rule entirely when a finished session leaves nothing to act on', () => {
+        finishTheSession();
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        expect(wrapper.find('.session-footer').exists()).toBe(false);
+    });
+
+    it('keeps the footer on a finished session the owner can still copy', () => {
+        finishTheSession();
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', user: owner },
+        });
+
+        expect(wrapper.find('.session-footer').exists()).toBe(true);
+        expect(wrapper.find('.copy-button').exists()).toBe(true);
     });
 
     it('shows the create CTA and emits create when a member has no session today', async () => {

@@ -18,6 +18,7 @@ const emit = defineEmits(['growth-session-updated', 'delete-requested', 'edit-re
 const { getInitials } = useInitials();
 
 const isDraggable = computed<boolean>(() => !!props.user && props.growthSession.canEditOrDelete(props.user));
+const isOwner = computed<boolean>(() => props.growthSession.isOwner(props.user));
 const status = computed(() => sessionStatus(props.growthSession));
 const statusColor = computed(() => statusMeta(status.value).color);
 const ownerName = computed(() => props.growthSession.ownerName);
@@ -142,6 +143,7 @@ async function onDeleteClicked() {
         >
             <div class="flex items-center gap-0.5 pt-2.5">
                 <a
+                    v-if="status !== 'finished'"
                     aria-label="add-to-calendar"
                     :href="growthSession.calendarUrl"
                     target="_blank"
@@ -152,7 +154,7 @@ async function onDeleteClicked() {
                     <i aria-hidden="true" class="fa fa-calendar text-sm"></i>
                 </a>
                 <button
-                    v-show="user && user.is_vehikl_member"
+                    v-if="isOwner"
                     type="button"
                     class="copy-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md leading-none"
                     title="Duplicate"

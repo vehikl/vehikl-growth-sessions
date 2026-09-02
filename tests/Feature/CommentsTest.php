@@ -74,6 +74,8 @@ class CommentsTest extends TestCase
 
     public function test_a_guest_can_get_all_comments_of_a_growth_session()
     {
+        $this->setTestNowToASafeWednesday();
+
         $growthSession = GrowthSession::factory()->create();
         $comments = Comment::factory()->times(4)->create(['growth_session_id' => $growthSession->id]);
 
