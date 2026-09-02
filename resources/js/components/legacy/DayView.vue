@@ -55,6 +55,14 @@ function actionsFor(session: GrowthSession): ISessionAction[] {
     return sessionActions(session, props.user);
 }
 
+function canAddToCalendar(session: GrowthSession): boolean {
+    return currentStatus(session) !== 'finished';
+}
+
+function hasFooter(session: GrowthSession): boolean {
+    return actionsFor(session).length > 0 || canAddToCalendar(session) || session.isOwner(props.user);
+}
+
 /** The day view gives its actions more room than a card does; the choosing is shared, the dressing is not. */
 const ACTION_CLASSES: Record<string, string> = {
     join: 'gs-btn-primary max-w-48 px-4 md:px-20',
@@ -231,7 +239,11 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                             </div>
                         </div>
 
-                        <div class="gs-divider-color relative z-20 flex flex-wrap items-center gap-2 border-t pt-2.5" @click.stop>
+                        <div
+                            v-if="hasFooter(session)"
+                            class="session-footer gs-divider-color relative z-20 flex flex-wrap items-center gap-2 border-t pt-2.5"
+                            @click.stop
+                        >
                             <button
                                 v-for="action in actionsFor(session)"
                                 :key="action.kind"
@@ -242,6 +254,29 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                             >
                                 {{ action.label }}
                             </button>
+
+                            <div class="ml-auto flex items-center gap-0.5">
+                                <a
+                                    v-if="canAddToCalendar(session)"
+                                    aria-label="add-to-calendar"
+                                    :href="session.calendarUrl"
+                                    target="_blank"
+                                    class="gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-9 w-9 items-center justify-center rounded-md leading-none"
+                                    title="Add to calendar"
+                                    @click.stop
+                                >
+                                    <i aria-hidden="true" class="fa fa-calendar text-sm"></i>
+                                </a>
+                                <button
+                                    v-if="session.isOwner(user)"
+                                    type="button"
+                                    class="copy-button gs-text-muted transition-smooth hover:text-gs-accent inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md leading-none"
+                                    title="Duplicate"
+                                    @click.stop="emit('copy-requested', session)"
+                                >
+                                    <i aria-hidden="true" class="fa fa-copy text-sm"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

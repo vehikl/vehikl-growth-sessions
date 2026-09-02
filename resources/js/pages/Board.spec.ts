@@ -382,10 +382,13 @@ describe('Board', () => {
         });
 
         it('shows a creation form pre-populated with data from some growth session when I click in some copy button', async () => {
-            const targetedGrowthSession = wrapper.findComponent(GrowthSessionCard);
+            // The copy button only renders on sessions the authenticated user owns, so mount as one of the owners.
+            const matchingSession = growthSessionsThisWeek.allGrowthSessions[0];
+            wrapper = mount(Board, { propsData: { user: { ...matchingSession.owner, is_vehikl_member: true } } });
+            await flushPromises();
 
-            const title = targetedGrowthSession.find('h3').text();
-            const matchingSession = growthSessionsThisWeek.allGrowthSessions.find((gs) => gs.title === title)!;
+            const title = matchingSession.title;
+            const targetedGrowthSession = wrapper.findAllComponents(GrowthSessionCard).find((card) => card.find('h3').text() === title)!;
 
             expect(targetedGrowthSession.find('button.copy-button').exists()).toBe(true);
             await targetedGrowthSession.find('button.copy-button').trigger('click');

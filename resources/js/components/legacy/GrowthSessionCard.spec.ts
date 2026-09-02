@@ -371,16 +371,33 @@ describe('GrowthSessionCard', () => {
 
     it('does not display the copy button if the user is not a vehikl member', () => {
         wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: nonVehiklMember } });
-        expect(wrapper.find('.copy-button')).not.toBeVisible();
+        expect(wrapper.find('.copy-button').exists()).toBe(false);
     });
 
-    it('Emits a copy-requested event when the copy button is clicked', () => {
+    it('does not display the copy button to a vehikl member who does not own the growth session', () => {
+        wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: attendee } });
+        expect(wrapper.find('.copy-button').exists()).toBe(false);
+    });
+
+    it('Emits a copy-requested event when the owner clicks the copy button', () => {
+        wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData, user: ownerOfTheGrowthSession } });
+
         wrapper.find('.copy-button').trigger('click');
 
         expect(wrapper.emitted('copy-requested')).toBeTruthy();
     });
 
-    describe('\"Add to Calendar\" link', () => {
+    describe('"Add to Calendar" link', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date('2020-05-01T00:00:00'));
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData } });
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
         it('is visible', () => {
             expect(wrapper.find('[aria-label=add-to-calendar]')).toBeVisible();
         });
@@ -389,6 +406,13 @@ describe('GrowthSessionCard', () => {
             const addToCalendarLink = wrapper.find('[aria-label=add-to-calendar]').element as HTMLAnchorElement;
 
             expect(addToCalendarLink.href).toContain('google.com/calendar');
+        });
+
+        it('is gone once the growth session has finished, since there is nothing left to schedule', () => {
+            vi.setSystemTime(new Date('2020-05-08T18:00:00'));
+            wrapper = mount(GrowthSessionCard, { props: { growthSession: growthSessionData } });
+
+            expect(wrapper.find('[aria-label=add-to-calendar]').exists()).toBe(false);
         });
     });
 });
