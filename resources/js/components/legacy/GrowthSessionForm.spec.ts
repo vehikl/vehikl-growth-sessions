@@ -159,6 +159,8 @@ describe('GrowthSessionForm', () => {
                 }
 
                 if (chosenTags) {
+                    await wrapper.find('#tags').trigger('focus');
+
                     for (const tagId of chosenTags) {
                         await wrapper.find(`[data-testid="tag-option-${tagId}"]`).trigger('click');
                     }

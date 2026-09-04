@@ -10,6 +10,7 @@ import { IDropdownOption } from '@/types/IDropdownOption';
 import { computed, nextTick, onBeforeMount, onMounted, ref, watch } from 'vue';
 import ConfirmationModal from './ConfirmationModal.vue';
 import SeriesField from './SeriesField.vue';
+import TagField from './TagField.vue';
 import TimePicker from './TimePicker.vue';
 import VSelect from './VSelect.vue';
 
@@ -46,8 +47,7 @@ const seriesName = ref<string>('');
 const seriesInUse = ref<string[]>([]);
 
 const tagIds = ref<string[]>([]);
-const tagOptions = ref<{ label: string; value: string }[]>([]);
-const showTags = ref<boolean>(true);
+const tagOptions = ref<IDropdownOption[]>([]);
 const titleInput = ref<HTMLInputElement | null>(null);
 
 // Public and an invitation link are mutually exclusive: a public session is already visible to everyone. The server's
@@ -59,9 +59,6 @@ function onInviteLinkToggled(event: Event) {
     hasInviteLink.value = (event.target as HTMLInputElement).checked;
 }
 
-function toggleTag(value: string) {
-    tagIds.value = tagIds.value.includes(value) ? tagIds.value.filter((v) => v !== value) : [...tagIds.value, value];
-}
 const publicConfirmationModalState = ref<'open' | 'closed'>('closed');
 
 const isCreating = computed(() => !props.growthSession?.id);
@@ -462,37 +459,10 @@ function autofillLocationFromDiscordChannel(selectedId: string | null) {
             </div>
 
             <div class="gs-border border-t pt-3.5">
-                <button
-                    type="button"
-                    class="gs-text-sub inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold uppercase"
-                    :aria-expanded="showTags"
-                    @click="showTags = !showTags"
-                >
-                    + Add tags
-                    <span class="gs-text-muted font-normal lowercase">(optional)</span>
-                    <span
-                        v-if="tagIds.length"
-                        class="gs-header-bg inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-xs font-bold text-white"
-                        >{{ tagIds.length }}</span
-                    >
-                </button>
-                <div v-show="showTags" class="mt-3 flex flex-wrap gap-2">
-                    <button
-                        v-for="option in tagOptions"
-                        :key="option.value"
-                        :data-testid="`tag-option-${option.value}`"
-                        type="button"
-                        class="transition-smooth cursor-pointer rounded-full border px-3.5 py-2 text-xs font-semibold tracking-[0.05em] uppercase"
-                        :class="
-                            tagIds.includes(option.value)
-                                ? 'gs-header-bg border-transparent text-white'
-                                : 'gs-border hover:border-gs-accent hover:bg-gs-accent/10 hover:text-gs-accent text-gs-header/70 dark:text-gray-300'
-                        "
-                        @click="toggleTag(option.value)"
-                    >
-                        {{ option.label }}
-                    </button>
-                </div>
+                <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="tags">
+                    Tags <span class="gs-text-muted font-normal normal-case">(optional)</span>
+                </label>
+                <TagField id="tags" v-model="tagIds" :options="tagOptions" />
             </div>
 
             <button
