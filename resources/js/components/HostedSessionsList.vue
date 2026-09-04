@@ -1,6 +1,7 @@
 <script lang="ts" setup>
+import HostedSessionSeries from '@/components/HostedSessionSeries.vue';
 import type { IHostedSession, IPaginated } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { route } from 'ziggy-js';
 
@@ -13,6 +14,14 @@ const onLastPage = computed(() => props.sessions.current_page >= props.sessions.
 const pageButtonClass =
     'gs-btn-secondary cursor-pointer rounded-lg px-3 py-1.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40';
 const pageVisitOptions = { only: ['hosted_sessions'], preserveScroll: true, preserveState: true };
+
+/**
+ * Re-read the page this row sits on rather than patching the row in place, so a filed session and
+ * the series names the next row is offered come from the same read of the server.
+ */
+function onFiled() {
+    router.reload(pageVisitOptions);
+}
 </script>
 
 <template>
@@ -43,6 +52,18 @@ const pageVisitOptions = { only: ['hosted_sessions'], preserveScroll: true, pres
                         >
                             {{ tag.name }}
                         </span>
+                    </div>
+
+                    <!-- Filing is open on a session that has already happened, which is most of
+                         what this list holds: an owner looking back is exactly who knows which
+                         thread a session belonged to. -->
+                    <div class="mt-2">
+                        <HostedSessionSeries
+                            :session-id="session.id"
+                            :session-title="session.title"
+                            :series-name="session.series_name"
+                            @filed="onFiled"
+                        />
                     </div>
                 </div>
 
