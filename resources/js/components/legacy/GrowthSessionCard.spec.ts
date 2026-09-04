@@ -82,6 +82,7 @@ const baseGrowthSessionDataAttributes: IGrowthSession = {
             name: 'Test Tag #2',
         },
     ],
+    series_name: null,
 };
 
 describe('GrowthSessionCard', () => {

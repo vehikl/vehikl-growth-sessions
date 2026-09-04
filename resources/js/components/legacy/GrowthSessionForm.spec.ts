@@ -4,6 +4,7 @@ import GrowthSessionForm from '@/components/legacy/GrowthSessionForm.vue';
 import { AnydesksApi } from '@/services/AnydesksApi';
 import { DiscordChannelApi } from '@/services/DiscordChannelApi';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
+import { SeriesApi } from '@/services/SeriesApi';
 import { TagsApi } from '@/services/TagsApi';
 import { IAnyDesk, IGrowthSession, IStoreGrowthSessionRequest, IUser } from '@/types';
 import { IDiscordChannel } from '@/types/IDiscordChannel';
@@ -44,6 +45,7 @@ const anyDesks: Array<IAnyDesk> = [
         remote_desk_id: '123 321 424',
     },
 ];
+const seriesInUse: string[] = ['Friday Pairing', 'Vue Deep Dive'];
 const startDate: string = '2020-06-25';
 
 describe('GrowthSessionForm', () => {
@@ -61,6 +63,7 @@ describe('GrowthSessionForm', () => {
             { id: 2, name: 'Vue' },
         ]);
         AnydesksApi.getAllAnyDesks = vi.fn().mockImplementation(() => anyDesks);
+        SeriesApi.index = vi.fn().mockImplementation(() => seriesInUse);
         wrapper = mount(GrowthSessionForm, { propsData: { owner: user, startDate } });
     });
 
@@ -156,6 +159,8 @@ describe('GrowthSessionForm', () => {
                 }
 
                 if (chosenTags) {
+                    await wrapper.find('#tags').trigger('focus');
+
                     for (const tagId of chosenTags) {
                         await wrapper.find(`[data-testid="tag-option-${tagId}"]`).trigger('click');
                     }
@@ -188,6 +193,77 @@ describe('GrowthSessionForm', () => {
                 }
 
                 expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining(expectedPayload));
+            });
+        });
+
+        describe('the series it files the session under', () => {
+            async function fillTheRequiredFields() {
+                await flushPromises();
+                wrapper.find('#title').setValue('Foo');
+                wrapper.find('#topic').setValue('The fundamentals of foo');
+                wrapper.find('#location').setValue('At the central mobbing area');
+                await wrapper.vm.$nextTick();
+            }
+
+            async function submit() {
+                wrapper.find('button[type="submit"]').trigger('click');
+                await flushPromises();
+            }
+
+            it('sends no series when the field was left blank', async () => {
+                await fillTheRequiredFields();
+                await submit();
+
+                expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining({ series_name: null }));
+            });
+
+            it('sends the name that was typed', async () => {
+                await fillTheRequiredFields();
+                wrapper.find('#series-name').setValue('Vue Deep Dive');
+                await wrapper.vm.$nextTick();
+                await submit();
+
+                expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining({ series_name: 'Vue Deep Dive' }));
+            });
+
+            // A name of nothing but spaces is no name at all.
+            it('sends no series when the field holds only whitespace', async () => {
+                await fillTheRequiredFields();
+                wrapper.find('#series-name').setValue('   ');
+                await wrapper.vm.$nextTick();
+                await submit();
+
+                expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining({ series_name: null }));
+            });
+
+            it('offers the series already running as suggestions', async () => {
+                await flushPromises();
+                await wrapper.find('#series-name').trigger('focus');
+
+                const suggestions = wrapper.findAll('#series-name-suggestions [role="option"]').map((option) => option.text());
+
+                expect(suggestions).toEqual(['Friday Pairing', 'Vue Deep Dive']);
+            });
+
+            it('files the session under a series picked out of the suggestions', async () => {
+                await fillTheRequiredFields();
+                await wrapper.find('#series-name').trigger('focus');
+                await wrapper.findAll('#series-name-suggestions [role="option"] button')[1].trigger('click');
+                await submit();
+
+                expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining({ series_name: 'Vue Deep Dive' }));
+            });
+
+            it('starts on the series an edited session is already filed under', async () => {
+                wrapper = mount(GrowthSessionForm, {
+                    propsData: {
+                        owner: user,
+                        growthSession: { ...growthSessionWithCommentsJson, series_name: 'Vue Deep Dive' },
+                    },
+                });
+                await flushPromises();
+
+                expect(wrapper.find<HTMLInputElement>('#series-name').element.value).toBe('Vue Deep Dive');
             });
         });
 

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,7 @@ class GrowthSession extends Model
     const NO_LIMIT = PHP_INT_MAX;
 
     /** The relations GrowthSessionResource reads - eager-load these before building one to avoid lazy loading. */
-    const RESOURCE_RELATIONS = ['owners', 'attendees', 'watchers', 'waitlist', 'comments', 'anydesk', 'tags'];
+    const RESOURCE_RELATIONS = ['owners', 'attendees', 'watchers', 'waitlist', 'comments', 'anydesk', 'tags', 'series'];
 
     /** The subset of RESOURCE_RELATIONS the visibility policy reads via `owner`/`roleOf()`. */
     const VISIBILITY_RELATIONS = ['owners', 'attendees', 'watchers', 'waitlist'];
@@ -75,6 +76,12 @@ class GrowthSession extends Model
         return Attribute::make(
             get: fn () => $this->owners->first(),
         );
+    }
+
+    /** The name of the series this session is filed under, or null. */
+    protected function seriesName(): Attribute
+    {
+        return Attribute::make(get: fn () => $this->series?->name);
     }
 
     protected function topicSegments(): Attribute
@@ -144,6 +151,11 @@ class GrowthSession extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    public function series(): BelongsTo
+    {
+        return $this->belongsTo(Series::class);
     }
 
     protected function date(): Attribute

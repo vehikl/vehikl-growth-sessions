@@ -94,7 +94,7 @@ class ShowDashboardController extends Controller
         $sort = self::SORTS[$this->sort($request)];
 
         return $user->sessionsHosted()
-            ->with('tags')
+            ->with(['tags', 'series'])
             ->withCount($this->attendeesExcludingHost($user))
             ->orderBy($sort['column'], $sort['direction'])
             ->orderByDesc('growth_sessions.date')

@@ -42,6 +42,7 @@ class UpdateGrowthSessionRequest extends FormRequest
             'discord_channel_id' => 'sometimes|nullable|string',
             'anydesk_id' => 'sometimes|integer|exists:' . AnyDesk::class . ',id',
             'tags' => 'nullable|array|exists:' . Tag::class . ',id',
+            'series_name' => 'sometimes|nullable|string|max:45',
         ];
     }
 }

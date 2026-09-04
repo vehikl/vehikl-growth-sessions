@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\GrowthSession;
+use App\Models\Series;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -16,12 +18,7 @@ class GrowthSessionFactory extends Factory
      */
     protected $model = GrowthSession::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array
-     */
-    public function definition()
+    public function definition(): array
     {
         return [
             'title' => $this->faker->sentence(2),
@@ -38,6 +35,13 @@ class GrowthSessionFactory extends Factory
             'attendee_limit' => GrowthSession::NO_LIMIT,
             'is_public' => TRUE
         ];
+    }
+
+    public function inSeries(string $name, User $owner): static
+    {
+        return $this->afterMaking(fn (GrowthSession $growthSession) => $growthSession->series()->associate(
+            Series::query()->firstOrCreate(['owner_id' => $owner->id, 'name' => $name])
+        ));
     }
 
     /**

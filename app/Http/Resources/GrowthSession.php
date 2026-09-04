@@ -60,6 +60,7 @@ class GrowthSession extends JsonResource
             'comments' => Comment::collection($growthSession->comments),
             'anydesk' => $canSeeSensitiveInfo ? $growthSession->anydesk : null,
             'tags' => Tag::collection($growthSession->tags),
+            'series_name' => $growthSession->series_name,
             // Whether the growth session is unlisted, not the token that unlocks it: the board needs to tell an
             // invite-only session apart from a private one to keep showing it to an invited guest.
             'is_unlisted' => $inviteLink->exists(),

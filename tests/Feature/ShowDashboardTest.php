@@ -161,6 +161,7 @@ class ShowDashboardTest extends TestCase
                     ->where('date_label', 'Jan 15, 2020')
                     ->where('is_upcoming', true)
                     ->where('attendee_count', 0)
+                    ->where('series_name', null)
                     ->has('tags', 1)
                     ->where('tags.0.name', 'Vue')
                 )
