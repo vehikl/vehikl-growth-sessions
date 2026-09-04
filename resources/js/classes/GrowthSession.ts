@@ -40,6 +40,7 @@ export class GrowthSession implements IGrowthSession {
     discord_channel_id!: string | null;
     anydesk!: IAnyDesk | null;
     tags!: ITag[];
+    series_name!: string | null;
     share_url?: string;
 
     constructor(growthSession: IGrowthSession) {
@@ -116,6 +117,7 @@ export class GrowthSession implements IGrowthSession {
         this.discord_channel_id = growthSession.discord_channel_id;
         this.anydesk = growthSession.anydesk;
         this.tags = growthSession.tags;
+        this.series_name = growthSession.series_name ?? null;
         this.share_url = growthSession.share_url;
     }
 

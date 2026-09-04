@@ -3,11 +3,13 @@ import { DateTime } from '@/classes/DateTime';
 import { AnydesksApi } from '@/services/AnydesksApi';
 import { DiscordChannelApi } from '@/services/DiscordChannelApi';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
+import { SeriesApi } from '@/services/SeriesApi';
 import { TagsApi } from '@/services/TagsApi';
 import { IGrowthSession, IStoreGrowthSessionRequest, IUser, IValidationError } from '@/types';
 import { IDropdownOption } from '@/types/IDropdownOption';
 import { computed, nextTick, onBeforeMount, onMounted, ref, watch } from 'vue';
 import ConfirmationModal from './ConfirmationModal.vue';
+import SeriesField from './SeriesField.vue';
 import TimePicker from './TimePicker.vue';
 import VSelect from './VSelect.vue';
 
@@ -36,6 +38,13 @@ const selectedDiscordChannelId = ref<string | null>(null);
 const discordChannels = ref<IDropdownOption[]>([]);
 const selectedAnydeskId = ref<string>('');
 const anyDesks = ref<IDropdownOption[]>([]);
+/**
+ * The series this session is filed under. One field, because a series is its name: typing one that
+ * is already running joins it, and typing anything else starts a thread by being the first in it.
+ */
+const seriesName = ref<string>('');
+const seriesInUse = ref<string[]>([]);
+
 const tagIds = ref<string[]>([]);
 const tagOptions = ref<{ label: string; value: string }[]>([]);
 const showTags = ref<boolean>(true);
@@ -77,6 +86,9 @@ const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
     allow_watchers: allowWatchers.value,
     has_invite_link: hasInviteLink.value,
     tags: tagIds.value.map((tag) => +tag),
+    // A blank field files the session under no series; the server matches the spelling of a thread
+    // already running rather than opening a second one beside it.
+    series_name: seriesName.value.trim() || null,
 }));
 
 onBeforeMount(() => {
@@ -98,6 +110,7 @@ onBeforeMount(() => {
         selectedAnydeskId.value = props.growthSession.anydesk?.id.toString() ?? '';
         allowWatchers.value = props.growthSession.allow_watchers;
         tagIds.value = props.growthSession.tags.map((tag) => tag.id.toString());
+        seriesName.value = props.growthSession.series_name ?? '';
     }
 
     // Fetched after restoring, so the occupied lookup uses the session's own date and id.
@@ -106,6 +119,8 @@ onBeforeMount(() => {
     getAnyDesks();
 
     getTags();
+
+    getSeries();
 
     // Watched from here on, so restoring a saved channel does not rewrite the saved location.
     watch(selectedDiscordChannelId, autofillLocationFromDiscordChannel);
@@ -212,6 +227,15 @@ async function getAnyDesks() {
     }
 }
 
+/** The threads already running, offered as suggestions - the field takes anything. */
+async function getSeries() {
+    try {
+        seriesInUse.value = await SeriesApi.index();
+    } catch (e) {
+        onRequestFailed(e);
+    }
+}
+
 async function getTags() {
     try {
         const tagsFromApi = await TagsApi.index();
@@ -306,6 +330,13 @@ function autofillLocationFromDiscordChannel(selectedId: string | null) {
                         class="gs-input w-full rounded-lg px-2.5 py-2 text-xs"
                     />
                 </div>
+            </div>
+
+            <div>
+                <label class="gs-text-sub mb-1.5 block text-xs font-bold tracking-[0.05em] uppercase" for="series-name">
+                    Series <span class="gs-text-muted font-normal normal-case">(optional)</span>
+                </label>
+                <SeriesField id="series-name" v-model="seriesName" :options="seriesInUse" :invalid="!!getError('series_name')" />
             </div>
 
             <div class="gs-border border-t pt-4">

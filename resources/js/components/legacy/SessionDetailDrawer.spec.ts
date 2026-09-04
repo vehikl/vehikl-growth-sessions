@@ -381,6 +381,21 @@ describe('SessionDetailDrawer', () => {
         });
     });
 
+    describe('the series it belongs to', () => {
+        it('is left alone for a session that stands on its own', () => {
+            const wrapper = mountDrawer(makeSession(), vehiklUser);
+
+            expect(wrapper.find('.session-series').exists()).toBe(false);
+        });
+
+        // The name travels with the session itself, so the header needs nothing looked up.
+        it('names the series the session is filed under', () => {
+            const wrapper = mountDrawer(makeSession({ series_name: 'Vue Deep Dive' }), vehiklUser);
+
+            expect(wrapper.find('.session-series').text()).toContain('Vue Deep Dive');
+        });
+    });
+
     describe('for an anonymous visitor', () => {
         // An invited guest arrives with the drawer already open; they must be able to log in from inside it,
         // rather than closing it and losing the session they were invited to.

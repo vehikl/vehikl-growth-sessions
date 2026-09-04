@@ -27,6 +27,8 @@ export interface IGrowthSession {
     comments: IComment[];
     anydesk: IAnyDesk | null;
     tags: ITag[];
+    /** The series this session is filed under, or null if it stands alone. */
+    series_name: string | null;
     /** Only sent to viewers who may hand the invitation out: the owner and Vehikl members. */
     share_url?: string;
 }
