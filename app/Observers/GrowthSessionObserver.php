@@ -6,10 +6,26 @@ use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionModified;
 use App\Events\GrowthSessionUpdated;
 use App\Models\GrowthSession;
+use App\Support\SeriesAssignment;
 
 class GrowthSessionObserver
 {
     // No create, since events/broadcast need both the growth session and an owner assigned
+
+    /**
+     * Handle the GrowthSession "saved" event.
+     *
+     * A series lives for exactly as long as it holds a session, so a session moving out of one is
+     * how a thread comes to an end. The move can only be seen from the row, which is why it is
+     * noticed here rather than by whoever filed it - and the original still reads as it did before
+     * the save until this event has been handled.
+     */
+    public function saved(GrowthSession $growthSession): void
+    {
+        if ($growthSession->wasChanged('series_id')) {
+            SeriesAssignment::prune($growthSession->getOriginal('series_id'));
+        }
+    }
 
     /**
      * Handle the GrowthSession "updated" event.
@@ -37,6 +53,8 @@ class GrowthSessionObserver
      */
     public function deleted(GrowthSession $growthSession): void
     {
+        SeriesAssignment::prune($growthSession->series_id);
+
         broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_DELETED));
         event(new GrowthSessionDeleted($growthSession));
     }
