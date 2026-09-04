@@ -226,7 +226,7 @@ describe('GrowthSessionForm', () => {
                 expect(GrowthSessionApi.store).toHaveBeenCalledWith(expect.objectContaining({ series_name: 'Vue Deep Dive' }));
             });
 
-            // A name of nothing but spaces is no name at all, and the server would store it as one.
+            // A name of nothing but spaces is no name at all.
             it('sends no series when the field holds only whitespace', async () => {
                 await fillTheRequiredFields();
                 wrapper.find('#series-name').setValue('   ');

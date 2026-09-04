@@ -48,7 +48,7 @@ describe('HostedSessionSeries', () => {
         expect(wrapper.emitted('filed')).toHaveLength(1);
     });
 
-    // Emptying the field is how a session is taken back out of a series.
+    // Emptying the field takes the session out of its series.
     it('takes the session out of its series when the field is cleared', async () => {
         const wrapper = mountFiler('Vue Deep Dive');
         await wrapper.find('[data-testid="edit-series"]').trigger('click');
@@ -69,7 +69,7 @@ describe('HostedSessionSeries', () => {
         expect(wrapper.find<HTMLInputElement>('input').element.value).toBe('Vue Deep Dive');
     });
 
-    // The row is the only place this can be done, so a failure must not look like a success.
+    // A failure must not look like a success.
     it('keeps the field open and says so when filing fails', async () => {
         SeriesApi.file = vi.fn().mockRejectedValue(new Error('nope'));
         const wrapper = mountFiler();

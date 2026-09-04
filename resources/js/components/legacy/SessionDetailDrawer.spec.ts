@@ -388,7 +388,7 @@ describe('SessionDetailDrawer', () => {
             expect(wrapper.find('.session-series').exists()).toBe(false);
         });
 
-        // The name travels with the session itself, so the header needs nothing looked up.
+        // The name comes with the session, so nothing is looked up.
         it('names the series the session is filed under', () => {
             const wrapper = mountDrawer(makeSession({ series_name: 'Vue Deep Dive' }), vehiklUser);
 

@@ -13,7 +13,6 @@ export interface IHostedSession {
     /** Everyone in the room except the host, so a session nobody joined reads as zero. */
     attendee_count: number;
     tags: ITag[];
-    /** The series this session is filed under, editable in place from the row. */
     series_name: string | null;
 }
 

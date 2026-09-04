@@ -3,16 +3,11 @@ import { ChevronDown } from 'lucide-vue-next';
 import { computed, nextTick, ref } from 'vue';
 
 /**
- * The one control that files a growth session under a series.
+ * Free-text field for a series name, with the member's own series suggested as you type. An
+ * unrecognised name starts a new series, so the field accepts anything.
  *
- * A text field rather than a picker, because a series is its name: typing one you already run
- * files the session under it, and typing anything else starts a thread by being the first session
- * in it. Your own threads are offered underneath as you type, so joining one is a click rather than
- * an exact spelling - and only your own, since a series is somebody's to run and nobody else may
- * file anything under it.
- *
- * The list is drawn here rather than left to a native `<datalist>`, which browsers render in their
- * own chrome - unthemeable, mispositioned against our own inputs, and unreachable from a spec.
+ * The list is hand-rolled rather than a native `<datalist>`, which browsers render in unthemeable
+ * chrome that a spec cannot reach.
  */
 const props = withDefaults(
     defineProps<{
@@ -31,11 +26,7 @@ const isOpen = ref(false);
 const highlighted = ref(-1);
 const field = ref<HTMLInputElement | null>(null);
 
-/**
- * What is offered as you type. An empty field offers everything, so the control still answers "what
- * am I already running?" before a single key is pressed; anything else narrows by what was typed.
- * A field holding exactly one thread's name offers no suggestion - there is nothing left to pick.
- */
+/** An empty field offers every option; otherwise they narrow by what was typed. Nothing to offer once the field holds the only match. */
 const suggestions = computed<string[]>(() => {
     const typed = props.modelValue.trim().toLocaleLowerCase();
 
@@ -68,7 +59,6 @@ function choose(option: string) {
     field.value?.focus();
 }
 
-/** The chevron opens the list on a field nobody has typed in yet, and closes it again. */
 async function toggle() {
     if (isOpen.value) return close();
 
@@ -78,9 +68,8 @@ async function toggle() {
 }
 
 /**
- * Walk the suggestions, wrapping through "nothing highlighted" at either end so arrowing past the
- * last one hands the field back rather than jumping to the first. `-1` is that state, which is why
- * the arithmetic is done one place to the right of it.
+ * Walk the suggestions, wrapping through "nothing highlighted" (`-1`) at either end so arrowing
+ * past the last one hands the field back. The arithmetic is offset by one to make room for `-1`.
  */
 function move(step: number) {
     if (!isShowingList.value) return open();
@@ -93,22 +82,18 @@ function move(step: number) {
 function confirm(event: KeyboardEvent) {
     if (!isShowingList.value || highlighted.value < 0) return close();
 
-    // Only swallow the key when it actually picked something, so Enter still submits the form.
+    // Only swallow the key when it picked something, so Enter still submits the form.
     event.preventDefault();
     choose(suggestions.value[highlighted.value]);
 }
 
-/**
- * Closing on blur would fire before the click that caused it, so the list is dismissed only once
- * focus has settled somewhere outside the control entirely.
- */
-/** So a caller opening the control for the first time can put the cursor in it. */
 function focus() {
     field.value?.focus();
 }
 
 defineExpose({ focus });
 
+/** Blur fires before the click that caused it, so only close once focus has left the control. */
 function onFocusOut(event: FocusEvent) {
     const movedTo = event.relatedTarget as Node | null;
 

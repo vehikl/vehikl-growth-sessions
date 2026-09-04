@@ -15,10 +15,7 @@ const pageButtonClass =
     'gs-btn-secondary cursor-pointer rounded-lg px-3 py-1.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40';
 const pageVisitOptions = { only: ['hosted_sessions'], preserveScroll: true, preserveState: true };
 
-/**
- * Re-read the page this row sits on rather than patching the row in place, so a filed session and
- * the series names the next row is offered come from the same read of the server.
- */
+/** Reload rather than patch the row, so every row's series name comes from the same read. */
 function onFiled() {
     router.reload(pageVisitOptions);
 }
@@ -54,9 +51,6 @@ function onFiled() {
                         </span>
                     </div>
 
-                    <!-- Filing is open on a session that has already happened, which is most of
-                         what this list holds: an owner looking back is exactly who knows which
-                         thread a session belonged to. -->
                     <div class="mt-2">
                         <HostedSessionSeries
                             :session-id="session.id"

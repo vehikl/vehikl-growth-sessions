@@ -39,10 +39,6 @@ const selectedDiscordChannelId = ref<string | null>(null);
 const discordChannels = ref<IDropdownOption[]>([]);
 const selectedAnydeskId = ref<string>('');
 const anyDesks = ref<IDropdownOption[]>([]);
-/**
- * The series this session is filed under. One field, because a series is its name: typing one that
- * is already running joins it, and typing anything else starts a thread by being the first in it.
- */
 const seriesName = ref<string>('');
 const seriesInUse = ref<string[]>([]);
 
@@ -83,8 +79,7 @@ const storeOrUpdatePayload = computed<IStoreGrowthSessionRequest>(() => ({
     allow_watchers: allowWatchers.value,
     has_invite_link: hasInviteLink.value,
     tags: tagIds.value.map((tag) => +tag),
-    // A blank field files the session under no series; the server matches the spelling of a thread
-    // already running rather than opening a second one beside it.
+    // A blank field files the session under no series.
     series_name: seriesName.value.trim() || null,
 }));
 
@@ -224,7 +219,6 @@ async function getAnyDesks() {
     }
 }
 
-/** The threads already running, offered as suggestions - the field takes anything. */
 async function getSeries() {
     try {
         seriesInUse.value = await SeriesApi.index();

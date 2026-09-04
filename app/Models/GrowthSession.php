@@ -78,13 +78,7 @@ class GrowthSession extends Model
         );
     }
 
-    /**
-     * The name of the thread this session is filed under, or null if it stands alone.
-     *
-     * A series is only ever spoken of by name outside the model layer - the form takes one, the
-     * dashboard shows one - so the row it belongs to stays in here, and every caller reads the
-     * same flat string it always did.
-     */
+    /** The name of the series this session is filed under, or null. */
     protected function seriesName(): Attribute
     {
         return Attribute::make(get: fn () => $this->series?->name);
@@ -159,7 +153,6 @@ class GrowthSession extends Model
         return $this->belongsToMany(Tag::class);
     }
 
-    /** The thread this session is filed under, if any. {@see \App\Models\Series} */
     public function series(): BelongsTo
     {
         return $this->belongsTo(Series::class);

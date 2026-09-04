@@ -13,12 +13,7 @@ const draft = ref('');
 const seriesInUse = ref<string[]>([]);
 const field = ref<{ focus: () => void } | null>(null);
 
-/**
- * The threads this member is running, offered as suggestions. Fetched each time the field opens
- * rather than once for the page: filing a session is how a thread comes into being - and how the
- * last one ends - so a list gathered before the row above was filed would be missing the very
- * series this row is being joined to.
- */
+/** Suggestions are fetched each time the field opens, since filing another row may have created or removed a series. */
 async function edit() {
     draft.value = props.seriesName ?? '';
     failed.value = false;
@@ -38,7 +33,7 @@ function cancel() {
     isEditing.value = false;
 }
 
-/** A blank field takes the session out of its series, which is how a row is un-filed. */
+/** A blank field takes the session out of its series. */
 async function save() {
     isSaving.value = true;
     failed.value = false;

@@ -66,12 +66,8 @@ class GrowthSessionPolicy
     }
 
     /**
-     * Filing a growth session under a series is not editing it.
-     *
-     * `update` is closed on a session that has already happened, because its time, place and roster
-     * are settled once the room has emptied. Which thread it belonged to is not settled by the same
-     * event - it is a fact about the past that the owner may only realise afterwards, and the
-     * dashboard is where they look back over what they have run. So this one stays open behind.
+     * Unlike `update`, this stays open on past sessions: an owner groups what they have already
+     * run from the dashboard.
      */
     public function fileInSeries(User $user, GrowthSession $growthSession): bool
     {

@@ -4,15 +4,9 @@ import { Check, ChevronDown, X } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
 
 /**
- * The control that tags a growth session.
- *
- * A picker rather than a text field, because a tag is one of a fixed set somebody already decided
- * on - typing a name that isn't in it tags nothing, so the field only ever offers what exists. What
- * has been chosen sits in the field as removable chips, and the rest of the vocabulary stays a
- * keystroke away in the list beneath, so the set is still browsable by someone who doesn't know it.
- *
- * Picking does not close the list: tagging is usually plural, and reopening between every tag costs
- * more than the list costs while it is open.
+ * Multi-select for a growth session's tags. Chosen tags show as removable chips; the rest of the
+ * fixed vocabulary stays in the list beneath. Picking leaves the list open, since tagging is
+ * usually plural.
  */
 const props = withDefaults(
     defineProps<{
@@ -39,10 +33,7 @@ const LIST_GAP = 4;
 /** The chosen tags, in the order the vocabulary lists them rather than the order they were picked. */
 const chosen = computed<IDropdownOption[]>(() => props.options.filter((option) => props.modelValue.includes(option.value)));
 
-/**
- * What the list offers. Chosen tags stay in it, carrying a check, so the list always answers "what
- * can this be tagged?" in full and a tag can be taken back off where it was put on.
- */
+/** Chosen tags stay in the list, carrying a check, so a tag can be taken back off where it was put on. */
 const suggestions = computed<IDropdownOption[]>(() => {
     const typed = search.value.trim().toLocaleLowerCase();
 
@@ -87,10 +78,7 @@ function onInput(event: Event) {
     open();
 }
 
-/**
- * Adds the tag, or takes it back off if it was already on. The search is spent either way: it found
- * what it was typed for, and leaving it would narrow the list against the next tag being looked for.
- */
+/** Adds the tag, or removes it if already chosen. Clears the search either way, so the list is not narrowed against the next tag. */
 function toggle(value: string) {
     emit('update:modelValue', isChosen(value) ? props.modelValue.filter((chosenValue) => chosenValue !== value) : [...props.modelValue, value]);
 
@@ -107,7 +95,6 @@ function remove(value: string) {
     field.value?.focus();
 }
 
-/** The chevron opens the list on a field nobody has typed in yet, and closes it again. */
 async function toggleList() {
     if (isOpen.value) return close();
 
@@ -117,9 +104,8 @@ async function toggleList() {
 }
 
 /**
- * Walk the suggestions, wrapping through "nothing highlighted" at either end so arrowing past the
- * last one hands the field back rather than jumping to the first. `-1` is that state, which is why
- * the arithmetic is done one place to the right of it.
+ * Walk the suggestions, wrapping through "nothing highlighted" (`-1`) at either end so arrowing
+ * past the last one hands the field back. The arithmetic is offset by one to make room for `-1`.
  */
 function move(step: number) {
     if (!isShowingList.value) return open();
@@ -132,22 +118,19 @@ function move(step: number) {
 function confirm(event: KeyboardEvent) {
     if (!isShowingList.value || highlighted.value < 0) return close();
 
-    // Only swallow the key when it actually picked something, so Enter still submits the form.
+    // Only swallow the key when it picked something, so Enter still submits the form.
     event.preventDefault();
     toggle(suggestions.value[highlighted.value].value);
 }
 
-/** Backspace on an empty search takes the last tag back off, the way it does in any chip field. */
+/** Backspace on an empty search removes the last chip. */
 function onBackspace() {
     if (search.value !== '' || chosen.value.length === 0) return;
 
     remove(chosen.value[chosen.value.length - 1].value);
 }
 
-/**
- * The list is taller than it shows, so walking it from the keyboard has to bring the highlighted tag
- * with it - otherwise arrowing past the sixth row highlights something nobody can see.
- */
+/** The list scrolls, so keyboard navigation has to keep the highlighted option in view. */
 watch(highlighted, async (index) => {
     if (index < 0) return;
 
@@ -155,17 +138,13 @@ watch(highlighted, async (index) => {
     document.getElementById(`${props.id}-option-${suggestions.value[index].value}`)?.scrollIntoView({ block: 'nearest' });
 });
 
-/**
- * Closing on blur would fire before the click that caused it, so the list is dismissed only once
- * focus has settled somewhere outside the control entirely.
- */
+/** Blur fires before the click that caused it, so only close once focus has left the control. */
 function onFocusOut(event: FocusEvent) {
     const movedTo = event.relatedTarget as Node | null;
 
     if (!movedTo || !(event.currentTarget as HTMLElement).contains(movedTo)) close();
 }
 
-/** So a caller opening the control for the first time can put the cursor in it. */
 function focus() {
     field.value?.focus();
 }

@@ -15,14 +15,8 @@ class GrowthSessionObserver
     /**
      * Handle the GrowthSession "updated" event.
      *
-     * A series lives for exactly as long as it holds a session, so a session moving out of one is
-     * how a thread comes to an end. The move can only be seen from the row, which is why it is
-     * noticed here rather than by whoever filed it.
-     *
-     * Which thread it left is read off the original, so this has to happen before the event goes
-     * out: a listener is free to `refresh()` the session it is handed - the Slack poster does -
-     * and that re-syncs the original to the row it was just saved as, leaving nothing to say what
-     * the session moved out of.
+     * The prune must run before the events: a listener may `refresh()` the session (the Slack
+     * poster does), which re-syncs the original and loses the series it moved out of.
      */
     public function updated(GrowthSession $growthSession): void
     {

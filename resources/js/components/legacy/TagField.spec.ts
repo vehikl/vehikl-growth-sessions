@@ -92,7 +92,7 @@ describe('TagField', () => {
         expect(wrapper.emitted('update:modelValue')).toEqual([[['1', '2']]]);
     });
 
-    // Tagging is usually plural, so reopening the list between every tag would cost more than it saves.
+    // Tagging is usually plural, so the list stays open.
     it('leaves the list open after a tag is chosen', async () => {
         const wrapper = mountField();
         await wrapper.find('input').trigger('focus');
@@ -175,7 +175,7 @@ describe('TagField', () => {
             expect(wrapper.emitted('update:modelValue')).toEqual([[['3']]]);
         });
 
-        // Enter must still submit the form when the visitor was done tagging.
+        // Enter must still submit the form when nothing is highlighted.
         it('tags nothing when nothing is highlighted', async () => {
             const wrapper = mountField();
             await wrapper.find('input').trigger('focus');

@@ -47,7 +47,7 @@ describe('SeriesField', () => {
         expect(wrapper.find('[role="listbox"]').exists()).toBe(false);
     });
 
-    // Nothing left to choose: the field already holds the one thread that matches it.
+    // Nothing left to choose: the field already holds the only match.
     it('stops suggesting a name once the field holds exactly that name', async () => {
         const wrapper = mount(SeriesField, { props: { id: 'series-name', options: ['Vue Deep Dive'], modelValue: 'vue deep dive' } });
         await wrapper.find('input').trigger('focus');
@@ -97,7 +97,7 @@ describe('SeriesField', () => {
             expect(wrapper.emitted('update:modelValue')).toEqual([['Vue Router']]);
         });
 
-        // Enter must still submit the form when the visitor meant the name they typed.
+        // Enter must still submit the form when nothing is highlighted.
         it('leaves what was typed alone when nothing is highlighted', async () => {
             const wrapper = mountField('vue');
             await wrapper.find('input').trigger('focus');

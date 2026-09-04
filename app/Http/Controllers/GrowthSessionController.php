@@ -121,9 +121,7 @@ class GrowthSessionController extends Controller
         $inviteLink = InviteLink::for($growthSession);
         $inviteLink->set($request->boolean('has_invite_link', $inviteLink->exists()));
 
-        // An update that says nothing about the series leaves the growth session in the one it is
-        // already filed under. Only the owner gets this far, so the name lands in a series of
-        // theirs - see App\Support\SeriesAssignment.
+        // An omitted series_name leaves the session filed where it is.
         if ($request->has('series_name')) {
             SeriesAssignment::for($growthSession, $request->user())->file($request->input('series_name'));
         }
