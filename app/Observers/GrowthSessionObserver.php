@@ -13,25 +13,23 @@ class GrowthSessionObserver
     // No create, since events/broadcast need both the growth session and an owner assigned
 
     /**
-     * Handle the GrowthSession "saved" event.
+     * Handle the GrowthSession "updated" event.
      *
      * A series lives for exactly as long as it holds a session, so a session moving out of one is
      * how a thread comes to an end. The move can only be seen from the row, which is why it is
-     * noticed here rather than by whoever filed it - and the original still reads as it did before
-     * the save until this event has been handled.
+     * noticed here rather than by whoever filed it.
+     *
+     * Which thread it left is read off the original, so this has to happen before the event goes
+     * out: a listener is free to `refresh()` the session it is handed - the Slack poster does -
+     * and that re-syncs the original to the row it was just saved as, leaving nothing to say what
+     * the session moved out of.
      */
-    public function saved(GrowthSession $growthSession): void
+    public function updated(GrowthSession $growthSession): void
     {
         if ($growthSession->wasChanged('series_id')) {
             SeriesAssignment::prune($growthSession->getOriginal('series_id'));
         }
-    }
 
-    /**
-     * Handle the GrowthSession "updated" event.
-     */
-    public function updated(GrowthSession $growthSession): void
-    {
         broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
         event(new GrowthSessionUpdated($growthSession));
     }
