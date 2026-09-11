@@ -119,6 +119,31 @@ describe('GrowthSessionCard', () => {
         expect(wrapper.find('.attendees-count').text()).toContain(growthSessionData.attendees.length);
     });
 
+    it('shows the faces of everyone attending, without the card having to be opened', () => {
+        const faces = wrapper.findAll('[data-testid="attendee-avatar"]');
+
+        expect(faces).toHaveLength(1);
+        expect(faces[0].find('img').attributes('src')).toBe(attendee.avatar);
+        expect(wrapper.find('.attendee-avatars').attributes('title')).toBe(attendee.name);
+    });
+
+    it('leaves the owner out of the faces, since they already head the card', () => {
+        const ownerIsIn = new GrowthSession({ ...baseGrowthSessionDataAttributes, attendees: [ownerOfTheGrowthSession, attendee] });
+        wrapper = mount(GrowthSessionCard, { props: { growthSession: ownerIsIn } });
+
+        expect(wrapper.findAll('[data-testid="attendee-avatar"]')).toHaveLength(1);
+        expect(wrapper.find('.attendee-avatars').attributes('title')).toBe(attendee.name);
+        expect(wrapper.find('.attendees-count').text()).toContain('2');
+    });
+
+    it('does not show attendee faces when nobody but the owner is in yet', () => {
+        const ownerOnly = new GrowthSession({ ...baseGrowthSessionDataAttributes, attendees: [ownerOfTheGrowthSession] });
+        wrapper = mount(GrowthSessionCard, { props: { growthSession: ownerOnly } });
+
+        expect(wrapper.find('[data-testid="attendee-avatar"]').exists()).toBe(false);
+        expect(wrapper.find('.attendees-count').text()).toContain('1');
+    });
+
     it('displays the attendee limit', () => {
         expect(wrapper.find('.attendee-limit').text()).toContain(growthSessionData.attendee_limit);
     });
