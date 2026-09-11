@@ -50,6 +50,28 @@ describe('GrowthSession', () => {
         vi.restoreAllMocks();
     });
 
+    describe('the attendees besides the owner', () => {
+        const joiner: IUser = { id: 7, avatar: '', name: 'Jane Roe', github_nickname: 'jane', is_vehikl_member: true };
+
+        it('leave the owner out, since the owner is always shown in their own right', () => {
+            growthSession = new GrowthSession({ ...growthSessionJson, attendees: [owner, joiner] });
+
+            expect(growthSession.attendeesBesidesOwner.map((member) => member.id)).toEqual([joiner.id]);
+        });
+
+        it('are everyone when the owner has not taken a seat', () => {
+            growthSession = new GrowthSession({ ...growthSessionJson, attendees: [joiner] });
+
+            expect(growthSession.attendeesBesidesOwner.map((member) => member.id)).toEqual([joiner.id]);
+        });
+
+        it('are nobody when only the owner is in', () => {
+            growthSession = new GrowthSession({ ...growthSessionJson, attendees: [owner] });
+
+            expect(growthSession.attendeesBesidesOwner).toEqual([]);
+        });
+    });
+
     it('can return its dates in the proper google calendar style', () => {
         expect(growthSession.googleCalendarDate).toEqual('20200101T200000Z/20200101T220000Z');
     });

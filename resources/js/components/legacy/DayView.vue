@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { DateTime } from '@/classes/DateTime';
 import { GrowthSession } from '@/classes/GrowthSession';
+import AttendeeAvatarStack from '@/components/AttendeeAvatarStack.vue';
 import TextSegments from '@/components/legacy/TextSegments.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, capacityLabel, ISessionAction, sessionActions, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
@@ -190,14 +191,6 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                             :aria-label="`View details for ${session.title}`"
                             @click="emit('open-detail', session)"
                         ></button>
-                        <span
-                            class="capacity-readout gs-secondary-bg absolute top-3 right-4 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
-                            :class="session.hasReachedAttendeeLimit() ? 'gs-at-capacity' : 'gs-text-muted'"
-                            :title="session.hasReachedAttendeeLimit() ? 'This session is full' : undefined"
-                        >
-                            <i class="fa fa-user" aria-hidden="true"></i>{{ capacityLabel(session) }}
-                        </span>
-
                         <div class="flex items-start gap-3">
                             <span
                                 class="flex h-12 w-12 flex-none items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white"
@@ -212,8 +205,8 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                                 <template v-else>{{ getInitials(session.ownerName) }}</template>
                             </span>
                             <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-2 pr-20">
-                                    <span class="gs-text-strong text-base font-semibold">{{ session.title }}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="gs-text-strong min-w-0 text-base font-semibold">{{ session.title }}</span>
                                     <span
                                         class="h-2 w-2 flex-none rounded-full"
                                         :style="{ backgroundColor: statusMeta(currentStatus(session)).color }"
@@ -222,6 +215,20 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                                     <span v-if="currentStatus(session) === 'live'" class="live-session-label gs-accent-text text-xs font-bold"
                                         >LIVE</span
                                     >
+                                    <span
+                                        class="relative z-20 ml-auto flex flex-none cursor-pointer items-center gap-2"
+                                        @click="emit('open-detail', session)"
+                                    >
+                                        <AttendeeAvatarStack v-if="session.attendeesBesidesOwner.length" :members="session.attendeesBesidesOwner" />
+                                        <span
+                                            class="capacity-readout gs-secondary-bg inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
+                                            :class="session.hasReachedAttendeeLimit() ? 'gs-at-capacity' : 'gs-text-muted'"
+                                            :title="session.hasReachedAttendeeLimit() ? 'This session is full' : undefined"
+                                        >
+                                            <i v-if="!session.attendeesBesidesOwner.length" class="fa fa-user" aria-hidden="true"></i
+                                            >{{ capacityLabel(session) }}
+                                        </span>
+                                    </span>
                                 </div>
                                 <div class="gs-accent-text mt-1 text-xs font-bold tracking-[0.04em] uppercase">
                                     {{ session.ownerName }}

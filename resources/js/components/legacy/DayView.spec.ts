@@ -104,14 +104,53 @@ describe('DayView', () => {
         expect(wrapper.find('.capacity-readout').text()).toContain('1/4');
     });
 
-    it('pins the capacity readout to the card corner so the body can use the full width', () => {
+    it('shows the faces of everyone attending beside the capacity, without the card having to be opened', () => {
+        const second: IUser = {
+            id: 3,
+            name: 'Margaret Hamilton',
+            avatar: 'https://example.test/margaret.png',
+            github_nickname: 'mh',
+            is_vehikl_member: true,
+        };
         const wrapper = mount(DayView, {
-            props: { days, selectedIndex: 1, sessions: [makeSession()], currentLabel: 'THU', user: vehiklUser },
+            props: { days, selectedIndex: 1, sessions: [makeSession({ attendees: [attendee, second] })], currentLabel: 'THU', user: vehiklUser },
         });
 
-        const capacity = wrapper.find('.capacity-readout');
-        expect(capacity.classes()).toContain('absolute');
-        expect(capacity.element.parentElement?.classList.contains('gs-card')).toBe(true);
+        const faces = wrapper.findAll('[data-testid="attendee-avatar"]');
+        expect(faces).toHaveLength(2);
+        expect(faces[1].find('img').attributes('src')).toBe(second.avatar);
+        expect(wrapper.find('.attendee-avatars').attributes('title')).toBe('Grace Hopper, Margaret Hamilton');
+        expect(wrapper.find('.attendee-avatars').element.parentElement).toBe(wrapper.find('.capacity-readout').element.parentElement);
+    });
+
+    it('leaves the owner out of the faces, since they already head the card', () => {
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession({ attendees: [owner, attendee] })], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        expect(wrapper.findAll('[data-testid="attendee-avatar"]')).toHaveLength(1);
+        expect(wrapper.find('.attendee-avatars').attributes('title')).toBe('Grace Hopper');
+        expect(wrapper.find('.capacity-readout').text()).toContain('2/4');
+    });
+
+    it('does not show attendee faces when nobody but the owner is in yet', () => {
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [makeSession({ attendees: [owner] })], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        expect(wrapper.find('[data-testid="attendee-avatar"]').exists()).toBe(false);
+        expect(wrapper.find('.capacity-readout').text()).toContain('1/4');
+    });
+
+    it('opens the session when the attendee faces are clicked, the same as the rest of the card', async () => {
+        const session = makeSession({ attendees: [attendee] });
+        const wrapper = mount(DayView, {
+            props: { days, selectedIndex: 1, sessions: [session], currentLabel: 'THU', user: vehiklUser },
+        });
+
+        await wrapper.find('.attendee-avatars').trigger('click');
+
+        expect(wrapper.emitted('open-detail')?.[0]).toEqual([session]);
     });
 
     it('labels a live session next to its title', () => {

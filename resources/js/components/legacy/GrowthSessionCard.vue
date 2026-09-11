@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { GrowthSession } from '@/classes/GrowthSession';
+import AttendeeAvatarStack from '@/components/AttendeeAvatarStack.vue';
 import TextSegments from '@/components/legacy/TextSegments.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, ISessionAction, sessionActions, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
@@ -108,14 +109,22 @@ async function onDeleteClicked() {
 
         <div class="gs-text-sub mb-2 flex items-center justify-between text-sm font-medium">
             <time class="session-time" :datetime="growthSession.startsAtIso">{{ growthSession.timeRange }}</time>
-            <span
-                class="attendees-count inline-flex items-center gap-1"
-                :class="{ 'gs-at-capacity': atCapacity }"
-                :title="atCapacity ? 'This session is full' : undefined"
-            >
-                <i class="fa fa-user text-xs" aria-hidden="true"></i>
-                {{ growthSession.attendees.length }}
-                <span v-if="!growthSession.isLimitless" class="attendee-limit">/{{ growthSession.attendee_limit }}</span>
+            <span class="flex min-w-0 items-center gap-1.5">
+                <attendee-avatar-stack
+                    v-if="growthSession.attendeesBesidesOwner.length"
+                    :members="growthSession.attendeesBesidesOwner"
+                    class="relative z-20 cursor-pointer"
+                    @click="emit('open-detail', growthSession)"
+                />
+                <span
+                    class="attendees-count inline-flex items-center gap-1"
+                    :class="{ 'gs-at-capacity': atCapacity }"
+                    :title="atCapacity ? 'This session is full' : undefined"
+                >
+                    <i v-if="!growthSession.attendeesBesidesOwner.length" class="fa fa-user text-xs" aria-hidden="true"></i>
+                    {{ growthSession.attendees.length }}
+                    <span v-if="!growthSession.isLimitless" class="attendee-limit">/{{ growthSession.attendee_limit }}</span>
+                </span>
             </span>
         </div>
 

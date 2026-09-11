@@ -130,6 +130,11 @@ export class GrowthSession implements IGrowthSession {
         return this.owner?.name ?? 'Unknown';
     }
 
+    /** The owner usually holds a seat too, but is already named on every card, so the faces shown beside it are everyone else. */
+    get attendeesBesidesOwner(): User[] {
+        return this.attendees.filter((attendee) => attendee.id !== this.owner?.id);
+    }
+
     get renderedTitle(): string {
         if (this.title) {
             return this.title;
