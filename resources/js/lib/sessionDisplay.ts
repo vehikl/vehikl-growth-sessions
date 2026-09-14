@@ -33,6 +33,17 @@ export function sessionStatus(session: GrowthSession): SessionStatus {
     return session.hasAlreadyHappened ? 'finished' : 'upcoming';
 }
 
+/**
+ * Board order for a day: sessions still to come (live or upcoming) first, finished ones last.
+ * Each group keeps the start-time order the server sent, so the day still reads top to bottom.
+ */
+export function sinkFinishedSessions(sessions: GrowthSession[]): GrowthSession[] {
+    const finished = sessions.filter((session) => sessionStatus(session) === 'finished');
+    const upcoming = sessions.filter((session) => sessionStatus(session) !== 'finished');
+
+    return [...upcoming, ...finished];
+}
+
 export function statusMeta(status: SessionStatus): { color: string; label: string } {
     switch (status) {
         case 'live':
