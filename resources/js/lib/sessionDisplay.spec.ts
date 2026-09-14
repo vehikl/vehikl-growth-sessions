@@ -1,5 +1,5 @@
 import { GrowthSession } from '@/classes/GrowthSession';
-import { avatarColor, capacityLabel, sessionActions, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
+import { avatarColor, capacityLabel, sessionActions, sessionStatus, sinkFinishedSessions, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -84,6 +84,55 @@ describe('sessionStatus', () => {
 
         expect(sessionStatus(finished)).toBe('finished');
         expect(sessionStatus(upcoming)).toBe('upcoming');
+    });
+});
+
+describe('sinkFinishedSessions', () => {
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    function freezeAt(year: number, monthIndex: number, day: number, hour: number, minute = 0) {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(year, monthIndex, day, hour, minute, 0));
+    }
+
+    it('moves finished sessions below live and upcoming ones', () => {
+        freezeAt(2024, 5, 15, 12);
+        const finished = makeSession({ id: 1, date: '2024-06-15', start_time: '09:00 am', end_time: '10:00 am' });
+        const live = makeSession({ id: 2, date: '2024-06-15', start_time: '11:00 am', end_time: '01:00 pm' });
+        const upcoming = makeSession({ id: 3, date: '2024-06-15', start_time: '02:00 pm', end_time: '03:00 pm' });
+
+        expect(sinkFinishedSessions([finished, live, upcoming]).map((s) => s.id)).toEqual([2, 3, 1]);
+    });
+
+    it('keeps the incoming order within each group', () => {
+        freezeAt(2024, 5, 15, 12);
+        const earlyFinished = makeSession({ id: 1, date: '2024-06-15', start_time: '08:00 am', end_time: '09:00 am' });
+        const lateFinished = makeSession({ id: 2, date: '2024-06-15', start_time: '10:00 am', end_time: '11:00 am' });
+        const soon = makeSession({ id: 3, date: '2024-06-15', start_time: '01:00 pm', end_time: '02:00 pm' });
+        const later = makeSession({ id: 4, date: '2024-06-15', start_time: '03:00 pm', end_time: '04:00 pm' });
+
+        expect(sinkFinishedSessions([earlyFinished, lateFinished, soon, later]).map((s) => s.id)).toEqual([3, 4, 1, 2]);
+    });
+
+    it('leaves a day with nothing finished untouched', () => {
+        freezeAt(2024, 5, 15, 8);
+        const first = makeSession({ id: 1, date: '2024-06-15', start_time: '09:00 am', end_time: '10:00 am' });
+        const second = makeSession({ id: 2, date: '2024-06-15', start_time: '11:00 am', end_time: '12:00 pm' });
+
+        expect(sinkFinishedSessions([first, second]).map((s) => s.id)).toEqual([1, 2]);
+    });
+
+    it('does not mutate the given list', () => {
+        freezeAt(2024, 5, 15, 12);
+        const finished = makeSession({ id: 1, date: '2024-06-15', start_time: '09:00 am', end_time: '10:00 am' });
+        const upcoming = makeSession({ id: 2, date: '2024-06-15', start_time: '02:00 pm', end_time: '03:00 pm' });
+        const input = [finished, upcoming];
+
+        sinkFinishedSessions(input);
+
+        expect(input.map((s) => s.id)).toEqual([1, 2]);
     });
 });
 

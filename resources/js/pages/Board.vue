@@ -10,12 +10,13 @@ import VisibilityRadioFieldset from '@/components/legacy/VisibilityRadioFieldset
 import VModal from '@/components/legacy/VModal.vue';
 import WeekView from '@/components/legacy/WeekView.vue';
 import { useBoardUrlState, type BoardView } from '@/composables/useBoardUrlState';
+import { sinkFinishedSessions } from '@/lib/sessionDisplay';
 import { filterSessions, type SessionFilterCriteria, type VisibilityFilter } from '@/lib/sessionFilters';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
 import { TagsApi } from '@/services/TagsApi';
 import { ITag, IUser } from '@/types';
 import { useEcho } from '@laravel/echo-vue';
-import { useMediaQuery, watchDebounced } from '@vueuse/core';
+import { useIntervalFn, useMediaQuery, watchDebounced } from '@vueuse/core';
 import { ChevronDown } from 'lucide-vue-next';
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
@@ -130,8 +131,13 @@ const filterCriteria = computed<SessionFilterCriteria>(() => ({
     searchQuery: debouncedSearchQuery.value,
 }));
 
+const orderClock = ref(Date.now());
+useIntervalFn(() => (orderClock.value = Date.now()), 60_000);
+
 function growthSessionsVisibleInDate(date: DateTime): GrowthSession[] {
-    return filterSessions(growthSessions.value.getSessionByDate(date), filterCriteria.value);
+    void orderClock.value;
+
+    return sinkFinishedSessions(filterSessions(growthSessions.value.getSessionByDate(date), filterCriteria.value));
 }
 
 const daySessions = computed(() => growthSessionsVisibleInDate(selectedDate.value));
