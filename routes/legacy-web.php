@@ -27,7 +27,7 @@ Route::resource('growth_sessions', GrowthSessionController::class)->middleware('
 Route::prefix('growth_sessions/{growth_session}/comments')->name('growth_sessions.comments.')->group(function() {
     Route::get('/', [CommentController::class, 'index'])->name('index');
 });
-Route::resource('growth_sessions.comments', CommentController::class)->middleware('auth')->only(['store','update','destroy']);
+Route::resource('growth_sessions.comments', CommentController::class)->scoped(['comment' => 'id'])->middleware('auth')->only(['store', 'destroy']);
 
 Route::prefix('api')->name('api.')->middleware('auth')->group(function () {
     Route::get('discord-channels',  [DiscordChannelsController::class, 'index']);
