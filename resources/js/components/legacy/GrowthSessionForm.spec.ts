@@ -215,6 +215,19 @@ describe('GrowthSessionForm', () => {
             expect(wrapper.find<HTMLButtonElement>('button[type="submit"]').element.disabled).toBeFalsy();
         });
 
+        it('caps the topic at the topic length limit', () => {
+            expect(wrapper.find('#topic').attributes('maxlength')).toBe('280');
+        });
+
+        it('counts the topic characters against the limit', async () => {
+            expect(wrapper.find('#topic-counter').text()).toBe('0 / 280');
+
+            await wrapper.find('#topic').setValue('Anything');
+
+            expect(wrapper.find('#topic-counter').text()).toBe('8 / 280');
+            expect(wrapper.find('#topic-counter').classes()).not.toContain('text-red-500');
+        });
+
         it('has a no limit checkbox', () => {
             expect(wrapper.find('#no-limit').exists()).toBeTruthy();
         });
@@ -506,6 +519,19 @@ describe('GrowthSessionForm', () => {
                     growthSession: growthSessionWithCommentsJson,
                 },
             });
+        });
+
+        it('flags a topic written before the limit existed as over it', () => {
+            wrapper = mount(GrowthSessionForm, {
+                propsData: {
+                    owner: user,
+                    startDate,
+                    growthSession: { ...growthSessionWithCommentsJson, topic: 'a'.repeat(300) },
+                },
+            });
+
+            expect(wrapper.find('#topic-counter').text()).toBe('300 / 280');
+            expect(wrapper.find('#topic-counter').classes()).toContain('text-red-500');
         });
 
         it('allows is public field to be editable', () => {

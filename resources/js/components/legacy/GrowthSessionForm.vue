@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { DateTime } from '@/classes/DateTime';
+import { GrowthSession } from '@/classes/GrowthSession';
 import { AnydesksApi } from '@/services/AnydesksApi';
 import { DiscordChannelApi } from '@/services/DiscordChannelApi';
 import { GrowthSessionApi } from '@/services/GrowthSessionApi';
@@ -40,6 +41,10 @@ const tagIds = ref<string[]>([]);
 const tagOptions = ref<{ label: string; value: string }[]>([]);
 const showTags = ref<boolean>(true);
 const titleInput = ref<HTMLInputElement | null>(null);
+
+const topicMaxLength = GrowthSession.TOPIC_MAX_LENGTH;
+// Only a topic written before the limit existed can be over it - maxlength stops new typing past it.
+const isTopicOverLimit = computed(() => topic.value.length > topicMaxLength);
 
 // Public and an invitation link are mutually exclusive: a public session is already visible to everyone. The server's
 // InviteLink module enforces that; this computed only shows the toggle in the state the server would settle on.
@@ -272,9 +277,13 @@ function autofillLocationFromDiscordChannel(selectedId: string | null) {
                     v-model="topic"
                     :class="{ 'error-outline': getError('topic') }"
                     class="gs-input w-full rounded-lg px-3 py-2.5 text-sm"
+                    :maxlength="topicMaxLength"
                     placeholder="Any more details?"
                     rows="3"
                 />
+                <p id="topic-counter" :class="isTopicOverLimit ? 'text-red-500' : 'gs-text-muted'" class="mt-1 text-right text-xs">
+                    {{ topic.length }} / {{ topicMaxLength }}
+                </p>
             </div>
 
             <div class="grid grid-cols-3 gap-2.5">

@@ -18,6 +18,9 @@ function toGoogleCalendarStamp(instant: Moment): string {
 }
 
 export class GrowthSession implements IGrowthSession {
+    /** Mirrors GrowthSession::TOPIC_MAX_LENGTH on the server. */
+    static readonly TOPIC_MAX_LENGTH = 280;
+
     id!: number;
     title!: string;
     topic!: string;

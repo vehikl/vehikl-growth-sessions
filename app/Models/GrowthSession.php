@@ -23,6 +23,9 @@ class GrowthSession extends Model
 
     const NO_LIMIT = PHP_INT_MAX;
 
+    /** Keeps the topic a short pitch. Existing topics over it are kept until someone changes them. */
+    const TOPIC_MAX_LENGTH = 280;
+
     /** The relations GrowthSessionResource reads - eager-load these before building one to avoid lazy loading. */
     const RESOURCE_RELATIONS = ['owners', 'attendees', 'watchers', 'waitlist', 'comments', 'anydesk', 'tags'];
 
