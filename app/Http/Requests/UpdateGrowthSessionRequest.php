@@ -6,6 +6,7 @@ use App\Models\AnyDesk;
 use App\Models\GrowthSession;
 use App\Models\Tag;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateGrowthSessionRequest extends FormRequest
 {
@@ -30,7 +31,13 @@ class UpdateGrowthSessionRequest extends FormRequest
 
         return [
             'title' => 'sometimes|required|string|max:45',
-            'topic' => 'sometimes|required|string',
+            // Topics written before the limit existed can be saved as-is; the limit only bites once the topic changes.
+            'topic' => [
+                'sometimes',
+                'required',
+                'string',
+                Rule::when($this->input('topic') !== $this->growth_session->topic, 'max:' . GrowthSession::TOPIC_MAX_LENGTH),
+            ],
             'location' => 'sometimes|required|string',
             'start_time' => 'sometimes|required|date_format:h:i a',
             'end_time' => 'sometimes|required|after:start_time|date_format:h:i a',

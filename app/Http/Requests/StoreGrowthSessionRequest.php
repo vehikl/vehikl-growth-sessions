@@ -20,7 +20,7 @@ class StoreGrowthSessionRequest extends FormRequest
         $timeValues = $this->only(['start_time', 'end_time', 'date']);
         return [
             'title' => 'required|string|max:45',
-            'topic' => 'required|string',
+            'topic' => 'required|string|max:' . GrowthSession::TOPIC_MAX_LENGTH,
             'location' => 'required|string',
             'start_time' => [
                 'required',

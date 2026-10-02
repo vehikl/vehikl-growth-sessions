@@ -164,6 +164,27 @@ class GrowthSessionsStoreTest extends TestCase
             ->assertJsonValidationErrorFor('attendee_limit');
     }
 
+    public function test_the_topic_can_be_as_long_as_the_limit()
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+
+        $this->actingAs($vehiklMember)->postJson(
+            route('growth_sessions.store'),
+            $this->defaultParameters(['topic' => str_repeat('a', GrowthSession::TOPIC_MAX_LENGTH)])
+        )->assertSuccessful();
+    }
+
+    public function test_the_topic_cannot_be_longer_than_the_limit()
+    {
+        $vehiklMember = User::factory()->vehiklMember()->create();
+
+        $this->actingAs($vehiklMember)->postJson(
+            route('growth_sessions.store'),
+            $this->defaultParameters(['topic' => str_repeat('a', GrowthSession::TOPIC_MAX_LENGTH + 1)])
+        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrorFor('topic');
+    }
+
     private function defaultParameters(array $params = []): array
     {
         return array_merge([

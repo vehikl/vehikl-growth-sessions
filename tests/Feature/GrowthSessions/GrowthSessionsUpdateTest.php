@@ -263,4 +263,52 @@ class GrowthSessionsUpdateTest extends TestCase
 
         $this->assertCount(1, $growthSession->fresh()->tags);
     }
+
+    public function testTheOwnerCannotChangeTheTopicToOneLongerThanTheLimit()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
+            ->create();
+
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
+            'topic' => str_repeat('a', GrowthSession::TOPIC_MAX_LENGTH + 1),
+        ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrorFor('topic');
+    }
+
+    public function testATopicAlreadyLongerThanTheLimitCanBeSavedUnchanged()
+    {
+        $longTopic = str_repeat('a', GrowthSession::TOPIC_MAX_LENGTH + 1);
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
+            ->create(['topic' => $longTopic]);
+
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
+            'topic' => $longTopic,
+            'title' => 'A whole new title!',
+        ])->assertSuccessful();
+
+        $this->assertEquals('A whole new title!', $growthSession->fresh()->title);
+    }
+
+    public function testATopicAlreadyLongerThanTheLimitCannotBeChangedToAnotherOverTheLimit()
+    {
+        $growthSession = GrowthSession::factory()
+            ->hasAttached(User::factory(), ['user_type_id' => Role::Owner->value], 'owners')
+            ->create(['topic' => str_repeat('a', GrowthSession::TOPIC_MAX_LENGTH + 1)]);
+
+        $this->actingAs($growthSession->owner)->putJson(route(
+            'growth_sessions.update',
+            ['growth_session' => $growthSession->id]
+        ), [
+            'topic' => str_repeat('b', GrowthSession::TOPIC_MAX_LENGTH + 1),
+        ])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrorFor('topic');
+    }
 }
