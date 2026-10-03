@@ -218,4 +218,47 @@ class CommentsTest extends TestCase
             ->deleteJson(route('growth_sessions.comments.destroy', [$growthSession, $comment]))
             ->assertForbidden();
     }
+
+    public function test_a_guest_cannot_see_comments_of_a_private_growth_session()
+    {
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+        Comment::factory()->create(['growth_session_id' => $growthSession->id]);
+
+        $this->getJson(route('growth_sessions.comments.index', $growthSession))
+            ->assertNotFound();
+    }
+
+    public function test_a_non_member_cannot_post_a_comment_on_a_private_growth_session()
+    {
+        $nonMember = User::factory()->create(['is_vehikl_member' => false]);
+        $growthSession = GrowthSession::factory()->create(['is_public' => false]);
+
+        $this->actingAs($nonMember)
+            ->postJson(route('growth_sessions.comments.store', $growthSession), ['content' => 'Hello world'])
+            ->assertNotFound();
+
+        $this->assertEmpty($growthSession->fresh()->comments);
+    }
+
+    public function test_a_user_cannot_delete_their_comment_by_hitting_a_different_sessions_url()
+    {
+        $comment = Comment::factory()->create();
+        $commentOwner = $comment->user;
+        $otherSession = GrowthSession::factory()->create();
+
+        $this->actingAs($commentOwner)
+            ->deleteJson(route('growth_sessions.comments.destroy', [$otherSession, $comment]))
+            ->assertNotFound();
+
+        $this->assertNotNull($comment->fresh());
+    }
+
+    public function test_patch_on_the_comment_resource_route_does_not_error()
+    {
+        $comment = Comment::factory()->create();
+
+        $this->actingAs($comment->user)
+            ->patchJson(route('growth_sessions.comments.destroy', [$comment->growthSession, $comment]), ['content' => 'Edited'])
+            ->assertStatus(Response::HTTP_METHOD_NOT_ALLOWED);
+    }
 }
