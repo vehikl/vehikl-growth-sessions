@@ -384,7 +384,7 @@ describe('Board', () => {
         it('shows a creation form pre-populated with data from some growth session when I click in some copy button', async () => {
             // The copy button only renders on sessions the authenticated user owns, so mount as one of the owners.
             const matchingSession = growthSessionsThisWeek.allGrowthSessions[0];
-            wrapper = mount(Board, { propsData: { user: { ...matchingSession.owner, is_vehikl_member: true } } });
+            wrapper = mount(Board, { propsData: { user: { ...matchingSession.owner!, is_vehikl_member: true } } });
             await flushPromises();
 
             const title = matchingSession.title;

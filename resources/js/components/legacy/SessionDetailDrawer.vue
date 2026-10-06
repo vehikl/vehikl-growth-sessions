@@ -153,6 +153,10 @@ async function share() {
 
             <h2 id="drawer-title" class="gs-text-strong font-display mb-2.5 text-2xl leading-tight font-bold">{{ growthSession.title }}</h2>
 
+            <p v-if="growthSession.series_name" class="session-series gs-text-sub mb-3 text-xs font-semibold tracking-[0.03em]">
+                {{ growthSession.series_name }}
+            </p>
+
             <div class="mb-3 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5">
                     <time class="session-time gs-text-sub text-xs font-semibold" :datetime="growthSession.startsAtIso">{{

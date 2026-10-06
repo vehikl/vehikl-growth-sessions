@@ -23,6 +23,7 @@ const vueTesting: IHostedSession = {
         { id: 1, name: 'Vue' },
         { id: 2, name: 'Testing' },
     ],
+    series_name: 'Vue Deep Dive',
 };
 
 const paintingWithCode: IHostedSession = {
@@ -33,6 +34,7 @@ const paintingWithCode: IHostedSession = {
     is_upcoming: false,
     attendee_count: 0,
     tags: [],
+    series_name: null,
 };
 
 const summary: ISessionSummary = {

@@ -28,6 +28,7 @@ class HostedGrowthSession extends JsonResource
             'date_label' => $this->resource->date->format('M j, Y'),
             'is_upcoming' => $this->resource->date->gte(today()),
             'attendee_count' => (int) $this->resource->attendee_count,
+            'series_name' => $this->resource->series_name,
             'tags' => $this->resource->tags
                 ->map(fn (Tag $tag) => ['id' => $tag->id, 'name' => $tag->name])
                 ->values()

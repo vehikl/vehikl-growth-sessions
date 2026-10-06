@@ -1,6 +1,7 @@
 <script lang="ts" setup>
+import HostedSessionSeries from '@/components/HostedSessionSeries.vue';
 import type { IHostedSession, IPaginated } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { route } from 'ziggy-js';
 
@@ -13,6 +14,11 @@ const onLastPage = computed(() => props.sessions.current_page >= props.sessions.
 const pageButtonClass =
     'gs-btn-secondary cursor-pointer rounded-lg px-3 py-1.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40';
 const pageVisitOptions = { only: ['hosted_sessions'], preserveScroll: true, preserveState: true };
+
+/** Reload rather than patch the row, so every row's series name comes from the same read. */
+function onFiled() {
+    router.reload(pageVisitOptions);
+}
 </script>
 
 <template>
@@ -43,6 +49,15 @@ const pageVisitOptions = { only: ['hosted_sessions'], preserveScroll: true, pres
                         >
                             {{ tag.name }}
                         </span>
+                    </div>
+
+                    <div class="mt-2">
+                        <HostedSessionSeries
+                            :session-id="session.id"
+                            :session-title="session.title"
+                            :series-name="session.series_name"
+                            @filed="onFiled"
+                        />
                     </div>
                 </div>
 

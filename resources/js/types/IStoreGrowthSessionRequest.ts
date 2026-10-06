@@ -12,4 +12,6 @@ export interface IStoreGrowthSessionRequest {
     allow_watchers?: boolean;
     has_invite_link?: boolean;
     tags?: number[];
+    /** Blank or absent files the session under no series. */
+    series_name?: string | null;
 }
