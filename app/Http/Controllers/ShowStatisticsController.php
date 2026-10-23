@@ -45,6 +45,7 @@ class ShowStatisticsController extends Controller
             'top_hosts' => fn () => $this->topHosts($weekStart, $weekEnd),
             'tags' => fn () => $this->tagUsage($weekStart, $weekEnd),
             'members' => fn () => $this->members($startDate, $endDate),
+            'range_summary' => fn () => $this->rangeSummary($startDate, $endDate),
             'start_date' => $startDate,
             'end_date' => $endDate,
             'first_session_date' => $firstSessionDate,
@@ -71,6 +72,24 @@ class ShowStatisticsController extends Controller
             'lifetime_minutes_count' => GrowthSession::scheduledMinutes(
                 GrowthSession::query()->excludingPurelySocial()->excludingLightningTalks()
             ),
+        ];
+    }
+
+    private function rangeSummary(string $startDate, string $endDate): array
+    {
+        $sessions = GrowthSession::query()->whereBetween('date', [$startDate, $endDate]);
+
+        return [
+            'sessions_count' => (clone $sessions)->count(),
+            'private_sessions_count' => (clone $sessions)->where('is_public', false)->count(),
+            'public_sessions_count' => (clone $sessions)->where('is_public', true)->count(),
+            'new_vehikaliens_count' => User::query()->vehikaliens()
+                ->whereDate('created_at', '>=', $startDate)
+                ->whereDate('created_at', '<=', $endDate)
+                ->count(),
+            'unique_hosts_count' => User::query()
+                ->whereHas('sessionsHosted', fn ($query) => $query->whereBetween('date', [$startDate, $endDate]))
+                ->count(),
         ];
     }
 

@@ -55,6 +55,13 @@ const dashboard: IStatisticsDashboard = {
         weekly_unique_participants_count: 18,
         lifetime_minutes_count: 11610,
     },
+    range_summary: {
+        sessions_count: 12,
+        private_sessions_count: 5,
+        public_sessions_count: 7,
+        new_vehikaliens_count: 2,
+        unique_hosts_count: 4,
+    },
     top_hosts: [
         { id: 3, name: 'Alex Barry', avatar: 'https://example.test/alex.png', sessions_hosted_count: 4 },
         { id: 4, name: 'Sam Reed', avatar: null, sessions_hosted_count: 1 },
@@ -591,14 +598,14 @@ describe('Choosing a date range', () => {
         expect(wrapper.text()).toContain('Jul 16 – Aug 6');
     });
 
-    test('reloads only the members table when a date changes', async () => {
+    test('reloads the members and range summary when a date changes', async () => {
         const wrapper = mountStatistics();
 
         await wrapper.get('input[name="start-date"]').setValue('2026-01-01');
 
         expect(reload).toHaveBeenCalledTimes(1);
         expect(reload.mock.calls[0][0]).toMatchObject({
-            only: ['members', 'start_date', 'end_date'],
+            only: ['members', 'range_summary', 'start_date', 'end_date'],
             data: { start_date: '2026-01-01', end_date: '2026-08-06' },
         });
     });
@@ -658,5 +665,29 @@ describe('Choosing a date range', () => {
         await buttonLabelled(wrapper, 'This week').trigger('click');
 
         expect(reload).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('selected range summary', () => {
+    test('shows range totals and updates them when new props arrive', async () => {
+        const wrapper = mountStatistics();
+        const totals = () =>
+            wrapper
+                .get('[aria-label="Selected date range summary"]')
+                .findAll('dd')
+                .map((count) => count.text());
+
+        expect(totals()).toEqual(['12', '5', '7', '2', '4']);
+        await wrapper.setProps({ range_summary: { ...dashboard.range_summary, sessions_count: 20, public_sessions_count: 15 } });
+        expect(totals()).toEqual(['20', '5', '15', '2', '4']);
+
+        await saveToList(wrapper, 'Ada', 'Ada Lovelace');
+        await wrapper.get('input[name="apply-list"]').setValue(true);
+        expect(totals()).toEqual(['20', '5', '15', '2', '4']);
+    });
+
+    test('is hidden in the plain view', () => {
+        window.history.replaceState({}, '', '/statistics');
+        expect(mountStatistics().find('[aria-label="Selected date range summary"]').exists()).toBe(false);
     });
 });

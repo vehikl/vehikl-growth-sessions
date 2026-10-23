@@ -8,6 +8,7 @@ import {
     decodeSettings,
     encodeSettings,
     filterMembers,
+    formatCount,
     formatRangeLabel,
     paginate,
     pinMember,
@@ -20,11 +21,12 @@ import {
     thisWeekRange,
     totalPages,
 } from '@/lib/statistics';
-import { IUserStatistics } from '@/types';
+import { IStatisticsRangeSummary, IUserStatistics } from '@/types';
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 
 interface IProps {
     members: IUserStatistics[];
+    rangeSummary?: IStatisticsRangeSummary;
     currentUserId?: number | null;
     startDate: string;
     endDate: string;
@@ -478,6 +480,35 @@ async function copyShareableUrl(): Promise<void> {
                 </div>
             </div>
         </div>
+
+        <section
+            v-if="isFullDisplay && rangeSummary"
+            aria-label="Selected date range summary"
+            :aria-busy="props.isLoading ? 'true' : 'false'"
+            class="mb-6"
+        >
+            <h3 class="gs-text-strong text-sm font-bold">In this date range</h3>
+            <p class="gs-text-muted mt-1 text-xs">
+                All members, regardless of the people filter. New Vehikaliens counts Vehikl member accounts created in this range.
+            </p>
+            <p v-if="props.isLoading" role="status" class="gs-text-muted mt-3 text-sm">Updating totals…</p>
+            <dl class="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-5">
+                <div
+                    v-for="stat in [
+                        { label: 'Growth sessions hosted', value: rangeSummary.sessions_count },
+                        { label: 'Private sessions', value: rangeSummary.private_sessions_count },
+                        { label: 'Public sessions', value: rangeSummary.public_sessions_count },
+                        { label: 'New Vehikaliens', value: rangeSummary.new_vehikaliens_count },
+                        { label: 'Unique hosts', value: rangeSummary.unique_hosts_count },
+                    ]"
+                    :key="stat.label"
+                    class="gs-secondary-bg rounded-xl p-4"
+                >
+                    <dt class="gs-text-sub text-xs font-semibold">{{ stat.label }}</dt>
+                    <dd class="gs-text-strong font-display mt-2 text-3xl font-bold">{{ props.isLoading ? '—' : formatCount(stat.value) }}</dd>
+                </div>
+            </dl>
+        </section>
 
         <div class="overflow-x-auto">
             <table class="w-full text-sm" :aria-busy="props.isLoading ? 'true' : 'false'">
