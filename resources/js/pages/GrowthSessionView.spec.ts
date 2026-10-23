@@ -123,7 +123,7 @@ describe('GrowthSessionView', () => {
                     discordGuildId: '1234567890',
                 },
             });
-            expect(wrapper.find('a[href="discord://discordapp.com/channels/1234567890/1234567890"').exists()).toBeTruthy();
+            expect(wrapper.find('a[href="discord://discordapp.com/channels/1234567890/1234567890"]').exists()).toBeTruthy();
         });
 
         it('display the list of attendees', () => {
