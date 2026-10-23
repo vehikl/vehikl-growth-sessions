@@ -28,9 +28,9 @@ jobs:
           coverage: none
       - uses: actions/checkout@v2
       - name: Setup Node.js environment
-        uses: actions/setup-node@v2.1.4
+        uses: actions/setup-node@v4
         with:
-          node-version: '22.13.0'
+          node-version-file: '.nvmrc'
       - name: Install pnpm
         run: npm i -g pnpm
       - name: Install Javascript Dependencies
