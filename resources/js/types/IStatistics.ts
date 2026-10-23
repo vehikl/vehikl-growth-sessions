@@ -8,6 +8,14 @@ export interface IStatisticsSummary {
     lifetime_minutes_count: number;
 }
 
+export interface IStatisticsRangeSummary {
+    sessions_count: number;
+    private_sessions_count: number;
+    public_sessions_count: number;
+    new_vehikaliens_count: number;
+    unique_hosts_count: number;
+}
+
 export interface ITopHost extends IMemberSummary {
     sessions_hosted_count: number;
 }
@@ -39,6 +47,7 @@ export interface IUserStatistics {
 /** Shape rendered by the Statistics page, built by ShowStatisticsController. */
 export interface IStatisticsDashboard {
     summary: IStatisticsSummary;
+    range_summary: IStatisticsRangeSummary;
     top_hosts: ITopHost[];
     tags: ITagUsage[];
     members: IUserStatistics[];

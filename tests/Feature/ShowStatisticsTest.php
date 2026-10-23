@@ -384,6 +384,56 @@ class ShowStatisticsTest extends TestCase
             );
     }
 
+    public function test_range_summary_counts_sessions_and_new_member_accounts_with_inclusive_dates()
+    {
+        $this->setTestNowToASafeWednesday();
+        $start = today()->subDays(2);
+        $owner = User::factory()->vehiklMember()->create(['created_at' => $start->copy()->subDay()]);
+        User::factory()->vehiklMember()->create(['created_at' => $start->copy()->startOfDay()]);
+        User::factory()->vehiklMember()->create(['created_at' => today()->endOfDay()]);
+        User::factory()->vehiklMember(false)->create(['created_at' => $start]);
+        User::factory()->vehiklMember()->create(['created_at' => today()->addDay()]);
+
+        foreach ([$start, today()] as $date) {
+            GrowthSession::factory()
+                ->hasAttached($owner, ['user_type_id' => Role::Owner->value], 'owners')
+                ->create(['date' => $date, 'is_public' => true]);
+        }
+        GrowthSession::factory()
+            ->hasAttached($owner, ['user_type_id' => Role::Owner->value], 'owners')
+            ->create(['date' => $start, 'is_public' => false]);
+        GrowthSession::factory()->create(['date' => $start->copy()->subDay(), 'is_public' => false]);
+        GrowthSession::factory()->create(['date' => today()->addDay(), 'is_public' => true]);
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index', ['start_date' => $start->toDateString(), 'end_date' => today()->toDateString()]))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('range_summary.sessions_count', 3)
+                ->where('range_summary.private_sessions_count', 1)
+                ->where('range_summary.public_sessions_count', 2)
+                ->where('range_summary.new_vehikaliens_count', 2)
+                ->where('range_summary.unique_hosts_count', 1)
+            );
+    }
+
+    public function test_range_summary_returns_zero_counts_for_an_empty_range()
+    {
+        $this->setTestNowToASafeWednesday();
+        $owner = User::factory()->vehiklMember()->create(['created_at' => today()->subDay()]);
+
+        $this->actingAs($owner)
+            ->get(route('statistics.index'))
+            ->assertSuccessful()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('range_summary.sessions_count', 0)
+                ->where('range_summary.private_sessions_count', 0)
+                ->where('range_summary.public_sessions_count', 0)
+                ->where('range_summary.new_vehikaliens_count', 0)
+                ->where('range_summary.unique_hosts_count', 0)
+            );
+    }
+
     private function makeGrowthSessionOwnedBy(User $owner, CarbonInterface $date): void
     {
         GrowthSession::factory()

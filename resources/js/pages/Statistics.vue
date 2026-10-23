@@ -21,7 +21,7 @@ let cancelPendingReload: (() => void) | null = null;
 let latestReload = 0;
 
 /**
- * Only the member table depends on the date range, so a range change is a partial reload of that prop — which also
+ * The member table and range summary depend on the date range, so a range change reloads both — which also
  * preserves the table's own filter and sort state.
  * The range rides in the query string, which is what makes a shared link land the recipient on the same window.
  *
@@ -35,7 +35,7 @@ function reloadMembers({ startDate, endDate }: DateRange): void {
     const reloadId = ++latestReload;
 
     router.reload({
-        only: ['members', 'start_date', 'end_date'],
+        only: ['members', 'range_summary', 'start_date', 'end_date'],
         data: { start_date: startDate, end_date: endDate },
         onCancelToken: ({ cancel }) => (cancelPendingReload = cancel),
         onStart: () => (isReloadingMembers.value = true),
@@ -116,6 +116,7 @@ function reloadMembers({ startDate, endDate }: DateRange): void {
 
             <MemberStatistics
                 :members="members"
+                :range-summary="range_summary"
                 :current-user-id="currentUserId"
                 :start-date="start_date"
                 :end-date="end_date"
