@@ -8,6 +8,12 @@ To avoid the registration step, this application uses oauth.
 
 ## Docker Setup
 
+The frontend uses Node.js 24 LTS. For commands run on your host, use `nvm install`
+and `nvm use` from the project directory to select the version in `.nvmrc`.
+CI reads the same file; Sail installs Node.js 24 when its image is built.
+After changing Node versions in Sail, rebuild with `sail build --no-cache` and
+restart with `sail up -d`.
+
 ### Prerequisites
 
  - Docker for Mac: https://www.docker.com/products/docker-desktop
