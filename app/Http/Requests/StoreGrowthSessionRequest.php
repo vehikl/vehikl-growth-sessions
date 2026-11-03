@@ -46,6 +46,7 @@ class StoreGrowthSessionRequest extends FormRequest
             'is_public' => 'sometimes|boolean',
             'allow_watchers' => 'sometimes|boolean',
             'has_invite_link' => 'sometimes|boolean',
+            'series_name' => 'sometimes|nullable|string|max:45',
         ];
     }
 }

@@ -6,6 +6,7 @@ use App\Events\GrowthSessionDeleted;
 use App\Events\GrowthSessionModified;
 use App\Events\GrowthSessionUpdated;
 use App\Models\GrowthSession;
+use App\Support\SeriesAssignment;
 
 class GrowthSessionObserver
 {
@@ -13,9 +14,16 @@ class GrowthSessionObserver
 
     /**
      * Handle the GrowthSession "updated" event.
+     *
+     * The prune must run before the events: a listener may `refresh()` the session (the Slack
+     * poster does), which re-syncs the original and loses the series it moved out of.
      */
     public function updated(GrowthSession $growthSession): void
     {
+        if ($growthSession->wasChanged('series_id')) {
+            SeriesAssignment::prune($growthSession->getOriginal('series_id'));
+        }
+
         broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_UPDATED));
         event(new GrowthSessionUpdated($growthSession));
     }
@@ -37,6 +45,8 @@ class GrowthSessionObserver
      */
     public function deleted(GrowthSession $growthSession): void
     {
+        SeriesAssignment::prune($growthSession->series_id);
+
         broadcast(new GrowthSessionModified($growthSession->id, GrowthSessionModified::ACTION_DELETED));
         event(new GrowthSessionDeleted($growthSession));
     }

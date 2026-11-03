@@ -65,6 +65,15 @@ class GrowthSessionPolicy
         return $user->is($growthSession->owner) && $this->isInTheFuture($growthSession);
     }
 
+    /**
+     * Unlike `update`, this stays open on past sessions: an owner groups what they have already
+     * run from the dashboard.
+     */
+    public function fileInSeries(User $user, GrowthSession $growthSession): bool
+    {
+        return $user->is($growthSession->owner);
+    }
+
     public function delete(User $user, GrowthSession $growthSession): bool
     {
         return $user->is($growthSession->owner) && $this->isInTheFuture($growthSession);

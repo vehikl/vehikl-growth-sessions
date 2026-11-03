@@ -27,6 +27,7 @@ export interface IGrowthSession {
     comments: IComment[];
     anydesk: IAnyDesk | null;
     tags: ITag[];
+    series_name: string | null;
     /** Only sent to viewers who may hand the invitation out: the owner and Vehikl members. */
     share_url?: string;
 }

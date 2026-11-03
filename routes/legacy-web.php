@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\DiscordChannelsController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\GrowthSessionController;
 use App\Http\Controllers\GrowthSessionInvitationController;
+use App\Http\Controllers\SeriesController;
 use App\Http\Controllers\ShowStatisticsController;
 use App\Http\Controllers\TagsController;
 
@@ -21,6 +22,9 @@ Route::prefix('growth_sessions')->name('growth_sessions.')->group(function() {
     Route::post('{growth_session}/leave', [GrowthSessionController::class, 'leave'])->middleware(['auth', 'can:leave,growth_session'])->name('leave');
 
     Route::post('{growth_session}/watch', [GrowthSessionController::class, 'watch'])->middleware(['auth', 'can:watch,growth_session'])->name('watch');
+
+    // Filing under a series is not editing, so it does not ride on `update` and its future-only rule.
+    Route::put('{growth_session}/series', [SeriesController::class, 'file'])->middleware(['auth', 'can:fileInSeries,growth_session'])->name('series.file');
 });
 Route::resource('growth_sessions', GrowthSessionController::class)->middleware('auth')->only(['store', 'update', 'destroy']);
 
@@ -36,6 +40,7 @@ Route::prefix('api')->name('api.')->middleware('auth')->group(function () {
 
 Route::get('/anydesks', [AnyDesksController::class, 'index'])->middleware('auth');
 Route::get('/tags', [TagsController::class,'index'])->middleware('auth');
+Route::get('/series', [SeriesController::class, 'index'])->middleware('auth')->name('series.index');
 
 Route::get('/statistics', ShowStatisticsController::class)
     ->middleware(['auth', 'vehikl'])

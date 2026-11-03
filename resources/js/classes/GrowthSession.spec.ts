@@ -40,6 +40,7 @@ describe('GrowthSession', () => {
         attendee_limit: null,
         anydesk: null,
         tags: [],
+        series_name: null,
     };
 
     beforeEach(() => {

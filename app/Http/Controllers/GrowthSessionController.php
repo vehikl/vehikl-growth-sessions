@@ -14,6 +14,7 @@ use App\Models\AnyDesk;
 use App\Models\GrowthSession;
 use App\Policies\GrowthSessionPolicy;
 use App\Support\InviteLink;
+use App\Support\SeriesAssignment;
 use App\Support\Seating;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -62,6 +63,7 @@ class GrowthSessionController extends Controller
     {
         $newGrowthSession = new GrowthSession($request->validated());
         InviteLink::for($newGrowthSession)->set($request->boolean('has_invite_link'));
+        SeriesAssignment::for($newGrowthSession, $request->user())->file($request->input('series_name'));
 
         DB::transaction(function () use ($newGrowthSession, $request) {
             $newGrowthSession->save();
@@ -118,6 +120,11 @@ class GrowthSessionController extends Controller
         // module still reconciles against the new visibility, so turning a growth session public revokes its link.
         $inviteLink = InviteLink::for($growthSession);
         $inviteLink->set($request->boolean('has_invite_link', $inviteLink->exists()));
+
+        // An omitted series_name leaves the session filed where it is.
+        if ($request->has('series_name')) {
+            SeriesAssignment::for($growthSession, $request->user())->file($request->input('series_name'));
+        }
 
         $growthSession->tags()->sync($request->input('tags'));
 
