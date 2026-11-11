@@ -4,10 +4,16 @@ namespace Tests\Feature\Notifications;
 
 use App\Enums\NotificationType;
 use App\Enums\Role;
+use App\Events\GrowthSessionUpdated;
+use App\Listeners\GrowthSessionNotificationSubscriber;
+use App\Listeners\GrowthSessionSlackSubscriber;
 use App\Models\GrowthSession;
 use App\Models\User;
 use App\Notifications\GrowthSessionUpdatedNotification;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class GrowthSessionUpdateNotificationTest extends TestCase
@@ -19,9 +25,35 @@ class GrowthSessionUpdateNotificationTest extends TestCase
             ->create($attributes);
     }
 
-    public function test_attendees_are_notified_when_a_meaningful_field_changes()
+    public static function updateListenerScenarios(): array
+    {
+        return [
+            'Slack first, disabled' => [true, false],
+            'Slack first, enabled' => [true, true],
+            'notifications first, disabled' => [false, false],
+            'notifications first, enabled' => [false, true],
+        ];
+    }
+
+    #[DataProvider('updateListenerScenarios')]
+    public function test_attendees_are_notified_when_a_meaningful_field_changes(bool $slackFirst, bool $slackEnabled)
     {
         Notification::fake();
+        config([
+            'services.slack.chat.token' => $slackEnabled ? 'test-token' : null,
+            'services.slack.chat.channel' => 'test-channel',
+            'services.slack.chat.post-mode' => 'all',
+        ]);
+        Http::fake([
+            'https://slack.com/api/chat.postMessage' => Http::response(['ok' => true, 'ts' => '123.456']),
+        ]);
+
+        // Event discovery order must not affect the original values seen by notifications.
+        $listeners = [GrowthSessionSlackSubscriber::class, GrowthSessionNotificationSubscriber::class];
+        Event::forget(GrowthSessionUpdated::class);
+        foreach ($slackFirst ? $listeners : array_reverse($listeners) as $listener) {
+            Event::listen(GrowthSessionUpdated::class, [$listener, 'handleUpdated']);
+        }
 
         $this->setTestNow('2020-01-01');
         $growthSession = $this->makeSessionWithParticipants(['date' => '2020-01-10']);
@@ -35,12 +67,19 @@ class GrowthSessionUpdateNotificationTest extends TestCase
             'date' => '2020-01-15',
         ])->assertSuccessful();
 
-        Notification::assertSentTo($attendee, GrowthSessionUpdatedNotification::class, function ($notification) {
-            return $notification->type === NotificationType::GrowthSessionDateChanged
-                && $notification->field === 'date'
-                && $notification->old === '2020-01-10'
-                && $notification->new === '2020-01-15';
-        });
+        Notification::assertSentToTimes($attendee, GrowthSessionUpdatedNotification::class, 1);
+        $notification = Notification::sent($attendee, GrowthSessionUpdatedNotification::class)->sole();
+        $this->assertSame(NotificationType::GrowthSessionDateChanged, $notification->type);
+        $this->assertSame('date', $notification->field);
+        $this->assertSame('2020-01-10', $notification->old);
+        $this->assertSame('2020-01-15', $notification->new);
+
+        if ($slackEnabled) {
+            Http::assertSentCount(1);
+            $this->assertSame('123.456', $growthSession->fresh()->slack_thread_ts);
+        } else {
+            Http::assertNothingSent();
+        }
     }
 
     public function test_watchers_are_notified_when_a_meaningful_field_changes()
