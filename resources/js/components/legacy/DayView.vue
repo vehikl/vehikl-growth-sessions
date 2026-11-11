@@ -6,6 +6,7 @@ import TextSegments from '@/components/legacy/TextSegments.vue';
 import { useInitials } from '@/composables/useInitials';
 import { avatarColor, capacityLabel, ISessionAction, sessionActions, sessionStatus, statusMeta } from '@/lib/sessionDisplay';
 import { IUser } from '@/types';
+import { Plus } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 interface IProps {
@@ -138,12 +139,12 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                 <button
                     v-if="user && user.is_vehikl_member && !days[selectedIndex]?.isInAPastDate()"
                     type="button"
-                    class="create-growth-session gs-btn-primary flex h-6 w-6 flex-none cursor-pointer items-center justify-center rounded-full text-base leading-none font-bold"
+                    class="create-growth-session gs-btn-primary flex h-6 w-6 flex-none cursor-pointer items-center justify-center rounded-full"
                     title="Add a session"
                     aria-label="Add a session"
                     @click="emit('create')"
                 >
-                    +
+                    <Plus class="h-4 w-4" :stroke-width="3" aria-hidden="true" />
                 </button>
             </div>
 
@@ -155,10 +156,8 @@ const timeSlots = computed<ITimeSlot[]>(() =>
                 :style="{ borderColor: 'var(--color-vehikl-orange)' }"
                 @click="emit('create')"
             >
-                <span
-                    class="gs-accent-bg flex h-10 w-10 flex-none items-center justify-center rounded-full text-xl leading-none font-bold text-white"
-                >
-                    +
+                <span class="gs-accent-bg flex h-10 w-10 flex-none items-center justify-center rounded-full text-white">
+                    <Plus class="h-6 w-6" :stroke-width="3" aria-hidden="true" />
                 </span>
                 <span class="min-w-0">
                     <span class="gs-text-strong block text-base font-semibold">You're not in a session today</span>

@@ -4,6 +4,7 @@ import { GrowthSession } from '@/classes/GrowthSession';
 import { Nothingator } from '@/classes/Nothingator';
 import GrowthSessionCard from '@/components/legacy/GrowthSessionCard.vue';
 import { IUser } from '@/types';
+import { Plus } from 'lucide-vue-next';
 import draggable from 'vuedraggable';
 
 interface IProps {
@@ -37,12 +38,12 @@ function sessionsFor(date: DateTime): GrowthSession[] {
                     <button
                         v-if="user && user.is_vehikl_member && !date.isInAPastDate()"
                         type="button"
-                        class="create-growth-session gs-btn-primary flex h-6 w-6 flex-none cursor-pointer items-center justify-center rounded-full text-base leading-none font-bold"
+                        class="create-growth-session gs-btn-primary flex h-6 w-6 flex-none cursor-pointer items-center justify-center rounded-full"
                         title="Add a session"
                         aria-label="Add a session"
                         @click="emit('create', date)"
                     >
-                        +
+                        <Plus class="h-4 w-4" :stroke-width="3" aria-hidden="true" />
                     </button>
                 </div>
                 <span class="gs-text-sub flex-none text-xs font-semibold tracking-[0.06em]">{{ date.format('MMM D').toUpperCase() }}</span>

@@ -27,6 +27,8 @@ class SessionPoster extends Messenger
      */
     public function post(GrowthSession $growthSession): void
     {
+        // Other event listeners still need the original model's change tracking.
+        $growthSession = clone $growthSession;
         $growthSession->refresh();
 
         if (!$this->canSendMessage($growthSession)) {
